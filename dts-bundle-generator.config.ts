@@ -6,11 +6,17 @@ const getPackageName = () => {
 }
 
 const config = {
+  compilationOptions: {
+    preferredConfigPath: './tsconfig.build.json',
+  },
   entries: [
     {
       filePath: './src/index.ts',
       outFile: `./dist/${getPackageName()}.d.ts`,
       noCheck: false,
+      output: {
+        noBanner: true,
+      },
     },
   ],
 }

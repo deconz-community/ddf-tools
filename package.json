@@ -12,7 +12,9 @@
   "module": "./dist/vite-ts-lib-starter.mjs",
   "scripts": {
     "dev": "vite --host --port 4000",
-    "build": "tsc && vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+    "build": "vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+    "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+    "build:vite": "vite build",
     "test": "vitest",
     "lint": "eslint .",
     "lint:scripts": "eslint . --ext .ts",
