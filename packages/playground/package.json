@@ -1,5 +1,5 @@
 {
-  "name": "vite-vanilla-ts-lib-starter-playground",
+  "name": "ddf-bundler-playground",
   "private": true,
   "version": "0.0.1",
   "scripts": {
@@ -8,7 +8,7 @@
     "up": "taze major -I"
   },
   "dependencies": {
-    "vite-vanilla-ts-lib-starter-core": "workspace:^"
+    "ddf-bundler": "workspace:^"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.2",

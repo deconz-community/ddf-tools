@@ -1,13 +1,13 @@
 {
-    "name": "vite-vanilla-ts-lib-starter-core",
+    "name": "ddf-bundler",
     "version": "0.0.1",
-    "main": "./dist/vite-vanilla-ts-lib-starter-core.cjs",
-    "module": "./dist/vite-vanilla-ts-lib-starter-core.mjs",
-    "types" : "./dist/vite-vanilla-ts-lib-starter-core.d.ts",
+    "main": "./dist/ddf-bundler.cjs",
+    "module": "./dist/ddf-bundler.mjs",
+    "types" : "./dist/ddf-bundler.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/vite-vanilla-ts-lib-starter-core.cjs",
-            "import": "./dist/vite-vanilla-ts-lib-starter-core.mjs"
+            "require": "./dist/ddf-bundler.cjs",
+            "import": "./dist/ddf-bundler.mjs"
         }
     },
     "scripts": {

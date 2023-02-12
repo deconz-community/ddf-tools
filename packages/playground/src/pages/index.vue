@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { sum } from 'vite-vanilla-ts-lib-starter-core'
+import { sum } from 'ddf-bundler'
 
 const a = ref('1')
 const b = ref('2')

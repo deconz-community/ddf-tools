@@ -1,6 +1,6 @@
 <template>
   <v-layout>
-    <v-app-bar title="vite-vanilla-ts-lib-starter" />
+    <v-app-bar title="ddf-bundler" />
     <v-main>
       <router-view />
     </v-main>

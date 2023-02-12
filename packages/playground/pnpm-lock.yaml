@@ -29,12 +29,12 @@ importers:
       vite: ^4.1.1
       vite-plugin-pages: ^0.28.0
       vite-plugin-vue-layouts: ^0.7.0
-      vite-vanilla-ts-lib-starter-core: workspace:../core
+      ddf-bundler: workspace:../core
       vitest: ^0.28.4
       vue: ^3.2.47
       vue-router: ^4.1.6
     dependencies:
-      vite-vanilla-ts-lib-starter-core: link:../core
+      ddf-bundler: link:../core
     devDependencies:
       '@antfu/eslint-config': 0.35.2_7kw3g6rralp5ps6mg3uyzz6azm
       '@types/jsdom': 20.0.1
