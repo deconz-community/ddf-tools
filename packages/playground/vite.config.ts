@@ -42,4 +42,20 @@ module.exports = defineConfig({
       vueTemplate: true,
     }),
   ],
+
+  ssr: {
+    // TODO: workaround until they support native ESM
+    noExternal: [
+      'vuetify',
+    ],
+  },
+
+  server: {
+    fs: {
+      allow: [
+        '.', 
+        '../../node_modules'
+      ],
+    },
+  },
 });
