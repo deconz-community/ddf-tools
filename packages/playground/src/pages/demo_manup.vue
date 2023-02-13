@@ -5,7 +5,12 @@ const data = ref({})
 const sha = ref('')
 
 function getChunkTag(dat, offs) {
-  return String.fromCharCode(dat.getUint8(offs + 0), dat.getUint8(offs + 1), dat.getUint8(offs + 2), dat.getUint8(offs + 3))
+  return String.fromCharCode(
+    dat.getUint8(offs + 0),
+    dat.getUint8(offs + 1),
+    dat.getUint8(offs + 2),
+    dat.getUint8(offs + 3),
+  )
 }
 
 function getChunkSize(dat, offs) {

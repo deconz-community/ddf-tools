@@ -1,40 +1,71 @@
 <script setup lang="ts">
-import { sum } from 'ddf-bundler'
+import { Bundle } from 'ddf-bundler'
 
-const a = ref('1')
-const b = ref('2')
-const result = computed(() => sum(parseInt(a.value), parseInt(b.value)))
+const error = ref('')
+const files = ref<File[]>([])
+const data = ref({})
+const sha = ref('')
+
+const bundle = shallowReactive(Bundle())
+
+const parseFile = async () => {
+  error.value = ''
+  data.value = {}
+  sha.value = ''
+
+  if (files.value.length === 0)
+    return
+
+  data.value = await bundle.parseFile(files.value[0])
+}
+
+watch(files, parseFile)
 </script>
 
 <template>
-  <div class="d-flex align-center flex-column pa-2">
-    <v-card width="100%" class="ma-2">
-      <template #title>
-        Sum function
-      </template>
+  <v-card width="100%" class="ma-2">
+    <template #title>
+      DDF Bundle
+    </template>
 
-      <template #text>
-        <v-container>
-          <v-text-field
-            v-model="a"
-            label="Number A"
-            type="number"
-            required
-          />
-          <v-text-field
-            v-model="b"
-            label="Number B"
-            type="number"
-            required
-          />
-          <v-text-field
-            v-model="result"
-            label="Result"
-            type="number"
-            readonly
-          />
-        </v-container>
-      </template>
-    </v-card>
-  </div>
+    <template #text>
+      <v-alert class="ma-2">
+        <p>This is a small HTML/JS to test reading the RIFF based DDF bundle.</p>
+        <p>
+          Following shows the bundle <strong>DESC</strong> chunk content, which is a JSON object.<br>
+          As an example the unique SHA256 hash is calculated over the bundle.
+        </p>
+      </v-alert>
+
+      <v-alert
+        v-show="error"
+        class="ma-2"
+        type="error"
+        title="Error"
+        :text="error"
+      />
+
+      <v-file-input
+        v-model="files"
+        label="Select .ddf file:"
+        accept=".ddf"
+      />
+
+      <v-btn @click="parseFile()">
+        Refresh
+      </v-btn>
+
+      <json-viewer
+        v-if="data"
+        :value="data"
+        :expand-depth="3"
+      />
+
+      <v-text-field
+        v-model="sha"
+        label="SHA256"
+        readonly
+      />
+    </template>
+  </v-card>
 </template>

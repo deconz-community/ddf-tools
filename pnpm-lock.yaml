@@ -74,6 +74,7 @@ importers:
       eslint-plugin-prettier: ^4.2.1
       lint-staged: ^13.1.1
       prettier: ^2.8.4
+      restructure: ^3.0.0
       stylelint: ^14.16.1
       stylelint-config-recommended: ^9.0.0
       stylelint-config-sass-guidelines: ^9.0.1
@@ -82,6 +83,8 @@ importers:
       typescript: ^4.9.5
       vite: ^4.1.1
       vitest: ^0.28.4
+    dependencies:
+      restructure: 3.0.0
     devDependencies:
       '@types/jsdom': 20.0.1
       '@types/node': 18.13.0
@@ -5829,6 +5832,10 @@ packages:
       onetime: 5.1.2
       signal-exit: 3.0.7
     dev: true
+
+  /restructure/3.0.0:
+    resolution: {integrity: sha512-Xj8/MEIhhfj9X2rmD9iJ4Gga9EFqVlpMj3vfLnV2r/Mh5jRMryNV+6lWh9GdJtDBcBSPIqzRdfBQ3wDtNFv/uw==}
+    dev: false
 
   /retry/0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}

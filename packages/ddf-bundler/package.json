@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "main": "./dist/ddf-bundler.cjs",
     "module": "./dist/ddf-bundler.mjs",
-    "types" : "./dist/ddf-bundler.d.ts",
+    "types": "./dist/ddf-bundler.d.ts",
     "exports": {
         ".": {
             "require": "./dist/ddf-bundler.cjs",
@@ -36,5 +36,8 @@
         "typescript": "^4.9.5",
         "vite": "^4.1.1",
         "vitest": "^0.28.4"
+    },
+    "dependencies": {
+        "restructure": "^3.0.0"
     }
 }
