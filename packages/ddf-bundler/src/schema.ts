@@ -18,23 +18,31 @@ export const schema = new r.Struct({
         pathLength: r.uint16le,
         path: new r.String('pathLength', 'utf8'),
         timestamp: r.uint32le,
-        fileSize: r.uint32le,
-        data: new r.String('fileSize', 'utf8'),
+        size: r.uint32le,
+        data: new r.String('size', 'utf8'),
       },
     },
-    ), parent => parent.parent.size - 12, 'bytes'),
+    ), parent => parent.parent.size - 8, 'bytes'),
   }),
 })
 
-/*
-
-new r.VersionedStruct(new r.String(4), {
-        DESC: {
-          length: r.uint32le,
-        },
-        DFFC: {
-          length: r.uint32le,
-        },
-      }
-
-      */
+export interface rawData {
+  identifier: 'RIFF'
+  size: number
+  ddf: {
+    identifier: 'DDFB'
+    data: ({
+      version: 'DESC' | 'DDFC'
+      size: number
+      data: string
+    } |
+    {
+      version: 'EXTF'
+      pathLength: number
+      path: string
+      timestamp: number
+      size: number
+      data: string
+    })[]
+  }
+}

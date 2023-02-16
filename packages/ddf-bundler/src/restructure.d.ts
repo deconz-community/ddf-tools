@@ -33,7 +33,7 @@ declare module 'restructure' {
 
 		decode(stream: r.DecodeStream): T;
 		encode(stream: r.EncodeStream, val: T): void;
-		size(): number;
+		size(value: T): number;
 	}
 	export type BaseType<T> = typeof Base<T>;
 

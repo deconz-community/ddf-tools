@@ -1,16 +1,16 @@
 export interface BundleData {
   desc: ChunkDESC
   ddfc: ChunkDDFC
-  files?: BundleFile[]
+  files: BundleFile[]
   signature?: ChunkSignature
 }
 
 export interface ChunkDESC {
-  last_modified: Date
-  version: string
-  'min.deconz': string
   schema: 'devcap1.schema.json'
-  product: string
+  last_modified: Date
+  version?: string
+  'min.deconz'?: string
+  product?: string
   forum?: string
   ghissue?: string
   vp: [string, string][]
@@ -21,7 +21,7 @@ export type ChunkDDFC = Record<string, unknown>
 export type BundleFile = JSONFile | ScriptFile | MarkdownFile | BinaryFile
 
 export interface JSONFile extends FileMeta {
-  type: 'DESC' | 'DFFC'
+  type: 'EXTF.BTNM'
   data: string
 }
 

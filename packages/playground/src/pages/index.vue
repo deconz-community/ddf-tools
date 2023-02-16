@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import { Bundle } from 'ddf-bundler'
+import { saveAs } from 'file-saver';
+
 
 const error = ref('')
 const files = ref<File[]>([])
-const data = ref({})
 const sha = ref('')
 
-const bundle = shallowReactive(Bundle())
+const bundle = reactive(Bundle())
 
 const parseFile = async () => {
   error.value = ''
-  data.value = {}
   sha.value = ''
 
   if (files.value.length === 0)
     return
 
-  data.value = await bundle.parseFile(files.value[0])
+  await bundle.parseFile(files.value[0])
+}
+
+const makeBundle = async()=>{
+  const data = await bundle.makeBundle()
+  const blob = new Blob([data])
+  saveAs(blob, 'bundle.ddf')
 }
 
 watch(files, parseFile)
@@ -55,11 +61,14 @@ watch(files, parseFile)
         Refresh
       </v-btn>
 
-      <json-viewer
-        v-if="data"
-        :value="data"
-        :expand-depth="3"
-      />
+      
+      <v-btn @click="makeBundle()">
+        Make Bundle
+      </v-btn>
+
+      <json-viewer :value="bundle.data"></json-viewer>
+      
+
 
       <v-text-field
         v-model="sha"

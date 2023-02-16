@@ -1,67 +1,91 @@
-import type { BundleData } from './types'
-import { schema } from './schema'
+import type { BundleData } from "./types";
+import type { rawData } from "./schema";
+import { schema } from "./schema";
 
 export function Bundle() {
-  let name = 'bundle.ddf'
+  let name = "bundle.ddf";
   const data: BundleData = {
-    desc: {},
+    desc: {
+      last_modified: new Date(),
+      schema: "devcap1.schema.json",
+      vp: [],
+    },
     ddfc: {},
-  }
+    files: [],
+  };
 
   const parseFile = async (file: File) => {
-    name = file.name
-    const buffer = await file.arrayBuffer()
-    const rawData = new DataView(buffer)
+    name = file.name;
+    data.files = [];
+    const buffer = new Uint8Array(await file.arrayBuffer());
+    const rawData: rawData = schema.fromBuffer(buffer as Buffer) as rawData;
+    for (const chunk of rawData.ddf.data) {
+      switch (chunk.version) {
+        case "DESC": {
+          data.desc = JSON.parse(chunk.data);
+          data.desc.last_modified = new Date(data.desc.last_modified);
+          break;
+        }
+        case "DDFC": {
+          data.ddfc = JSON.parse(chunk.data);
+          break;
+        }
 
-    const result = schema.fromBuffer(new Uint8Array(buffer) as Buffer)
-    console.log(result)
-
-    return result
-    /*
-    const decoder = new TextDecoder()
-
-    function getText(offset: number, length = 4) {
-      return decoder.decode(rawData.buffer.slice(offset, offset + length))
-    }
-
-    function getChunk(offset: number) {
-      const identifier = getText(offset)
-      const length = rawData.getUint32(offset + 4, true)
-
-      return { identifier, length }
-    }
-
-    function parseChunk(currentOffset = 0, path = '') {
-      if (path.length > 0)
-        path += '.'
-      path += getText(currentOffset)
-      console.log('Found chunk', path)
-
-      switch (path) {
-        case 'RIFF':
-          // 8 because of the RIFF and the RIFF length
-          parseChunk(currentOffset + 8, path)
-
-          break
-
-        case `RIFF.${DDF_BUNDLE_MAGIC}`:
-          // 4 because of the RIFF and the RIFF length
-          parseChunk(currentOffset + 4, path)
-
-          break
-
-        default:
-          console.warn('Unknown chunk', path)
-
-          break
+        case "EXTF": {
+          data.files.push({
+            type: "EXTF.SCJS",
+            data: chunk.data,
+            last_modified: new Date(chunk.timestamp),
+            path: chunk.path.trim().replaceAll("\x00", ""),
+          });
+          break;
+        }
       }
     }
+  };
 
-    parseChunk()
-    */
+  const makeBundle = async () => {
+    const rawData: rawData = {
+      identifier: "RIFF",
+      size: 0,
+      ddf: {
+        identifier: "DDFB",
+        data: [],
+      },
+    };
 
-    console.log(rawData)
-  }
+    const strDESC = JSON.stringify(data.desc)
+    rawData.ddf.data.push({
+      version: "DESC",
+      size: strDESC.length,
+      data: strDESC,
+    });
 
-  return { name, parseFile, data }
+    const strDDFC = JSON.stringify(data.ddfc)
+    rawData.ddf.data.push({
+      version: "DDFC",
+      size: strDDFC.length,
+      data: strDDFC,
+    });
+
+    data.files.forEach((file) => {
+      rawData.ddf.data.push({
+        version: "EXTF",
+        pathLength: file.path.length,
+        path: file.path + '\x00',
+        timestamp: file.last_modified.getTime(),
+        size: file.data.length + 1,
+        data: file.data as string,
+      });
+    });
+
+    rawData.size = schema.size(rawData)
+
+
+    const newBundle = schema.toBuffer(rawData)
+
+    return newBundle
+  };
+
+  return { name, parseFile, makeBundle, data };
 }
