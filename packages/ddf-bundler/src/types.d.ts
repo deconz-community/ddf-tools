@@ -1,56 +1,54 @@
 export interface BundleData {
-  desc: ChunkDESC
-  ddfc: ChunkDDFC
-  files: BundleFile[]
-  signature?: ChunkSignature
+  desc: ChunkDESC;
+  ddfc: string;
+  files: BundleFile[];
+  signature?: ChunkSignature;
 }
 
 export interface ChunkDESC {
-  schema: 'devcap1.schema.json'
-  last_modified: Date
-  version?: string
-  'min.deconz'?: string
-  product?: string
-  forum?: string
-  ghissue?: string
-  vp: [string, string][]
+  schema: "devcap1.schema.json";
+  last_modified: Date;
+  version?: string;
+  "min.deconz"?: string;
+  product?: string;
+  forum?: string;
+  ghissue?: string;
+  vp: [string, string][];
 }
 
-export type ChunkDDFC = Record<string, unknown>
-
-export type BundleFile = JSONFile | ScriptFile | MarkdownFile | BinaryFile
+export type BundleFile = JSONFile | ScriptFile | MarkdownFile | BinaryFile;
 
 export interface JSONFile extends FileMeta {
-  type: 'EXTF.BTNM'
-  data: string
+  type: "EXTF.BTNM";
+  data: string;
 }
 
 export interface ScriptFile extends FileMeta {
-  type: 'EXTF.SCJS'
-  data: string
+  type: "EXTF.SCJS";
+  data: string;
 }
 
 export interface MarkdownFile extends FileMeta {
-  type: 'EXTF.CHLG' | 'EXTF.NOTE'
-  data: string
+  type: "EXTF.CHLG" | "EXTF.NOTE";
+  data: string;
 }
 
 export interface BinaryFile extends FileMeta {
-  type: 'EXTF.UBIN'
-  data: DataView
+  type: "EXTF.UBIN";
+  data: DataView;
 }
 
 interface FileMeta {
-  last_modified: Date
-  path: string
+  last_modified: Date;
+  path: string;
 }
 
 export interface ChunkSignature {
-  public_key: string[32]
-  signature: string[64]
+  public_key: string[32];
+  signature: string[64];
 }
 
 export interface Signature {
-  key: string
-  signature: string
+  key: string;
+  signature: string;
 }
