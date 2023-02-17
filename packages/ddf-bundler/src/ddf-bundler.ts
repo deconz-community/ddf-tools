@@ -7,7 +7,6 @@ export function Bundle() {
   const data: BundleData = {
     desc: {
       last_modified: new Date(),
-      schema: 'devcap1.schema.json',
       vp: [],
     },
     ddfc: '{}',

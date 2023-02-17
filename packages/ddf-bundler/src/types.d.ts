@@ -6,7 +6,6 @@ export interface BundleData {
 }
 
 export interface ChunkDESC {
-  schema: "devcap1.schema.json";
   last_modified: Date;
   version?: string;
   "min.deconz"?: string;
