@@ -6,23 +6,30 @@ export const schema = new r.Struct({
   ddf: new r.Struct({
     identifier: new r.String(4),
     data: new r.Array(
-      new r.VersionedStruct(new r.String(4), {
-        DESC: {
-          size: r.uint32le,
-          data: new r.String('size', 'utf8'),
+      new r.VersionedStruct(
+        new r.String(4),
+        {
+          DESC: {
+            size: r.uint32le,
+            data: new r.String('size', 'utf8'),
+          },
+          DDFC: {
+            size: r.uint32le,
+            data: new r.String('size', 'utf8'),
+          },
+          EXTF: {
+            pathLength: r.uint16le,
+            path: new r.String('pathLength', 'utf8'),
+            timestamp: r.uint32le,
+            size: r.uint32le,
+            data: new r.String('size', 'utf8'),
+          },
+          SIGN: {
+            key: new r.String(32),
+            signature: new r.String(64),
+          },
         },
-        DDFC: {
-          size: r.uint32le,
-          data: new r.String('size', 'utf8'),
-        },
-        EXTF: {
-          pathLength: r.uint16le,
-          path: new r.String('pathLength', 'utf8'),
-          timestamp: r.uint32le,
-          size: r.uint32le,
-          data: new r.String('size', 'utf8'),
-        },
-      }),
+      ),
       // Remove 4 of the size to skip the identfier 'DDFB'
       parent => parent.parent.size - 4,
       'bytes',
@@ -48,6 +55,10 @@ export interface rawData {
         timestamp: number
         size: number
         data: string
+      } | {
+        version: 'SIGN'
+        key: string
+        signature: string
       }
     )[]
   }

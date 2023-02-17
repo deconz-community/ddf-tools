@@ -2,7 +2,7 @@ export interface BundleData {
   desc: ChunkDESC;
   ddfc: string;
   files: BundleFile[];
-  signature?: ChunkSignature;
+  signatures: ChunkSignature[];
 }
 
 export interface ChunkDESC {
@@ -43,7 +43,7 @@ interface FileMeta {
 }
 
 export interface ChunkSignature {
-  public_key: string[32];
+  key: string[32];
   signature: string[64];
 }
 

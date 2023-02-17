@@ -11,11 +11,13 @@ export function Bundle() {
     },
     ddfc: '{}',
     files: [],
+    signatures: [],
   }
 
   const parseFile = async (file: File) => {
     name = file.name
     data.files = []
+    data.signatures = []
     const buffer = new Uint8Array(await file.arrayBuffer())
     const rawData: rawData = schema.fromBuffer(buffer as Buffer) as rawData
     for (const chunk of rawData.ddf.data) {
@@ -25,6 +27,7 @@ export function Bundle() {
           data.desc.last_modified = new Date(data.desc.last_modified)
           break
         }
+
         case 'DDFC': {
           data.ddfc = chunk.data
           break
@@ -36,6 +39,14 @@ export function Bundle() {
             data: chunk.data,
             last_modified: new Date(chunk.timestamp),
             path: chunk.path.trim().replaceAll('\x00', ''),
+          })
+          break
+        }
+
+        case 'SIGN': {
+          data.signatures.push({
+            key: chunk.key,
+            signature: chunk.signature,
           })
           break
         }
@@ -86,5 +97,7 @@ export function Bundle() {
     return newBundle
   }
 
-  return { name, parseFile, makeBundle, data }
+  const checkSignature = () => true
+
+  return { name, parseFile, makeBundle, checkSignature, data }
 }
