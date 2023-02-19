@@ -1,4 +1,5 @@
 import * as r from 'restructure'
+import type { BundleFile } from './types'
 
 export const schema = new r.Struct({
   identifier: new r.String(4),
@@ -18,6 +19,7 @@ export const schema = new r.Struct({
             data: new r.String('size', 'utf8'),
           },
           EXTF: {
+            type: new r.String(4, 'utf8'),
             pathLength: r.uint16le,
             path: new r.String('pathLength', 'utf8'),
             timestamp: r.uint32le,
@@ -50,6 +52,7 @@ export interface rawData {
       }
       | {
         version: 'EXTF'
+        type: BundleFile['type']
         pathLength: number
         path: string
         timestamp: number

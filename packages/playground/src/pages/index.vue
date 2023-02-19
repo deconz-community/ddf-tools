@@ -22,7 +22,7 @@ const parseFile = async () => {
 const makeBundle = async () => {
   const data = await bundle.value.makeBundle()
   const blob = new Blob([data])
-  saveAs(blob, 'bundle.ddf')
+  saveAs(blob, bundle.value.data.name)
 }
 
 const reset = () => {

@@ -1,4 +1,5 @@
 export interface BundleData {
+  name: string
   desc: ChunkDESC;
   ddfc: string;
   files: BundleFile[];
@@ -17,23 +18,24 @@ export interface ChunkDESC {
 
 export type BundleFile = JSONFile | ScriptFile | MarkdownFile | BinaryFile;
 
+
 export interface JSONFile extends FileMeta {
-  type: "EXTF.BTNM";
+  type: "BTNM";
   data: string;
 }
 
 export interface ScriptFile extends FileMeta {
-  type: "EXTF.SCJS";
+  type: "SCJS";
   data: string;
 }
 
 export interface MarkdownFile extends FileMeta {
-  type: "EXTF.CHLG" | "EXTF.NOTE";
+  type: "CHLG" | "NOTE";
   data: string;
 }
 
 export interface BinaryFile extends FileMeta {
-  type: "EXTF.UBIN";
+  type: "UBIN";
   data: DataView;
 }
 

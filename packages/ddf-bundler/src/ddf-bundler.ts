@@ -3,8 +3,8 @@ import type { rawData } from './schema'
 import { schema } from './schema'
 
 export function Bundle() {
-  let name = 'bundle.ddf'
   const data: BundleData = {
+    name: 'bundle.ddf',
     desc: {
       last_modified: new Date(),
       vp: [],
@@ -15,7 +15,7 @@ export function Bundle() {
   }
 
   const parseFile = async (file: File) => {
-    name = file.name
+    data.name = file.name
     data.files = []
     data.signatures = []
     const buffer = new Uint8Array(await file.arrayBuffer())
@@ -35,7 +35,7 @@ export function Bundle() {
 
         case 'EXTF': {
           data.files.push({
-            type: 'EXTF.SCJS',
+            type: 'SCJS',
             data: chunk.data,
             last_modified: new Date(chunk.timestamp),
             path: chunk.path.trim().replaceAll('\x00', ''),
@@ -81,6 +81,7 @@ export function Bundle() {
     data.files.forEach((file) => {
       rawData.ddf.data.push({
         version: 'EXTF',
+        type: file.type,
         pathLength: file.path.length + 1,
         path: `${file.path}\x00`,
         timestamp: file.last_modified.getTime(),
@@ -100,6 +101,7 @@ export function Bundle() {
   const checkSignature = () => true
 
   const buildFromFile = async (path: string, getFile: (path: string) => Promise<string>) => {
+    data.name = `${path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))}.ddf`
     data.ddfc = await getFile(path)
     const ddfc = JSON.parse(data.ddfc)
 
@@ -122,10 +124,10 @@ export function Bundle() {
         data: await getFile(new URL(`${path}/../${filePath}`).href),
         last_modified: new Date(),
         path: filePath,
-        type: 'EXTF.SCJS',
+        type: 'SCJS',
       })
     }))
   }
 
-  return { name, parseFile, makeBundle, checkSignature, buildFromFile, data }
+  return { parseFile, makeBundle, checkSignature, buildFromFile, data }
 }
