@@ -71,7 +71,7 @@ export function Bundle() {
       data: strDESC,
     })
 
-    const strDDFC = JSON.stringify(data.ddfc)
+    const strDDFC = data.ddfc
     rawData.ddf.data.push({
       version: 'DDFC',
       size: strDDFC.length,
@@ -99,5 +99,33 @@ export function Bundle() {
 
   const checkSignature = () => true
 
-  return { name, parseFile, makeBundle, checkSignature, data }
+  const buildFromFile = async (path: string, getFile: (path: string) => Promise<string>) => {
+    data.ddfc = await getFile(path)
+    const ddfc = JSON.parse(data.ddfc)
+
+    const scripts: string[] = []
+    if (Array.isArray(ddfc.subdevices)) {
+      ddfc.subdevices.forEach((subdevice) => {
+        if (Array.isArray(subdevice.items)) {
+          subdevice.items.forEach((item) => {
+            for (const [key, value] of Object.entries(item)) {
+              if (value.script !== undefined)
+                scripts.push(value.script)
+            }
+          })
+        }
+      })
+    }
+
+    await Promise.all(scripts.map(async (filePath) => {
+      data.files.push({
+        data: await getFile(new URL(`${path}/../${filePath}`).href),
+        last_modified: new Date(),
+        path: filePath,
+        type: 'EXTF.SCJS',
+      })
+    }))
+  }
+
+  return { name, parseFile, makeBundle, checkSignature, buildFromFile, data }
 }

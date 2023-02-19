@@ -3,6 +3,7 @@ import { Bundle } from 'ddf-bundler'
 import { saveAs } from 'file-saver'
 
 const error = ref('')
+const url = ref('https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices/ikea/starkvind_air_purifier.json')
 const files = ref<File[]>([])
 const sha = ref('')
 
@@ -24,11 +25,35 @@ const makeBundle = async () => {
   saveAs(blob, 'bundle.ddf')
 }
 
+const reset = () => {
+  bundle.value = Bundle()
+}
+
 watch(files, parseFile)
 
 const desc = computed(() => {
   return JSON.stringify(bundle.value.data.desc, null, 4)
 })
+
+const download = async () => {
+  error.value = ''
+  bundle.value = Bundle()
+
+  try {
+    await bundle.value.buildFromFile(url.value, async (url) => {
+      const result = await fetch(url)
+      if (result.status !== 200)
+        throw new Error(result.statusText)
+      return await result.text()
+    })
+  }
+  catch (e) {
+    error.value = 'Erreur'
+    console.log(e)
+  }
+
+  triggerRef(bundle)
+}
 </script>
 
 <template>
@@ -47,9 +72,34 @@ const desc = computed(() => {
         </p>
       </v-alert>
 
-      <v-alert v-show="error" class="ma-2" type="error" title="Error" :text="error" />
+      <v-alert
+        v-show="error"
+        class="ma-2"
+        type="error"
+        title="Error"
+        :text="error"
+      />
 
-      <v-file-input v-model="files" label="Select .ddf file:" accept=".ddf" />
+      <v-text-field
+        v-model="url"
+        label="From URL"
+        append-icon="mdi-download"
+        @click:append="download()"
+      />
+
+      <v-file-input
+        v-model="files"
+        label="Select .ddf file:"
+        accept=".ddf"
+      />
+
+      <v-btn
+        prepend-icon="mdi-vacuum"
+        color="blue-grey"
+        @click="reset()"
+      >
+        Reset
+      </v-btn>
 
       <v-btn
         prepend-icon="mdi-download"
@@ -88,8 +138,8 @@ const desc = computed(() => {
           <codemirror
             v-model="bundle.data.ddfc"
             placeholder="Code goes here..."
-            :autofocus="true"
-            :indent-with-tab="true"
+            :autofocus="false"
+            :indent-with-tab="false"
             :tab-size="2"
           />
         </template>
@@ -103,8 +153,8 @@ const desc = computed(() => {
           <codemirror
             v-model="bundle.data.files[index - 1].data"
             placeholder="Code goes here..."
-            :autofocus="true"
-            :indent-with-tab="true"
+            :autofocus="false"
+            :indent-with-tab="false"
             :tab-size="2"
           />
         </template>
