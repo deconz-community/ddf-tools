@@ -1,5 +1,11 @@
 import * as r from 'restructure'
-import type { BundleFile } from './types'
+import type { BinaryFile, BundleFile, StringFile } from './types'
+
+export const isBinaryType = (type: string) => type === 'UBIN'
+
+export const isBinaryFile = (meta: BundleFile): meta is BinaryFile => {
+  return isBinaryType(meta.type)
+}
 
 export const schema = new r.Struct({
   identifier: new r.String(4),
@@ -24,7 +30,12 @@ export const schema = new r.Struct({
             path: new r.String('pathLength', 'utf8'),
             timestamp: r.uint32le,
             size: r.uint32le,
-            data: new r.String('size', 'utf8'),
+            data: new r.Optional(new r.String('size', 'utf8'), (parent) => {
+              return !isBinaryType(parent.val?.type ?? parent.type)
+            }),
+            data_raw: new r.Optional(new r.Buffer('size'), (parent) => {
+              return isBinaryType(parent.val?.type ?? parent.type)
+            }),
           },
           SIGN: {
             key: new r.String(32),
@@ -52,12 +63,20 @@ export interface rawData {
       }
       | {
         version: 'EXTF'
-        type: BundleFile['type']
+        type: StringFile['type']
         pathLength: number
         path: string
         timestamp: number
         size: number
         data: string
+      } | {
+        version: 'EXTF'
+        type: BinaryFile['type']
+        pathLength: number
+        path: string
+        timestamp: number
+        size: number
+        data_raw: Uint8Array
       } | {
         version: 'SIGN'
         key: string

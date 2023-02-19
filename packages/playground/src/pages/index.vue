@@ -44,7 +44,8 @@ const download = async () => {
       const result = await fetch(url)
       if (result.status !== 200)
         throw new Error(result.statusText)
-      return await result.text()
+
+      return await result.blob()
     })
   }
   catch (e) {
@@ -117,7 +118,7 @@ const download = async () => {
 
       <v-card>
         <template #title>
-          DESC
+          DESC (readonly)
         </template>
         <template #text>
           <codemirror

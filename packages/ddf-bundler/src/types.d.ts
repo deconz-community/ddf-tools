@@ -16,8 +16,8 @@ export interface ChunkDESC {
   vp: [string, string][];
 }
 
-export type BundleFile = JSONFile | ScriptFile | MarkdownFile | BinaryFile;
-
+export type BundleFile = StringFile | BinaryFile;
+export type StringFile = JSONFile | ScriptFile | MarkdownFile
 
 export interface JSONFile extends FileMeta {
   type: "BTNM";
@@ -30,13 +30,13 @@ export interface ScriptFile extends FileMeta {
 }
 
 export interface MarkdownFile extends FileMeta {
-  type: "CHLG" | "NOTE" | "KWIS";
+  type: "CHLG" | "NOTI" | "NOTW" | "KWIS";
   data: string;
 }
 
 export interface BinaryFile extends FileMeta {
   type: "UBIN";
-  data: DataView;
+  data_raw: Blob;
 }
 
 interface FileMeta {

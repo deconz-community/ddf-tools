@@ -1,6 +1,6 @@
 import type { BundleData } from './types'
 import type { rawData } from './schema'
-import { schema } from './schema'
+import { isBinaryFile, isBinaryType, schema } from './schema'
 
 export function Bundle() {
   const data: BundleData = {
@@ -34,12 +34,14 @@ export function Bundle() {
         }
 
         case 'EXTF': {
-          data.files.push({
-            type: 'SCJS',
-            data: chunk.data,
-            last_modified: new Date(chunk.timestamp),
-            path: chunk.path.trim().replaceAll('\x00', ''),
-          })
+          if (!isBinaryType(chunk.type)) {
+            data.files.push({
+              type: chunk.type,
+              data: chunk.data,
+              last_modified: new Date(chunk.timestamp),
+              path: chunk.path.trim().replaceAll('\x00', ''),
+            })
+          }
           break
         }
 
@@ -78,17 +80,31 @@ export function Bundle() {
       data: strDDFC,
     })
 
-    data.files.forEach((file) => {
-      rawData.ddf.data.push({
-        version: 'EXTF',
-        type: file.type,
-        pathLength: file.path.length + 1,
-        path: `${file.path}\x00`,
-        timestamp: file.last_modified.getTime(),
-        size: file.data.length,
-        data: file.data as string,
-      })
-    })
+    for (const file of data.files) {
+      if (isBinaryFile(file)) {
+        const dataView = new Uint8Array(await file.data_raw.arrayBuffer())
+        rawData.ddf.data.push({
+          version: 'EXTF',
+          type: file.type,
+          pathLength: file.path.length + 1,
+          path: `${file.path}\x00`,
+          timestamp: file.last_modified.getTime(),
+          size: dataView.byteLength,
+          data_raw: dataView,
+        })
+      }
+      else {
+        rawData.ddf.data.push({
+          version: 'EXTF',
+          type: file.type,
+          pathLength: file.path.length + 1,
+          path: `${file.path}\x00`,
+          timestamp: file.last_modified.getTime(),
+          size: file.data.length,
+          data: file.data as string,
+        })
+      }
+    }
 
     // Remove 8 of the size to skip the identfier 'RIFF' and the size
     rawData.size = schema.size(rawData) - 8
@@ -100,16 +116,27 @@ export function Bundle() {
 
   const checkSignature = () => true
 
-  const buildFromFile = async (path: string, getFile: (path: string) => Promise<string>) => {
+  const buildFromFile = async (path: string, getFile: (path: string) => Promise<Blob>) => {
     data.name = `${path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))}.ddf`
-    data.ddfc = await getFile(path)
+    data.ddfc = await (await getFile(path)).text()
     const ddfc = JSON.parse(data.ddfc)
+
+    // TODO Remove binary file
+    /*
+    const binaryFile = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/img/ddf_subdevice_0.png'
+    data.files.push({
+      data_raw: await getFile(binaryFile),
+      last_modified: new Date(),
+      path: 'ddf_device_0.png',
+      type: 'UBIN',
+    })
+    */
 
     // Download markdown files
     if (Array.isArray(ddfc['md:known_issues'])) {
       for (const filePath of ddfc['md:known_issues']) {
         data.files.push({
-          data: await getFile(new URL(`${path}/../${filePath}`).href),
+          data: await (await getFile(new URL(`${path}/../${filePath}`).href)).text(),
           last_modified: new Date(),
           path: filePath,
           type: 'KWIS',
@@ -134,7 +161,7 @@ export function Bundle() {
 
     await Promise.all(scripts.map(async (filePath) => {
       data.files.push({
-        data: await getFile(new URL(`${path}/../${filePath}`).href),
+        data: await (await getFile(new URL(`${path}/../${filePath}`).href)).text(),
         last_modified: new Date(),
         path: filePath,
         type: 'SCJS',
