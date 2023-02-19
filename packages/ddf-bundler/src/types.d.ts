@@ -30,7 +30,7 @@ export interface ScriptFile extends FileMeta {
 }
 
 export interface MarkdownFile extends FileMeta {
-  type: "CHLG" | "NOTE";
+  type: "CHLG" | "NOTE" | "KWIS";
   data: string;
 }
 

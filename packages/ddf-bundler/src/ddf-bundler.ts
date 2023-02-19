@@ -105,6 +105,19 @@ export function Bundle() {
     data.ddfc = await getFile(path)
     const ddfc = JSON.parse(data.ddfc)
 
+    // Download markdown files
+    if (Array.isArray(ddfc['md:known_issues'])) {
+      for (const filePath of ddfc['md:known_issues']) {
+        data.files.push({
+          data: await getFile(new URL(`${path}/../${filePath}`).href),
+          last_modified: new Date(),
+          path: filePath,
+          type: 'KWIS',
+        })
+      }
+    }
+
+    // Download script files
     const scripts: string[] = []
     if (Array.isArray(ddfc.subdevices)) {
       ddfc.subdevices.forEach((subdevice) => {

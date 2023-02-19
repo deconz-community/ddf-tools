@@ -3,7 +3,7 @@ import { Bundle } from 'ddf-bundler'
 import { saveAs } from 'file-saver'
 
 const error = ref('')
-const url = ref('https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices/ikea/starkvind_air_purifier.json')
+const url = ref('https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices/xiaomi/aq1_vibration_sensor.json')
 const files = ref<File[]>([])
 const sha = ref('')
 
@@ -147,7 +147,7 @@ const download = async () => {
 
       <v-card v-for="index in bundle.data.files.length" :key="index">
         <template #title>
-          {{ bundle.data.files[index - 1].path }}
+          {{ bundle.data.files[index - 1].path }} - {{ bundle.data.files[index - 1].type }}
         </template>
         <template #text>
           <codemirror
