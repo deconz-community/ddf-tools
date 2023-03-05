@@ -1,7 +1,4 @@
 import type { BundleData } from './types'
-import type { rawData } from './schema'
-import { isBinaryFile, isBinaryType, schema } from './schema'
-import { buildFromFile } from './builder'
 
 export function Bundle() {
   const data: BundleData = {
@@ -18,6 +15,7 @@ export function Bundle() {
   const parseFile = async (file: File) => {
     data.name = file.name
     data.files = []
+    /*
     data.signatures = []
     const buffer = new Uint8Array(await file.arrayBuffer())
     const rawData: rawData = schema.fromBuffer(buffer as Buffer) as rawData
@@ -58,9 +56,11 @@ export function Bundle() {
         }
       }
     }
+    */
   }
 
   const makeBundle = async () => {
+    /*
     const rawData: rawData = {
       identifier: 'RIFF',
       size: 0,
@@ -116,11 +116,11 @@ export function Bundle() {
     const newBundle = schema.toBuffer(rawData)
 
     return newBundle
+
+    */
   }
 
   const checkSignature = () => true
 
   return { parseFile, makeBundle, checkSignature, data }
 }
-
-Bundle.buildFromFile = buildFromFile

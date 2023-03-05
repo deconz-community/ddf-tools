@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bundle } from 'ddf-bundler'
+import { Bundle, buildFromFile } from 'ddf-bundler'
 import { saveAs } from 'file-saver'
 
 const error = ref('')
@@ -39,7 +39,7 @@ const download = async () => {
   error.value = ''
 
   try {
-    bundle.value = await Bundle.buildFromFile(url.value, async (url) => {
+    bundle.value = await buildFromFile(url.value, async (url) => {
       const result = await fetch(url)
       if (result.status !== 200)
         throw new Error(result.statusText)
