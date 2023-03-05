@@ -129,7 +129,7 @@ For Text file they are all compressed using zlib.
 | NOTW | Warning note                            | Text file | markdown   |
 | KWIS | Know issue                              | Text file | markdown   |
 | UBIN | Update binary for OTA                   | Binary    |            |
-| IMGP | Image in PNG can be used in UI          | Binary    |            |
+| IMGP | Image in PNG can be used in UI          | Binary    | png        |
 
 ### SIGN - Signature
 
