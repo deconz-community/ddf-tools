@@ -14,7 +14,7 @@
         "unplugin",
         "pnpm"
     ],
-    "prettier.enable": true,
+    "prettier.enable": false,
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
