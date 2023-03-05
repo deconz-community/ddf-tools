@@ -33,11 +33,13 @@ This is always the first chunk and allows fast indexing and matching without par
 {
   "last_modified": "2023-01-08T17:24:24z",
   "version": "1.0.1",
-  "min.deconz": "2.19.3",
+  "version_deconz": ">2.19.3",
   "product": "acme 2000",
-  "forum": "url-to-forum-entry",
-  "ghissue": "url-to-github-entry",
-  "vp": [
+  "links": [
+    "url-to-forum-entry",
+    "url-to-github-entry"
+  ],
+  "device_identifiers": [
     ["Philips", "acme 2000"],
     ["Signify", "acme 200"]
   ]
@@ -58,7 +60,7 @@ The version of the DDF, increment it if anything change inside the DDF. Once rel
 Example : "1.0.0"
 ```
 
-#### version.deconz (required)
+#### version_deconz (required)
 
 The minimum version for Deconz. It's using [Semantic Versioning](https://semver.org/) with version comparaison. See [Semver Calculator](https://semver.npmjs.com/) for example.
 ```
@@ -75,8 +77,13 @@ Example : "acme 2000"
 #### links (optional)
 
 Any link usefull about this bundle, can be issue link, forum link, device official web page
-
-#### deviceidentifiers (required)
+```
+Example : [
+  "url-to-forum-entry",
+  "url-to-github-entry"
+]
+```
+#### device_identifiers (required)
 
 The list of device identifier, it's generated from each combinaison of `manufacturername` and `modelid` from the DDF.
 
@@ -122,6 +129,7 @@ For Text file they are all compressed using zlib.
 | NOTW | Warning note                            | Text file | markdown   |
 | KWIS | Know issue                              | Text file | markdown   |
 | UBIN | Update binary for OTA                   | Binary    |            |
+| IMAG | Image can be used in UI                 | Binary    |            |
 
 ### SIGN - Signature
 
