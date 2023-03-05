@@ -1,4 +1,4 @@
-import { Bundle } from './ddf-bundler'
+import { Bundle } from './bundle'
 
 export async function buildFromFile(path: string, getFile: (path: string) => Promise<Blob>): Promise<ReturnType<typeof Bundle>> {
   const bundle = Bundle()
