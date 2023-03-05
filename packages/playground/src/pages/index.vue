@@ -37,10 +37,9 @@ const desc = computed(() => {
 
 const download = async () => {
   error.value = ''
-  bundle.value = Bundle()
 
   try {
-    await bundle.value.buildFromFile(url.value, async (url) => {
+    bundle.value = await Bundle.buildFromFile(url.value, async (url) => {
       const result = await fetch(url)
       if (result.status !== 200)
         throw new Error(result.statusText)
