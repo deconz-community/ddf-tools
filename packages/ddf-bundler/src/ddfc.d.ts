@@ -2,13 +2,13 @@ export interface DDFC {
     schema:            string;
     "doc:path":        string;
     "doc:hdr":         string;
-    manufacturername:  string;
-    modelid:           string;
+    manufacturername:  string | string[];
+    modelid:           string | string[];
     vendor:            string;
     product:           string;
     status:            string;
     sleeper:           boolean;
-    "md:known_issues": string[];
+    "md:known_issues": string | string[];
     subdevices:        Subdevice[];
 }
 

@@ -1,5 +1,6 @@
 import { Bundle } from './bundle'
 import type { DDFC } from './ddfc'
+import { asArray } from './utils'
 
 export async function buildFromFile(path: string, getFile: (path: string) => Promise<Blob>): Promise<ReturnType<typeof Bundle>> {
   const bundle = Bundle()
@@ -7,6 +8,17 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
   bundle.data.name = `${path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))}.ddf`
   bundle.data.ddfc = await (await getFile(path)).text()
   const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
+
+  const manufacturers = asArray(ddfc.manufacturername)
+  const modelid = asArray(ddfc.modelid)
+  if (manufacturers.length === modelid.length) {
+    for (let i = 0; i < manufacturers.length; i++) {
+      bundle.data.desc.device_identifiers.push([
+        manufacturers[i],
+        modelid[i],
+      ])
+    }
+  }
 
   // TODO Remove binary file
   /*
@@ -20,15 +32,13 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
     */
 
   // Download markdown files
-  if (Array.isArray(ddfc['md:known_issues'])) {
-    for (const filePath of ddfc['md:known_issues']) {
-      bundle.data.files.push({
-        data: await (await getFile(new URL(`${path}/../${filePath}`).href)).text(),
-        last_modified: new Date(),
-        path: filePath,
-        type: 'KWIS',
-      })
-    }
+  for (const filePath of asArray(ddfc['md:known_issues'])) {
+    bundle.data.files.push({
+      data: await (await getFile(new URL(`${path}/../${filePath}`).href)).text(),
+      last_modified: new Date(),
+      path: filePath,
+      type: 'KWIS',
+    })
   }
 
   // Download script files
