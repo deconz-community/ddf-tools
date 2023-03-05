@@ -1,5 +1,5 @@
 export interface BundleData {
-  name: string
+  name: string;
   desc: ChunkDESC;
   ddfc: string;
   files: BundleFile[];
@@ -9,47 +9,47 @@ export interface BundleData {
 export interface ChunkDESC {
   last_modified: Date;
   version?: string;
-  "min.deconz"?: string;
+  version_deconz?: string;
   product?: string;
-  forum?: string;
-  ghissue?: string;
-  vp: [string, string][];
+  links?: string[];
+  device_identifiers: [string, string][];
 }
 
 export type BundleFile = StringFile | BinaryFile;
-export type StringFile = JSONFile | ScriptFile | MarkdownFile
+export type StringFile = JSONFile | ScriptFile | MarkdownFile;
+
+interface FileMeta {
+  format: "javascript" | "json" | "markdown" | "binary";
+  type: "SCJS" | "BTNM" | "CHLG" | "NOTI" | "NOTW" | "KWIS" | "UBIN" | "IMGP";
+  last_modified: Date;
+  path: string;
+}
 
 export interface JSONFile extends FileMeta {
   type: "BTNM";
+  format: "json";
   data: string;
 }
 
 export interface ScriptFile extends FileMeta {
   type: "SCJS";
+  format: "javascript";
   data: string;
 }
 
 export interface MarkdownFile extends FileMeta {
   type: "CHLG" | "NOTI" | "NOTW" | "KWIS";
+  format: "markdown";
   data: string;
 }
 
 export interface BinaryFile extends FileMeta {
-  type: "UBIN";
-  data_raw: Blob;
-}
-
-interface FileMeta {
-  last_modified: Date;
-  path: string;
+  type: "UBIN" | "IMGP";
+  format: "binary";
+  data: Blob;
 }
 
 export interface ChunkSignature {
   key: string[32];
   signature: string[64];
-}
-
-export interface Signature {
-  key: string;
-  signature: string;
 }
