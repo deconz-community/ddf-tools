@@ -76,7 +76,7 @@ Example : "acme 2000"
 
 Any link usefull about this bundle, can be issue link, forum link, device official web page
 
-#### deviceidentifier (required)
+#### deviceidentifiers (required)
 
 The list of device identifier, it's generated from each combinaison of `manufacturername` and `modelid` from the DDF.
 
