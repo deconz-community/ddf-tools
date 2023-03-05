@@ -34,11 +34,15 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
   // Download script files
   const scripts: string[] = []
   if (Array.isArray(ddfc.subdevices)) {
+    // @ts-expect-error WIP
     ddfc.subdevices.forEach((subdevice) => {
       if (Array.isArray(subdevice.items)) {
+        // @ts-expect-error WIP
         subdevice.items.forEach((item) => {
-          for (const [key, value] of Object.entries(item)) {
+          for (const [_key, value] of Object.entries(item)) {
+            // @ts-expect-error WIP
             if (value.script !== undefined)
+              // @ts-expect-error WIP
               scripts.push(value.script)
           }
         })

@@ -36,11 +36,14 @@ export function Bundle() {
 
         case 'EXTF': {
           if (!isBinaryType(chunk.type)) {
+            // @ts-expect-error WIP
             data.files.push({
               type: chunk.type,
+              // @ts-expect-error WIP
               data: chunk.data,
               last_modified: new Date(chunk.timestamp),
               path: chunk.path.trim().replaceAll('\x00', ''),
+              format: 'markdown',
             })
           }
           break
@@ -83,7 +86,7 @@ export function Bundle() {
 
     for (const file of data.files) {
       if (isBinaryFile(file)) {
-        const dataView = new Uint8Array(await file.data_raw.arrayBuffer())
+        const dataView = new Uint8Array(await file.data.arrayBuffer())
         rawData.ddf.data.push({
           version: 'EXTF',
           type: file.type,

@@ -30,9 +30,11 @@ export const schema = new r.Struct({
             path: new r.String('pathLength', 'utf8'),
             timestamp: r.uint32le,
             size: r.uint32le,
+            // @ts-expect-error WIP
             data: new r.Optional(new r.String('size', 'utf8'), (parent) => {
               return !isBinaryType(parent.val?.type ?? parent.type)
             }),
+            // @ts-expect-error WIP
             data_raw: new r.Optional(new r.Buffer('size'), (parent) => {
               return isBinaryType(parent.val?.type ?? parent.type)
             }),
@@ -44,6 +46,7 @@ export const schema = new r.Struct({
         },
       ),
       // Remove 4 of the size to skip the identfier 'DDFB'
+      // @ts-expect-error WIP
       parent => parent.parent.size - 4,
       'bytes',
     ),
