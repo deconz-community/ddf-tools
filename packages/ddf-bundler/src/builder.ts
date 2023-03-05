@@ -9,6 +9,8 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
   bundle.data.ddfc = await (await getFile(path)).text()
   const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
 
+  bundle.data.desc.product = ddfc.product
+
   const manufacturers = asArray(ddfc.manufacturername)
   const modelid = asArray(ddfc.modelid)
   if (manufacturers.length === modelid.length) {
