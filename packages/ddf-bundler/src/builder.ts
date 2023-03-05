@@ -26,7 +26,6 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
         last_modified: new Date(),
         path: filePath,
         type: 'KWIS',
-        format: 'markdown',
       })
     }
   }
@@ -56,7 +55,6 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
       last_modified: new Date(),
       path: filePath,
       type: 'SCJS',
-      format: 'javascript',
     })
   }))
 

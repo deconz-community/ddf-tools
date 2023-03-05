@@ -32,7 +32,6 @@ export async function decode(file: File): Promise<ReturnType<typeof Bundle>> {
               data: chunk.data,
               last_modified: new Date(chunk.timestamp),
               path: chunk.path.trim().replaceAll('\x00', ''),
-              format: 'markdown',
             })
           }
           break

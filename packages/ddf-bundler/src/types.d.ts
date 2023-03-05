@@ -19,7 +19,6 @@ export type BundleFile = StringFile | BinaryFile;
 export type StringFile = JSONFile | ScriptFile | MarkdownFile;
 
 interface FileMeta {
-  format: "javascript" | "json" | "markdown" | "binary";
   type: "SCJS" | "BTNM" | "CHLG" | "NOTI" | "NOTW" | "KWIS" | "UBIN" | "IMGP";
   last_modified: Date;
   path: string;
@@ -27,25 +26,21 @@ interface FileMeta {
 
 export interface JSONFile extends FileMeta {
   type: "BTNM";
-  format: "json";
   data: string;
 }
 
 export interface ScriptFile extends FileMeta {
   type: "SCJS";
-  format: "javascript";
   data: string;
 }
 
 export interface MarkdownFile extends FileMeta {
   type: "CHLG" | "NOTI" | "NOTW" | "KWIS";
-  format: "markdown";
   data: string;
 }
 
 export interface BinaryFile extends FileMeta {
   type: "UBIN" | "IMGP";
-  format: "binary";
   data: Blob;
 }
 
