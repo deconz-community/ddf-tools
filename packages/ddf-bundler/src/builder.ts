@@ -1,11 +1,12 @@
 import { Bundle } from './bundle'
+import type { DDFC } from './ddfc'
 
 export async function buildFromFile(path: string, getFile: (path: string) => Promise<Blob>): Promise<ReturnType<typeof Bundle>> {
   const bundle = Bundle()
 
   bundle.data.name = `${path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))}.ddf`
   bundle.data.ddfc = await (await getFile(path)).text()
-  const ddfc = JSON.parse(bundle.data.ddfc)
+  const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
 
   // TODO Remove binary file
   /*
@@ -33,15 +34,11 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
   // Download script files
   const scripts: string[] = []
   if (Array.isArray(ddfc.subdevices)) {
-    // @ts-expect-error WIP
     ddfc.subdevices.forEach((subdevice) => {
       if (Array.isArray(subdevice.items)) {
-        // @ts-expect-error WIP
         subdevice.items.forEach((item) => {
           for (const [_key, value] of Object.entries(item)) {
-            // @ts-expect-error WIP
             if (value.script !== undefined)
-              // @ts-expect-error WIP
               scripts.push(value.script)
           }
         })
@@ -56,7 +53,8 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
       path: filePath,
       type: 'SCJS',
     })
-  }))
+  }),
+  )
 
   return bundle
 }
