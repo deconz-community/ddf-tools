@@ -10,8 +10,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.54.0
       '@typescript-eslint/parser': ^5.54.0
       '@vitejs/plugin-vue': ^4.0.0
-      '@volar-plugins/prettier': ^1.2.0
-      '@volar-plugins/prettyhtml': ^1.1.0
+      '@vue-macros/volar': ^0.8.4
       dts-bundle-generator: ^7.2.0
       eslint: ^8.35.0
       lint-staged: ^13.1.2
@@ -37,8 +36,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.54.0_6mj2wypvdnknez7kws2nfdgupi
       '@typescript-eslint/parser': 5.54.0_ycpbpc6yetojsgtrx3mwntkhsu
       '@vitejs/plugin-vue': 4.0.0_vite@4.1.4+vue@3.2.47
-      '@volar-plugins/prettier': 1.2.0_prettier@2.8.4
-      '@volar-plugins/prettyhtml': 1.1.0
+      '@vue-macros/volar': 0.8.4_vue@3.2.47
       dts-bundle-generator: 7.2.0
       eslint: 8.35.0
       lint-staged: 13.1.2
@@ -2035,18 +2033,6 @@ packages:
       vscode-uri: 3.0.7
     dev: true
 
-  /@volar-plugins/prettier/1.2.0_prettier@2.8.4:
-    resolution: {integrity: sha512-SYKv2+P31/ep4o5cop5rfaaucLkDKyEXyGlzNAwOYjxY00fILaW+c7OUslre0SDa6j0YhXSkyqbDwRB5kIkqNg==}
-    peerDependencies:
-      '@volar/language-service': '*'
-      prettier: '*'
-    peerDependenciesMeta:
-      '@volar/language-service':
-        optional: true
-    dependencies:
-      prettier: 2.8.4
-    dev: true
-
   /@volar-plugins/prettyhtml/1.0.3:
     resolution: {integrity: sha512-ptkG3EcdEymPDMRTTGbUuCjkAtocnotKJB3ZzxpLduqdfKWw3sUxAGD2NkVU5eGXveeKq8Wkzrt1QdhPtnChnw==}
     dependencies:
@@ -2056,17 +2042,17 @@ packages:
       - supports-color
     dev: true
 
-  /@volar-plugins/prettyhtml/1.1.0:
-    resolution: {integrity: sha512-u4ScpUV5Kmp2cqt7jT1HYs0uMvsC6oblrhyUX335Mk3gf5kQnYFQEWRKM/y2RDgrTVFRBUdkxdcW+SYcA4UtQA==}
-    peerDependencies:
-      '@volar/language-service': '*'
-    peerDependenciesMeta:
-      '@volar/language-service':
-        optional: true
+  /@volar/language-core/1.0.24:
+    resolution: {integrity: sha512-vTN+alJiWwK0Pax6POqrmevbtFW2dXhjwWiW/MW4f48eDYPLdyURWcr8TixO7EN/nHsUBj2udT7igFKPtjyAKg==}
     dependencies:
-      '@starptech/prettyhtml': 0.10.0
-    transitivePeerDependencies:
-      - supports-color
+      '@volar/source-map': 1.0.24
+      muggle-string: 0.1.0
+    dev: true
+
+  /@volar/source-map/1.0.24:
+    resolution: {integrity: sha512-Qsv/tkplx18pgBr8lKAbM1vcDqgkGKQzbChg6NW+v0CZc3G7FLmK+WrqEPzKlN7Cwdc6XVL559Nod8WKAfKr4A==}
+    dependencies:
+      muggle-string: 0.1.0
     dev: true
 
   /@volar/vue-language-service-types/0.34.17:
@@ -2243,6 +2229,21 @@ packages:
       '@rollup/pluginutils': 5.0.2
       '@vue-macros/common': 1.1.0_vue@3.2.47
       '@vue-macros/reactivity-transform': 0.2.4_vue@3.2.47
+      unplugin: 1.1.0
+      vue: 3.2.47
+    transitivePeerDependencies:
+      - rollup
+    dev: true
+
+  /@vue-macros/define-props/0.4.0_vue@3.2.47:
+    resolution: {integrity: sha512-nbCxN5xODrngdgDF6mrRjglNC3S++RcESZlaN/SuBF7o5LiYsrdWqg575w5vapMudQ58vvslTTfsEeV1rOpYOA==}
+    engines: {node: '>=14.19.0'}
+    peerDependencies:
+      '@vue-macros/reactivity-transform': ^0.2.4
+      vue: ^2.7.0 || ^3.2.25
+    dependencies:
+      '@rollup/pluginutils': 5.0.2
+      '@vue-macros/common': 1.1.0_vue@3.2.47
       unplugin: 1.1.0
       vue: 3.2.47
     transitivePeerDependencies:
@@ -2527,6 +2528,36 @@ packages:
       '@vue-macros/common': 1.1.0_vue@3.2.47
       unplugin: 1.1.0
     transitivePeerDependencies:
+      - rollup
+      - vue
+    dev: true
+
+  /@vue-macros/short-vmodel/1.1.2_vue@3.2.47:
+    resolution: {integrity: sha512-HYC0b4o895HDMh0ZhMNS1rLQC3sUFPcB3YuISa5FhDD4x9gfyliGUjzXI3wAcaeW4mXbXwxhmvg0M8P62C2Obg==}
+    engines: {node: '>=14.19.0'}
+    dependencies:
+      '@vue-macros/common': 1.1.0_vue@3.2.47
+      '@vue/compiler-core': 3.2.47
+    transitivePeerDependencies:
+      - vue
+    dev: true
+
+  /@vue-macros/volar/0.8.4_vue@3.2.47:
+    resolution: {integrity: sha512-zShxUN5Pceuqo0X+hzk1/HGghp1UuJmUZHNxqxSqYz1zfjQsb9QVB9RZq0NKeXqVaQ5+ALY3uPwnW4zAIDHFjA==}
+    engines: {node: '>=14.19.0'}
+    peerDependencies:
+      vue-tsc: ^1.0.24
+    peerDependenciesMeta:
+      vue-tsc:
+        optional: true
+    dependencies:
+      '@volar/language-core': 1.0.24
+      '@vue-macros/common': 1.1.0_vue@3.2.47
+      '@vue-macros/define-props': 0.4.0_vue@3.2.47
+      '@vue-macros/short-vmodel': 1.1.2_vue@3.2.47
+      muggle-string: 0.2.2
+    transitivePeerDependencies:
+      - '@vue-macros/reactivity-transform'
       - rollup
       - vue
     dev: true
@@ -6220,6 +6251,14 @@ packages:
 
   /ms/2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+    dev: true
+
+  /muggle-string/0.1.0:
+    resolution: {integrity: sha512-Tr1knR3d2mKvvWthlk7202rywKbiOm4rVFLsfAaSIhJ6dt9o47W4S+JMtWhd/PW9Wrdew2/S2fSvhz3E2gkfEg==}
+    dev: true
+
+  /muggle-string/0.2.2:
+    resolution: {integrity: sha512-YVE1mIJ4VpUMqZObFndk9CJu6DBJR/GB13p3tXuNbwD4XExaI5EOuRl6BHeIDxIqXZVxSfAC+y6U1Z/IxCfKUg==}
     dev: true
 
   /nanoid/3.3.4:
