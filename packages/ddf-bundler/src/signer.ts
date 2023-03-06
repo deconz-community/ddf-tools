@@ -29,6 +29,7 @@ export async function sign(bundled: Blob, privKeys: string[] = []): Promise<Blob
   // Update the size
   view.setUint32(4, view.getUint32(4, true) + 4 + signatures.length * (64 + 128), true)
 
+  // TODO Update this to use existing SIGN chunk
   return new Blob([
     view.buffer,
     textEncoder.encode('SIGN'),
