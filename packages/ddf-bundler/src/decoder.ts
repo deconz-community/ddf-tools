@@ -113,8 +113,6 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
     }
   }
 
-  console.log(bundle.data.signatures)
-
   bundle.data.hash = await getHash(
     file,
     8,

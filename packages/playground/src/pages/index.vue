@@ -86,11 +86,12 @@ const download = async () => {
 
     <template #text>
       <v-alert class="ma-2">
-        <p>This is a small HTML/JS to test reading the RIFF based DDF bundle.</p>
+        <p>This is a small HTML/JS to test reading and writing the RIFF based DDF bundle.</p>
         <p>
-          Following shows the bundle
-          <strong>DESC</strong> chunk content, which is a JSON object.
-          <br>As an example the unique SHA256 hash is calculated over the bundle.
+          Following shows the bundle chunks content.
+          The UI can currently display and edit chunks but can't create a new one.
+          For chunk with binary data a download button is displayed.
+          Click on the icons on the left side to triggers actions.
         </p>
       </v-alert>
 
@@ -104,23 +105,43 @@ const download = async () => {
 
       <v-text-field
         v-model="url"
-        label="From URL"
-        prepend-icon="mdi-download"
-        @click:prepend="download()"
-      />
+        label="Load DDF From URL"
+      >
+        <template #prepend>
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props" icon="mdi-download-network"
+                @click="download()"
+              />
+            </template>
+            Load
+          </v-tooltip>
+        </template>
+      </v-text-field>
 
       <v-file-input
         v-model="files"
-        label="Select .ddf file:"
+        label="Open .ddf bundle from disk"
         accept=".ddf"
       />
 
       <v-text-field
         v-model="privateKeyHex"
         label="Private key"
-        prepend-icon="mdi-refresh"
-        @click:prepend="generatePrivateKey()"
-      />
+      >
+        <template #prepend>
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props" icon="mdi-refresh"
+                @click="generatePrivateKey()"
+              />
+            </template>
+            Generate a new private key
+          </v-tooltip>
+        </template>
+      </v-text-field>
 
       <v-btn
         prepend-icon="mdi-vacuum"
