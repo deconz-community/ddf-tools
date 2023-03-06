@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bundle, buildFromFile } from 'ddf-bundler'
+import { Bundle, buildFromFile, encode } from 'ddf-bundler'
 import { saveAs } from 'file-saver'
 
 const error = ref('')
@@ -20,9 +20,11 @@ const parseFile = async () => {
 }
 
 const makeBundle = async () => {
-  const data = await bundle.value.makeBundle()
+  /*
+  const data = await encode(bundle.value)
   const blob = new Blob([data])
-  saveAs(blob, bundle.value.data.name)
+  */
+  saveAs(encode(bundle.value), bundle.value.data.name)
 }
 
 const reset = () => {

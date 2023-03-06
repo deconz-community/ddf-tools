@@ -1,6 +1,32 @@
-import type { BundleData } from './types'
+import type { Bundle } from './bundle'
+import { DDF_BUNDLE_MAGIC } from './const'
 
-export function encode(data: BundleData): Uint8Array {
+export function encode(bundle: ReturnType<typeof Bundle>): Blob {
+  const data = bundle.data
+  const buffers: (Uint8Array | ArrayBuffer)[] = []
+
+  const textEncoder = new TextEncoder()
+
+  const text = (value: string) => {
+    return textEncoder.encode(value)
+  }
+
+  const U32 = (num: number) => {
+    const arr = new ArrayBuffer(4)
+    new DataView(arr).setUint32(0, num, true) // byteOffset = 0; litteEndian = false
+    return arr
+  }
+
+  buffers.push(text('RIFF'))
+  buffers.push(text(DDF_BUNDLE_MAGIC))
+
+  const desc = text(JSON.stringify(data.desc))
+  buffers.push(text('DESC'))
+  buffers.push(U32(desc.length))
+  buffers.push(desc)
+
+  return new Blob(buffers)
+
   /*
   const rawData: rawData = {
     identifier: 'RIFF',
@@ -59,7 +85,4 @@ export function encode(data: BundleData): Uint8Array {
   return newBundle
 
   */
-
-  console.log(data)
-  return new Uint8Array()
 }
