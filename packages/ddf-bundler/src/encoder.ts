@@ -97,6 +97,14 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     )
   })
 
+  data.signatures.forEach((signature) => {
+    addData(
+      text('SIGN'),
+      text(signature.key),
+      text(signature.signature),
+    )
+  })
+
   const flattenData = (data: BufferData): (Uint8Array | ArrayBuffer | Blob)[] => {
     if (Array.isArray(data)) {
       const result: (Uint8Array | ArrayBuffer | Blob)[] = []

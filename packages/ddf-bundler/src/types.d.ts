@@ -1,5 +1,6 @@
 export interface BundleData {
   name: string;
+  hash?: Uint8Array;
   desc: ChunkDESC;
   ddfc: string;
   files: BundleFile[];

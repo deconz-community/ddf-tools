@@ -1,6 +1,7 @@
 import pako from 'pako'
 import { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
+import { getHash } from './signer'
 import { isBinaryFileType, isTextFileType } from './utils'
 
 export async function dataDecoder(file: File | Blob) {
@@ -16,6 +17,7 @@ export async function dataDecoder(file: File | Blob) {
   const skip = (size: number) => {
     currentOffset += size
   }
+
   const text = (size = 4, decompress = false) => {
     let data = read(size)
     if (decompress === true)
@@ -110,6 +112,14 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
         throw new Error(`Unknown chunk with tag: ${tag} as offset: ${offset()}`)
     }
   }
+
+  console.log(bundle.data.signatures)
+
+  bundle.data.hash = await getHash(
+    file,
+    8,
+    (bundle.data.signatures.length > 0 ? 4 : 0) + bundle.data.signatures.length * (64 + 128),
+  )
 
   return bundle
 }

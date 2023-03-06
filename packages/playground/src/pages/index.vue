@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import * as secp from '@noble/secp256k1'
+import { computedAsync } from '@vueuse/core'
 
-import { Bundle, buildFromFile, decode, encode, sign } from 'ddf-bundler'
+import { Bundle, buildFromFile, decode, encode, sign, verify } from 'ddf-bundler'
 
 import { bytesToHex } from '@noble/hashes/utils'
 
@@ -15,6 +16,17 @@ const privateKey = ref(secp.utils.randomPrivateKey())
 const privateKeyHex = computed(() => bytesToHex(privateKey.value))
 
 const bundle = shallowRef(Bundle())
+
+const hashHex = computed(() => bundle.value.data.hash ? bytesToHex(bundle.value.data.hash) : '')
+
+const signatures = computedAsync(async () => {
+  return await Promise.all(bundle.value.data.signatures.map(async (signature) => {
+    return {
+      ...signature,
+      valid: (await verify(bundle.value.data.hash, signature.key, signature.signature)) ? 'Valid' : 'Invalid',
+    }
+  }))
+}, [])
 
 const parseFile = async () => {
   error.value = ''
@@ -133,10 +145,26 @@ const download = async () => {
 
       <v-card>
         <template #title>
-          Name
+          Bundle
+        </template>
+        <template #subtitle>
+          {{ bundle.data.name }}
         </template>
         <template #text>
-          {{ bundle.data.name }}
+          <v-text-field
+            v-model="hashHex"
+            readonly
+            label="HASH"
+          />
+          <v-list v-if="signatures.length > 0" lines="one">
+            <v-list-subheader>Signatures</v-list-subheader>
+            <v-list-item
+              v-for="signature in signatures"
+              :key="signature.key"
+              :title="signature.key"
+              :subtitle="signature.valid"
+            />
+          </v-list>
         </template>
       </v-card>
 

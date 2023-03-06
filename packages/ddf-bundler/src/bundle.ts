@@ -3,6 +3,7 @@ import type { BundleData } from './types'
 export function Bundle() {
   const data: BundleData = {
     name: 'bundle.ddf',
+    hash: undefined,
     desc: {
       product: 'Unknown device',
       version: '1.0.0',
