@@ -9,6 +9,7 @@ import Vuetify from 'vite-plugin-vuetify'
 
 
 module.exports = defineConfig({
+  base: '',
   resolve: {
     alias: {
       'ddf-bundler': path.resolve(__dirname, '../ddf-bundler/index.ts'),
