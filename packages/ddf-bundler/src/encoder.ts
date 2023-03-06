@@ -1,9 +1,11 @@
 import type { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 
+type BufferData = Uint8Array | ArrayBuffer | Blob | BufferData[]
+
 export function encode(bundle: ReturnType<typeof Bundle>): Blob {
   const data = bundle.data
-  const buffers: (Uint8Array | ArrayBuffer)[] = []
+  const chunks: BufferData[] = []
 
   const textEncoder = new TextEncoder()
 
@@ -11,78 +13,79 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     return textEncoder.encode(value)
   }
 
-  const U32 = (num: number) => {
+  const Uint32 = (num: number) => {
     const arr = new ArrayBuffer(4)
-    new DataView(arr).setUint32(0, num, true) // byteOffset = 0; litteEndian = false
+    new DataView(arr).setUint32(0, num, true)
     return arr
   }
 
-  buffers.push(text('RIFF'))
-  buffers.push(text(DDF_BUNDLE_MAGIC))
-
-  const desc = text(JSON.stringify(data.desc))
-  buffers.push(text('DESC'))
-  buffers.push(U32(desc.length))
-  buffers.push(desc)
-
-  return new Blob(buffers)
-
-  /*
-  const rawData: rawData = {
-    identifier: 'RIFF',
-    size: 0,
-    ddf: {
-      identifier: 'DDFB',
-      data: [],
-    },
+  const Uint16 = (num: number) => {
+    const arr = new ArrayBuffer(2)
+    new DataView(arr).setUint16(0, num, true)
+    return arr
   }
 
-  const strDESC = JSON.stringify(data.desc)
-  rawData.ddf.data.push({
-    version: 'DESC',
-    size: strDESC.length,
-    data: strDESC,
-  })
-
-  const strDDFC = data.ddfc
-  rawData.ddf.data.push({
-    version: 'DDFC',
-    size: strDDFC.length,
-    data: strDDFC,
-  })
-
-  for (const file of data.files) {
-    if (isBinaryFile(file)) {
-      const dataView = new Uint8Array(await file.data.arrayBuffer())
-      rawData.ddf.data.push({
-        version: 'EXTF',
-        type: file.type,
-        pathLength: file.path.length + 1,
-        path: `${file.path}\x00`,
-        timestamp: file.last_modified.getTime(),
-        size: dataView.byteLength,
-        data_raw: dataView,
-      })
+  const getDataLength = (data: BufferData): number => {
+    if (Array.isArray(data)) {
+      return data
+        .map(getDataLength)
+        .reduce((partialSum, a) => partialSum + a, 0)
     }
-    else {
-      rawData.ddf.data.push({
-        version: 'EXTF',
-        type: file.type,
-        pathLength: file.path.length + 1,
-        path: `${file.path}\x00`,
-        timestamp: file.last_modified.getTime(),
-        size: file.data.length,
-        data: file.data as string,
-      })
+    else if (data instanceof Uint8Array) {
+      return data.length
     }
+    else if (data instanceof ArrayBuffer) {
+      return data.byteLength
+    }
+    else if (data instanceof Blob) {
+      return data.size
+    }
+    return 0
   }
 
-  // Remove 8 of the size to skip the identfier 'RIFF' and the size
-  rawData.size = schema.size(rawData) - 8
+  const withLength = (data: BufferData, lengthMethod: ((num: number) => ArrayBuffer) = Uint32) => {
+    return [
+      lengthMethod(getDataLength(data)),
+      data,
+    ]
+  }
 
-  const newBundle = schema.toBuffer(rawData)
+  const addData = (...datas: BufferData[]) => {
+    datas.forEach((data) => {
+      if (Array.isArray(data))
+        addData(...data)
+      else chunks.push(data)
+    })
+  }
 
-  return newBundle
+  // addData(text('RIFF'))
+  addData(text(DDF_BUNDLE_MAGIC))
+  addData(text('DESC'), withLength(text(JSON.stringify(data.desc))))
+  addData(text('DDFC'), withLength(text(data.ddfc)))
 
-  */
+  data.files.forEach((file) => {
+    addData(
+      text('EXTF'),
+      text(file.type),
+      withLength(text(file.path), Uint16),
+      withLength(text(file.last_modified.toISOString()), Uint16),
+      withLength(typeof file.data === 'string' ? text(file.data) : file.data),
+    )
+  })
+
+  const flattenData = (data: BufferData): (Uint8Array | ArrayBuffer | Blob)[] => {
+    if (Array.isArray(data)) {
+      const result: (Uint8Array | ArrayBuffer | Blob)[] = []
+      for (const item of data)
+        result.push(...flattenData(item))
+
+      return result
+    }
+    return [data]
+  }
+
+  return new Blob(flattenData([
+    text('RIFF'),
+    withLength(chunks),
+  ]))
 }

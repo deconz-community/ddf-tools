@@ -11,6 +11,8 @@ DDF_BUNDLE_MAGIC is ASCII "DDFB"
 Each chunk is prefixed by it's tag, then the size and finnaly the data.
 
 ```
+U32 'RIFF'
+U32 RIFF Size
 U32 DDF_BUNDLE_MAGIC
 U32 Chunk Tag
 U32 Chunk Size
