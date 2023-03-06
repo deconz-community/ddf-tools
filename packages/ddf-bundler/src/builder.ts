@@ -23,15 +23,14 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
   }
 
   // TODO Remove binary file
-  /*
-    const binaryFile = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/img/ddf_subdevice_0.png'
-    bundle.data.files.push({
-      data_raw: await getFile(binaryFile),
-      last_modified: new Date(),
-      path: 'ddf_device_0.png',
-      type: 'UBIN',
-    })
-    */
+
+  const binaryFile = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/img/ddf_subdevice_0.png'
+  bundle.data.files.push({
+    data: await getFile(binaryFile),
+    last_modified: new Date(),
+    path: 'ddf_device_0.png',
+    type: 'IMGP',
+  })
 
   // Download markdown files
   for (const filePath of asArray(ddfc['md:known_issues'])) {

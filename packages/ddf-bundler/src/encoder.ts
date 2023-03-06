@@ -1,3 +1,5 @@
+import pako from 'pako'
+
 import type { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 
@@ -9,8 +11,11 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
 
   const textEncoder = new TextEncoder()
 
-  const text = (value: string) => {
-    return textEncoder.encode(value)
+  const text = (value: string, compress = false) => {
+    const result = textEncoder.encode(value)
+    if (compress === true)
+      return pako.deflate(result)
+    return result
   }
 
   const Uint32 = (num: number) => {
@@ -58,10 +63,9 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     })
   }
 
-  // addData(text('RIFF'))
   addData(text(DDF_BUNDLE_MAGIC))
-  addData(text('DESC'), withLength(text(JSON.stringify(data.desc))))
-  addData(text('DDFC'), withLength(text(data.ddfc)))
+  addData(text('DESC'), withLength(text(JSON.stringify(data.desc), true)))
+  addData(text('DDFC'), withLength(text(data.ddfc, true)))
 
   data.files.forEach((file) => {
     addData(
@@ -69,7 +73,7 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
       text(file.type),
       withLength(text(file.path), Uint16),
       withLength(text(file.last_modified.toISOString()), Uint16),
-      withLength(typeof file.data === 'string' ? text(file.data) : file.data),
+      withLength(typeof file.data === 'string' ? text(file.data, true) : file.data),
     )
   })
 
@@ -84,8 +88,10 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     return [data]
   }
 
-  return new Blob(flattenData([
+  const result = new Blob(flattenData([
     text('RIFF'),
     withLength(chunks),
   ]))
+
+  return result
 }

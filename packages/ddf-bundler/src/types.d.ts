@@ -15,8 +15,8 @@ export interface ChunkDESC {
   device_identifiers: [string, string][];
 }
 
-export type BundleFile = StringFile | BinaryFile;
-export type StringFile = JSONFile | ScriptFile | MarkdownFile;
+export type BundleFile = TextFile | BinaryFile;
+export type TextFile = JSONFile | ScriptFile | MarkdownFile;
 
 interface FileMeta {
   type: "SCJS" | "BTNM" | "CHLG" | "NOTI" | "NOTW" | "KWIS" | "UBIN" | "IMGP";

@@ -29,7 +29,7 @@ Data[Size]
 
 Tag: "DESC"
 
-This is always the first chunk and allows fast indexing and matching without parsing the whole DDF. It's a JSON file.
+This is always the first chunk and allows fast indexing and matching without parsing the whole DDF. It's a JSON file compressed with zlib.
 
 ```json
 {
@@ -135,14 +135,16 @@ For Text file they are all compressed using zlib.
 
 ### SIGN - Signature
 
-Holds one or more signatures over all previous chunks. The signature and public key use the secp256k1 elliptic curve format.
+Holds one or more signatures over all previous chunks. The signature and public key use the secp256k1 schnorr format.
+[https://paulmillr.com/noble/](https://paulmillr.com/noble/)
+
 
 ```
-u8[32] PublicKey
-u8[64] Signature
+u8[64] PublicKey
+u8[128] Signature
 ```
 
-Number of entries is `ChunkSize / (32 + 64)`.
+Number of entries is `ChunkSize / (64 + 128)`.
 
 Signatures are very easy to handle with a few lines of code and make sure the DDF is not messed with. A DDF bundle which is submitted for testing can be promoted to stable / official by simply adding another signature in this chunk nothing else needs to be modified.
 

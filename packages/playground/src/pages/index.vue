@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { Bundle, buildFromFile, encode } from 'ddf-bundler'
+import * as secp from '@noble/secp256k1'
+
+import { Bundle, buildFromFile, decode, encode, sign } from 'ddf-bundler'
+
+import { bytesToHex } from '@noble/hashes/utils'
+
 import { saveAs } from 'file-saver'
 
 const error = ref('')
 const url = ref('https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices/xiaomi/aq1_vibration_sensor.json')
 const files = ref<File[]>([])
 const sha = ref('')
+const privateKey = ref(secp.utils.randomPrivateKey())
+const privateKeyHex = computed(() => bytesToHex(privateKey.value))
 
 const bundle = shallowRef(Bundle())
 
@@ -15,16 +22,17 @@ const parseFile = async () => {
 
   if (files.value.length === 0)
     return
-  await bundle.value.parseFile(files.value[0])
-  triggerRef(bundle)
+  bundle.value = await decode(files.value[0])
 }
 
 const makeBundle = async () => {
-  /*
-  const data = await encode(bundle.value)
-  const blob = new Blob([data])
-  */
-  saveAs(encode(bundle.value), bundle.value.data.name)
+  let bundled = encode(bundle.value)
+  bundled = await sign(bundled, [privateKeyHex.value])
+  saveAs(bundled, bundle.value.data.name)
+}
+
+const generatePrivateKey = () => {
+  privateKey.value = secp.utils.randomPrivateKey()
 }
 
 const reset = () => {
@@ -51,7 +59,7 @@ const download = async () => {
   }
   catch (e) {
     error.value = 'Erreur'
-    console.log(e)
+    console.warn(e)
   }
 
   triggerRef(bundle)
@@ -85,14 +93,21 @@ const download = async () => {
       <v-text-field
         v-model="url"
         label="From URL"
-        append-icon="mdi-download"
-        @click:append="download()"
+        prepend-icon="mdi-download"
+        @click:prepend="download()"
       />
 
       <v-file-input
         v-model="files"
         label="Select .ddf file:"
         accept=".ddf"
+      />
+
+      <v-text-field
+        v-model="privateKeyHex"
+        label="Private key"
+        prepend-icon="mdi-refresh"
+        @click:prepend="generatePrivateKey()"
       />
 
       <v-btn
@@ -110,12 +125,20 @@ const download = async () => {
       >
         Download Bundle
       </v-btn>
-
       <!--
       <json-viewer :value="bundle.data"></json-viewer>
 
       <v-text-field v-model="sha" label="SHA256" readonly />
       -->
+
+      <v-card>
+        <template #title>
+          Name
+        </template>
+        <template #text>
+          {{ bundle.data.name }}
+        </template>
+      </v-card>
 
       <v-card>
         <template #title>
@@ -152,13 +175,25 @@ const download = async () => {
           {{ bundle.data.files[index - 1].path }} - {{ bundle.data.files[index - 1].type }}
         </template>
         <template #text>
-          <codemirror
-            v-model="bundle.data.files[index - 1].data"
-            placeholder="Code goes here..."
-            :autofocus="false"
-            :indent-with-tab="false"
-            :tab-size="2"
-          />
+          <template v-if="typeof bundle.data.files[index - 1].data === 'string'">
+            <codemirror
+              v-if="typeof bundle.data.files[index - 1].data === 'string'"
+              v-model="bundle.data.files[index - 1].data"
+              placeholder="Code goes here..."
+              :autofocus="false"
+              :indent-with-tab="false"
+              :tab-size="2"
+            />
+          </template>
+          <template v-else>
+            <v-btn
+              prepend-icon="mdi-download"
+              color="blue-grey"
+              @click="saveAs(bundle.data.files[index - 1].data, bundle.data.files[index - 1].path)"
+            >
+              Download File
+            </v-btn>
+          </template>
         </template>
       </v-card>
     </template>

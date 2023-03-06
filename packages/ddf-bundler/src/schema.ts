@@ -1,10 +1,4 @@
-import type { BinaryFile, BundleFile, StringFile } from './types'
-
-export const isBinaryType = (type: string) => type === 'UBIN'
-
-export const isBinaryFile = (meta: BundleFile): meta is BinaryFile => {
-  return isBinaryType(meta.type)
-}
+import type { BinaryFile, TextFile } from './types'
 
 export interface rawData {
   identifier: 'RIFF'
@@ -19,7 +13,7 @@ export interface rawData {
       }
       | {
         version: 'EXTF'
-        type: StringFile['type']
+        type: TextFile['type']
         pathLength: number
         path: string
         timestamp: number
