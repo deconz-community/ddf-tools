@@ -55,6 +55,8 @@ jobs:
         uses: actions/deploy-pages@v1
 
   delete_runs:
+    permissions:
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - name: Delete workflow runs
