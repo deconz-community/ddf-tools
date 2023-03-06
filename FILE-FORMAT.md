@@ -135,9 +135,10 @@ For Text file they are all compressed using zlib.
 
 ### SIGN - Signature
 
-Holds one or more signatures over all previous chunks. The signature and public key use the secp256k1 schnorr format.
+Holds one or more signatures over all previous chunks starting from `DDF_BUNDLE_MAGIC` (skip the first 8 bytes of the RIFF). The signature and public key use the secp256k1 schnorr format.
 [https://paulmillr.com/noble/](https://paulmillr.com/noble/)
 
+This chunk is always at the end of the bundle.
 
 ```
 u8[64] PublicKey

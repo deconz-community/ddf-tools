@@ -5,10 +5,7 @@ import { DDF_BUNDLE_MAGIC } from './const'
 
 type BufferData = Uint8Array | ArrayBuffer | Blob | BufferData[]
 
-export function encode(bundle: ReturnType<typeof Bundle>): Blob {
-  const data = bundle.data
-  const chunks: BufferData[] = []
-
+export function dataEncoder(chunks: BufferData[] = []) {
   const textEncoder = new TextEncoder()
 
   const text = (value: string, compress = false) => {
@@ -18,15 +15,15 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     return result
   }
 
-  const Uint32 = (num: number) => {
-    const arr = new ArrayBuffer(4)
-    new DataView(arr).setUint32(0, num, true)
+  const Uint16 = (num: number): ArrayBuffer => {
+    const arr = new ArrayBuffer(2)
+    new DataView(arr).setUint16(0, num, true)
     return arr
   }
 
-  const Uint16 = (num: number) => {
-    const arr = new ArrayBuffer(2)
-    new DataView(arr).setUint16(0, num, true)
+  const Uint32 = (num: number): ArrayBuffer => {
+    const arr = new ArrayBuffer(4)
+    new DataView(arr).setUint32(0, num, true)
     return arr
   }
 
@@ -62,6 +59,29 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
       else chunks.push(data)
     })
   }
+
+  return {
+    addData,
+    text,
+    Uint16,
+    Uint32,
+    getDataLength,
+    withLength,
+  }
+}
+
+export function encode(bundle: ReturnType<typeof Bundle>): Blob {
+  const data = bundle.data
+  const chunks: BufferData[] = []
+
+  const {
+    addData,
+    text,
+    Uint16,
+    Uint32,
+    getDataLength,
+    withLength,
+  } = dataEncoder(chunks)
 
   addData(text(DDF_BUNDLE_MAGIC))
   addData(text('DESC'), withLength(text(JSON.stringify(data.desc), true)))

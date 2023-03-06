@@ -3,21 +3,19 @@ import { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 import { isBinaryFileType, isTextFileType } from './utils'
 
-export async function decode(file: File): Promise<ReturnType<typeof Bundle>> {
-  const bundle = Bundle()
-  console.log('decode', file.name)
-
-  bundle.data.name = file.name
-
+export async function dataDecoder(file: File | Blob) {
+  let currentOffset = 0
   const view = new DataView(await file.arrayBuffer())
-  let offset = 0
   const textDecoder = new TextDecoder()
 
   const read = (size: number): ArrayBuffer => {
-    offset += size
-    return view.buffer.slice(offset - size, offset)
+    currentOffset += size
+    return view.buffer.slice(currentOffset - size, currentOffset)
   }
 
+  const skip = (size: number) => {
+    currentOffset += size
+  }
   const text = (size = 4, decompress = false) => {
     let data = read(size)
     if (decompress === true)
@@ -25,17 +23,33 @@ export async function decode(file: File): Promise<ReturnType<typeof Bundle>> {
     return textDecoder.decode(data)
   }
 
-  const Uint32 = () => {
-    const result = view.getUint32(offset, true)
-    offset += 4
+  const Uint16 = () => {
+    const result = view.getUint16(currentOffset, true)
+    currentOffset += 2
     return result
   }
 
-  const Uint16 = () => {
-    const result = view.getUint16(offset, true)
-    offset += 2
+  const Uint32 = () => {
+    const result = view.getUint32(currentOffset, true)
+    currentOffset += 4
     return result
   }
+
+  return {
+    read,
+    skip,
+    text,
+    Uint16,
+    Uint32,
+    offset: () => currentOffset,
+  }
+}
+
+export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundle>> {
+  const bundle = Bundle()
+  bundle.data.name = file.name
+
+  const { read, text, Uint16, Uint32, offset } = await dataDecoder(file)
 
   if (text() !== 'RIFF')
     throw new Error('Invalid RIFF file')
@@ -45,8 +59,7 @@ export async function decode(file: File): Promise<ReturnType<typeof Bundle>> {
   if (text() !== DDF_BUNDLE_MAGIC)
     throw new Error('Invalid RIFF file')
 
-  // eslint-disable-next-line no-unmodified-loop-condition
-  while (offset <= dataSize) {
+  while (offset() <= dataSize) {
     const tag = text()
 
     switch (tag) {
@@ -87,16 +100,14 @@ export async function decode(file: File): Promise<ReturnType<typeof Bundle>> {
       }
 
       case 'SIGN':{
-        /* TODO WIP
         bundle.data.signatures.push({
-          key: read(32),
-          signature: read(64),
+          key: text(64),
+          signature: text(128),
         })
-        */
         break
       }
       default:
-        throw new Error(`Unknown chunk with tag: ${tag}`)
+        throw new Error(`Unknown chunk with tag: ${tag} as offset: ${offset()}`)
     }
   }
 
