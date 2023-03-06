@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "lint": "eslint .",
-    "playground": "pnpm --dir packages/playground run dev "
+    "build:playground": "pnpm --dir packages/playground run build",
+    "playground": "pnpm --dir packages/playground run dev"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.3",
