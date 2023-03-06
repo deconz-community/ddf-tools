@@ -54,7 +54,7 @@ module.exports = defineConfig({
   server: {
     fs: {
       allow: [
-        '.', 
+        '..',
         '../../node_modules'
       ],
     },
