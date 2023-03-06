@@ -63,5 +63,5 @@ jobs:
         uses: dmvict/clean-workflow-runs@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          save_period: '00:05:00'
-          save_min_runs_number: 0
+          save_period: 7
+          save_min_runs_number: 10
