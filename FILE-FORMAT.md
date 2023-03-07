@@ -29,7 +29,7 @@ Data[Size]
 
 Tag: "DESC"
 
-This is always the first chunk and allows fast indexing and matching without parsing the whole DDF. It's a JSON file compressed with zlib.
+This is always the first chunk and allows fast indexing and matching without parsing the whole DDF. It's a JSON file.
 
 ```json
 {
@@ -71,9 +71,21 @@ Example : ">2.20.1"
 
 #### product (required)
 
-The device commercial name of the device.
+The english device commercial name of the device.
 ```
 Example : "acme 2000"
+```
+
+#### product_localised (optional)
+
+The device commercial name of the device localised indexed by the [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
+
+Note that the "en" name it's on `product` property.
+```
+Example : {
+    "de": "german product name",
+    "fr": "french product name",
+}
 ```
 
 #### links (optional)
@@ -125,12 +137,11 @@ For Text file they are all compressed using zlib.
 | Tag  | Description                             | Data      | Format     |
 |------|-----------------------------------------|-----------|------------|
 | SCJS | Javascript file for read,write or parse | Text file | javascript |
-| BTNM | Button maps                             | Text file | json       |
+| BTNM | Button maps* WIP NOT USED               | Text file | json       |
 | CHLG | Changelog                               | Text file | markdown   |
 | NOTI | Informational note                      | Text file | markdown   |
 | NOTW | Warning note                            | Text file | markdown   |
 | KWIS | Know issue                              | Text file | markdown   |
-| UBIN | Update binary for OTA                   | Binary    |            |
 | IMGP | Image in PNG can be used in UI          | Binary    | png        |
 
 ### SIGN - Signature
