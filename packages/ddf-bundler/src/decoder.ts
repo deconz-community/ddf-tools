@@ -66,7 +66,7 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
 
     switch (tag) {
       case 'DESC':{
-        bundle.data.desc = JSON.parse(text(Uint32(), true))
+        bundle.data.desc = JSON.parse(text(Uint32()))
         break
       }
 
