@@ -84,7 +84,7 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
   } = dataEncoder(chunks)
 
   addData(text(DDF_BUNDLE_MAGIC))
-  addData(text('DESC'), withLength(text(JSON.stringify(data.desc), true)))
+  addData(text('DESC'), withLength(text(JSON.stringify(data.desc))))
   addData(text('DDFC'), withLength(text(data.ddfc, true)))
 
   data.files.forEach((file) => {
