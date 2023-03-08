@@ -1,4 +1,4 @@
-import * as secp from '@noble/secp256k1'
+import secp from '@noble/secp256k1'
 
 export async function getHash(bundled: File | Blob, startOffset = 8, endOffset = 0): Promise<Uint8Array> {
   const buffer = await bundled.arrayBuffer()

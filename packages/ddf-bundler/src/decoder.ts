@@ -67,17 +67,6 @@ export async function dataDecoder(file: File | Blob) {
   }
 }
 
-/*
-{tag: 'DESC', length: 189}
-{tag: 'DDFC', length: 1127}
-{tag: 'EXTF', length: 393}
-{tag: 'EXTF', length: 320}
-{tag: 'EXTF', length: 204}
-{tag: 'DDFB', length: 2273}
-{tag: 'SIGN', length: 0}
-{tag: 'RIFF', length: 2281}
-*/
-
 export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundle>> {
   const bundle = Bundle()
   bundle.data.name = file.name
