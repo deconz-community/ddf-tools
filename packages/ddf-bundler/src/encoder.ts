@@ -3,7 +3,8 @@ import pako from 'pako'
 import type { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 
-type BufferData = Uint8Array | ArrayBuffer | Blob | BufferData[]
+type BufferData = Uint8Array | ArrayBuffer | Blob
+type BufferDataR = BufferData | BufferDataR[]
 
 export function dataEncoder(chunks: BufferData[] = []) {
   const textEncoder = new TextEncoder()
@@ -27,7 +28,7 @@ export function dataEncoder(chunks: BufferData[] = []) {
     return arr
   }
 
-  const getDataLength = (data: BufferData): number => {
+  const getDataLength = (data: BufferDataR): number => {
     if (Array.isArray(data)) {
       return data
         .map(getDataLength)
@@ -45,14 +46,14 @@ export function dataEncoder(chunks: BufferData[] = []) {
     return 0
   }
 
-  const withLength = (data: BufferData, lengthMethod: ((num: number) => ArrayBuffer) = Uint32) => {
+  const withLength = (data: BufferDataR, lengthMethod: ((num: number) => ArrayBuffer) = Uint32) => {
     return [
       lengthMethod(getDataLength(data)),
       data,
     ]
   }
 
-  const addData = (...datas: BufferData[]) => {
+  const addData = (...datas: BufferDataR[]) => {
     datas.forEach((data) => {
       if (Array.isArray(data))
         addData(...data)
@@ -60,8 +61,21 @@ export function dataEncoder(chunks: BufferData[] = []) {
     })
   }
 
+  const chunk = (tag: string, data: BufferDataR, lengthMethod: ((num: number) => ArrayBuffer) = Uint32) => {
+    const length = getDataLength(data)
+    if (length > 0) {
+      return [
+        text(tag),
+        lengthMethod(length),
+        data,
+      ]
+    }
+    else { return [] }
+  }
+
   return {
     addData,
+    chunk,
     text,
     Uint16,
     Uint32,
@@ -78,48 +92,31 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     addData,
     text,
     Uint16,
-    Uint32,
-    getDataLength,
+    // Uint32,
     withLength,
+    chunk,
   } = dataEncoder(chunks)
 
-  addData(text(DDF_BUNDLE_MAGIC))
-  addData(text('DESC'), withLength(text(JSON.stringify(data.desc))))
-  addData(text('DDFC'), withLength(text(data.ddfc, true)))
+  addData(
+    chunk('RIFF', [
+      chunk(DDF_BUNDLE_MAGIC, [
+        chunk('DESC', text(JSON.stringify(data.desc))),
+        chunk('DDFC', text(data.ddfc, true)),
+        data.files.map(file => chunk('EXTF', [
+          text(file.type),
+          withLength(text(file.path), Uint16),
+          withLength(text(file.last_modified.toISOString()), Uint16),
+          withLength(typeof file.data === 'string' ? text(file.data, true) : file.data),
+        ])),
+      ]),
+      chunk('SIGN',
+        data.signatures.map(signature => [
+          text(signature.key),
+          text(signature.signature),
+        ]),
+      ),
+    ]),
+  )
 
-  data.files.forEach((file) => {
-    addData(
-      text('EXTF'),
-      text(file.type),
-      withLength(text(file.path), Uint16),
-      withLength(text(file.last_modified.toISOString()), Uint16),
-      withLength(typeof file.data === 'string' ? text(file.data, true) : file.data),
-    )
-  })
-
-  data.signatures.forEach((signature) => {
-    addData(
-      text('SIGN'),
-      text(signature.key),
-      text(signature.signature),
-    )
-  })
-
-  const flattenData = (data: BufferData): (Uint8Array | ArrayBuffer | Blob)[] => {
-    if (Array.isArray(data)) {
-      const result: (Uint8Array | ArrayBuffer | Blob)[] = []
-      for (const item of data)
-        result.push(...flattenData(item))
-
-      return result
-    }
-    return [data]
-  }
-
-  const result = new Blob(flattenData([
-    text('RIFF'),
-    withLength(chunks),
-  ]))
-
-  return result
+  return new Blob(chunks)
 }
