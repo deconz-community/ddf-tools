@@ -31,7 +31,7 @@ Visual representation of the DDF split by chunks
 
 ## Chunks
 
-### DDFB.DESC - Descriptor
+### DDFB.DESC - Descriptor - unique
 
 Tag: "DESC"
 
@@ -114,13 +114,13 @@ Example : [
 ]
 ```
 
-### DDFB.DDFC - DDF JSON (compressed)
+### DDFB.DDFC - DDF JSON (compressed) - unique
 
 Tag: "DDFC"
 
 Holds the base DDF compressed with zlib.
 
-### DDFB.EXTF - External file
+### DDFB.EXTF - External file - multiple
 
 Tag: "EXTF"
 
@@ -150,7 +150,7 @@ For Text file they are all compressed using zlib.
 | KWIS | Know issue                              | Text file | markdown   |
 | IMGP | Image in PNG can be used in UI          | Binary    | png        |
 
-### SIGN - Signature
+### SIGN - Signature - unique
 
 Holds one or more signatures over all previous chunks starting from `DDF_BUNDLE_MAGIC` (skip the first 8 bytes of the RIFF). The signature and public key use the secp256k1 schnorr format.
 [https://paulmillr.com/noble/](https://paulmillr.com/noble/)
