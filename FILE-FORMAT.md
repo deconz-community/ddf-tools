@@ -43,8 +43,9 @@ This is always the first chunk and allows fast indexing and matching without par
 
 ```json
 {
-  "last_modified": "2023-01-08T17:24:24z",
   "version": "1.0.1",
+  "source": "https://deconz-community.github.io/ddf-store/XXXX/XXXX",
+  "last_modified": "2023-01-08T17:24:24z",
   "version_deconz": ">2.19.3",
   "product": "acme 2000",
   "links": [
@@ -58,18 +59,26 @@ This is always the first chunk and allows fast indexing and matching without par
 }
 ```
 
-#### last_modified (required)
-
-The last modified date of the bundle in a complete date plus hours ISO 8601 format.
-```
-Example : "2023-01-08T17:24:24z"
-```
-
 #### version (required)
 
 The version of the DDF, increment it if anything change inside the DDF. Once released the content should not change if the version did not change. It's using [Semantic Versioning](https://semver.org/).
 ```
 Example : "1.0.0"
+```
+
+#### source (optional)
+
+The URL of the DDF page on the store, could be used to update DDF.
+
+```
+Example : "https://deconz-community.github.io/ddf-store/XXXX/XXXX"
+```
+
+#### last_modified (required)
+
+The last modified date of the bundle in a complete date plus hours ISO 8601 format.
+```
+Example : "2023-01-08T17:24:24z"
 ```
 
 #### version_deconz (required)
@@ -107,6 +116,7 @@ Example : [
   "url-to-github-entry"
 ]
 ```
+
 #### device_identifiers (required)
 
 The list of device identifier, it's generated from each combinaison of `manufacturername` and `modelid` from the DDF.
@@ -157,22 +167,27 @@ For Text file they are all compressed using zlib.
 | KWIS | Know issue                              | Text file | markdown   |
 | IMGP | Image in PNG can be used in UI          | Binary    | png        |
 
-### SIGN - Signature - unique
+### SIGN - Signature - multiple
 
-Holds one or more signatures over all previous chunks starting from `DDF_BUNDLE_MAGIC` (skip the first 8 bytes of the RIFF). The signature and public key use the secp256k1 schnorr format.
+Holds one signature over the `DDF_BUNDLE_MAGIC` chunk. The signature and public key use the secp256k1 ECDSA format.
 [https://paulmillr.com/noble/](https://paulmillr.com/noble/)
-
-This chunk is always at the end of the bundle.
-This chunk is not inside the DDFB chunk.
 
 ```
 U32 'SIGN'
 U32 Chunk Size
-u8[64] PublicKey
-u8[128] Signature
+U32 Signature type
+u8[65] PublicKey
+U8 [Chunk Size - 4 - 65] Signature
 ```
 
-Number of entries is `ChunkSize / (64 + 128)`.
+Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
+
+Each signature have his own type to know what kind of user sign that file.
+| Tag  | Signed by        | Why                                 | Note                                             |
+|------|------------------|-------------------------------------|--------------------------------------------------|
+| USER | Sobody           | To know who sign that file          |                                                  |
+| STOR | A DDF Store      | To know from where it came from     | Public key can be queried using the source url   |
+| OFFI | A DE member      | To know that is a official DDF      | Public key stored in Deconz binary               |
 
 Signatures are very easy to handle with a few lines of code and make sure the DDF is not messed with. A DDF bundle which is submitted for testing can be promoted to stable / official by simply adding another signature in this chunk nothing else needs to be modified.
 

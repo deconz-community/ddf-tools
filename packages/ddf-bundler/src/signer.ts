@@ -31,14 +31,48 @@ export async function sign(bundled: Blob, privKeys: string[] = []): Promise<Blob
 
   console.log(bundleHash)
 
+  const signatures: { publicKey: Uint8Array; signature: Uint8Array }[] = []
+
   if (bundled.size !== reader.offset()) {
     decoder.parseChunks(reader.offset(), bundled.size - reader.offset(), (tag, size, reader) => {
-      if (tag === 'SIGN')
-        console.log('Got sign')
+      if (tag === 'SIGN') {
+        for (let index = 0; index < size / 128; index++) {
+          signatures.push({
+            publicKey: new Uint8Array(reader.read(65)),
+            signature: new Uint8Array(reader.read(reader.Uint16())),
+          })
+        }
+      }
     })
   }
 
   console.log(bundled.size, reader.offset())
+
+  await Promise.all(privKeys.map(async (privKey) => {
+    // const publicKey = secp.Point.fromHex(secp.schnorr.getPublicKey(privKey)).toRawBytes()
+    const publicKey = secp.getPublicKey(privKey)
+
+    const signature = await secp.sign(bundleHash, privKey, {
+      extraEntropy: true,
+    })
+
+    // TODO check if it's was already signed
+
+    /*
+    const auxRand = secp.utils.randomBytes()
+    const _sig = (await secp.schnorr.sign(bundleHash, privKey, auxRand))
+    const signature = secp.schnorr.Signature.fromHex(_sig).toRawBytes()
+    */
+
+    console.log({
+      publicKey,
+      signature,
+    })
+    return {
+      publicKey,
+      signature,
+    }
+  }))
 
   return bundled
 
