@@ -1,12 +1,48 @@
 import * as secp from '@noble/secp256k1'
+import { DDF_BUNDLE_MAGIC } from './const'
+import { dataDecoder } from './decoder'
 
-export async function getHash(bundled: File | Blob, startOffset = 8, endOffset = 0): Promise<Uint8Array> {
-  const buffer = await bundled.arrayBuffer()
-  const bufferToHash = buffer.slice(startOffset, buffer.byteLength - startOffset - endOffset)
-  return await secp.utils.sha256(new Uint8Array(bufferToHash))
+export async function getHash(chunk: ArrayBuffer): Promise<Uint8Array> {
+  return await secp.utils.sha256(new Uint8Array(chunk))
 }
 
 export async function sign(bundled: Blob, privKeys: string[] = []): Promise<Blob> {
+  const decoder = await dataDecoder(bundled)
+
+  const reader = decoder.dataReader()
+
+  if (reader.text(4) !== 'RIFF') {
+    reader.offset(-4)
+    const tag = reader.text(4)
+    throw new Error(`Can't sign this file, invalid tag "${tag}", expect "RIFF"`)
+  }
+
+  const RIFFSize = reader.Uint32()
+
+  if (reader.text(4) !== DDF_BUNDLE_MAGIC) {
+    reader.offset(-4)
+    const tag = reader.text(4)
+    throw new Error(`Can't sign this file, invalid tag "${tag}", expect "${DDF_BUNDLE_MAGIC}"`)
+  }
+
+  const DDFBSize = reader.Uint32()
+  reader.offset(-8)
+  const bundleHash = await getHash(reader.read(DDFBSize + 8))
+
+  console.log(bundleHash)
+
+  if (bundled.size !== reader.offset()) {
+    decoder.parseChunks(reader.offset(), bundled.size - reader.offset(), (tag, size, reader) => {
+      if (tag === 'SIGN')
+        console.log('Got sign')
+    })
+  }
+
+  console.log(bundled.size, reader.offset())
+
+  return bundled
+
+  /*
   const textEncoder = new TextEncoder()
 
   const buffer = await bundled.arrayBuffer()
@@ -46,6 +82,8 @@ export async function sign(bundled: Blob, privKeys: string[] = []): Promise<Blob
     }),
 
   ])
+
+  */
 }
 
 export function verify(hash: Uint8Array, publicKey: string, signature: string): Promise<boolean> {

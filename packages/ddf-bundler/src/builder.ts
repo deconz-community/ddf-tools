@@ -37,7 +37,7 @@ export async function buildFromFile(path: string, getFile: (path: string) => Pro
   for (const filePath of asArray(ddfc['md:known_issues'])) {
     bundle.data.files.push({
       data: await (await getFile(new URL(`${path}/../${filePath}`).href)).text(),
-      last_modified: new Date(),
+      last_modified: new Date(1),
       path: filePath,
       type: 'KWIS',
     })

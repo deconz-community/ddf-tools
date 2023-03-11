@@ -13,10 +13,6 @@ export async function dataDecoder(file: File | Blob) {
       return view.buffer.slice(currentOffset - size, currentOffset)
     }
 
-    const skip = (size: number) => {
-      currentOffset += size
-    }
-
     const text = (size = 4, decompress = false) => {
       let data = read(size)
       if (decompress === true)
@@ -38,11 +34,13 @@ export async function dataDecoder(file: File | Blob) {
 
     return {
       read,
-      skip,
       text,
       Uint16,
       Uint32,
-      offset: () => currentOffset,
+      offset: (shift = 0) => {
+        currentOffset += shift
+        return currentOffset
+      },
     }
   }
 
