@@ -14,6 +14,7 @@ Each chunk is prefixed by it's tag, then the size and finnaly the data.
 U32 'RIFF'
 U32 RIFF Size
 U32 DDF_BUNDLE_MAGIC
+U32 DDF_Bundle Size
 U32 Chunk Tag
 U32 Chunk Size
 Data[Size]
@@ -23,9 +24,14 @@ U32 Chunk Size
 Data[Size]
 ```
 
+The file can be see as a tree structure.
+
+Visual representation of the DDF split by chunks
+![image](https://user-images.githubusercontent.com/845225/223543840-9da9a33d-776b-40d2-ad27-a0ce4df5bbbd.png)
+
 ## Chunks
 
-### DESC - Descriptor
+### DDFB.DESC - Descriptor - unique
 
 ```
 U32 'DESC'
@@ -112,7 +118,7 @@ Example : [
 ]
 ```
 
-### DDFC - DDF JSON (compressed)
+### DDFB.DDFC - DDF JSON (compressed) - unique
 
 ```
 U32 'DDFC'
@@ -122,7 +128,7 @@ Data[Size]
 
 Holds the base DDF compressed with zlib.
 
-### EXTF - External file
+### DDFB.EXTF - External file - multiple
 
 ```
 U32 'EXTF'
@@ -151,12 +157,13 @@ For Text file they are all compressed using zlib.
 | KWIS | Know issue                              | Text file | markdown   |
 | IMGP | Image in PNG can be used in UI          | Binary    | png        |
 
-### SIGN - Signature
+### SIGN - Signature - unique
 
 Holds one or more signatures over all previous chunks starting from `DDF_BUNDLE_MAGIC` (skip the first 8 bytes of the RIFF). The signature and public key use the secp256k1 schnorr format.
 [https://paulmillr.com/noble/](https://paulmillr.com/noble/)
 
 This chunk is always at the end of the bundle.
+This chunk is not inside the DDFB chunk.
 
 ```
 U32 'SIGN'
