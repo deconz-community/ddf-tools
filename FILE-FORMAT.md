@@ -169,6 +169,8 @@ For Text file they are all compressed using zlib.
 
 ### SIGN - Signature - multiple
 
+Signatures are very easy to handle with a few lines of code and make sure the DDF is not messed with. A DDF bundle which is submitted for testing can be promoted to stable / official by simply adding another signature in this chunk nothing else needs to be modified.
+
 Holds one signature over the `DDF_BUNDLE_MAGIC` chunk. The signature and public key use the secp256k1 ECDSA format.
 [https://paulmillr.com/noble/](https://paulmillr.com/noble/)
 
@@ -176,19 +178,32 @@ Holds one signature over the `DDF_BUNDLE_MAGIC` chunk. The signature and public 
 U32 'SIGN'
 U32 Chunk Size
 U32 Signature type
-u8[65] PublicKey
-U8 [Chunk Size - 4 - 65] Signature
+U16 Source URL Length
+U8 [Source URL Length] Source URL
+U16 PublicKey Length
+U8 [PublicKey Length] PublicKey
+U16 Signature Length
+U8 [Signature Length] Signature
 ```
 
 Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
 
+#### Signature type
+
 Each signature have his own type to know what kind of user sign that file.
+
+Signature can also be used when filtering for "official".
+
 | Tag  | Signed by        | Why                                 | Note                                             |
 |------|------------------|-------------------------------------|--------------------------------------------------|
 | USER | Sobody           | To know who sign that file          |                                                  |
 | STOR | A DDF Store      | To know from where it came from     | Public key can be queried using the source url   |
 | OFFI | A DE member      | To know that is a official DDF      | Public key stored in Deconz binary               |
 
-Signatures are very easy to handle with a few lines of code and make sure the DDF is not messed with. A DDF bundle which is submitted for testing can be promoted to stable / official by simply adding another signature in this chunk nothing else needs to be modified.
+#### Source URL
 
-Signature can also be used when filtering for "official".
+The link to the related signature source, used to verify the authenticity of the source.
+Can be a user profile on github, a store main url.
+
+The DDF bundle UI will check if a file is present at address `${Source URL}/ddf-public-key.bin`.
+This file will contain a binary encoded public key.
