@@ -4,7 +4,7 @@ import { computedAsync } from '@vueuse/core'
 
 import { Bundle, buildFromFile, decode, encode, sign, verify } from 'ddf-bundler'
 
-import { bytesToHex } from '@noble/hashes/utils'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 
 import { saveAs } from 'file-saver'
 
@@ -21,9 +21,13 @@ const hashHex = computed(() => bundle.value.data.hash ? bytesToHex(bundle.value.
 
 const signatures = computedAsync(async () => {
   return await Promise.all(bundle.value.data.signatures.map(async (signature) => {
-    return {
-      ...signature,
-      valid: (await verify(bundle.value.data.hash, signature.key, signature.signature)) ? 'Valid' : 'Invalid',
+    if (bundle.value.data.hash) {
+      return {
+        ...signature,
+        key: bytesToHex(signature.key),
+        signature: bytesToHex(signature.signature),
+        valid: (await verify(bundle.value.data.hash, signature.key, signature.signature)) ? 'Valid' : 'Invalid',
+      }
     }
   }))
 }, [])
@@ -39,7 +43,11 @@ const parseFile = async () => {
 
 const makeBundle = async () => {
   let bundled = encode(bundle.value)
-  bundled = await sign(bundled, [privateKeyHex.value])
+  bundled = await sign(bundled, [{
+    type: 'USER',
+    source: 'https://github.com/zehir/',
+    key: hexToBytes(privateKeyHex.value),
+  }])
   saveAs(bundled, bundle.value.data.name)
 }
 
@@ -179,12 +187,16 @@ const download = async () => {
           />
           <v-list v-if="signatures.length > 0" lines="one">
             <v-list-subheader>Signatures</v-list-subheader>
-            <v-list-item
-              v-for="signature in signatures"
-              :key="signature.key"
-              :title="signature.key"
-              :subtitle="signature.valid"
-            />
+            <template
+              v-for="(signature, index) in signatures"
+              :key="index"
+            >
+              <v-list-item
+                v-if="signature"
+                :title="signature.key"
+                :subtitle="signature.valid"
+              />
+            </template>
           </v-list>
         </template>
       </v-card>

@@ -1,125 +1,97 @@
 import * as secp from '@noble/secp256k1'
 import { DDF_BUNDLE_MAGIC } from './const'
 import { dataDecoder } from './decoder'
+import type { BufferData } from './encoder'
+import { dataEncoder } from './encoder'
+import type { ChunkSignature } from './types'
 
-export async function getHash(chunk: ArrayBuffer): Promise<Uint8Array> {
-  return await secp.utils.sha256(new Uint8Array(chunk))
+export async function getHash(chunk: Uint8Array): Promise<Uint8Array> {
+  return secp.utils.sha256(chunk)
 }
 
-export async function sign(bundled: Blob, privKeys: string[] = []): Promise<Blob> {
-  const decoder = await dataDecoder(bundled)
+export interface PrivateKeyData {
+  type: ChunkSignature['type']
+  key: Uint8Array
+  source?: string
+}
 
+export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Promise<Blob> {
+  const signatures: ChunkSignature[] = []
+  const decoder = await dataDecoder(bundled)
   const reader = decoder.dataReader()
 
-  if (reader.text(4) !== 'RIFF') {
-    reader.offset(-4)
-    const tag = reader.text(4)
-    throw new Error(`Can't sign this file, invalid tag "${tag}", expect "RIFF"`)
-  }
-
-  const RIFFSize = reader.Uint32()
-
-  if (reader.text(4) !== DDF_BUNDLE_MAGIC) {
-    reader.offset(-4)
-    const tag = reader.text(4)
-    throw new Error(`Can't sign this file, invalid tag "${tag}", expect "${DDF_BUNDLE_MAGIC}"`)
-  }
+  reader.tag('RIFF')
+  // const RIFFSize = reader.Uint32()
+  reader.offset(4)
+  reader.tag(DDF_BUNDLE_MAGIC)
 
   const DDFBSize = reader.Uint32()
   reader.offset(-8)
-  const bundleHash = await getHash(reader.read(DDFBSize + 8))
+  const DDFBContent = reader.read(DDFBSize + 8)
+  const bundleHash = await getHash(DDFBContent)
 
-  console.log(bundleHash)
-
-  const signatures: { publicKey: Uint8Array; signature: Uint8Array }[] = []
-
+  // If we have more data to read
   if (bundled.size !== reader.offset()) {
     decoder.parseChunks(reader.offset(), bundled.size - reader.offset(), (tag, size, reader) => {
       if (tag === 'SIGN') {
-        for (let index = 0; index < size / 128; index++) {
-          signatures.push({
-            publicKey: new Uint8Array(reader.read(65)),
-            signature: new Uint8Array(reader.read(reader.Uint16())),
-          })
-        }
+        signatures.push({
+          type: reader.tag() as ChunkSignature['type'],
+          source: reader.text(reader.Uint16()),
+          key: reader.read(reader.Uint16()),
+          signature: reader.read(reader.Uint16()),
+        })
       }
     })
   }
 
-  console.log(bundled.size, reader.offset())
-
   await Promise.all(privKeys.map(async (privKey) => {
     // const publicKey = secp.Point.fromHex(secp.schnorr.getPublicKey(privKey)).toRawBytes()
-    const publicKey = secp.getPublicKey(privKey)
+    const key = secp.getPublicKey(privKey.key)
 
-    const signature = await secp.sign(bundleHash, privKey, {
+    const signature = await secp.sign(bundleHash, privKey.key, {
       extraEntropy: true,
     })
 
     // TODO check if it's was already signed
 
-    /*
-    const auxRand = secp.utils.randomBytes()
-    const _sig = (await secp.schnorr.sign(bundleHash, privKey, auxRand))
-    const signature = secp.schnorr.Signature.fromHex(_sig).toRawBytes()
-    */
-
-    console.log({
-      publicKey,
+    signatures.push({
+      type: privKey.type,
+      source: privKey.source ?? '',
+      key,
       signature,
     })
-    return {
-      publicKey,
-      signature,
-    }
   }))
 
-  return bundled
+  const newData: BufferData[] = []
 
-  /*
-  const textEncoder = new TextEncoder()
+  const {
+    addData,
+    text,
+    Uint16,
+    // Uint32,
+    withLength,
+    chunk,
+  } = dataEncoder(newData)
 
-  const buffer = await bundled.arrayBuffer()
-  // Skip the first 8 bytes to start at DDF_BUNDLE_MAGIC
-  const bundleHash = await getHash(bundled)
+  addData(
+    chunk('RIFF', [
+      chunk(DDF_BUNDLE_MAGIC, DDFBContent),
+      signatures.map(signature =>
+        chunk('SIGN',
+          [
+            text(signature.type),
+            withLength(text(signature.source), Uint16),
+            withLength(signature.key, Uint16),
+            withLength(signature.signature, Uint16),
+          ],
+        ),
+      ),
+    ]),
+  )
 
-  const signatures = await Promise.all(privKeys.map(async (privKey) => {
-    const publicKey = secp.Point.fromHex(secp.schnorr.getPublicKey(privKey)).toHexX()
-    const auxRand = secp.utils.randomBytes()
-    const _sig = (await secp.schnorr.sign(bundleHash, privKey, auxRand))
-    const signature = secp.schnorr.Signature.fromHex(_sig).toHex()
-
-    return {
-      publicKey,
-      signature,
-    }
-  }))
-
-  const view = new DataView(buffer)
-  // Update the size
-  view.setUint32(4, view.getUint32(4, true) + 4 + 4 + signatures.length * (64 + 128), true)
-
-  // TODO Use from the encode.ts
-  const Uint32 = (num: number): ArrayBuffer => {
-    const arr = new ArrayBuffer(4)
-    new DataView(arr).setUint32(0, num, true)
-    return arr
-  }
-
-  // TODO Update this to use existing SIGN chunk
-  return new Blob([
-    view.buffer,
-    textEncoder.encode('SIGN'),
-    Uint32(signatures.length * (64 + 128)),
-    ...signatures.map((signature) => {
-      return textEncoder.encode(signature.publicKey + signature.signature)
-    }),
-
-  ])
-
-  */
+  return new Blob(newData)
 }
 
-export function verify(hash: Uint8Array, publicKey: string, signature: string): Promise<boolean> {
-  return secp.schnorr.verify(signature, hash, publicKey)
+export async function verify(hash: Uint8Array, publicKey: Uint8Array, signature: Uint8Array): Promise<boolean> {
+  return secp.verify(signature, hash, publicKey)
 }

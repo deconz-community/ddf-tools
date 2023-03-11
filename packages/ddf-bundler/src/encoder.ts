@@ -3,8 +3,8 @@ import pako from 'pako'
 import type { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 
-type BufferData = Uint8Array | ArrayBuffer | Blob
-type BufferDataR = BufferData | BufferDataR[]
+export type BufferData = Uint8Array | ArrayBuffer | Blob
+export type BufferDataR = BufferData | BufferDataR[]
 
 export function dataEncoder(chunks: BufferData[] = []) {
   const textEncoder = new TextEncoder()
@@ -109,11 +109,15 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
           withLength(typeof file.data === 'string' ? text(file.data, true) : file.data),
         ])),
       ]),
-      chunk('SIGN',
-        data.signatures.map(signature => [
-          text(signature.key),
-          text(signature.signature),
-        ]),
+      data.signatures.map(signature =>
+        chunk('SIGN',
+          [
+            text(signature.type),
+            withLength(text(signature.source), Uint16),
+            withLength(signature.key, Uint16),
+            withLength(signature.signature, Uint16),
+          ],
+        ),
       ),
     ]),
   )
