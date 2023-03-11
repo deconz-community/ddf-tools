@@ -27,7 +27,11 @@ Data[Size]
 
 ### DESC - Descriptor
 
-Tag: "DESC"
+```
+U32 'DESC'
+U32 Chunk Size
+Data[Size]
+```
 
 This is always the first chunk and allows fast indexing and matching without parsing the whole DDF. It's a JSON file.
 
@@ -110,15 +114,18 @@ Example : [
 
 ### DDFC - DDF JSON (compressed)
 
-Tag: "DDFC"
+```
+U32 'DDFC'
+U32 Chunk Size
+Data[Size]
+```
 
 Holds the base DDF compressed with zlib.
 
 ### EXTF - External file
 
-Tag: "EXTF"
-
 ```
+U32 'EXTF'
 U32 FileType (see below)
 U16 PathLength
 U8 [PathLength] filepath
@@ -152,6 +159,8 @@ Holds one or more signatures over all previous chunks starting from `DDF_BUNDLE_
 This chunk is always at the end of the bundle.
 
 ```
+U32 'SIGN'
+U32 Chunk Size
 u8[64] PublicKey
 u8[128] Signature
 ```
