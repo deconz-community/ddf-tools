@@ -16,6 +16,7 @@
         "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
         "lint": "eslint",
         "test": "vitest",
+        "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin ./test-data",
         "up": "taze major -I"
     },
     "devDependencies": {
@@ -24,12 +25,14 @@
         "@types/pako": "^2.0.0",
         "@typescript-eslint/eslint-plugin": "^5.51.0",
         "@typescript-eslint/parser": "^5.51.0",
+        "degit": "^2.8.4",
         "dts-bundle-generator": "^7.2.0",
         "eslint": "^8.33.0",
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-prettier": "^4.2.1",
         "lint-staged": "^13.1.1",
         "prettier": "^2.8.4",
+        "rimraf": "^4.4.0",
         "stylelint": "^14.16.1",
         "stylelint-config-recommended": "^9.0.0",
         "stylelint-config-sass-guidelines": "^9.0.1",
