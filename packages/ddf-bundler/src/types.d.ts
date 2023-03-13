@@ -46,8 +46,6 @@ export interface BinaryFile extends FileMeta {
 }
 
 export interface ChunkSignature {
-  type: 'USER' | 'STOR' | 'OFFI';
-  source: string;
   key: Uint8Array;
   signature: Uint8Array;
 }

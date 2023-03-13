@@ -177,9 +177,6 @@ Holds one signature over the `DDF_BUNDLE_MAGIC` chunk. The signature and public 
 ```
 U32 'SIGN'
 U32 Chunk Size
-U32 Signature type
-U16 Source URL Length
-U8 [Source URL Length] Source URL
 U16 PublicKey Length
 U8 [PublicKey Length] PublicKey
 U16 Signature Length
@@ -187,23 +184,3 @@ U8 [Signature Length] Signature
 ```
 
 Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
-
-#### Signature type
-
-Each signature have his own type to know what kind of user sign that file.
-
-Signature can also be used when filtering for "official".
-
-| Tag  | Signed by        | Why                                 | Note                                             |
-|------|------------------|-------------------------------------|--------------------------------------------------|
-| USER | Sobody           | To know who sign that file          |                                                  |
-| STOR | A DDF Store      | To know from where it came from     | Public key can be queried using the source url   |
-| OFFI | A DE member      | To know that is a official DDF      | Public key stored in Deconz binary               |
-
-#### Source URL
-
-The link to the related signature source, used to verify the authenticity of the source.
-Can be a user profile on github, a store main url.
-
-The DDF bundle UI will check if a file is present at address `${Source URL}/ddf-public-key.bin`.
-This file will contain a binary encoded public key.

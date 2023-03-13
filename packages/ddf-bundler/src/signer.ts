@@ -4,15 +4,14 @@ import { dataDecoder } from './decoder'
 import type { BufferData } from './encoder'
 import { dataEncoder } from './encoder'
 import type { ChunkSignature } from './types'
+import { isUint8ArrayEqual } from './utils'
 
 export async function getHash(chunk: Uint8Array): Promise<Uint8Array> {
   return secp.utils.sha256(chunk)
 }
 
 export interface PrivateKeyData {
-  type: ChunkSignature['type']
   key: Uint8Array
-  source?: string
 }
 
 export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Promise<Blob> {
@@ -35,8 +34,6 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
     decoder.parseChunks(reader.offset(), bundled.size - reader.offset(), (tag, size, reader) => {
       if (tag === 'SIGN') {
         signatures.push({
-          type: reader.tag() as ChunkSignature['type'],
-          source: reader.text(reader.Uint16()),
           key: reader.read(reader.Uint16()),
           signature: reader.read(reader.Uint16()),
         })
@@ -45,18 +42,24 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
   }
 
   await Promise.all(privKeys.map(async (privKey) => {
-    // const publicKey = secp.Point.fromHex(secp.schnorr.getPublicKey(privKey)).toRawBytes()
     const key = secp.getPublicKey(privKey.key)
 
     const signature = await secp.sign(bundleHash, privKey.key, {
       extraEntropy: true,
     })
 
-    // TODO check if it's was already signed
+    let replaced = false
+    for (let index = 0; index < signatures.length; index++) {
+      if (isUint8ArrayEqual(key, signatures[index].key)) {
+        signatures[index].signature = signature
+        replaced = true
+        return
+      }
+    }
+    if (replaced)
+      return
 
     signatures.push({
-      type: privKey.type,
-      source: privKey.source ?? '',
       key,
       signature,
     })
@@ -66,7 +69,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 
   const {
     addData,
-    text,
+    // text,
     Uint16,
     // Uint32,
     withLength,
@@ -79,8 +82,6 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
       signatures.map(signature =>
         chunk('SIGN',
           [
-            text(signature.type),
-            withLength(text(signature.source), Uint16),
             withLength(signature.key, Uint16),
             withLength(signature.signature, Uint16),
           ],

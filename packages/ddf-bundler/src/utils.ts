@@ -23,3 +23,8 @@ export function isTextFileType(type: string): type is TextFile['type'] {
 export function isBinaryFileType(type: string): type is BinaryFile['type'] {
   return ['UBIN', 'IMGP'].includes(type)
 }
+
+export function isUint8ArrayEqual(first: Uint8Array, second: Uint8Array) {
+  return first.length === second.length
+  && first.every((value, index) => value === second[index])
+}

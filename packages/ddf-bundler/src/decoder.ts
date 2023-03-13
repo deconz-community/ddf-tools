@@ -2,7 +2,6 @@ import pako from 'pako'
 import { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 import { getHash } from './signer'
-import type { ChunkSignature } from './types'
 import { isBinaryFileType, isTextFileType } from './utils'
 
 export async function dataDecoder(file: File | Blob) {
@@ -132,8 +131,6 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
             }
             case 'SIGN' : {
               bundle.data.signatures.push({
-                type: reader.tag() as ChunkSignature['type'],
-                source: reader.text(reader.Uint16()),
                 key: reader.read(reader.Uint16()),
                 signature: reader.read(reader.Uint16()),
               })
