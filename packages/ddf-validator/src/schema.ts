@@ -10,13 +10,13 @@ export function validate(data: unknown) {
 export function ddfSchema() {
   return z.object({
     'schema': z.literal('devcap1.schema.json'),
-    'doc:path': z.string(),
-    'doc:hdr': z.string(),
+    'doc:path': z.optional(z.string()),
+    'doc:hdr': z.optional(z.string()),
     'md:known_issues': z.optional(z.array(z.string())),
     'manufacturername': z.string().or(z.array(z.string())),
     'modelid': z.string().or(z.array(z.string())),
-    'vendor': z.string(),
-    'product': z.string(),
+    'vendor': z.optional(z.string()),
+    'product': z.optional(z.string()),
     'sleeper': z.boolean(),
     'status': z.enum(['Bronze', 'Silver', 'Gold']),
     'subdevices': z.array(subDeviceSchema()),
@@ -38,15 +38,15 @@ export function subDeviceSchema() {
         hexa(4),
       ]),
     ]),
-    fingerprint: z.object({
+    fingerprint: z.optional(z.object({
       profile: hexa(4),
       device: hexa(4),
-      endpoint: hexa(4),
+      endpoint: endpoint(),
       in: z.optional(z.array(hexa(4))),
       out: z.optional(z.array(hexa(4))),
-      items: z.array(subDeviceItemSchema()),
-      example: z.optional(z.unknown()),
-    }),
+    })),
+    items: z.array(subDeviceItemSchema()),
+    example: z.optional(z.unknown()),
   })
 }
 
@@ -59,7 +59,15 @@ export function subDeviceItemSchema() {
           fn: z.literal('none'),
         }),
         z.object({
-          fn: z.union([z.never(), z.literal('zcl')]),
+          fn: z.undefined(),
+          at: hexa(4).or(z.array(hexa(4))),
+          cl: hexa(4),
+          ep: z.optional(endpoint()),
+          mf: z.optional(hexa(4)),
+          eval: z.optional(javascript()),
+        }),
+        z.object({
+          fn: z.literal('zcl'),
           at: hexa(4).or(z.array(hexa(4))),
           cl: hexa(4),
           ep: z.optional(endpoint()),
@@ -74,13 +82,24 @@ export function subDeviceItemSchema() {
     'parse': z.optional(
       z.discriminatedUnion('fn', [
         z.object({
-          fn: z.union([z.never(), z.literal('zcl')]),
+          fn: z.undefined(),
           at: hexa(4),
           cl: hexa(4),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
-          eval: javascript(),
-          script: filePath(),
+          eval: z.optional(javascript()),
+          script: z.optional(filePath()),
+        }).refine(data => !('eval' in data && 'script' in data), {
+          message: 'eval and script should not both be present',
+        }).innerType(),
+        z.object({
+          fn: z.literal('zcl'),
+          at: hexa(4),
+          cl: hexa(4),
+          ep: z.optional(endpoint()),
+          mf: z.optional(hexa(4)),
+          eval: z.optional(javascript()),
+          script: z.optional(filePath()),
         }).refine(data => !('eval' in data && 'script' in data), {
           message: 'eval and script should not both be present',
         }).innerType(),
@@ -99,8 +118,8 @@ export function subDeviceItemSchema() {
           ep: z.optional(endpoint()),
           at: z.optional(hexa(4)),
           idx: hexa(2),
-          eval: javascript(),
-          script: filePath(),
+          eval: z.optional(javascript()),
+          script: z.optional(filePath()),
         }).refine(data => !('eval' in data && 'script' in data), {
           message: 'eval and script should not both be present',
         }).innerType(),
@@ -118,7 +137,16 @@ export function subDeviceItemSchema() {
           fn: z.literal('none'),
         }),
         z.object({
-          fn: z.union([z.never(), z.literal('zcl')]),
+          fn: z.undefined(),
+          at: hexa(4).or(z.array(hexa(4))),
+          cl: hexa(4),
+          dt: hexa(2),
+          ep: z.optional(endpoint()),
+          mf: z.optional(hexa(4)),
+          eval: z.optional(javascript()),
+        }),
+        z.object({
+          fn: z.literal('zcl'),
           at: hexa(4).or(z.array(hexa(4))),
           cl: hexa(4),
           dt: hexa(2),

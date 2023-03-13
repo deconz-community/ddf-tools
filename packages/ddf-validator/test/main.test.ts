@@ -1,7 +1,21 @@
+import { readFile } from 'fs/promises'
 import { describe, expect, it } from 'vitest'
+import glob from 'glob'
+import { fromZodError } from 'zod-validation-error'
+import { ddfSchema } from '../index'
 
-describe('add', () => {
-  it('should sum of 2 and 3 equals to 5', () => {
-    expect(2 + 3).toEqual(5)
+describe('parse', async () => {
+  const jsonfiles = await glob('test-data/devices/**/*.json')
+  const schema = ddfSchema()
+
+  describe.each(jsonfiles)('should parse file', (filePath) => {
+    it(`should parse file ${filePath}`, async () => {
+      const data = await readFile(filePath, 'utf-8')
+      const decoded = JSON.parse(data)
+      const result = schema.safeParse(decoded)
+      if (result.success === false)
+        throw new Error(fromZodError(result.error).message)
+      expect(result.success).toBeTruthy()
+    })
   })
 })
