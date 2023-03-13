@@ -7,6 +7,12 @@ export function validate(data: unknown) {
   return schema.parse(data)
 }
 
+export function mainSchema() {
+  return z.discriminatedUnion('schema', [
+    ddfSchema(),
+  ])
+}
+
 export function ddfSchema() {
   return z.object({
     'schema': z.literal('devcap1.schema.json'),
@@ -17,8 +23,8 @@ export function ddfSchema() {
     'modelid': z.string().or(z.array(z.string())),
     'vendor': z.optional(z.string()),
     'product': z.optional(z.string()),
-    'sleeper': z.boolean(),
-    'status': z.enum(['Bronze', 'Silver', 'Gold']),
+    'sleeper': z.optional(z.boolean()),
+    'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']),
     'subdevices': z.array(subDeviceSchema()),
   })
 }
@@ -60,7 +66,7 @@ export function subDeviceItemSchema() {
         }),
         z.object({
           fn: z.undefined(),
-          at: hexa(4).or(z.array(hexa(4))),
+          at: z.optional(hexa(4).or(z.array(hexa(4)))),
           cl: hexa(4),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
@@ -68,7 +74,7 @@ export function subDeviceItemSchema() {
         }),
         z.object({
           fn: z.literal('zcl'),
-          at: hexa(4).or(z.array(hexa(4))),
+          at: z.optional(hexa(4).or(z.array(hexa(4)))),
           cl: hexa(4),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
@@ -83,7 +89,7 @@ export function subDeviceItemSchema() {
       z.discriminatedUnion('fn', [
         z.object({
           fn: z.undefined(),
-          at: hexa(4),
+          at: z.optional(hexa(4)),
           cl: hexa(4),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
@@ -94,7 +100,7 @@ export function subDeviceItemSchema() {
         }).innerType(),
         z.object({
           fn: z.literal('zcl'),
-          at: hexa(4),
+          at: z.optional(hexa(4)),
           cl: hexa(4),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
@@ -105,11 +111,11 @@ export function subDeviceItemSchema() {
         }).innerType(),
         z.object({
           fn: z.literal('ias:zonestatus'),
-          mark: z.enum(['alarm1', 'alarm2']),
+          mask: z.enum(['alarm1', 'alarm2']),
         }),
         z.object({
           fn: z.literal('numtostr'),
-          srcitem: z.literal('state/airqualityppb'),
+          srcitem: z.enum(['state/airqualityppb', 'state/pm2_5']),
           op: z.literal('le'),
           to: flatNumberStringTupleInArray(),
         }),
@@ -126,10 +132,12 @@ export function subDeviceItemSchema() {
         z.object({
           fn: z.literal('tuya'),
           dpid: z.number(),
-          eval: javascript(),
-        }),
+          eval: z.optional(javascript()),
+          script: z.optional(filePath()),
+        }).refine(data => !('eval' in data && 'script' in data), {
+          message: 'eval and script should not both be present',
+        }).innerType(),
       ]),
-
     ),
     'write': z.optional(
       z.discriminatedUnion('fn', [
@@ -138,28 +146,37 @@ export function subDeviceItemSchema() {
         }),
         z.object({
           fn: z.undefined(),
-          at: hexa(4).or(z.array(hexa(4))),
+          at: z.optional(hexa(4).or(z.array(hexa(4)))),
           cl: hexa(4),
           dt: hexa(2),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
           eval: z.optional(javascript()),
-        }),
+          script: z.optional(filePath()),
+        }).refine(data => !('eval' in data && 'script' in data), {
+          message: 'eval and script should not both be present',
+        }).innerType(),
         z.object({
           fn: z.literal('zcl'),
-          at: hexa(4).or(z.array(hexa(4))),
+          at: z.optional(hexa(4).or(z.array(hexa(4)))),
           cl: hexa(4),
           dt: hexa(2),
           ep: z.optional(endpoint()),
           mf: z.optional(hexa(4)),
           eval: z.optional(javascript()),
-        }),
+          script: z.optional(filePath()),
+        }).refine(data => !('eval' in data && 'script' in data), {
+          message: 'eval and script should not both be present',
+        }).innerType(),
         z.object({
           fn: z.literal('tuya'),
           dpid: z.number(),
           dt: hexa(2),
-          eval: javascript(),
-        }),
+          eval: z.optional(javascript()),
+          script: z.optional(filePath()),
+        }).refine(data => !('eval' in data && 'script' in data), {
+          message: 'eval and script should not both be present',
+        }).innerType(),
       ]),
     ),
     'awake': z.optional(z.boolean()),
