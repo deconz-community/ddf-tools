@@ -85,9 +85,14 @@ const download = async () => {
 }
 
 watch(bundle, () => {
-  const data = JSON.parse(bundle.value.data.ddfc)
-  const result = validate(data)
-  console.log(result)
+  try {
+    const data = JSON.parse(bundle.value.data.ddfc)
+    const result = validate(data)
+    console.log(result)
+  }
+  catch (e) {
+    console.log(e)
+  }
 })
 </script>
 
