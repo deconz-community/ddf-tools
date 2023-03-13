@@ -9,7 +9,7 @@ export function validate(data: unknown) {
 
 export function mainSchema() {
   return z.discriminatedUnion('schema', [
-    ddfSchema(),
+    ddfSchema().innerType(),
   ])
 }
 
@@ -26,6 +26,19 @@ export function ddfSchema() {
     'sleeper': z.optional(z.boolean()),
     'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']),
     'subdevices': z.array(subDeviceSchema()),
+  }).refine((data) => {
+    return (
+      typeof data.manufacturername === 'string'
+      && typeof data.modelid === 'string'
+    )
+    || (
+      Array.isArray(data.manufacturername)
+      && Array.isArray(data.modelid)
+      && data.manufacturername.length === data.modelid.length
+    )
+  }, {
+    message: 'manufacturername and modelid should be both strings or arrays with the same length.',
+    path: ['manufacturername', 'modelid'],
   })
 }
 
