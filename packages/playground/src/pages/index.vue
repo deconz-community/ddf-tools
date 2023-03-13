@@ -44,8 +44,6 @@ const parseFile = async () => {
 const makeBundle = async () => {
   let bundled = encode(bundle.value)
   bundled = await sign(bundled, [{
-    type: 'USER',
-    source: 'https://github.com/zehir/',
     key: hexToBytes(privateKeyHex.value),
   }])
   saveAs(bundled, bundle.value.data.name)
