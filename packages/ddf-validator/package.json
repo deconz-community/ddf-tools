@@ -1,13 +1,13 @@
 {
     "name": "ddf-validator",
     "version": "0.0.1",
-    "main": "./dist/ddf-bundler.cjs",
-    "module": "./dist/ddf-bundler.mjs",
-    "types": "./dist/ddf-bundler.d.ts",
+    "main": "./dist/ddf-validator.cjs",
+    "module": "./dist/ddf-validator.mjs",
+    "types": "./dist/ddf-validator.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/ddf-bundler.cjs",
-            "import": "./dist/ddf-bundler.mjs"
+            "require": "./dist/ddf-validator.cjs",
+            "import": "./dist/ddf-validator.mjs"
         }
     },
     "scripts": {
