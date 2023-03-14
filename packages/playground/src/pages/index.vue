@@ -2,8 +2,8 @@
 import * as secp from '@noble/secp256k1'
 import { computedAsync } from '@vueuse/core'
 
-import { Bundle, buildFromFile, decode, encode, sign, verify } from 'ddf-bundler'
-import { validate } from 'ddf-validator'
+import { Bundle, buildFromFile, decode, encode, sign, verify } from '@ddf-tools/bundler'
+import { validate } from '@ddf-tools/validator'
 
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 

@@ -9,7 +9,7 @@
         "ddf",
         "bundle"
     ],
-    "homepage": "https://github.com/deconz-community/ddf-tools/blob/main/packages/ddf-bundler/",
+    "homepage": "https://github.com/deconz-community/ddf-tools/blob/main/packages/bundler/",
     "bugs": {
         "url": "https://github.com/deconz-community/ddf-tools/issues/"
     },
@@ -34,13 +34,13 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
-    "main": "./dist/ddf-bundler.cjs",
-    "module": "./dist/ddf-bundler.mjs",
-    "types": "./dist/ddf-bundler.d.ts",
+    "main": "./dist/bundler.cjs",
+    "module": "./dist/bundler.mjs",
+    "types": "./dist/bundler.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/ddf-bundler.cjs",
-            "import": "./dist/ddf-bundler.mjs"
+            "require": "./dist/bundler.cjs",
+            "import": "./dist/bundler.mjs"
         }
     },
     "scripts": {
