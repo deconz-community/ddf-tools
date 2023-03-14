@@ -1,6 +1,5 @@
 export * from './src/const'
 export * from './src/bundle'
-export * from './src/types'
 
 export * from './src/builder'
 export * from './src/encoder'
