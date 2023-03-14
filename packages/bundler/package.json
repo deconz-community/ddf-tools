@@ -1,6 +1,6 @@
 {
     "name": "@ddf-tools/bundler",
-    "version": "0.0.1",
+    "version": "0.0.0",
     "description": "Creating and editing DDF bundles for deconz",
     "keywords": [
         "deconz",

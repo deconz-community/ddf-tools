@@ -1,6 +1,6 @@
 {
     "name": "@ddf-tools/validator",
-    "version": "0.0.1",
+    "version": "0.0.0",
     "description": "Validating DDF files for deconz",
     "keywords": [
         "deconz",

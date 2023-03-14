@@ -1,7 +1,6 @@
 {
   "name": "@ddf-tools/monorepo",
   "private": true,
-  "version": "0.0.1",
   "scripts": {
     "test": "turbo run test",
     "lint": "turbo run lint",
