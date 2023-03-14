@@ -47,6 +47,7 @@
     },
     "scripts": {
         "build": "vite build",
+        "build:cleanup" : "rimraf ./dist",
         "build:vite": "vite build",
         "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
         "lint": "eslint",

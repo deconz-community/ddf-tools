@@ -3,12 +3,12 @@ import { defineConfig } from "vite";
 import packageJson from "./package.json";
 
 const getPackageName = () => {
-  return packageJson.name;
+  return packageJson.name.replace(/@[^\/]+\//g, '');
 };
 
 const getPackageNameCamelCase = () => {
   try {
-    return getPackageName().replace(/[-/@]./g, (char) => char[1].toUpperCase());
+    return getPackageName().replace(/[-]./g, (char) => char[1].toUpperCase());
   } catch (err) {
     throw new Error("Name property in package.json is missing.");
   }
