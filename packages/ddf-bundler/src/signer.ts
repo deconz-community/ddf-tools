@@ -31,7 +31,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 
   // If we have more data to read
   if (bundled.size !== reader.offset()) {
-    decoder.parseChunks(reader.offset(), bundled.size - reader.offset(), (tag, size, reader) => {
+    decoder.parseChunks(reader.offset(), bundled.size - reader.offset(), (tag, _size, reader) => {
       if (tag === 'SIGN') {
         signatures.push({
           key: reader.read(reader.Uint16()),

@@ -112,8 +112,6 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
       data.signatures.map(signature =>
         chunk('SIGN',
           [
-            text(signature.type),
-            withLength(text(signature.source), Uint16),
             withLength(signature.key, Uint16),
             withLength(signature.signature, Uint16),
           ],
