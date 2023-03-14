@@ -1,5 +1,5 @@
 {
-  "name": "@ddf-tools/monorepo",
+  "name": "@deconz-community/ddf-tools",
   "private": true,
   "scripts": {
     "test": "turbo run test",

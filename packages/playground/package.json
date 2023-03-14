@@ -1,5 +1,5 @@
 {
-  "name": "@ddf-tools/playground",
+  "name": "@deconz-community/ddf-playground",
   "private": true,
   "scripts": {
     "dev": "vite --host --port 4000",
