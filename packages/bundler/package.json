@@ -34,6 +34,9 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
+    "files": [
+        "./dist/"
+    ],
     "main": "./dist/@ddf-tools/bundler.cjs",
     "module": "./dist/@ddf-tools/bundler.mjs",
     "types": "./dist/@ddf-tools/bundler.d.ts",

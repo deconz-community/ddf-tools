@@ -34,6 +34,9 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
+    "files": [
+        "./dist/"
+    ],
     "main": "./dist/validator.cjs",
     "module": "./dist/validator.mjs",
     "exports": {
