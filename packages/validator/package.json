@@ -34,21 +34,21 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
-    "main": "./dist/ddf-validator.cjs",
-    "module": "./dist/ddf-validator.mjs",
-    "types": "./dist/ddf-validator.d.ts",
+    "main": "./dist/validator.cjs",
+    "module": "./dist/validator.mjs",
     "exports": {
         ".": {
-            "require": "./dist/ddf-validator.cjs",
-            "import": "./dist/ddf-validator.mjs"
+            "require": "./dist/validator.cjs",
+            "import": "./dist/validator.mjs"
         }
     },
     "scripts": {
-        "build": "vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+        "build": "vite build",
         "build:vite": "vite build",
         "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
         "lint": "eslint",
-        "test": "vitest",
+        "test": "vitest run",
+        "test:watch": "vitest",
         "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin ./test-data",
         "up": "taze major -I"
     },
@@ -59,7 +59,6 @@
         "@typescript-eslint/eslint-plugin": "^5.51.0",
         "@typescript-eslint/parser": "^5.51.0",
         "degit": "^2.8.4",
-        "dts-bundle-generator": "^7.2.0",
         "eslint": "^8.33.0",
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-prettier": "^4.2.1",

@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 coverage
+.turbo
 
 # Editor directories and files
 .history/*
