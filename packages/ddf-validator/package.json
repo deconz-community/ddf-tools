@@ -1,6 +1,39 @@
 {
     "name": "ddf-validator",
     "version": "0.0.1",
+    "description": "Validating DDF files for deconz",
+    "keywords": [
+        "deconz",
+        "drezden",
+        "conbee",
+        "ddf",
+        "bundle"
+    ],
+    "homepage": "https://github.com/deconz-community/ddf-tools/blob/main/packages/ddf-validator/",
+    "bugs": {
+        "url": "https://github.com/deconz-community/ddf-tools/issues/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deconz-community/ddf-tools.git"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "Zehir",
+        "email": "zehir@zorim.fr",
+        "url": "https://github.com/Zehir"
+    },
+    "maintainers": [
+        {
+          "name": "Zehir",
+          "email": "zehir@zorim.fr",
+          "url": "https://github.com/Zehir"
+        }
+    ],
+    "funding": {
+        "type": "individual",
+        "url": "https://github.com/sponsors/Zehir"
+    },
     "main": "./dist/ddf-validator.cjs",
     "module": "./dist/ddf-validator.mjs",
     "types": "./dist/ddf-validator.d.ts",
