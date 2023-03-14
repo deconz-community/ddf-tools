@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-bundler",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Creating and editing DDF bundles for deconz",
     "keywords": [
         "deconz",
@@ -37,13 +37,13 @@
     "files": [
         "./dist/"
     ],
-    "main": "./dist/@ddf-tools/bundler.cjs",
-    "module": "./dist/@ddf-tools/bundler.mjs",
-    "types": "./dist/@ddf-tools/bundler.d.ts",
+    "main": "./dist/ddf-bundler.cjs",
+    "module": "./dist/ddf-bundler.mjs",
+    "types": "./dist/ddf-bundler.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/@ddf-tools/bundler.cjs",
-            "import": "./dist/@ddf-tools/bundler.mjs"
+            "require": "./dist/ddf-bundler.cjs",
+            "import": "./dist/ddf-bundler.mjs"
         }
     },
     "scripts": {
