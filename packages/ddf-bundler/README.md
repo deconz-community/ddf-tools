@@ -1,4 +1,4 @@
-# DDF bundled format
+# DDF bundler
 
 ## General
 
