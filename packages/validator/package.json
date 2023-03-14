@@ -1,6 +1,6 @@
 {
     "name": "@ddf-tools/validator",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Validating DDF files for deconz",
     "keywords": [
         "deconz",
@@ -25,9 +25,9 @@
     },
     "maintainers": [
         {
-          "name": "Zehir",
-          "email": "zehir@zorim.fr",
-          "url": "https://github.com/Zehir"
+            "name": "Zehir",
+            "email": "zehir@zorim.fr",
+            "url": "https://github.com/Zehir"
         }
     ],
     "funding": {
