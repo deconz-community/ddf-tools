@@ -1,5 +1,11 @@
 # @ddf-tools/bundler
 
+## 0.2.1
+
+### Patch Changes
+
+- 27817cb: Cleanup build
+
 ## 0.2.0
 
 ### Minor Changes
