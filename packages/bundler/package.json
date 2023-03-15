@@ -78,7 +78,6 @@
         "vitest": "^0.28.4"
     },
     "dependencies": {
-        "@noble/hashes": "^1.2.0",
         "@noble/secp256k1": "^1.7.1",
         "pako": "^2.1.0"
     }

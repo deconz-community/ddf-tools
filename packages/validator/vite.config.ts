@@ -16,8 +16,7 @@ const getPackageNameCamelCase = () => {
 
 const fileName = {
   es: `${getPackageName()}.mjs`,
-  cjs: `${getPackageName()}.cjs`,
-  iife: `${getPackageName()}.iife.js`,
+  cjs: `${getPackageName()}.cjs`
 };
 
 const formats = Object.keys(fileName) as Array<keyof typeof fileName>;
@@ -30,6 +29,12 @@ module.exports = defineConfig({
       name: getPackageNameCamelCase(),
       formats,
       fileName: (format) => fileName[format],
+    },
+    rollupOptions: {
+      // deps that shouldn't be bundled
+      external: [
+        "zod",
+      ],
     },
   },
 });
