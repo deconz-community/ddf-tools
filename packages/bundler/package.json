@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-bundler",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Creating and editing DDF bundles for deconz",
     "keywords": [
         "deconz",
@@ -34,7 +34,7 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
-    "files": [    
+    "files": [
         "./dist/ddf-bundler.cjs",
         "./dist/ddf-bundler.mjs",
         "./dist/ddf-bundler.d.ts"

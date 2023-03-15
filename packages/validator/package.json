@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-validator",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Validating DDF files for deconz",
     "keywords": [
         "deconz",
@@ -34,7 +34,7 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
-    "files": [    
+    "files": [
         "./dist/ddf-validator.cjs",
         "./dist/ddf-validator.mjs"
     ],
