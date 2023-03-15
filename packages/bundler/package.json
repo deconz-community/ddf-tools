@@ -34,8 +34,10 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
-    "files": [
-        "./dist/"
+    "files": [    
+        "./dist/ddf-bundler.cjs",
+        "./dist/ddf-bundler.mjs",
+        "./dist/ddf-bundler.d.ts"
     ],
     "main": "./dist/ddf-bundler.cjs",
     "module": "./dist/ddf-bundler.mjs",
@@ -48,7 +50,6 @@
     },
     "scripts": {
         "build": "vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
-        "build:cleanup": "rimraf ./dist",
         "build:vite": "vite build",
         "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
         "lint": "eslint",

@@ -5,7 +5,7 @@ import { fromZodError } from 'zod-validation-error'
 import { ddfSchema } from '../index'
 
 describe('parse', async () => {
-  const jsonfiles = await glob('test-data/devices/**/*.json', { ignore: '**/generic/**' })
+  const jsonfiles = await glob('test-data/**/*.json', { ignore: '**/generic/**' })
   const schema = ddfSchema()
   jsonfiles.forEach((filePath) => {
     test(`should parse file ${filePath}`, async () => {

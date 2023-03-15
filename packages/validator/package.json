@@ -34,8 +34,9 @@
         "type": "individual",
         "url": "https://github.com/sponsors/Zehir"
     },
-    "files": [
-        "./dist/"
+    "files": [    
+        "./dist/ddf-validator.cjs",
+        "./dist/ddf-validator.mjs"
     ],
     "main": "./dist/ddf-validator.cjs",
     "module": "./dist/ddf-validator.mjs",
@@ -53,7 +54,7 @@
         "lint": "eslint",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin ./test-data",
+        "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data",
         "up": "taze major -I"
     },
     "devDependencies": {
