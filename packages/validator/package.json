@@ -40,6 +40,7 @@
     ],
     "main": "./dist/ddf-validator.cjs",
     "module": "./dist/ddf-validator.mjs",
+    "types": "./dist/ddf-validator.d.ts",
     "exports": {
         ".": {
             "require": "./dist/ddf-validator.cjs",
@@ -47,9 +48,10 @@
         }
     },
     "scripts": {
-        "build": "vite build",
+        "build": "vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
         "build:cleanup": "rimraf ./dist",
         "build:vite": "vite build",
+        "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
         "lint": "eslint",
         "test": "vitest run",
         "test:watch": "vitest",
@@ -63,6 +65,7 @@
         "@typescript-eslint/eslint-plugin": "^5.51.0",
         "@typescript-eslint/parser": "^5.51.0",
         "degit": "^2.8.4",
+        "dts-bundle-generator": "^7.2.0",
         "eslint": "^8.33.0",
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-prettier": "^4.2.1",

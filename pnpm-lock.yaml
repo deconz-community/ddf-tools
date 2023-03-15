@@ -210,6 +210,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.51.0
       '@typescript-eslint/parser': ^5.51.0
       degit: ^2.8.4
+      dts-bundle-generator: ^7.2.0
       eslint: ^8.33.0
       eslint-config-prettier: ^8.6.0
       eslint-plugin-prettier: ^4.2.1
@@ -236,6 +237,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.54.0_6mj2wypvdnknez7kws2nfdgupi
       '@typescript-eslint/parser': 5.54.0_ycpbpc6yetojsgtrx3mwntkhsu
       degit: 2.8.4
+      dts-bundle-generator: 7.2.0
       eslint: 8.35.0
       eslint-config-prettier: 8.6.0_eslint@8.35.0
       eslint-plugin-prettier: 4.2.1_u2zha4kiojzs42thzpgwygphmy

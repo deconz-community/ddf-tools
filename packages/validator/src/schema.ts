@@ -16,6 +16,7 @@ export function mainSchema() {
 export function ddfSchema() {
   return z.strictObject({
     'schema': z.literal('devcap1.schema.json'),
+    '$schema': z.optional(z.string()),
     'doc:path': z.optional(z.string()),
     'doc:hdr': z.optional(z.string()),
     'md:known_issues': z.optional(z.array(z.string())),
