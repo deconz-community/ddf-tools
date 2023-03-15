@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.3",
+    "@changesets/cli": "^2.26.0",
     "@types/jsdom": "^20.0.1",
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
@@ -38,8 +39,5 @@
     "vitest": "^0.28.5",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.26.0"
   }
 }
