@@ -1,5 +1,11 @@
 # @ddf-tools/validator
 
+## 0.2.0
+
+### Minor Changes
+
+- 09bd4a0: Change build to be ES and CJS
+
 ## 0.1.1
 
 ### Patch Changes

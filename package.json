@@ -4,7 +4,10 @@
   "scripts": {
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
     "build": "turbo run build:cleanup && turbo run build",
+    "build:cleanup": "turbo run build:cleanup",
     "build:playground": "pnpm --dir packages/playground run build",
     "dev:playground": "pnpm --dir packages/playground run dev"
   },
