@@ -1,5 +1,11 @@
 # @ddf-tools/validator
 
+## 1.2.0
+
+### Minor Changes
+
+- d39099f: update ddf test files
+
 ## 1.1.0
 
 ### Minor Changes
