@@ -1,1 +1,1 @@
-export * from './src/schema'
+export { validate } from './src/schema'

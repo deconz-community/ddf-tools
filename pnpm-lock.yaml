@@ -227,6 +227,8 @@ importers:
       vite: ^4.1.1
       vitest: ^0.28.4
       zod: ^3.21.4
+      zod-to-json-schema: ^3.20.4
+      zod-to-ts: ^1.1.2
       zod-validation-error: ^1.0.1
     dependencies:
       zod: 3.21.4
@@ -253,6 +255,8 @@ importers:
       typescript: 4.9.5
       vite: 4.1.4_@types+node@18.14.6
       vitest: 0.28.5
+      zod-to-json-schema: 3.20.4_zod@3.21.4
+      zod-to-ts: 1.1.2_wnc3eutrhvkpx2b7oumqzgx5he
       zod-validation-error: 1.0.1_zod@3.21.4
 
 packages:
@@ -10186,6 +10190,24 @@ packages:
   /yocto-queue/1.0.0:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
+    dev: true
+
+  /zod-to-json-schema/3.20.4_zod@3.21.4:
+    resolution: {integrity: sha512-Un9+kInJ2Zt63n6Z7mLqBifzzPcOyX+b+Exuzf7L1+xqck9Q2EPByyTRduV3kmSPaXaRer1JCsucubpgL1fipg==}
+    peerDependencies:
+      zod: ^3.20.0
+    dependencies:
+      zod: 3.21.4
+    dev: true
+
+  /zod-to-ts/1.1.2_wnc3eutrhvkpx2b7oumqzgx5he:
+    resolution: {integrity: sha512-IZdM0Ga1l/vQnrNy63aV3qsLNchD0aUYZEtXcyt8A3xA7+erFO0zeImEcUH5qNLA6tXDTjRpcWp0paoVoH/D0A==}
+    peerDependencies:
+      typescript: ^4.9.4
+      zod: ^3
+    dependencies:
+      typescript: 4.9.5
+      zod: 3.21.4
     dev: true
 
   /zod-validation-error/1.0.1_zod@3.21.4:

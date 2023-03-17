@@ -31,5 +31,12 @@
         "**/*.test.ts",
         "node_modules",
         "test/**"
-    ]
+    ],
+    "ts-node": {
+        "esm": true,
+        "experimentalSpecifierResolution": "node",
+        "compilerOptions": {
+            "module": "commonjs"
+        }
+    }
 }

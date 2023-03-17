@@ -3,7 +3,7 @@ import { subDevicesTypes } from './consts'
 import { date, endpoint, filePath, flatNumberStringTupleInArray, hexa, javascript } from './custom-formats'
 
 export function validate(data: unknown) {
-  const schema = ddfSchema()
+  const schema = mainSchema()
   return schema.parse(data)
 }
 
@@ -15,8 +15,8 @@ export function mainSchema() {
 
 export function ddfSchema() {
   return z.strictObject({
-    'schema': z.literal('devcap1.schema.json'),
     '$schema': z.optional(z.string()),
+    'schema': z.literal('devcap1.schema.json'),
     'doc:path': z.optional(z.string()),
     'doc:hdr': z.optional(z.string()),
     'md:known_issues': z.optional(z.array(z.string())),
@@ -29,7 +29,7 @@ export function ddfSchema() {
     'product': z.optional(z.string()),
     'sleeper': z.optional(z.boolean()),
     'supportsMgmtBind': z.optional(z.boolean()),
-    'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']),
+    'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']).describe('The code quality of the DDF file.'),
     'subdevices': z.array(subDeviceSchema()),
     'bindings': z.optional(z.array(subBindingSchema())),
   }).refine((data) => {

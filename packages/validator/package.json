@@ -36,7 +36,9 @@
     },
     "files": [
         "./dist/ddf-validator.cjs",
-        "./dist/ddf-validator.mjs"
+        "./dist/ddf-validator.mjs",
+        "./dist/ddf-validator.d.ts",
+        "./dist/ddf-schema.json"
     ],
     "main": "./dist/ddf-validator.cjs",
     "module": "./dist/ddf-validator.mjs",
@@ -48,10 +50,10 @@
         }
     },
     "scripts": {
-        "build": "vite build && dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+        "build": "pnpm run build:vite && pnpm run build:dts",
         "build:cleanup": "rimraf ./dist",
         "build:vite": "vite build",
-        "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+        "build:dts" : "ts-node ./build-dts.ts",
         "lint": "eslint",
         "test": "vitest run",
         "test:watch": "vitest",
@@ -81,6 +83,8 @@
         "typescript": "^4.9.5",
         "vite": "^4.1.1",
         "vitest": "^0.28.4",
+        "zod-to-json-schema": "^3.20.4",
+        "zod-to-ts": "^1.1.2",
         "zod-validation-error": "^1.0.1"
     },
     "dependencies": {
