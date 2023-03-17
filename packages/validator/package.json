@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-validator",
-    "version": "0.2.1",
+    "version": "1.0.0",
     "description": "Validating DDF files for deconz",
     "keywords": [
         "deconz",
@@ -53,7 +53,7 @@
         "build": "pnpm run build:vite && pnpm run build:dts",
         "build:cleanup": "rimraf ./dist",
         "build:vite": "vite build",
-        "build:dts" : "ts-node ./build-dts.ts",
+        "build:dts": "ts-node ./build-dts.ts",
         "lint": "eslint",
         "test": "vitest run",
         "test:watch": "vitest",

@@ -1,5 +1,16 @@
 # @ddf-tools/validator
 
+## 1.0.0
+
+### Major Changes
+
+- 03f1d37: First release
+
+### Minor Changes
+
+- e192695: Add typescript and json schema definition
+- 1c07ad1: Update test files from main repo
+
 ## 0.2.1
 
 ### Patch Changes
