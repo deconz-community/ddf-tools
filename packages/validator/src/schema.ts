@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { subDevicesTypes } from './consts'
+import { attributesNames, subDevicesTypes } from './consts'
 import { date, endpoint, filePath, flatNumberStringTupleInArray, hexa, javascript } from './custom-formats'
 
 export function validate(data: unknown) {
@@ -86,7 +86,7 @@ export function subDeviceSchema() {
 
 export function subDeviceItemSchema() {
   return z.strictObject({
-    'name': z.string(),
+    'name': z.enum(attributesNames).or(z.string()),
     'description': z.optional(z.string()),
     'comment': z.optional(z.string()),
     'public': z.optional(z.boolean()),
