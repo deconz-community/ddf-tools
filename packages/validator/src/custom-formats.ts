@@ -46,3 +46,17 @@ export function flatNumberStringTupleInArray() {
     return true
   }, 'The value must be an array with an even number of values and alternating between number and string.')
 }
+
+export function uuid() {
+  return z.union([
+    z.tuple([
+      z.literal('$address.ext'),
+      hexa(2),
+    ]),
+    z.tuple([
+      z.literal('$address.ext'),
+      hexa(2),
+      hexa(4),
+    ]),
+  ])
+}

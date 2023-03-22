@@ -5,7 +5,7 @@ import { fromZodError } from 'zod-validation-error'
 import { validate } from '../index'
 
 describe('parse', async () => {
-  const jsonfiles = await glob('test-data/**/*.json', { ignore: '**/generic/**' })
+  const jsonfiles = await glob('test-data/**/*.json')
   jsonfiles.forEach((filePath) => {
     test(`should parse file ${filePath}`, async () => {
       const data = await readFile(filePath, 'utf-8')

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { attributesNames, subDevicesTypes } from './consts'
-import { date, endpoint, filePath, flatNumberStringTupleInArray, hexa, javascript } from './custom-formats'
+import { date, endpoint, filePath, flatNumberStringTupleInArray, hexa, javascript, uuid } from './custom-formats'
 
 export function validate(data: unknown) {
   const schema = mainSchema()
@@ -9,7 +9,10 @@ export function validate(data: unknown) {
 
 export function mainSchema() {
   return z.discriminatedUnion('schema', [
-    ddfSchema().innerType(),
+    ddfSchema(),
+    constantsSchema(),
+    resourceSchema(),
+    subDeviceSchema(),
   ])
 }
 
@@ -30,8 +33,8 @@ export function ddfSchema() {
     'sleeper': z.optional(z.boolean()),
     'supportsMgmtBind': z.optional(z.boolean()),
     'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']).describe('The code quality of the DDF file.'),
-    'subdevices': z.array(subDeviceSchema()),
-    'bindings': z.optional(z.array(subBindingSchema())),
+    'subdevices': z.array(ddfSubDeviceSchema()),
+    'bindings': z.optional(z.array(ddfBindingSchema())),
   }).refine((data) => {
     return (
       typeof data.manufacturername === 'string'
@@ -45,24 +48,14 @@ export function ddfSchema() {
   }, {
     message: 'manufacturername and modelid should be both strings or arrays with the same length.',
     path: ['manufacturername', 'modelid'],
-  })
+  }).innerType()
 }
 
-export function subDeviceSchema() {
+export function ddfSubDeviceSchema() {
   return z.strictObject({
     type: z.enum(subDevicesTypes),
     restapi: z.enum(['/lights', '/sensors']),
-    uuid: z.union([
-      z.tuple([
-        z.literal('$address.ext'),
-        hexa(2),
-      ]),
-      z.tuple([
-        z.literal('$address.ext'),
-        hexa(2),
-        hexa(4),
-      ]),
-    ]),
+    uuid: uuid(),
     fingerprint: z.optional(z.strictObject({
       profile: hexa(4),
       device: hexa(4),
@@ -94,134 +87,9 @@ export function subDeviceItemSchema() {
     'range': z.optional(z.tuple([z.number(), z.number()])),
     'deprecated': z.optional(date()),
     'access': z.optional(z.literal('R')),
-    'read': z.optional(
-      z.discriminatedUnion('fn', [
-        z.strictObject({
-          fn: z.literal('none'),
-        }),
-        z.strictObject({
-          fn: z.undefined(),
-          at: z.optional(hexa(4).or(z.array(hexa(4)))),
-          cl: hexa(4),
-          ep: z.optional(endpoint()),
-          mf: z.optional(hexa(4)),
-          eval: z.optional(javascript()),
-        }),
-        z.strictObject({
-          fn: z.literal('zcl'),
-          at: z.optional(hexa(4).or(z.array(hexa(4)))),
-          cl: hexa(4),
-          ep: z.optional(endpoint()),
-          mf: z.optional(hexa(4)),
-          eval: z.optional(javascript()),
-        }),
-        z.strictObject({
-          fn: z.literal('tuya'),
-        }),
-      ]),
-    ),
-    'parse': z.optional(
-      z.discriminatedUnion('fn', [
-        z.strictObject({
-          fn: z.undefined(),
-          at: z.optional(hexa(4)),
-          cl: hexa(4),
-          cppsrc: z.optional(z.string()),
-          ep: z.optional(endpoint()),
-          cmd: z.optional(hexa(2)),
-          mf: z.optional(hexa(4)),
-          eval: z.optional(javascript()),
-          script: z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-        z.strictObject({
-          fn: z.literal('zcl'),
-          at: z.optional(hexa(4)),
-          cl: hexa(4),
-          cppsrc: z.optional(z.string()),
-          ep: z.optional(endpoint()),
-          cmd: z.optional(hexa(2)),
-          mf: z.optional(hexa(4)),
-          eval: z.optional(javascript()),
-          script: z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-        z.strictObject({
-          fn: z.literal('ias:zonestatus'),
-          mask: z.enum(['alarm1', 'alarm2']),
-        }),
-        z.strictObject({
-          fn: z.literal('numtostr'),
-          srcitem: z.enum(['state/airqualityppb', 'state/pm2_5']),
-          op: z.literal('le'),
-          to: flatNumberStringTupleInArray(),
-        }),
-        z.strictObject({
-          fn: z.literal('xiaomi:special'),
-          ep: z.optional(endpoint()),
-          at: z.optional(hexa(4)),
-          idx: hexa(2),
-          eval: z.optional(javascript()),
-          script: z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-        z.strictObject({
-          fn: z.literal('tuya'),
-          dpid: z.number(),
-          eval: z.optional(javascript()),
-          script: z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-      ]),
-    ),
-    'write': z.optional(
-      z.discriminatedUnion('fn', [
-        z.strictObject({
-          fn: z.literal('none'),
-        }),
-        z.strictObject({
-          'fn': z.undefined(),
-          'at': z.optional(hexa(4).or(z.array(hexa(4)))),
-          'state.timeout': z.optional(z.number()),
-          'change.timeout': z.optional(z.number()),
-          'cl': hexa(4),
-          'dt': hexa(2),
-          'ep': z.optional(endpoint()),
-          'mf': z.optional(hexa(4)),
-          'eval': z.optional(javascript()),
-          'script': z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-        z.strictObject({
-          'fn': z.literal('zcl'),
-          'at': z.optional(hexa(4).or(z.array(hexa(4)))),
-          'state.timeout': z.optional(z.number()),
-          'change.timeout': z.optional(z.number()),
-          'cl': hexa(4),
-          'dt': hexa(2),
-          'ep': z.optional(endpoint()),
-          'mf': z.optional(hexa(4)),
-          'eval': z.optional(javascript()),
-          'script': z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-        z.strictObject({
-          fn: z.literal('tuya'),
-          dpid: z.number(),
-          dt: hexa(2),
-          eval: z.optional(javascript()),
-          script: z.optional(filePath()),
-        }).refine(data => !('eval' in data && 'script' in data), {
-          message: 'eval and script should not both be present',
-        }).innerType(),
-      ]),
-    ),
+    'read': z.optional(readFunction()),
+    'parse': z.optional(parseFunction()),
+    'write': z.optional(writeFunction()),
     'awake': z.optional(z.boolean()),
     'default': z.optional(z.unknown()),
     'values': z.optional(z.unknown()),
@@ -229,7 +97,141 @@ export function subDeviceItemSchema() {
   })
 }
 
-export function subBindingSchema() {
+export function readFunction() {
+  return z.discriminatedUnion('fn', [
+    z.strictObject({
+      fn: z.literal('none'),
+    }),
+    z.strictObject({
+      fn: z.undefined(),
+      at: z.optional(hexa(4).or(z.array(hexa(4)))),
+      cl: hexa(4),
+      ep: z.optional(endpoint()),
+      mf: z.optional(hexa(4)),
+      eval: z.optional(javascript()),
+    }),
+    z.strictObject({
+      fn: z.literal('zcl'),
+      at: z.optional(hexa(4).or(z.array(hexa(4)))),
+      cl: hexa(4),
+      ep: z.optional(endpoint()),
+      mf: z.optional(hexa(4)),
+      eval: z.optional(javascript()),
+    }),
+    z.strictObject({
+      fn: z.literal('tuya'),
+    }),
+  ])
+}
+
+export function parseFunction() {
+  return z.discriminatedUnion('fn', [
+    z.strictObject({
+      fn: z.undefined(),
+      at: z.optional(hexa(4)),
+      cl: hexa(4),
+      cppsrc: z.optional(z.string()),
+      ep: z.optional(endpoint()),
+      cmd: z.optional(hexa(2)),
+      mf: z.optional(hexa(4)),
+      eval: z.optional(javascript()),
+      script: z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+    z.strictObject({
+      fn: z.literal('zcl'),
+      at: z.optional(hexa(4)),
+      cl: hexa(4),
+      cppsrc: z.optional(z.string()),
+      ep: z.optional(endpoint()),
+      cmd: z.optional(hexa(2)),
+      mf: z.optional(hexa(4)),
+      eval: z.optional(javascript()),
+      script: z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+    z.strictObject({
+      fn: z.literal('ias:zonestatus'),
+      mask: z.optional(z.enum(['alarm1', 'alarm2']).or(z.literal('alarm1,alarm2'))),
+    }),
+    z.strictObject({
+      fn: z.literal('numtostr'),
+      srcitem: z.enum(['state/airqualityppb', 'state/pm2_5']),
+      op: z.literal('le'),
+      to: flatNumberStringTupleInArray(),
+    }),
+    z.strictObject({
+      fn: z.literal('time'),
+    }),
+    z.strictObject({
+      fn: z.literal('xiaomi:special'),
+      ep: z.optional(endpoint()),
+      at: z.optional(hexa(4)),
+      idx: hexa(2),
+      eval: z.optional(javascript()),
+      script: z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+    z.strictObject({
+      fn: z.literal('tuya'),
+      dpid: z.number(),
+      eval: z.optional(javascript()),
+      script: z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+  ])
+}
+
+export function writeFunction() {
+  return z.discriminatedUnion('fn', [
+    z.strictObject({
+      fn: z.literal('none'),
+    }),
+    z.strictObject({
+      'fn': z.undefined(),
+      'at': z.optional(hexa(4).or(z.array(hexa(4)))),
+      'state.timeout': z.optional(z.number()),
+      'change.timeout': z.optional(z.number()),
+      'cl': hexa(4),
+      'dt': hexa(2),
+      'ep': z.optional(endpoint()),
+      'mf': z.optional(hexa(4)),
+      'eval': z.optional(javascript()),
+      'script': z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+    z.strictObject({
+      'fn': z.literal('zcl'),
+      'at': z.optional(hexa(4).or(z.array(hexa(4)))),
+      'state.timeout': z.optional(z.number()),
+      'change.timeout': z.optional(z.number()),
+      'cl': hexa(4),
+      'dt': hexa(2),
+      'ep': z.optional(endpoint()),
+      'mf': z.optional(hexa(4)),
+      'eval': z.optional(javascript()),
+      'script': z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+    z.strictObject({
+      fn: z.literal('tuya'),
+      dpid: z.number(),
+      dt: hexa(2),
+      eval: z.optional(javascript()),
+      script: z.optional(filePath()),
+    }).refine(data => !('eval' in data && 'script' in data), {
+      message: 'eval and script should not both be present',
+    }).innerType(),
+  ])
+}
+
+export function ddfBindingSchema() {
   return z.discriminatedUnion('bind', [
     z.strictObject({
       'bind': z.literal('unicast'),
@@ -252,4 +254,51 @@ export function subBindingSchema() {
       'config.group': z.number(),
     }),
   ])
+}
+
+export function constantsSchema() {
+  return z.strictObject({
+    '$schema': z.optional(z.string()),
+    'schema': z.literal('constants1.schema.json'),
+    'manufacturers': z.record(z.string().startsWith('$MF_'), z.string()),
+    'device-types': z.record(z.string().startsWith('$TYPE_'), z.string()),
+  })
+}
+
+export function resourceSchema() {
+  return z.strictObject({
+    '$schema': z.optional(z.string()),
+    'schema': z.literal('resourceitem1.schema.json'),
+    'id': z.string(),
+    'description': z.string(),
+    'deprecated': z.optional(date()),
+    'datatype': z.enum(['String', 'Bool', 'Int8', 'Int16', 'Int32', 'Int64', 'UInt8', 'UInt16', 'UInt32', 'UInt64', 'Array', 'Array[3]', 'ISO 8601 timestamp']),
+    'access': z.enum(['R', 'W', 'RW']),
+    'public': z.boolean(),
+    'implicit': z.optional(z.boolean()),
+    'managed': z.optional(z.boolean()),
+    'static': z.optional(z.boolean()),
+    'virtual': z.optional(z.boolean()),
+    'parse': z.optional(parseFunction()),
+    'read': z.optional(readFunction()),
+    'write': z.optional(writeFunction()),
+    'refresh.interval': z.optional(z.number()),
+    // TODO Validate this
+    'values': z.optional(z.unknown()),
+    'range': z.optional(z.tuple([z.number(), z.number()])),
+    'default': z.optional(z.unknown()),
+  })
+}
+
+export function subDeviceSchema() {
+  return z.strictObject({
+    $schema: z.optional(z.string()),
+    schema: z.literal('subdevice1.schema.json'),
+    type: z.enum(subDevicesTypes),
+    name: z.string(),
+    restapi: z.enum(['/lights', '/sensors']),
+    order: z.number(),
+    uuid: uuid(),
+    items: z.array(z.enum(attributesNames)),
+  })
 }
