@@ -1,5 +1,13 @@
 # @ddf-tools/validator
 
+## 1.3.0
+
+### Minor Changes
+
+- 438f516: Update attribute name validation
+- 1e1d964: Update device item name validation to use the attributes list from ressource.cpp
+- d1a3188: Add validator for generic files
+
 ## 1.2.0
 
 ### Minor Changes
