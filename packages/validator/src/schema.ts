@@ -86,7 +86,7 @@ export function subDeviceSchema() {
 
 export function subDeviceItemSchema() {
   return z.strictObject({
-    'name': z.enum(attributesNames).or(z.string()),
+    'name': z.enum(attributesNames),
     'description': z.optional(z.string()),
     'comment': z.optional(z.string()),
     'public': z.optional(z.boolean()),
