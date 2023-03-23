@@ -3,10 +3,27 @@
 import fs from 'fs'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
-import { mainSchema } from './src/schema'
+import glob from 'glob'
+
+import { createValidator } from './src/validator'
 
 const schemaDirectory = './dist'
-const schemaZod = mainSchema()
+
+const validator = createValidator()
+const genericFiles = glob.globSync('test-data/generic/**/*.json')
+
+const genericFilesData = genericFiles.map((filePath) => {
+  const data = fs.readFileSync(filePath, { encoding: 'utf-8' })
+  const decoded = JSON.parse(data)
+  return { path: filePath, data: decoded }
+})
+
+genericFilesData.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
+genericFilesData.forEach((file) => {
+  validator.loadGeneric(file.data)
+})
+
+const schemaZod = validator.getSchema()
 
 if (!fs.existsSync(schemaDirectory))
   fs.mkdirSync(schemaDirectory, { recursive: true })
@@ -26,6 +43,8 @@ const schemaTS = `
 export ${nodeString}
 
 export declare function validate(data: unknown): DDF
+
+${fs.readFileSync('./types.ts', { encoding: 'utf-8' })}
 
 export {};
 `

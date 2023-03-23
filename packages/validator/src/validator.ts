@@ -43,5 +43,5 @@ export function createValidator(generics: GenericsData = { attributes: [], manuf
     return schema.parse(data)
   }
 
-  return { generics, loadGeneric, validate }
+  return { generics, loadGeneric, validate, getSchema: () => schema }
 }
