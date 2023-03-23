@@ -1,31 +1,5 @@
 import { z } from 'zod'
-
-export function hexa(digit: number | undefined = undefined) {
-  // TODO implement to accept only hexa values in string
-  if (digit === undefined)
-    return z.string()
-  // Example : '0x01'
-  return z.string().length(2 + digit)
-}
-
-export function javascript() {
-  return z.string()
-}
-
-export function date() {
-  return z.string()
-}
-
-export function endpoint() {
-  return z.union([
-    hexa(2),
-    z.number().min(0).max(255),
-  ])
-}
-
-export function filePath() {
-  return z.string()
-}
+import { hexa } from './strings'
 
 export function flatNumberStringTupleInArray() {
   return z.custom((arr: unknown) => {

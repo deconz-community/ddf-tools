@@ -1,1 +1,1 @@
-export { validate } from './src/schema'
+export { createValidator } from './src/validator'
