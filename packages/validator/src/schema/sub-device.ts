@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { GenericsData } from '../validator'
+import type { GenericsData } from '../types'
 import * as cf from '../custom-formats'
 
 export function subDeviceSchema(generics: GenericsData) {

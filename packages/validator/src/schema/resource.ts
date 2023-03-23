@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import type { GenericsData } from '../validator'
 import * as cf from '../custom-formats'
+import type { GenericsData } from '../types'
 import { parseFunction, readFunction, writeFunction } from './function'
 
-export function resourceSchema(generics: GenericsData) {
+export function resourceSchema(_generics: GenericsData) {
   return z.strictObject({
     '$schema': z.optional(z.string()),
     'schema': z.literal('resourceitem1.schema.json'),

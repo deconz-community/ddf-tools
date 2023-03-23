@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import type { GenericsData } from '../validator'
+import type { GenericsData } from '../types'
 
-export function constantsSchema(generics: GenericsData) {
+export function constantsSchema(_generics: GenericsData) {
   return z.strictObject({
     '$schema': z.optional(z.string()),
     'schema': z.literal('constants1.schema.json'),

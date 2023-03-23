@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { GenericsData } from '../validator'
+import type { GenericsData } from '../types'
 import * as cf from '../custom-formats'
 import { parseFunction, readFunction, writeFunction } from './function'
 
@@ -21,7 +21,7 @@ export function ddfSchema(generics: GenericsData) {
     'supportsMgmtBind': z.optional(z.boolean()),
     'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']).describe('The code quality of the DDF file.'),
     'subdevices': z.array(ddfSubDeviceSchema(generics)),
-    'bindings': z.optional(z.array(ddfBindingSchema())),
+    'bindings': z.optional(z.array(ddfBindingSchema(generics))),
   }).refine((data) => {
     return (
       typeof data.manufacturername === 'string'
@@ -87,7 +87,7 @@ export function subDeviceItemSchema(generics: GenericsData) {
   })
 }
 
-export function ddfBindingSchema() {
+export function ddfBindingSchema(_generics: GenericsData) {
   return z.discriminatedUnion('bind', [
     z.strictObject({
       'bind': z.literal('unicast'),
