@@ -18,17 +18,3 @@ export function endpoint() {
     z.number().min(0).max(255),
   ])
 }
-
-export function uuid() {
-  return z.union([
-    z.tuple([
-      z.literal('$address.ext'),
-      hexa(2),
-    ]),
-    z.tuple([
-      z.literal('$address.ext'),
-      hexa(2),
-      hexa(4),
-    ]),
-  ])
-}
