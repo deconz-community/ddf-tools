@@ -1,4 +1,4 @@
-# @ddf-tools/bundler
+# @deconz-community/ddf-bundler
 
 ## 0.2.1
 

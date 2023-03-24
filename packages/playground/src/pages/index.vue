@@ -2,8 +2,7 @@
 import * as secp from '@noble/secp256k1'
 import { computedAsync } from '@vueuse/core'
 
-import { Bundle, buildFromFile, decode, encode, sign, verify } from '@ddf-tools/bundler'
-import { validate } from '@ddf-tools/validator'
+import { Bundle, buildFromFile, decode, encode, sign, verify } from '@deconz-community/ddf-bundler'
 
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 
@@ -87,8 +86,10 @@ const download = async () => {
 watch(bundle, () => {
   try {
     const data = JSON.parse(bundle.value.data.ddfc)
+    /*
     const result = validate(data)
     console.log(result)
+    */
   }
   catch (e) {
     console.log(e)

@@ -1,4 +1,4 @@
-# @ddf-tools/validator
+# @deconz-community/ddf-validator
 
 ## 1.3.0
 
