@@ -1,15 +1,19 @@
 import { z } from 'zod'
 
 export function date() {
-  return z.string()
+  return z.string().regex(
+    // Regex for AAAA-MM-JJ
+    /^(\d{4})-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:0[1-9])|(?:[12][0-9])|(?:3[01]))$/,
+    'Invalid date value',
+  )
 }
 
 export function hexa(digit: number | undefined = undefined) {
-  // TODO implement to accept only hexa values in string
+  const message = 'Invalid hexadecimal value'
   if (digit === undefined)
-    return z.string()
+    return z.string().regex(/^0x[0-9a-fA-F]+$/, message)
   // Example : '0x01'
-  return z.string().length(2 + digit)
+  return z.string().regex(new RegExp(`^0x[0-9a-fA-F]{${digit}}$`), message)
 }
 
 export function endpoint() {

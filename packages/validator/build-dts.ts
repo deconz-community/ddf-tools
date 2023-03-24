@@ -7,8 +7,7 @@ import glob from 'glob'
 
 import { createValidator } from './src/validator'
 
-const schemaDirectory = './dist'
-
+// Generate zod Schema
 const validator = createValidator()
 const genericFiles = glob.globSync('test-data/generic/**/*.json')
 
@@ -25,31 +24,41 @@ genericFilesData.forEach((file) => {
 
 const schemaZod = validator.getSchema()
 
-if (!fs.existsSync(schemaDirectory))
-  fs.mkdirSync(schemaDirectory, { recursive: true })
+// Prepare output dir
+const outputDirectory = './dist'
+if (!fs.existsSync(outputDirectory))
+  fs.mkdirSync(outputDirectory, { recursive: true })
 
+// Write json schema
 const schemaJson = zodToJsonSchema(schemaZod, 'DDF')
 fs.writeFileSync(
-    `${schemaDirectory}/ddf-schema.json`,
+    `${outputDirectory}/ddf-schema.json`,
     JSON.stringify(schemaJson),
 )
 
+// Write typescript schema
 const { node } = zodToTs(schemaZod, 'DDF')
 const typeAlias = createTypeAlias(node, 'DDF')
 
 const nodeString = printNode(typeAlias)
 
-const schemaTS = `
+const schemaTS = `import { ZodType } from "zod";
+
 export ${nodeString}
 
-export declare function validate(data: unknown): DDF
+${fs.readFileSync('./src/types.ts', { encoding: 'utf-8' })}
 
-${fs.readFileSync('./types.ts', { encoding: 'utf-8' })}
+export declare function createValidator(generics?: GenericsData): {
+  generics: GenericsData;
+  loadGeneric: (data: unknown) => DDF;
+  validate: (data: unknown) => DDF;
+  getSchema: () => ZodType<DDF>;
+};
 
 export {};
 `
 
 fs.writeFileSync(
-    `${schemaDirectory}/ddf-validator.d.ts`,
+    `${outputDirectory}/ddf-validator.d.ts`,
     schemaTS,
 )

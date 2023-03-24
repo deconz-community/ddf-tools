@@ -22,6 +22,7 @@ describe('parse', async () => {
       },
     ))
 
+    // Sort to load consts first
     genericFilesData.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
 
     genericFilesData.forEach((file) => {
