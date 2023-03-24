@@ -1,5 +1,15 @@
 # @deconz-community/ddf-validator
 
+## 2.0.0
+
+### Major Changes
+
+- c57e7d3: Rework validator to load generic data
+
+### Minor Changes
+
+- ec49367: Update string validator for date and hexa values
+
 ## 1.3.0
 
 ### Minor Changes
