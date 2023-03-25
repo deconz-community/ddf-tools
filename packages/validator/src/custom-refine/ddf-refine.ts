@@ -59,19 +59,7 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
           : [item.read.at]
 
         for (let index = 0; index < ats.length; index++) {
-          const at = ats[index]
-          if (at === undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.too_big,
-              maximum: 3,
-              type: 'array',
-              inclusive: true,
-              message: 'WTF',
-            })
-            return
-          }
-
-          const path = `${endpoint}.${int(item.read.cl)}.${int(at)}`
+          const path = `${endpoint}.${int(item.read.cl)}.${int(ats[index])}`
 
           if (bindingsReportTime[path] !== undefined && bindingsReportTime[path] > item['refresh.interval']) {
             ctx.addIssue({
