@@ -76,7 +76,7 @@ export function subDeviceItemSchema(generics: GenericsData) {
     'static': z.optional(z.union([z.string(), z.number(), z.boolean()])).describe('A static default value is fixed and can be not changed.'),
     'range': z.optional(z.tuple([z.number(), z.number()])).describe('Values range limit.'),
     'deprecated': z.optional(cf.date()),
-    'access': z.optional(z.literal('R')),
+    'access': z.optional(z.literal('R')).describe('Access mode for this item, some of them are not editable.'),
     'read': z.optional(readFunction()).describe('Fonction used to read value.'),
     'parse': z.optional(parseFunction()).describe('Fonction used to parse incoming values.'),
     'write': z.optional(writeFunction()).describe('Fonction used to write value.'),
