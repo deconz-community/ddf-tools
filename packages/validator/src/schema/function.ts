@@ -8,7 +8,7 @@ export function readFunction() {
     }),
     z.strictObject({
       fn: z.undefined(),
-      at: z.optional(cf.hexa(4).or(z.array(cf.hexa(4)))),
+      at: cf.hexa(4).or(z.array(cf.hexa(4))),
       cl: cf.hexa(4),
       ep: z.optional(cf.endpoint()),
       mf: z.optional(cf.hexa(4)),
@@ -16,7 +16,7 @@ export function readFunction() {
     }),
     z.strictObject({
       fn: z.literal('zcl'),
-      at: z.optional(cf.hexa(4).or(z.array(cf.hexa(4)))),
+      at: cf.hexa(4).or(z.array(cf.hexa(4))),
       cl: cf.hexa(4),
       ep: z.optional(cf.endpoint()),
       mf: z.optional(cf.hexa(4)),
