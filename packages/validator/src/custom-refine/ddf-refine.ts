@@ -37,19 +37,24 @@ function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx) {
 }
 
 function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.RefinementCtx) {
+  // If there no bindings there is nothing to check
+  if (!data.bindings)
+    return
+
   const bindingsReportTime: Record<string, number> = {}
+  // Get value in numeric from hexa or numeric value
   const int = (value: string | number) => typeof value === 'number' ? value : parseInt(value, 16)
 
-  if (data.bindings) {
-    data.bindings.forEach((binding) => {
-      if (binding.bind === 'unicast' && binding.report) {
-        binding.report.forEach((report) => {
-          bindingsReportTime[`${int(binding['src.ep'])}.${int(binding.cl)}.${int(report.at)}`] = report.max
-        })
-      }
-    })
-  }
+  // Build bindings max refresh record
+  data.bindings.forEach((binding) => {
+    if (binding.bind === 'unicast' && binding.report) {
+      binding.report.forEach((report) => {
+        bindingsReportTime[`${int(binding['src.ep'])}.${int(binding.cl)}.${int(report.at)}`] = report.max
+      })
+    }
+  })
 
+  // For each item with zcl read method
   data.subdevices.forEach((device, device_index) => {
     device.items.forEach((item, item_index) => {
       if (item['refresh.interval'] && item.read && item.read.fn === 'zcl') {
@@ -58,13 +63,15 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
           ? item.read.at
           : [item.read.at]
 
+        // For each attributes in the read method
         for (let index = 0; index < ats.length; index++) {
           const path = `${endpoint}.${int(item.read.cl)}.${int(ats[index])}`
 
           if (bindingsReportTime[path] !== undefined && bindingsReportTime[path] > item['refresh.interval']) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: `The refresh interval (${item['refresh.interval']}) is lower then the binding max refresh value (${bindingsReportTime[path]}).`,
+              message: `The refresh interval (${item['refresh.interval']})`
+              + ` is lower then the binding max refresh value (${bindingsReportTime[path]}).`,
               path: ['subdevices', device_index, 'items', item_index, 'refresh.interval'],
             })
           }
