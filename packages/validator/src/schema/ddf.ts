@@ -81,14 +81,16 @@ export function ddfBindingSchema(_generics: GenericsData) {
       'src.ep': cf.endpoint().describe('Source endpoint.'),
       'dst.ep': z.optional(cf.endpoint()).describe('Destination endpoint, generaly 0x01.'),
       'cl': cf.hexa(4).describe('Cluster.'),
-      'report': z.optional(z.array(z.strictObject({
-        at: cf.hexa(4),
-        dt: cf.hexa(2),
-        mf: z.optional(cf.hexa(4)),
-        min: z.number(),
-        max: z.number(),
-        change: z.optional(cf.hexa().or(z.number())),
-      }))),
+      'report': z.optional(z.array(
+        z.strictObject({
+          at: cf.hexa(4),
+          dt: cf.hexa(2),
+          mf: z.optional(cf.hexa(4)),
+          min: z.number(),
+          max: z.number(),
+          change: z.optional(cf.hexa().or(z.number())),
+        }).refine(data => data.min <= data.max, { message: 'invalid report time, min should be smaller than max' }),
+      )),
     }),
     z.strictObject({
       'bind': z.literal('groupcast'),
