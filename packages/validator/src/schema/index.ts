@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ddfRefines } from '../custom-refine/ddf-refine'
 import type { GenericsData } from '../types'
 
 import * as s from './'
@@ -15,5 +16,11 @@ export function mainSchema(generics: GenericsData) {
     s.constantsSchema(generics),
     s.resourceSchema(generics),
     s.subDeviceSchema(generics),
-  ])
+  ]).superRefine((data, ctx) => {
+    switch (data.schema) {
+      case 'devcap1.schema.json':
+        ddfRefines.map(v => v(data, ctx))
+        break
+    }
+  })
 }

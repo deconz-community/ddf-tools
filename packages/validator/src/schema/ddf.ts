@@ -22,20 +22,7 @@ export function ddfSchema(generics: GenericsData) {
     'status': z.enum(['Draft', 'Bronze', 'Silver', 'Gold']).describe('The code quality of the DDF file.'),
     'subdevices': z.array(ddfSubDeviceSchema(generics)).describe('Devices section.'),
     'bindings': z.optional(z.array(ddfBindingSchema(generics))).describe('Bindings section.'),
-  }).refine((data) => {
-    return (
-      typeof data.manufacturername === 'string'
-        && typeof data.modelid === 'string'
-    )
-      || (
-        Array.isArray(data.manufacturername)
-        && Array.isArray(data.modelid)
-        && data.manufacturername.length === data.modelid.length
-      )
-  }, {
-    message: 'manufacturername and modelid should be both strings or arrays with the same length.',
-    path: ['manufacturername', 'modelid'],
-  }).innerType()
+  })
 }
 
 export function ddfSubDeviceSchema(generics: GenericsData) {
