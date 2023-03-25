@@ -14,7 +14,7 @@ export function ddfSchema(generics: GenericsData) {
     'modelid': z.string().or(z.array(z.string())).describe('Model ID from Basic Cluster.'),
     'vendor': z.optional(z.string()).describe('Friendly name of the manufacturer.'),
     'comment': z.optional(z.string()),
-    'matchexpr': z.optional(cf.javascript()).describe('Need to be valide for the DDF be used.'),
+    'matchexpr': z.optional(cf.javascript()).describe('Need to return true for the DDF be used.'),
     'path': z.optional(cf.filePath()).describe('DDF path, useless, can be removed.'),
     'product': z.optional(z.string()).describe('Complements the model id to be shown in the UI.'),
     'sleeper': z.optional(z.boolean()).describe('Sleeping devices can only receive when awake.'),
