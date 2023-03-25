@@ -25,7 +25,9 @@ export function readFunction() {
     z.strictObject({
       fn: z.literal('tuya'),
     }),
-  ])
+  ]).refine(data => !('eval' in data && 'script' in data), {
+    message: 'eval and script should not both be present',
+  })
 }
 
 export function parseFunction() {
@@ -40,9 +42,7 @@ export function parseFunction() {
       mf: z.optional(cf.hexa(4)),
       eval: z.optional(cf.javascript()),
       script: z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
+    }),
     z.strictObject({
       fn: z.literal('zcl'),
       at: z.optional(cf.hexa(4)),
@@ -53,9 +53,7 @@ export function parseFunction() {
       mf: z.optional(cf.hexa(4)),
       eval: z.optional(cf.javascript()),
       script: z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
+    }),
     z.strictObject({
       fn: z.literal('ias:zonestatus'),
       mask: z.optional(z.enum(['alarm1', 'alarm2']).or(z.literal('alarm1,alarm2'))),
@@ -76,18 +74,16 @@ export function parseFunction() {
       idx: cf.hexa(2),
       eval: z.optional(cf.javascript()),
       script: z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
+    }),
     z.strictObject({
       fn: z.literal('tuya'),
       dpid: z.number(),
       eval: z.optional(cf.javascript()),
       script: z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
-  ])
+    }),
+  ]).refine(data => !('eval' in data && 'script' in data), {
+    message: 'eval and script should not both be present',
+  })
 }
 
 export function writeFunction() {
@@ -106,9 +102,7 @@ export function writeFunction() {
       'mf': z.optional(cf.hexa(4)),
       'eval': z.optional(cf.javascript()),
       'script': z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
+    }),
     z.strictObject({
       'fn': z.literal('zcl'),
       'at': z.optional(cf.hexa(4).or(z.array(cf.hexa(4)))),
@@ -120,17 +114,15 @@ export function writeFunction() {
       'mf': z.optional(cf.hexa(4)),
       'eval': z.optional(cf.javascript()),
       'script': z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
+    }),
     z.strictObject({
       fn: z.literal('tuya'),
       dpid: z.number(),
       dt: cf.hexa(2),
       eval: z.optional(cf.javascript()),
       script: z.optional(cf.filePath()),
-    }).refine(data => !('eval' in data && 'script' in data), {
-      message: 'eval and script should not both be present',
-    }).innerType(),
-  ])
+    }),
+  ]).refine(data => !('eval' in data && 'script' in data), {
+    message: 'eval and script should not both be present',
+  })
 }
