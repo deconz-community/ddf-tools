@@ -96,7 +96,7 @@ export function ddfBindingSchema(_generics: GenericsData) {
       'bind': z.literal('groupcast'),
       'src.ep': cf.endpoint().describe('Source endpoint.'),
       'cl': cf.hexa(4).describe('Cluster.'),
-      'config.group': z.number(),
+      'config.group': z.number().min(1).max(255),
     }),
   ])
 }
