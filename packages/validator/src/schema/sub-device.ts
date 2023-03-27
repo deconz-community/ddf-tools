@@ -6,8 +6,11 @@ export function subDeviceSchema(generics: GenericsData) {
   return z.strictObject({
     $schema: z.optional(z.string()),
     schema: z.literal('subdevice1.schema.json'),
-    name: z.enum(Object.values(generics.deviceTypes) as [string, ...string[]]),
-    type: z.enum(Object.keys(generics.deviceTypes) as [string, ...string[]]),
+    type: z.union([
+      z.enum(Object.keys(generics.deviceTypes) as [string, ...string[]]),
+      z.string().regex(/^(?!\$TYPE_).*/g, 'The type start with $TYPE_ but is not present in constants.json'),
+    ]),
+    name: z.string(),
     restapi: z.enum(['/lights', '/sensors']),
     order: z.number(),
     uuid: cf.uuid(),

@@ -10,7 +10,16 @@ export function ddfSchema(generics: GenericsData) {
     'doc:path': z.optional(z.string()),
     'doc:hdr': z.optional(z.string()),
     'md:known_issues': z.optional(z.array(z.string())).describe('Know issues for this device, markdown file.'),
-    'manufacturername': z.string().or(z.array(z.string())).describe('Manufacturer name from Basic Cluster.'),
+    'manufacturername': z.union([
+      z.enum(Object.keys(generics.manufacturers) as [string, ...string[]]),
+      z.string().regex(/^(?!\$MF_).*/g, 'The manufacturer name start with $MF_ but is not present in constants.json'),
+      z.array(
+        z.union([
+          z.enum(Object.keys(generics.manufacturers) as [string, ...string[]]),
+          z.string().regex(/^(?!\$MF_).*/g, 'The manufacturer name start with $MF_ but is not present in constants.json'),
+        ]),
+      ),
+    ]).describe('Manufacturer name from Basic Cluster.'),
     'modelid': z.string().or(z.array(z.string())).describe('Model ID from Basic Cluster.'),
     'vendor': z.optional(z.string()).describe('Friendly name of the manufacturer.'),
     'comment': z.optional(z.string()),
@@ -29,7 +38,7 @@ export function ddfSubDeviceSchema(generics: GenericsData) {
   return z.strictObject({
     type: z.union([
       z.enum(Object.keys(generics.deviceTypes) as [string, ...string[]]),
-      z.enum(Object.values(generics.deviceTypes) as [string, ...string[]]),
+      z.string().regex(/^(?!\$TYPE_).*/g, 'The type start with $TYPE_ but is not present in constants.json'),
     ]),
     restapi: z.enum(['/lights', '/sensors']),
     uuid: cf.uuid(),
