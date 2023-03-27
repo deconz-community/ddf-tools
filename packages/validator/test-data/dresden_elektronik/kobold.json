@@ -48,7 +48,7 @@
         },
         {
           "name": "state/bri",
-          "refresh.interval": 5,
+          "refresh.interval": 3000060000,
           "read": {
             "at": "0x0000",
             "cl": "0x0008",
@@ -65,7 +65,7 @@
         },
         {
           "name": "state/on",
-          "refresh.interval": 5,
+          "refresh.interval": 3000060000,
           "read": {
             "at": "0x0000",
             "cl": "0x0006",

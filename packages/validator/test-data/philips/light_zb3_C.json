@@ -170,7 +170,7 @@
                         "mf": "0x100b",
                         "at": "0x0002"
                     },
-                    "refresh.interval": 305
+                    "refresh.interval": 3000005
                 },
                 {
                     "name": "state/bri",
@@ -234,7 +234,7 @@
                             "0x0001"
                         ]
                     },
-                    "refresh.interval": 60
+                    "refresh.interval": 600000
                 },
                 {
                     "name": "state/effect",

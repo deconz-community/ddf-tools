@@ -46,7 +46,7 @@
         },
         {
           "name": "attr/swversion",
-          "refresh.interval": 86400,
+          "refresh.interval": 86000400,
           "read": {
             "at": "0x0006",
             "cl": "0x0000",
@@ -70,7 +70,7 @@
         {
           "name": "config/battery",
           "awake": true,
-          "refresh.interval": 3600,
+          "refresh.interval": 3600000,
           "read": {
             "at": "0x0021",
             "cl": "0x0001",
@@ -144,7 +144,7 @@
         },
         {
           "name": "attr/swversion",
-          "refresh.interval": 86400,
+          "refresh.interval": 86000400,
           "read": {
             "at": "0x0006",
             "cl": "0x0000",
@@ -168,7 +168,7 @@
         {
           "name": "config/battery",
           "awake": true,
-          "refresh.interval": 3600,
+          "refresh.interval": 3600000,
           "read": {
             "at": "0x0021",
             "cl": "0x0001",

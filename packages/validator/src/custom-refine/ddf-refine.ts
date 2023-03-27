@@ -3,7 +3,7 @@ import type { ddfSchema } from '../schema'
 
 export const ddfRefines = [
   validateManufacturerNameAndModelID,
-  // validateRefreshIntervalAndBindingReportTime,
+  validateRefreshIntervalAndBindingReportTime,
 ] as const
 
 type DDF = z.infer<ReturnType<typeof ddfSchema>>
@@ -21,7 +21,7 @@ function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx) {
   if (areBothArray && data.manufacturername.length !== data.modelid.length) {
     ctx.addIssue({
       code: z.ZodIssueCode.invalid_intersection_types,
-      message: 'When \'manufacturername\' and \'modelid\' are both arrays they should be the same length.',
+      message: 'When \'manufacturername\' and \'modelid\' are both arrays they should be the same length',
       path: ['manufacturername', 'modelid'],
     })
     return
@@ -30,7 +30,7 @@ function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx) {
   if ((areBothString || areBothArray) === false) {
     ctx.addIssue({
       code: z.ZodIssueCode.invalid_intersection_types,
-      message: 'Invalid properties \'manufacturername\' and \'modelid\' should have the same type.',
+      message: 'Invalid properties \'manufacturername\' and \'modelid\' should have the same type',
       path: ['manufacturername', 'modelid'],
     })
   }
@@ -66,12 +66,11 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
         // For each attributes in the read method
         for (let index = 0; index < ats.length; index++) {
           const path = `${endpoint}.${int(item.read.cl)}.${int(ats[index])}`
-
-          if (bindingsReportTime[path] !== undefined && bindingsReportTime[path] > item['refresh.interval']) {
+          if (bindingsReportTime[path] !== undefined && (item['refresh.interval']) - 60 < bindingsReportTime[path]) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: `The refresh interval (${item['refresh.interval']})`
-              + ` is lower then the binding max refresh value (${bindingsReportTime[path]}).`,
+              message: `The refresh interval (${item['refresh.interval']} - 60 = ${item['refresh.interval'] - 60})`
+              + ` should be greater than the binding max refresh value (${bindingsReportTime[path]}) with a margin of 60 seconds`,
               path: ['subdevices', device_index, 'items', item_index, 'refresh.interval'],
             })
           }
