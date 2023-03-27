@@ -1,5 +1,17 @@
 # @deconz-community/ddf-validator
 
+## 2.1.0
+
+### Minor Changes
+
+- e5bbb36: Add test for validating ManufacturerName and ModelID properties to be both string or same length array
+- a8eb1b0: Add validation for bindings report.min <= report.max
+- ed7141f: Add some descriptions
+- 7ece669: The at attributes for read function are now mandatory
+- f9665e9: Now the eval and script can't be used at the same time on a function.
+- 28ab354: Add validation to check the refresh interval against the related binding
+- b01a71b: Update manufacturer and type to accept strings not defined in constants.json
+
 ## 2.0.0
 
 ### Major Changes
