@@ -58,13 +58,24 @@ export function createValidator(generics: GenericsData = {
       case 'devcap1.schema.json':
         for (const subdevices of clone.subdevices) {
           // For each subdevices iterate over all resources and check if they are valid
-          subdevices.items.forEach((item) => {
-            if (generics.attributes.includes(item.name))
-              Object.assign(item, generics.resources[item.name])
-          })
+
+          for (const [index, item] of subdevices.items.entries()) {
+            if (generics.resources[item.name]) {
+              const resource = generics.resources[item.name];
+              (['read', 'write', 'parse']).forEach((key) => {
+                if (resource[key] && resource[key].fn === 'zcl' && resource[key].ep !== undefined)
+                  resource[key].ep = parseInt(subdevices.uuid[1], 16)
+              })
+
+              subdevices.items[index] = Object.assign({}, resource, item)
+            }
+          }
         }
         break
     }
+
+    if (clone.product === 'Ally thermostat')
+      console.log(JSON.stringify(clone, null, 2))
 
     // Parse again to check if the DDF with generic is still valid
     return schema.parse(clone)
