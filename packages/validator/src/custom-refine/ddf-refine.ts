@@ -4,6 +4,7 @@ import type { ddfSchema } from '../schema'
 export const ddfRefines = [
   validateManufacturerNameAndModelID,
   validateRefreshIntervalAndBindingReportTime,
+  validateMandatoryItemsAttributes,
 ] as const
 
 type DDF = z.infer<ReturnType<typeof ddfSchema>>
@@ -75,6 +76,120 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
             })
           }
         }
+      }
+    })
+  })
+}
+
+function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx) {
+  // If there no bindings there is nothing to check
+  if (!data.bindings)
+    return
+
+  // If property is used to check if the device should check for the needed values.
+  // An empty if object mean it's always checked.
+  interface Rule {
+    description: string
+    if: {
+      item?: string[]
+      type?: string[]
+    }
+    need: {
+      item: string[]
+    }
+  }
+  // If the subdevice have one of the item in the array we need the items with the names.
+  const rules: Rule[] = [
+    /*
+    {
+      description: 'a device should always have basic attributes.',
+      if: {},
+      need: {
+        item: [
+          'attr/id',
+          'attr/name',
+          'attr/uniqueid',
+        ],
+      },
+    },
+    */
+    {
+      description: 'a color light should always have "state/ct" item.',
+      if: {
+        type: [
+          '$TYPE_COLOR_TEMPERATURE_LIGHT',
+          'Color Temperature Light',
+          '$TYPE_EXTENDED_COLOR_LIGHT',
+          'Extended Color Light',
+        ],
+      },
+      need: {
+        item: [
+          'state/ct',
+        ],
+      },
+    },
+    {
+      description: 'a device with "state/ct" need the "min" and "max" values for capability.',
+      if: {
+        item: ['state/ct'],
+      },
+      need: {
+        item: [
+          'cap/color/ct/min',
+          'cap/color/ct/max',
+          // 'config/color/ct/startup',
+        ],
+      },
+    },
+    {
+      description: 'a device with "state/x" or "state/y" need the corresponding red, green and blue x and y values.',
+      if: {
+        item: [
+          'state/x',
+          'state/y',
+        ],
+      },
+      need: {
+        item: [
+          'state/x',
+          'state/y',
+          'cap/color/xy/red_x',
+          'cap/color/xy/green_x',
+          'cap/color/xy/blue_x',
+          'cap/color/xy/red_y',
+          'cap/color/xy/green_y',
+          'cap/color/xy/blue_y',
+          // 'cap/color/ct/computes_xy',
+        ],
+      },
+    },
+  ]
+
+  data.subdevices.forEach((device, device_index) => {
+    const attributes = device.items.map(item => item.name)
+
+    rules.forEach((rule) => {
+      // Check if the rule match the device
+      if (Object.keys(rule.if).length === 0 || Object.keys(rule.if).some((kind) => {
+        switch (kind) {
+          case 'type':
+            return rule.if[kind]?.includes(device.type)
+          case 'item':
+            return attributes.some(attr => rule.if[kind]?.includes(attr))
+          default:
+            return false
+        }
+      })) {
+        rule.need.item.forEach((item) => {
+          if (!attributes.includes(item)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `The device should have the item "${item}" because ${rule.description}`,
+              path: ['subdevices', device_index, 'items'],
+            })
+          }
+        })
       }
     })
   })

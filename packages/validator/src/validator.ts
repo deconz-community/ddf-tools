@@ -40,6 +40,8 @@ export function createValidator(generics: GenericsData = { attributes: [], manuf
   }
 
   const validate = (data: unknown) => {
+    // TODO extends schema with generics
+
     return schema.parse(data)
   }
 
