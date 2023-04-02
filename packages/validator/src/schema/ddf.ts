@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { GenericsData } from '../types'
 import * as cf from '../custom-formats'
-import { parseFunction, readFunction, writeFunction } from './function'
+import { resourceSchema } from './resource'
 
 export function ddfSchema(generics: GenericsData) {
   return z.strictObject({
@@ -64,23 +64,16 @@ export function ddfSubDeviceSchema(generics: GenericsData) {
 }
 
 export function subDeviceItemSchema(generics: GenericsData) {
-  return z.strictObject({
-    'name': z.enum(generics.attributes as [string, ...string[]]).describe('Item name.'),
-    'description': z.optional(z.string()).describe('Item description, better to do not use it.'),
-    'comment': z.optional(z.string()),
-    'public': z.optional(z.boolean()).describe('Item visible on the API.'),
-    'static': z.optional(z.union([z.string(), z.number(), z.boolean()])).describe('A static default value is fixed and can be not changed.'),
-    'range': z.optional(z.tuple([z.number(), z.number()])).describe('Values range limit.'),
-    'deprecated': z.optional(cf.date()),
-    'access': z.optional(z.literal('R')).describe('Access mode for this item, some of them are not editable.'),
-    'read': z.optional(readFunction()).describe('Fonction used to read value.'),
-    'parse': z.optional(parseFunction()).describe('Fonction used to parse incoming values.'),
-    'write': z.optional(writeFunction()).describe('Fonction used to write value.'),
-    'awake': z.optional(z.boolean()).describe('The device is considered awake when this item is set due a incoming command.'),
-    'default': z.optional(z.unknown()).describe('Defaut value.'),
-    'values': z.optional(z.unknown()),
-    'refresh.interval': z.optional(z.number()).describe('Refresh interval used for read fonction, NEED to be superior at value used in binding part.'),
-  })
+  return resourceSchema(generics)
+    .omit({
+      $schema: true,
+      schema: true,
+      id: true,
+    })
+    .extend({
+      name: z.enum(generics.attributes as [string, ...string[]])
+        .describe('Item name.'),
+    })
 }
 
 export function ddfBindingSchema(_generics: GenericsData) {
