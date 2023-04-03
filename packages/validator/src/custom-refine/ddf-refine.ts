@@ -56,8 +56,6 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
     }
   })
 
-  // Path, read by
-  const readAttributesList: Record<string, string> = {}
   // For each item with zcl read method
   data.subdevices.forEach((device, device_index) => {
     device.items.forEach((item, item_index) => {
@@ -70,16 +68,6 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
         // For each attributes in the read method
         for (let index = 0; index < ats.length; index++) {
           const path = `${endpoint}.${hexa(item.read.cl)}.${hexa(ats[index])}`
-          if (readAttributesList[path] !== undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `The attribute ${path} is already read by ${readAttributesList[path]}`,
-              path: ['subdevices', device_index, 'items', item_index, 'read'],
-            })
-          }
-          else {
-            readAttributesList[path] = `subdevices[${device_index}].${item.name}`
-          }
           if (bindingsReportTime[path] !== undefined && (item['refresh.interval']) - 60 < bindingsReportTime[path]) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,

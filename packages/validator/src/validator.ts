@@ -52,6 +52,9 @@ export function createValidator(generics: GenericsData = {
   }
 
   const validate = (data: unknown) => {
+    return schema.parse(data)
+
+    /* Old code to validate DDF with generics (disabled for now)
     // Parse first time to check if the base DDF is valid
     const clone = schema.parse(structuredClone(data))
     switch (clone.schema) {
@@ -79,6 +82,7 @@ export function createValidator(generics: GenericsData = {
 
     // Parse again to check if the DDF with generic is still valid
     return schema.parse(clone)
+    */
   }
 
   return { generics, loadGeneric, validate, getSchema: () => schema }
