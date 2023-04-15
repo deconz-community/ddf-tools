@@ -26,7 +26,7 @@ const signatures = computedAsync(async () => {
         ...signature,
         key: bytesToHex(signature.key),
         signature: bytesToHex(signature.signature),
-        valid: (await verify(bundle.value.data.hash, signature.key, signature.signature)) ? 'Valid' : 'Invalid',
+        valid: (await verify(bundle.value.data.hash, signature.key, signature.signature)),
       }
     }
   }))
@@ -196,19 +196,50 @@ watch(bundle, () => {
             readonly
             label="HASH"
           />
-          <v-list v-if="signatures.length > 0" lines="one">
-            <v-list-subheader>Signatures</v-list-subheader>
-            <template
-              v-for="(signature, index) in signatures"
-              :key="index"
-            >
-              <v-list-item
-                v-if="signature"
-                :title="signature.key"
-                :subtitle="signature.valid"
-              />
+          <v-card v-if="signatures.length > 0">
+            <template #title>
+              Signatures
             </template>
-          </v-list>
+            <template #text>
+              <template
+                v-for="(signature, index) in signatures"
+                :key="index"
+              >
+                <v-card
+                  v-if="signature"
+                >
+                  <template #title>
+                    Signature #{{ index + 1 }}
+                    <v-chip
+                      v-if="signature.valid"
+                      color="green"
+                    >
+                      Valid
+                    </v-chip>
+                    <v-chip
+                      v-else
+                      color="red"
+                    >
+                      Invalid
+                    </v-chip>
+                  </template>
+
+                  <template #text>
+                    <v-text-field
+                      v-model="signature.key"
+                      readonly
+                      label="Public Key"
+                    />
+                    <v-text-field
+                      v-model="signature.signature"
+                      readonly
+                      label="Signature"
+                    />
+                  </template>
+                </v-card>
+              </template>
+            </template>
+          </v-card>
         </template>
       </v-card>
 
