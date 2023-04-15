@@ -1,5 +1,12 @@
 # @deconz-community/ddf-bundler
 
+## 0.4.0
+
+### Minor Changes
+
+- 2554130: Move builder from bundler to playground
+- 2554130: Add JSON generic files
+
 ## 0.3.0
 
 ### Minor Changes
