@@ -97,7 +97,8 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                     break
                   }
                   case 'DDFC' : {
-                    bundle.data.ddfc = reader.text(size, true)
+                    // TODO : check if it's compressed
+                    bundle.data.ddfc = reader.text(size, false)
                     break
                   }
                   case 'EXTF' : {
@@ -109,7 +110,8 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                         type,
                         path,
                         last_modified,
-                        data: reader.text(reader.Uint32(), true),
+                        // TODO : check if it's compressed
+                        data: reader.text(reader.Uint32(), false),
                       })
                     }
                     else if (isBinaryFileType(type)) {

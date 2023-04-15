@@ -101,12 +101,14 @@ export function encode(bundle: ReturnType<typeof Bundle>): Blob {
     chunk('RIFF', [
       chunk(DDF_BUNDLE_MAGIC, [
         chunk('DESC', text(JSON.stringify(data.desc))),
-        chunk('DDFC', text(data.ddfc, true)),
+        // TODO : check if it's compressed
+        chunk('DDFC', text(data.ddfc, false)),
         data.files.map(file => chunk('EXTF', [
           text(file.type),
           withLength(text(file.path), Uint16),
           withLength(text(file.last_modified.toISOString()), Uint16),
-          withLength(typeof file.data === 'string' ? text(file.data, true) : file.data),
+          // TODO : check if it's compressed
+          withLength(typeof file.data === 'string' ? text(file.data, false) : file.data),
         ])),
       ]),
       data.signatures.map(signature =>
