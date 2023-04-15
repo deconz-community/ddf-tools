@@ -25,8 +25,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
   reader.tag(DDF_BUNDLE_MAGIC)
 
   const DDFBSize = reader.Uint32()
-  reader.offset(-8)
-  const DDFBContent = reader.read(DDFBSize + 8)
+  const DDFBContent = reader.read(DDFBSize)
   const bundleHash = await getHash(DDFBContent)
 
   // If we have more data to read
