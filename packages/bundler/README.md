@@ -157,15 +157,16 @@ FileType is a tag to know what kind of file the chunk contain.
 
 For Text file they are all compressed using zlib.
 
-| Tag  | Description                             | Data      | Format     |
-|------|-----------------------------------------|-----------|------------|
-| SCJS | Javascript file for read,write or parse | Text file | javascript |
-| BTNM | Button maps* WIP NOT USED               | Text file | json       |
-| CHLG | Changelog                               | Text file | markdown   |
-| NOTI | Informational note                      | Text file | markdown   |
-| NOTW | Warning note                            | Text file | markdown   |
-| KWIS | Know issue                              | Text file | markdown   |
-| IMGP | Image in PNG can be used in UI          | Binary    | png        |
+| Tag  | Description                              | Data      | Format     |
+|------|------------------------------------------|-----------|------------|
+| SCJS | Javascript file for read, write or parse | Text file | javascript |
+| JSON | Generic files for items / constants      | Text file | json       |
+| BTNM | Button maps* WIP NOT USED                | Text file | json       |
+| CHLG | Changelog                                | Text file | markdown   |
+| NOTI | Informational note                       | Text file | markdown   |
+| NOTW | Warning note                             | Text file | markdown   |
+| KWIS | Know issue                               | Text file | markdown   |
+| IMGP | Image in PNG can be used in UI           | Binary    | png        |
 
 ### SIGN - Signature - multiple
 

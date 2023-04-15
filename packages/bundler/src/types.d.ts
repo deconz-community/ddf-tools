@@ -20,13 +20,13 @@ export type BundleFile = TextFile | BinaryFile;
 export type TextFile = JSONFile | ScriptFile | MarkdownFile;
 
 interface FileMeta {
-  type: "SCJS" | "BTNM" | "CHLG" | "NOTI" | "NOTW" | "KWIS" | "UBIN" | "IMGP";
+  type: "SCJS" | "JSON" | "BTNM" | "CHLG" | "NOTI" | "NOTW" | "KWIS" | "UBIN" | "IMGP";
   last_modified: Date;
   path: string;
 }
 
 export interface JSONFile extends FileMeta {
-  type: "BTNM";
+  type: "JSON" | "BTNM";
   data: string;
 }
 

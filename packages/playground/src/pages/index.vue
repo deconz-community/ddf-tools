@@ -2,14 +2,18 @@
 import * as secp from '@noble/secp256k1'
 import { computedAsync } from '@vueuse/core'
 
-import { Bundle, buildFromFile, decode, encode, sign, verify } from '@deconz-community/ddf-bundler'
+import { Bundle, decode, encode, sign, verify } from '@deconz-community/ddf-bundler'
 
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 
 import { saveAs } from 'file-saver'
+import { buildFromFile } from '~/composables/builder'
 
 const error = ref('')
-const url = ref('https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices/xiaomi/aq1_vibration_sensor.json')
+
+const baseUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
+const genericDirectoryUrl = ref(`${baseUrl}/generic`)
+const fileUrl = ref(`${baseUrl}/xiaomi/aq1_vibration_sensor.json`)
 const files = ref<File[]>([])
 const sha = ref('')
 const privateKey = ref(secp.utils.randomPrivateKey())
@@ -67,7 +71,7 @@ const download = async () => {
   error.value = ''
 
   try {
-    bundle.value = await buildFromFile(url.value, async (url) => {
+    bundle.value = await buildFromFile(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
       const result = await fetch(url)
       if (result.status !== 200)
         throw new Error(result.statusText)
@@ -123,7 +127,13 @@ watch(bundle, () => {
       />
 
       <v-text-field
-        v-model="url"
+        v-model="genericDirectoryUrl"
+        label="Generic directory url"
+        prepend-icon="mdi-download-network"
+      />
+
+      <v-text-field
+        v-model="fileUrl"
         label="Load DDF From URL"
       >
         <template #prepend>
