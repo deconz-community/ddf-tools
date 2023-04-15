@@ -25,8 +25,9 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
   reader.tag(DDF_BUNDLE_MAGIC)
 
   const DDFBSize = reader.Uint32()
-  const DDFBContent = reader.read(DDFBSize)
-  const bundleHash = await getHash(DDFBContent)
+  reader.offset(-8)
+  const DDFBChunk = reader.read(DDFBSize + 8)
+  const bundleHash = await getHash(DDFBChunk)
 
   // If we have more data to read
   if (bundled.size !== reader.offset()) {
@@ -77,7 +78,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 
   addData(
     chunk('RIFF', [
-      chunk(DDF_BUNDLE_MAGIC, DDFBContent),
+      DDFBChunk,
       signatures.map(signature =>
         chunk('SIGN',
           [

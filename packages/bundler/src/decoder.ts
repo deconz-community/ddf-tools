@@ -88,7 +88,7 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
         parseChunks(reader.offset(), size, (tag, size, reader) => {
           switch (tag) {
             case DDF_BUNDLE_MAGIC : {
-              DDFBBounds[0] = reader.offset()
+              DDFBBounds[0] = reader.offset() - 8
               DDFBBounds[1] = reader.offset() + size
               parseChunks(reader.offset(), size, (tag, size, reader) => {
                 switch (tag) {
