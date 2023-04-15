@@ -1,5 +1,16 @@
 # @deconz-community/ddf-bundler
 
+## 0.3.0
+
+### Minor Changes
+
+- ae64798: Disable chunk compression
+- 74491cf: Update playground UI for signatures
+
+### Patch Changes
+
+- fb4ef94: Signature are now against the complete DDFB chunk with tag and size
+
 ## 0.2.2
 
 ### Patch Changes
