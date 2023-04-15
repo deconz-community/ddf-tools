@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.2.2
+
+### Patch Changes
+
+- 7a63ef9: Fix signature encoder
+
 ## 0.2.1
 
 ### Patch Changes
