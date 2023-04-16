@@ -5,7 +5,7 @@ export function asArray<T>(data: T | T[]): T[] {
 }
 
 export function isJSONFileType(type: string): type is JSONFile['type'] {
-  return type === 'BTNM'
+  return ['JSON', 'BTNM'].includes(type)
 }
 
 export function isScriptFileType(type: string): type is ScriptFile['type'] {
