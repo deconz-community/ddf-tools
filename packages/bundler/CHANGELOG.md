@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.4.1
+
+### Patch Changes
+
+- 6127a24: Fix decoding of JSON external files
+
 ## 0.4.0
 
 ### Minor Changes
