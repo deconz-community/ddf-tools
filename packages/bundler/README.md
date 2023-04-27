@@ -1,5 +1,6 @@
 # DDF bundler
 
+
 ## General
 
 The format is a Resource Interchange File Format (RIFF), see: https://en.wikipedia.org/wiki/Resource_Interchange_File_Format Which can store arbitrary content and more importantly can by extended easily while being backward compatible.
@@ -185,3 +186,188 @@ U8 [Signature Length] Signature
 ```
 
 Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
+
+## Example usage
+
+### Decoding a bundle
+```typescript
+import { decode } from '@deconz-community/ddf-bundler'
+import { readFile } from 'fs/promises'
+
+const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddf'))
+const blob = new Blob([data])
+blob.name = 'aq1_vibration_sensor.ddf'
+
+const bundle = await decode(blob)
+```
+
+### Encoding a bundle
+```typescript
+import { Bundle, encode } from '@deconz-community/ddf-bundler'
+
+const bundle = Bundle()
+
+bundle.data.name = 'sample.ddf'
+bundle.data.desc.product = 'Sample product'
+bundle.data.ddfc = '{"schema": "devcap1.schema.json"}'
+bundle.data.files.push({
+  type: 'JSON',
+  data: JSON.stringify({ foo: 'bar' }),
+  path: 'foo.json',
+  last_modified: new Date(),
+})
+
+const encoded = encode(bundle)
+```
+
+### Building a bundle from files
+```typescript
+import { Bundle, asArray } from '@deconz-community/ddf-bundler'
+import type { DDFC, TextFile } from '@deconz-community/ddf-bundler'
+
+export async function buildFromFile(
+  genericDirectory: string,
+  ddfPath: string,
+  getFile: (path: string) => Promise<Blob>,
+): Promise<ReturnType<typeof Bundle>> {
+  const bundle = Bundle()
+
+  bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
+  bundle.data.ddfc = await (await getFile(ddfPath)).text()
+  const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
+
+  bundle.data.desc.product = ddfc.product
+
+  const usedConstants: {
+    manufacturers: string[]
+    'device-types': string[]
+  } = {
+    'manufacturers': [],
+    'device-types': [],
+  }
+
+  const manufacturers = asArray(ddfc.manufacturername)
+  const modelid = asArray(ddfc.modelid)
+  if (manufacturers.length === modelid.length) {
+    for (let i = 0; i < manufacturers.length; i++) {
+      if (manufacturers[i].startsWith('$MF_'))
+        usedConstants.manufacturers.push(manufacturers[i])
+
+      bundle.data.desc.device_identifiers.push([
+        manufacturers[i],
+        modelid[i],
+      ])
+    }
+  }
+
+  const filesToAdd: {
+    url: string
+    path: string
+    type: TextFile['type']
+    patch?: (data: string) => string
+  }[] = []
+
+  // Download markdown files
+  if (ddfc['md:known_issues'] !== undefined) {
+    for (const filePath of asArray(ddfc['md:known_issues'])) {
+      filesToAdd.push({
+        url: new URL(`${ddfPath}/../${filePath}`).href,
+        path: filePath,
+        type: 'KWIS',
+      })
+    }
+  }
+
+  // Download script files
+  if (Array.isArray(ddfc.subdevices)) {
+    ddfc.subdevices.forEach((subdevice) => {
+      if (subdevice.type.startsWith('$TYPE_'))
+        usedConstants['device-types'].push(subdevice.type)
+
+      if (Array.isArray(subdevice.items)) {
+        subdevice.items.forEach((item) => {
+          if (item.name !== undefined) {
+            const fileName = `${item.name.replace(/\//g, '_')}_item.json`
+            filesToAdd.push({
+              url: new URL(`${genericDirectory}/items/${fileName}`).href,
+              path: `generic/${fileName}`,
+              type: 'JSON',
+            })
+          }
+          for (const [_key, value] of Object.entries(item)) {
+            if (value.script !== undefined) {
+              filesToAdd.push({
+                url: new URL(`${ddfPath}/../${value.script}`).href,
+                path: value.script,
+                type: 'SCJS',
+              })
+            }
+          }
+        })
+      }
+    })
+  }
+
+  filesToAdd.push({
+    url: new URL(`${genericDirectory}/constants.json`).href,
+    path: 'generic/constants.json',
+    type: 'JSON',
+    patch(data) {
+      const decoded = JSON.parse(data)
+      const newData = {
+        'schema': decoded.schema,
+        'manufacturers': {} as Record<string, string>,
+        'device-types': {} as Record<string, string>,
+      }
+      for (const manufacturer of usedConstants.manufacturers)
+        newData.manufacturers[manufacturer] = decoded.manufacturers[manufacturer]
+      for (const deviceType of usedConstants['device-types'])
+        newData['device-types'][deviceType] = decoded['device-types'][deviceType]
+      return JSON.stringify(newData, null, 4)
+    },
+  })
+
+  await Promise.all(filesToAdd.map(async (fileToAdd) => {
+    let data = await (await getFile(fileToAdd.url)).text()
+    if (fileToAdd.patch !== undefined)
+      data = fileToAdd.patch(data)
+    bundle.data.files.push({
+      type: fileToAdd.type,
+      data,
+      last_modified: new Date(),
+      path: fileToAdd.path,
+    })
+  }),
+  )
+
+  bundle.data.files.sort((a, b) => {
+    // Sort files by path but with generics last
+    const aIsGeneric = a.path.startsWith('generic/')
+    const bIsGeneric = b.path.startsWith('generic/')
+    if (aIsGeneric && bIsGeneric) {
+      if (a.path === 'generic/constants.json')
+        return -1
+      if (b.path === 'generic/constants.json')
+        return 1
+      return a.path.localeCompare(b.path)
+    }
+    if (aIsGeneric)
+      return 1
+    if (bIsGeneric)
+      return -1
+    return a.path.localeCompare(b.path)
+  })
+
+  return bundle
+}
+
+
+const bundle = await buildFromFile(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
+  const result = await fetch(url)
+  if (result.status !== 200)
+    throw new Error(result.statusText)
+
+  return await result.blob()
+})
+```
+
