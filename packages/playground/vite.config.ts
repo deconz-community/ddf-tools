@@ -7,13 +7,13 @@ import VueMacros from 'unplugin-vue-macros/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Vuetify from 'vite-plugin-vuetify'
 
-
 module.exports = defineConfig({
   base: '/ddf-tools/',
   resolve: {
     alias: {
       '@deconz-community/ddf-bundler': path.resolve(__dirname, '../bundler/index.ts'),
       '@deconz-community/ddf-validator': path.resolve(__dirname, '../validator/index.ts'),
+      'node-fetch': 'axios',
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
@@ -48,7 +48,7 @@ module.exports = defineConfig({
   ssr: {
     // TODO: workaround until they support native ESM
     noExternal: [
-      'vuetify',
+      'vuetify'
     ],
   },
 
