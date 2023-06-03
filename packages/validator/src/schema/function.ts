@@ -53,7 +53,7 @@ export function parseFunction() {
   return z.discriminatedUnion('fn', [
     z.strictObject({
       fn: z.undefined().describe('Generic function to parse ZCL attributes and commands.'),
-      at: z.optional(cf.hexa(4)).describe('Attribute ID.'),
+      at: z.optional(cf.hexa(4).or(z.array(cf.hexa(4)))).describe('Attribute ID.'),
       cl: cf.hexa(4).describe('Cluster ID.'),
       cppsrc: z.optional(z.string()),
       ep: z.optional(cf.endpoint()).describe('Endpoint, 255 means any endpoint, 0 means auto selected from subdevice.'),
@@ -64,7 +64,7 @@ export function parseFunction() {
     }),
     z.strictObject({
       fn: z.literal('zcl').describe('Generic function to parse ZCL attributes and commands.'),
-      at: z.optional(cf.hexa(4)).describe('Attribute ID.'),
+      at: z.optional(cf.hexa(4).or(z.array(cf.hexa(4)))).describe('Attribute ID.'),
       cl: cf.hexa(4).describe('Cluster ID.'),
       cppsrc: z.optional(z.string()),
       ep: z.optional(cf.endpoint()).describe('Endpoint, 255 means any endpoint, 0 means auto selected from subdevice.'),
