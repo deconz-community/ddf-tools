@@ -1,5 +1,19 @@
 # @deconz-community/ddf-validator
 
+## 2.2.0
+
+### Minor Changes
+
+- f860dd6: Add refine validation for parse/write method to have eval or script property
+- 4309e3d: Update validation of at parse property to accept arrays
+- e136c9d: Add support for zcl:attr and zcl:cmd functions
+- 8e57888: Update deps
+- 2c8843d: Update tests files
+
+### Patch Changes
+
+- 4ea2e78: Update deps
+
 ## 2.1.0
 
 ### Minor Changes

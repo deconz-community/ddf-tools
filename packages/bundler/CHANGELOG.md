@@ -1,5 +1,16 @@
 # @deconz-community/ddf-bundler
 
+## 0.5.0
+
+### Minor Changes
+
+- 42c9f92: Add tests
+- 8e57888: Update deps
+
+### Patch Changes
+
+- 4ea2e78: Update deps
+
 ## 0.4.1
 
 ### Patch Changes
