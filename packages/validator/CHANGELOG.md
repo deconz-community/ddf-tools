@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.2.1
+
+### Patch Changes
+
+- 883ae17: Fix type definition
+
 ## 2.2.0
 
 ### Minor Changes
