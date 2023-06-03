@@ -1,7 +1,7 @@
 {
     "schema": "subdevice1.schema.json",
-    "type": "$TYPE_DOOR_LOCK",
-    "name": "ZHADoorLock",
+    "type": "ZHADoorLock",
+    "name": "Door Lock",
     "restapi": "/sensors",
     "order": 11,
     "uuid": ["$address.ext", "0x01", "0x0101"],

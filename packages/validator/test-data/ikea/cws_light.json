@@ -53,7 +53,7 @@
           "read": {
             "fn": "zcl", "ep": "0x01", "cl": "0x0300", "at": ["0x400a", "0x400b", "0x400c", "0x4010", "0x000f"]
           },
-          "refresh.interval": 360000
+          "refresh.interval": 86400
         },
         {
           "name": "cap/color/ct/max"
@@ -101,7 +101,7 @@
           "read": {
             "fn": "zcl", "ep": "0x01", "cl": "0x0300", "at": ["0x0011", "0x0012", "0x0015", "0x0016", "0x0019", "0x001a"]
           },
-          "refresh.interval": 360000
+          "refresh.interval": 86400
         },
         {
           "name": "cap/color/xy/red_y",
@@ -118,7 +118,7 @@
           "read": {
             "fn": "zcl", "ep": "0x01", "cl": "0x0008", "at": ["0x000f", "0x0011", "0x4000"]
           },
-          "refresh.interval": 360000
+          "refresh.interval": 86400
         },
         {
           "name": "config/bri/on_level",
@@ -144,11 +144,11 @@
         },
         {
           "name": "state/on",
-          "refresh.interval": 360000
+          "refresh.interval": 305
         },
         {
           "name": "state/bri",
-          "refresh.interval": 360000
+          "refresh.interval": 305
         },
         {
           "name": "state/colormode",
@@ -159,7 +159,7 @@
           "read": {
             "fn": "zcl", "ep": "0x01", "cl": "0x0300", "at": ["0x4001", "0x0003", "0x0004", "0x0007", "0x4002", "0x4000", "0x0001"]
           },
-          "refresh.interval": 360000
+          "refresh.interval": 305
         },
         {
           "name": "state/x",

@@ -67,7 +67,7 @@
         },
         {
           "name": "state/lift",
-          "refresh.interval": 3000000,
+          "refresh.interval": 300,
           "parse": {
             "at": "0x0008",
             "cl": "0x0102",
@@ -79,7 +79,7 @@
         },
         {
           "name": "state/on",
-          "refresh.interval": 600000,
+          "refresh.interval": 60,
           "static": true
         },
         {
@@ -90,7 +90,7 @@
         },
         {
           "name": "state/tilt",
-          "refresh.interval": 3000000,
+          "refresh.interval": 300,
           "read": {
             "at": "0x0009",
             "cl": "0x0102",

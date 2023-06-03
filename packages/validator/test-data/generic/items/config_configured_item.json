@@ -4,5 +4,5 @@
 	"datatype": "Bool",
 	"access": "R",
 	"public": true,
-	"description": "When true the device is configured."
+	"description": "Determines that a resource is configured."
 }
