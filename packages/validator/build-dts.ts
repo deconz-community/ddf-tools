@@ -46,7 +46,12 @@ const schemaTS = `import { ZodType } from "zod";
 
 export ${nodeString}
 
-${fs.readFileSync('./src/types.ts', { encoding: 'utf-8' })}
+export interface GenericsData {
+  attributes: string[]
+  resources: Record<string, Omit<Extract<DDF, { schema: "resourceitem1.schema.json" }>, 'schema' | 'id'>>
+  manufacturers: Record<string, string>
+  deviceTypes: Record<string, string>
+}
 
 export declare function createValidator(generics?: GenericsData): {
   generics: GenericsData;
