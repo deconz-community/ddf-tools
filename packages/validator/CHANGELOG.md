@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.4.0
+
+### Minor Changes
+
+- 2913fd0: Ignore binding with value 65535
+
 ## 2.3.0
 
 ### Minor Changes
