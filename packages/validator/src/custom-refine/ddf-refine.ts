@@ -52,6 +52,9 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
   data.bindings.forEach((binding) => {
     if (binding.bind === 'unicast' && binding.report) {
       binding.report.forEach((report) => {
+        // If the max value is 65535 it means that the binding is not used
+        if (report.max === 65535)
+          return
         bindingsReportTime[`${hexa(binding['src.ep'])}.${hexa(binding.cl)}.${hexa(report.at)}`] = report.max
       })
     }
