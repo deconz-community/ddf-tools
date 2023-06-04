@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-validator",
-    "version": "2.2.1",
+    "version": "2.3.0",
     "description": "Validating DDF files for deconz",
     "keywords": [
         "deconz",
@@ -60,7 +60,7 @@
         "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data",
         "up": "taze major -I"
     },
-    "engines": { 
+    "engines": {
         "pnpm": ">=7.0.0",
         "node": ">=16.0.0"
     },
