@@ -31,16 +31,19 @@ export function createValidator(generics: GenericsData = {
         if (generics.attributes.includes(parsed.id))
           throw (new Error(`Got duplicate resource item with attribute id '${parsed.id}'.`))
 
-        const resource: Record<string, unknown> = structuredClone(parsed)
+        const resource: Record<string, unknown> = parsed
+        const resource_id = parsed.id
+
         delete resource.$schema
         delete resource.schema
         delete resource.id
-        generics.resources[parsed.id] = resource as GenericsData['resources'][string]
-        generics.attributes.push(parsed.id)
+
+        generics.resources[resource_id] = resource as GenericsData['resources'][string]
+        generics.attributes.push(resource_id)
         break
       }
       case 'subdevice1.schema.json':
-
+        // No rules check for subdevice generic
         break
 
       case 'devcap1.schema.json':
@@ -48,41 +51,12 @@ export function createValidator(generics: GenericsData = {
     }
 
     updateSchema()
-    return parsed
+
+    return true
   }
 
   const validate = (data: unknown) => {
     return schema.parse(data)
-
-    /* Old code to validate DDF with generics (disabled for now)
-    // Parse first time to check if the base DDF is valid
-    const clone = schema.parse(structuredClone(data))
-    switch (clone.schema) {
-      case 'devcap1.schema.json':
-        for (const subdevices of clone.subdevices) {
-          // For each subdevices iterate over all resources and check if they are valid
-
-          for (const [index, item] of subdevices.items.entries()) {
-            if (generics.resources[item.name]) {
-              const resource = generics.resources[item.name];
-              (['read', 'write', 'parse']).forEach((key) => {
-                if (resource[key] && resource[key].fn === 'zcl' && resource[key].ep !== undefined)
-                  resource[key].ep = parseInt(subdevices.uuid[1], 16)
-              })
-
-              subdevices.items[index] = Object.assign({}, resource, item)
-            }
-          }
-        }
-        break
-    }
-
-    if (clone.product === 'Ally thermostat')
-      console.log(JSON.stringify(clone, null, 2))
-
-    // Parse again to check if the DDF with generic is still valid
-    return schema.parse(clone)
-    */
   }
 
   return { generics, loadGeneric, validate, getSchema: () => schema }

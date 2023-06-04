@@ -60,6 +60,10 @@
         "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data",
         "up": "taze major -I"
     },
+    "engines": { 
+        "pnpm": ">=7.0.0",
+        "node": ">=16.0.0"
+    },
     "devDependencies": {
         "@types/jsdom": "^20.0.1",
         "@types/node": "^18.16.16",

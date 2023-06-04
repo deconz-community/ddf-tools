@@ -29,7 +29,7 @@ describe('parse', async () => {
       test(`should load generic file ${file.path}`, () => {
         try {
           const result = validator.loadGeneric(file.data)
-          expect(result).toBeDefined()
+          expect(result).toBeTruthy()
         }
         catch (error) {
           throw new Error(fromZodError(error).message)
