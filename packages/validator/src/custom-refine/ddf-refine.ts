@@ -203,17 +203,19 @@ function validateScriptEvalFunctions(data: DDF, ctx: z.RefinementCtx) {
     device.items.forEach((item, item_index) => {
       functions.forEach((func) => {
         const data = item[func]
-        if(data === undefined) return
-        if(!(data.fn === undefined || data.fn === 'zcl' || data.fn === 'zcl:attr' || data.fn === 'zcl:cmd')) return
+        if (data === undefined)
+          return
+        if (!(data.fn === undefined || data.fn === 'zcl' || data.fn === 'zcl:attr' || data.fn === 'zcl:cmd'))
+          return
 
-        if(data.eval === undefined && data.script === undefined) {
+        if (data.eval === undefined && data.script === undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `The '${func}' function is missing 'eval' or 'script' option.`,
             path: ['subdevices', device_index, 'items', item_index, func],
           })
         }
-        if(data.eval !== undefined && data.script !== undefined) {
+        if (data.eval !== undefined && data.script !== undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `The '${func}' function is having both 'eval' and 'script' option.`,
