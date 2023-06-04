@@ -1,5 +1,14 @@
 # @deconz-community/ddf-validator
 
+## 2.3.0
+
+### Minor Changes
+
+- cbf5b50: loadGeneric method now return true on success
+- cbf5b50: Revert to node16
+- 21c0245: Update test files
+- 1b0d44e: Add MF property for xiaomi:special parse function
+
 ## 2.2.1
 
 ### Patch Changes
