@@ -13,7 +13,7 @@ const error = ref('')
 
 const baseUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
 const genericDirectoryUrl = ref(`${baseUrl}/generic`)
-const fileUrl = ref(`${baseUrl}/xiaomi/aq1_vibration_sensor.json`)
+const fileUrl = ref(`${baseUrl}/ikea/starkvind_air_purifier.json`)
 const files = ref<File[]>([])
 const sha = ref('')
 const privateKey = ref(secp.utils.randomPrivateKey())
@@ -78,6 +78,7 @@ const download = async () => {
 
       return await result.blob()
     })
+    bundle.value.data.desc.source = fileUrl.value
   }
   catch (e) {
     error.value = 'Erreur'
