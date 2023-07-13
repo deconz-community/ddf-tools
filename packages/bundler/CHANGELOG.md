@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.5.2
+
+### Patch Changes
+
+- 373b496: Fix tests
+
 ## 0.5.1
 
 ### Patch Changes
