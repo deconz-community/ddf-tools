@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import * as secp from '@noble/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 import { computedAsync } from '@vueuse/core'
 import { NIL as uuidNIL, v4 as uuidv4 } from 'uuid'
 
@@ -12,7 +12,7 @@ import { buildFromFile } from '~/composables/builder'
 
 const error = ref('')
 
-const baseUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
+const baseUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main/devices'
 const genericDirectoryUrl = ref(`${baseUrl}/generic`)
 const fileUrl = ref(`${baseUrl}/ikea/starkvind_air_purifier.json`)
 const files = ref<File[]>([])
@@ -20,18 +20,25 @@ const sha = ref('')
 
 const uniqueID = ref(uuidv4())
 
-const privateKey = ref(secp.utils.randomPrivateKey())
-const privateKeyHex = computed(() => bytesToHex(privateKey.value))
+const privateKey = ref(secp256k1.utils.randomPrivateKey())
+const privateKeyHex = computed({
+  get() {
+    return bytesToHex(privateKey.value)
+  },
+  set(newValue) {
+    privateKey.value = hexToBytes(newValue)
+  },
+})
 
 const bundle = shallowRef(Bundle())
 
 const hashHex = computed(() => bundle.value.data.hash ? bytesToHex(bundle.value.data.hash) : '')
 
 const signatures = computedAsync(async () => {
-  return await Promise.all(bundle.value.data.signatures.map(async (signature) => {
+  return await Promise.all(bundle.value.data.signatures.map(async (signature: { key: Uint8Array; signature: Uint8Array }) => {
     if (bundle.value.data.hash) {
       return {
-        ...signature,
+        hash: bundle.value.data.hash,
         key: bytesToHex(signature.key),
         signature: bytesToHex(signature.signature),
         valid: (await verify(bundle.value.data.hash, signature.key, signature.signature)),
@@ -63,7 +70,7 @@ const makeBundle = async () => {
 }
 
 const generatePrivateKey = () => {
-  privateKey.value = secp.utils.randomPrivateKey()
+  privateKey.value = secp256k1.utils.randomPrivateKey()
 }
 
 const generateUUID = () => {

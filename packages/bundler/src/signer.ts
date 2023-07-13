@@ -1,4 +1,7 @@
-import * as secp from '@noble/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
+
+import { sha256 } from '@noble/hashes/sha256'
+
 import { DDF_BUNDLE_MAGIC } from './const'
 import { dataDecoder } from './decoder'
 import type { BufferData } from './encoder'
@@ -7,7 +10,7 @@ import type { ChunkSignature } from './types'
 import { isUint8ArrayEqual } from './utils'
 
 export async function getHash(chunk: Uint8Array): Promise<Uint8Array> {
-  return secp.utils.sha256(chunk)
+  return sha256(chunk)
 }
 
 export interface PrivateKeyData {
@@ -42,11 +45,9 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
   }
 
   await Promise.all(privKeys.map(async (privKey) => {
-    const key = secp.getPublicKey(privKey.key)
+    const key = secp256k1.getPublicKey(privKey.key)
 
-    const signature = await secp.sign(bundleHash, privKey.key, {
-      extraEntropy: true,
-    })
+    const signature = secp256k1.sign(bundleHash, privKey.key).toCompactRawBytes()
 
     let replaced = false
     for (let index = 0; index < signatures.length; index++) {
@@ -94,5 +95,11 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 }
 
 export async function verify(hash: Uint8Array, publicKey: Uint8Array, signature: Uint8Array): Promise<boolean> {
-  return secp.verify(signature, hash, publicKey)
+  try {
+    return secp256k1.verify(signature, hash, publicKey)
+  }
+  catch (e) {
+    console.error(e)
+    return false
+  }
 }
