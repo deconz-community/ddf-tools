@@ -91,7 +91,6 @@ const download = async () => {
 
       return await result.blob()
     })
-    bundle.value.data.desc.source = fileUrl.value
     if (bundle.value.data.desc.uuid === uuidNIL)
       bundle.value.data.desc.uuid = uniqueID.value
     else

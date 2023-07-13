@@ -11,7 +11,6 @@ export interface ChunkDESC {
   uuid: string;
   version: string;
   version_deconz: string;
-  source: string;
   last_modified: Date;
   product: string;
   links?: string[];
