@@ -3,7 +3,7 @@
 import fs from 'fs'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
-import glob from 'glob'
+import { glob } from 'glob'
 
 import { createValidator } from './src/validator'
 
