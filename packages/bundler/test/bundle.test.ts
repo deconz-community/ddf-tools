@@ -7,20 +7,20 @@ import { Bundle, decode, encode, getHash } from '../index'
 
 describe('Tests', () => {
   it('should parse without errors', async () => {
-    const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddf'))
-    const expectedFileHash = 'f4e33902e41ef153dd448bc3f34af0f4f03c8eb2c3c7ad1460d76287b5e7b153'
-    const expectedHash = 'f333554d2b37acd2452a16b6a9fe3f89e27036a553b1405aefc5448cc689b09d'
+    const data = await readFile(path.join(__dirname, 'ddf/starkvind_air_purifier.ddf'))
+    const expectedFileHash = 'f46faa39a35a83f92cbc0c360b0b4f75f4ab06b2c4c8ade9e10667f16834fde7'
+    const expectedHash = '8c521ccd440b9e548797c3a82f7e1893479138dccb13ecdce8bc36401ce525a6'
     const blob = new Blob([data])
 
     expect(bytesToHex(await getHash(new Uint8Array(data)))).toEqual(expectedFileHash)
     // @ts-expect-error ts(2540)
-    blob.name = 'aq1_vibration_sensor.ddf'
+    blob.name = 'starkvind_air_purifier.ddf'
     const bundle = await decode(blob)
     expect(bundle.data.hash).toBeDefined()
     expect(bytesToHex(bundle.data.hash!)).toEqual(expectedHash)
-    expect(bundle.data.name).toEqual('aq1_vibration_sensor.ddf')
-    expect(bundle.data.desc.product).toEqual('Aqara Vibration Sensor DJT11LM')
-    expect(bundle.data.files.length).toEqual(26)
+    expect(bundle.data.name).toEqual('starkvind_air_purifier.ddf')
+    expect(bundle.data.desc.product).toEqual('STARKVIND Air purifier')
+    expect(bundle.data.files.length).toEqual(39)
 
     bundle.data.hash = undefined
     const encoded = encode(bundle)
@@ -46,6 +46,6 @@ describe('Tests', () => {
 
     const encoded = encode(bundle)
     const newHash = await getHash(new Uint8Array(await encoded.arrayBuffer()))
-    expect(bytesToHex(newHash)).toEqual('24497080bf171946271884ccc9c5184f4cd79c929371cec9b3dde72644b729af')
+    expect(bytesToHex(newHash)).toEqual('68485e669407950815c49a32c720ca7d720b04ffb9120469c0d1850234d38c02')
   })
 })
