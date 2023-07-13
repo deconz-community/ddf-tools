@@ -1,5 +1,8 @@
 export interface DDFC {
     schema:            string;
+    uuid:              string;
+    version:           string;
+    version_deconz:    string;
     "doc:path":        string;
     "doc:hdr":         string;
     manufacturername:  string | string[];

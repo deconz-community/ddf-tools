@@ -8,9 +8,11 @@ export interface BundleData {
 }
 
 export interface ChunkDESC {
-  last_modified: Date;
+  uuid: string;
   version: string;
   version_deconz: string;
+  source: string;
+  last_modified: Date;
   product: string;
   links?: string[];
   device_identifiers: [string, string][];

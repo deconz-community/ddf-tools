@@ -5,6 +5,7 @@ export function Bundle() {
     name: 'bundle.ddf',
     hash: undefined,
     desc: {
+      uuid: '00000000-0000-0000-0000-000000000000',
       product: 'Unknown device',
       version: '1.0.0',
       version_deconz: '>2.21.0',

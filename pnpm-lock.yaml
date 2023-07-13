@@ -123,6 +123,7 @@ importers:
       '@types/file-saver': ^2.0.5
       '@types/jsdom': ^20.0.1
       '@types/node': ^18.16.19
+      '@types/uuid': ^9.0.2
       '@typescript-eslint/eslint-plugin': ^5.62.0
       '@typescript-eslint/parser': ^5.62.0
       '@vitejs/plugin-vue': ^4.2.3
@@ -148,6 +149,7 @@ importers:
       universal-social-auth: ^0.2.6
       unplugin-auto-import: ^0.14.4
       unplugin-vue-macros: ^1.11.2
+      uuid: ^9.0.0
       vite: ^4.4.3
       vite-plugin-pages: ^0.28.0
       vite-plugin-vue-layouts: ^0.7.0
@@ -170,6 +172,7 @@ importers:
       '@vueuse/core': 9.13.0_vue@3.3.4
       codemirror: 6.0.1
       file-saver: 2.0.5
+      uuid: 9.0.0
       vue-codemirror: 6.1.1_codemirror@6.0.1+vue@3.3.4
       vue-json-viewer: 3.0.4_vue@3.3.4
       vuetify: 3.3.7_il6dnuea7ztkcl7ol6gtjaazke
@@ -181,6 +184,7 @@ importers:
       '@types/file-saver': 2.0.5
       '@types/jsdom': 20.0.1
       '@types/node': 18.16.19
+      '@types/uuid': 9.0.2
       '@typescript-eslint/eslint-plugin': 5.62.0_mv6mzcvpovjse3y5tkumps7mki
       '@typescript-eslint/parser': 5.62.0_c6scop6gobf6637sntyzfiffg4
       '@vitejs/plugin-vue': 4.2.3_vite@4.4.3+vue@3.3.4
@@ -1818,6 +1822,10 @@ packages:
 
   /@types/unist/3.0.0:
     resolution: {integrity: sha512-MFETx3tbTjE7Uk6vvnWINA/1iJ7LuMdO4fcq8UfF0pRbj01aGLduVvQcRyswuACJdpnHgg8E3rQLhaRdNEJS0w==}
+    dev: true
+
+  /@types/uuid/9.0.2:
+    resolution: {integrity: sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==}
     dev: true
 
   /@types/vfile-message/2.0.0:
@@ -8624,6 +8632,11 @@ packages:
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
+
+  /uuid/9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
+    dev: false
 
   /v8-compile-cache-lib/3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}

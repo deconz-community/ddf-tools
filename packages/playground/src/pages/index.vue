@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as secp from '@noble/secp256k1'
 import { computedAsync } from '@vueuse/core'
+import { NIL as uuidNIL, v4 as uuidv4 } from 'uuid'
 
 import { Bundle, decode, encode, sign, verify } from '@deconz-community/ddf-bundler'
 
@@ -16,6 +17,9 @@ const genericDirectoryUrl = ref(`${baseUrl}/generic`)
 const fileUrl = ref(`${baseUrl}/ikea/starkvind_air_purifier.json`)
 const files = ref<File[]>([])
 const sha = ref('')
+
+const uniqueID = ref(uuidv4())
+
 const privateKey = ref(secp.utils.randomPrivateKey())
 const privateKeyHex = computed(() => bytesToHex(privateKey.value))
 
@@ -36,6 +40,11 @@ const signatures = computedAsync(async () => {
   }))
 }, [])
 
+watch(uniqueID, () => {
+  bundle.value.data.desc.uuid = uniqueID.value
+  triggerRef(bundle)
+})
+
 const parseFile = async () => {
   error.value = ''
   sha.value = ''
@@ -55,6 +64,10 @@ const makeBundle = async () => {
 
 const generatePrivateKey = () => {
   privateKey.value = secp.utils.randomPrivateKey()
+}
+
+const generateUUID = () => {
+  uniqueID.value = uuidv4()
 }
 
 const reset = () => {
@@ -79,6 +92,10 @@ const download = async () => {
       return await result.blob()
     })
     bundle.value.data.desc.source = fileUrl.value
+    if (bundle.value.data.desc.uuid === uuidNIL)
+      bundle.value.data.desc.uuid = uniqueID.value
+    else
+      uniqueID.value = bundle.value.data.desc.uuid
   }
   catch (e) {
     error.value = 'Erreur'
@@ -169,6 +186,23 @@ watch(bundle, () => {
               />
             </template>
             Generate a new private key
+          </v-tooltip>
+        </template>
+      </v-text-field>
+
+      <v-text-field
+        v-model="uniqueID"
+        label="Unique UUID"
+      >
+        <template #prepend>
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props" icon="mdi-refresh"
+                @click="generateUUID()"
+              />
+            </template>
+            Generate a new UUID
           </v-tooltip>
         </template>
       </v-text-field>

@@ -12,7 +12,11 @@ export async function buildFromFile(
   bundle.data.ddfc = await (await getFile(ddfPath)).text()
   const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
 
-  bundle.data.desc.product = ddfc.product
+  const keys = ['product', 'version', 'version_deconz', 'uuid'] as const
+  keys.forEach((key) => {
+    if (ddfc[key] !== undefined)
+      bundle.data.desc[key] = ddfc[key]
+  })
 
   const usedConstants: {
     manufacturers: string[]
