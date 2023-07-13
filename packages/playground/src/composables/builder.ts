@@ -18,6 +18,7 @@ export async function buildFromFile(
       bundle.data.desc[key] = ddfc[key]
   })
 
+  // Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
     manufacturers: string[]
     'device-types': string[]
@@ -30,7 +31,7 @@ export async function buildFromFile(
   const modelid = asArray(ddfc.modelid)
   if (manufacturers.length === modelid.length) {
     for (let i = 0; i < manufacturers.length; i++) {
-      if (manufacturers[i].startsWith('$MF_'))
+      if (manufacturers[i].startsWith('$MF_') && !usedConstants.manufacturers.includes(manufacturers[i]))
         usedConstants.manufacturers.push(manufacturers[i])
 
       bundle.data.desc.device_identifiers.push([
@@ -61,7 +62,7 @@ export async function buildFromFile(
   // Download script files
   if (Array.isArray(ddfc.subdevices)) {
     ddfc.subdevices.forEach((subdevice) => {
-      if (subdevice.type.startsWith('$TYPE_'))
+      if (subdevice.type.startsWith('$TYPE_') && !usedConstants['device-types'].includes(subdevice.type))
         usedConstants['device-types'].push(subdevice.type)
 
       if (Array.isArray(subdevice.items)) {
@@ -99,8 +100,13 @@ export async function buildFromFile(
         'manufacturers': {} as Record<string, string>,
         'device-types': {} as Record<string, string>,
       }
-      for (const manufacturer of usedConstants.manufacturers)
+      for (const manufacturer of usedConstants.manufacturers) {
         newData.manufacturers[manufacturer] = decoded.manufacturers[manufacturer]
+        bundle.data.desc.device_identifiers.forEach((deviceIdentifier) => {
+          if (deviceIdentifier[0] === manufacturer)
+            deviceIdentifier[0] = decoded.manufacturers[manufacturer]
+        })
+      }
       for (const deviceType of usedConstants['device-types'])
         newData['device-types'][deviceType] = decoded['device-types'][deviceType]
       return JSON.stringify(newData, null, 4)

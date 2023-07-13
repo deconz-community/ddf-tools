@@ -52,7 +52,7 @@ watch(uniqueID, () => {
   triggerRef(bundle)
 })
 
-const parseFile = async () => {
+async function parseFile() {
   error.value = ''
   sha.value = ''
 
@@ -61,7 +61,7 @@ const parseFile = async () => {
   bundle.value = await decode(files.value[0])
 }
 
-const makeBundle = async () => {
+async function makeBundle() {
   let bundled = encode(bundle.value)
   bundled = await sign(bundled, [{
     key: hexToBytes(privateKeyHex.value),
@@ -69,15 +69,15 @@ const makeBundle = async () => {
   saveAs(bundled, bundle.value.data.name)
 }
 
-const generatePrivateKey = () => {
+function generatePrivateKey() {
   privateKey.value = secp256k1.utils.randomPrivateKey()
 }
 
-const generateUUID = () => {
+function generateUUID() {
   uniqueID.value = uuidv4()
 }
 
-const reset = () => {
+function reset() {
   bundle.value = Bundle()
 }
 
@@ -87,7 +87,7 @@ const desc = computed(() => {
   return JSON.stringify(bundle.value.data.desc, null, 4)
 })
 
-const download = async () => {
+async function download() {
   error.value = ''
 
   try {
