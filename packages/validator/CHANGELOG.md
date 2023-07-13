@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.7.0
+
+### Minor Changes
+
+- 956a9df: Replace signature package @noble/curves
+
 ## 2.6.0
 
 ### Minor Changes
