@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.7.1
+
+### Patch Changes
+
+- 60fa97a: Fix type definition generation
+
 ## 2.7.0
 
 ### Minor Changes
