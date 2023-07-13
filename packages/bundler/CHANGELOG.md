@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.7.0
+
+### Minor Changes
+
+- 956a9df: Replace signature package @noble/curves
+
 ## 0.6.0
 
 ### Minor Changes
