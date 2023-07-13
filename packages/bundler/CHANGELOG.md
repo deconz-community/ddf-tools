@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.5.1
+
+### Patch Changes
+
+- 7f8c7c4: Update deps
+
 ## 0.5.0
 
 ### Minor Changes

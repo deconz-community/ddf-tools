@@ -1,5 +1,15 @@
 # @deconz-community/ddf-validator
 
+## 2.5.0
+
+### Minor Changes
+
+- 2338229: Add store related fields
+
+### Patch Changes
+
+- 7f8c7c4: Update deps
+
 ## 2.4.0
 
 ### Minor Changes
