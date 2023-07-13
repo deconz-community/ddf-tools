@@ -7,6 +7,9 @@ export function ddfSchema(generics: GenericsData) {
   return z.strictObject({
     '$schema': z.optional(z.string()),
     'schema': z.literal('devcap1.schema.json'),
+    'uuid': z.optional(z.string()),
+    'version': z.optional(z.string()),
+    'version_deconz': z.optional(z.string()),
     'doc:path': z.optional(z.string()),
     'doc:hdr': z.optional(z.string()),
     'md:known_issues': z.optional(z.array(z.string())).describe('Know issues for this device, markdown file.'),
