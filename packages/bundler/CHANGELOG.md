@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.8.0
+
+### Minor Changes
+
+- 515f2b9: Add generate DESC method
+
 ## 0.7.0
 
 ### Minor Changes
