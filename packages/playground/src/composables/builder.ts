@@ -12,12 +12,6 @@ export async function buildFromFile(
   bundle.data.ddfc = await (await getFile(ddfPath)).text()
   const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
 
-  const keys = ['product', 'version', 'version_deconz', 'uuid'] as const
-  keys.forEach((key) => {
-    if (ddfc[key] !== undefined)
-      bundle.data.desc[key] = ddfc[key]
-  })
-
   // Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
     manufacturers: string[]
@@ -25,20 +19,6 @@ export async function buildFromFile(
   } = {
     'manufacturers': [],
     'device-types': [],
-  }
-
-  const manufacturers = asArray(ddfc.manufacturername)
-  const modelid = asArray(ddfc.modelid)
-  if (manufacturers.length === modelid.length) {
-    for (let i = 0; i < manufacturers.length; i++) {
-      if (manufacturers[i].startsWith('$MF_') && !usedConstants.manufacturers.includes(manufacturers[i]))
-        usedConstants.manufacturers.push(manufacturers[i])
-
-      bundle.data.desc.device_identifiers.push([
-        manufacturers[i],
-        modelid[i],
-      ])
-    }
   }
 
   const filesToAdd: {
@@ -143,6 +123,8 @@ export async function buildFromFile(
       return -1
     return a.path.localeCompare(b.path)
   })
+
+  bundle.generateDESC()
 
   return bundle
 }
