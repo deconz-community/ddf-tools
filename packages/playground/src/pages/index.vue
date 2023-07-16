@@ -294,62 +294,7 @@ watch(bundle, () => {
         </template>
       </v-card>
 
-      <v-card>
-        <template #title>
-          DESC (readonly)
-        </template>
-        <template #text>
-          <codemirror
-            v-model="desc"
-            placeholder="Code goes here..."
-            :autofocus="true"
-            :indent-with-tab="true"
-            :tab-size="2"
-          />
-        </template>
-      </v-card>
-
-      <v-card>
-        <template #title>
-          DDFC
-        </template>
-        <template #text>
-          <codemirror
-            v-model="bundle.data.ddfc"
-            placeholder="Code goes here..."
-            :autofocus="false"
-            :indent-with-tab="false"
-            :tab-size="2"
-          />
-        </template>
-      </v-card>
-
-      <v-card v-for="index in bundle.data.files.length" :key="index">
-        <template #title>
-          {{ bundle.data.files[index - 1].path }} - {{ bundle.data.files[index - 1].type }}
-        </template>
-        <template #text>
-          <template v-if="typeof bundle.data.files[index - 1].data === 'string'">
-            <codemirror
-              v-if="typeof bundle.data.files[index - 1].data === 'string'"
-              v-model="bundle.data.files[index - 1].data"
-              placeholder="Code goes here..."
-              :autofocus="false"
-              :indent-with-tab="false"
-              :tab-size="2"
-            />
-          </template>
-          <template v-else>
-            <v-btn
-              prepend-icon="mdi-download"
-              color="blue-grey"
-              @click="saveAs(bundle.data.files[index - 1].data, bundle.data.files[index - 1].path)"
-            >
-              Download File
-            </v-btn>
-          </template>
-        </template>
-      </v-card>
+      <bundle-editor v-model="bundle" />
     </template>
   </v-card>
 </template>
