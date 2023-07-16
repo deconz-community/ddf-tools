@@ -242,11 +242,6 @@ watch(bundle, () => {
           {{ bundle.data.name }}
         </template>
         <template #text>
-          <v-text-field
-            v-model="hashHex"
-            readonly
-            label="HASH"
-          />
           <v-card v-if="signatures.length > 0">
             <template #title>
               Signatures
