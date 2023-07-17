@@ -11,7 +11,7 @@
     "build:playground": "pnpm --dir packages/playground run build",
     "dev:playground": "pnpm --dir packages/playground run dev"
   },
-  "packageManager": "^pnpm@8.6.8",
+  "packageManager": "pnpm@8.6.8",
   "devDependencies": {
     "@antfu/eslint-config": "^0.39.8",
     "@changesets/cli": "^2.26.2",
