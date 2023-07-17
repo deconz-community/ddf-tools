@@ -1,5 +1,16 @@
 # @deconz-community/ddf-bundler
 
+## 0.10.0
+
+### Minor Changes
+
+- 195b55e: Update deps
+- c1ce019: Update pnpm to version 8
+
+### Patch Changes
+
+- 3190955: Fix DESC method
+
 ## 0.9.0
 
 ### Minor Changes
