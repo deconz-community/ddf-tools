@@ -1,5 +1,12 @@
 # @deconz-community/ddf-validator
 
+## 2.9.0
+
+### Minor Changes
+
+- 195b55e: Update deps
+- c1ce019: Update pnpm to version 8
+
 ## 2.8.0
 
 ### Minor Changes
