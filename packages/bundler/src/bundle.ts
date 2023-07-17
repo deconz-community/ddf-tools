@@ -32,7 +32,7 @@ export function Bundle() {
     })
 
     const constants_manufacturers: { [key: string]: string } = (() => {
-      const constantsFile = data.files.find(file => file.type === 'SCJS' && file.path === 'generic/constants_min.json')
+      const constantsFile = data.files.find(file => file.type === 'JSON' && file.path === 'generic/constants_min.json')
       if (constantsFile === undefined || typeof constantsFile.data !== 'string')
         return {}
       const constantData = JSON.parse(constantsFile.data)

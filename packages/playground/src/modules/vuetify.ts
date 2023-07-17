@@ -7,6 +7,7 @@ import * as labs from 'vuetify/labs/components'
 
 import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import VuetifyUseDialog from 'vuetify-use-dialog'
 
 import { type UserModule } from '../types'
 
@@ -30,4 +31,5 @@ export const install: UserModule = ({ app }) => {
   })
 
   app.use(vuetify)
+  app.use(VuetifyUseDialog)
 }

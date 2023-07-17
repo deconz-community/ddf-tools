@@ -23,6 +23,17 @@ const hash = computed(() => {
 })
 
 const tab = ref('info')
+
+const supportedDevices = computed(() => {
+  if (!bundle.value)
+    return []
+  return bundle.value.data.desc.device_identifiers.reduce((acc: Record<string, string[]>, item: [string, string]) => {
+    if (!acc[item[0]])
+      acc[item[0]] = []
+    acc[item[0]].push(item[1])
+    return acc
+  }, {})
+})
 </script>
 
 <template>
@@ -58,6 +69,7 @@ const tab = ref('info')
         <v-window-item value="info">
           <v-text-field
             v-model="bundle.data.desc.uuid"
+            readonly
             label="UUID"
           />
           <v-text-field
@@ -65,6 +77,20 @@ const tab = ref('info')
             readonly
             label="Hash"
           />
+
+          <h2 class="text-h6 mb-2">
+            Supported devices
+          </h2>
+          <v-divider />
+          <template v-for="devices, manufacturer in supportedDevices" :key="manufacturer">
+            <h3 class="ma-1 ml-4">
+              {{ manufacturer }}
+              <v-chip v-for="device, index in devices" :key="index" class="ma-1">
+                {{ device }}
+              </v-chip>
+            </h3>
+            <v-divider />
+          </template>
         </v-window-item>
 
         <v-window-item value="ddf">
