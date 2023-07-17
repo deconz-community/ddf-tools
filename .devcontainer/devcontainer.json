@@ -17,16 +17,17 @@
 	        // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
 				"antfu.iconify",
-                "antfu.vite",
-                "antfu.goto-alias",
-                "csstools.postcss",
-                "dbaeumer.vscode-eslint",
-                "Vue.volar",
-                "streetsidesoftware.code-spell-checker",
-                "esbenp.prettier-vscode",
-                "Tobermory.es6-string-html",
-                "mhutchie.git-graph",
-                "eamodio.gitlens"
+				"antfu.vite",
+				"antfu.goto-alias",
+				"csstools.postcss",
+				"dbaeumer.vscode-eslint",
+				"Vue.volar",
+				"streetsidesoftware.code-spell-checker",
+				"esbenp.prettier-vscode",
+				"Tobermory.es6-string-html",
+				"mhutchie.git-graph",
+				"eamodio.gitlens",
+				"GitHub.copilot-chat"
 			]
         }
     },
