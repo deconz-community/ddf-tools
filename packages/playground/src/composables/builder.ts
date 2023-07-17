@@ -81,7 +81,6 @@ export async function buildFromFile(
       const newData: Record<string, string> = {
         schema: 'constants2.schema.json',
       }
-      console.log({ usedConstants })
       for (const manufacturer of usedConstants.manufacturers)
         newData[manufacturer] = decoded.manufacturers?.[manufacturer] ?? decoded[manufacturer]
       for (const deviceType of usedConstants.deviceTypes)
