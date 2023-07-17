@@ -6,6 +6,7 @@
     "build": "vite build",
     "up": "taze major -I"
   },
+  "packageManager": "^pnpm@8.6.8",
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
     "@codemirror/lang-json": "^6.0.1",

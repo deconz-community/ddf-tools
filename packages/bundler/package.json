@@ -57,6 +57,7 @@
         "test:watch": "vitest",
         "up": "taze major -I"
     },
+    "packageManager": "^pnpm@8.6.8",
     "devDependencies": {
         "@types/jsdom": "^21.1.1",
         "@types/node": "^20.4.2",
