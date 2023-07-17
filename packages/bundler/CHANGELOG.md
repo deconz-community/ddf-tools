@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.9.0
+
+### Minor Changes
+
+- f4cc735: Add support for schema constants2.schema.json
+
 ## 0.8.0
 
 ### Minor Changes

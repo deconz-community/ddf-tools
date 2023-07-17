@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-bundler",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "description": "Creating and editing DDF bundles for deconz",
     "keywords": [
         "deconz",
