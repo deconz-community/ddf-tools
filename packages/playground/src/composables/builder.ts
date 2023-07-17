@@ -15,10 +15,10 @@ export async function buildFromFile(
   // Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
     manufacturers: string[]
-    'device-types': string[]
+    deviceTypes: string[]
   } = {
-    'manufacturers': [],
-    'device-types': [],
+    manufacturers: [],
+    deviceTypes: [],
   }
 
   const filesToAdd: {
@@ -42,8 +42,8 @@ export async function buildFromFile(
   // Download script files
   if (Array.isArray(ddfc.subdevices)) {
     ddfc.subdevices.forEach((subdevice) => {
-      if (subdevice.type.startsWith('$TYPE_') && !usedConstants['device-types'].includes(subdevice.type))
-        usedConstants['device-types'].push(subdevice.type)
+      if (subdevice.type.startsWith('$TYPE_') && !usedConstants.deviceTypes.includes(subdevice.type))
+        usedConstants.deviceTypes.push(subdevice.type)
 
       if (Array.isArray(subdevice.items)) {
         subdevice.items.forEach((item) => {
@@ -69,26 +69,20 @@ export async function buildFromFile(
     })
   }
 
+  // Download constants.json
   filesToAdd.push({
     url: new URL(`${genericDirectory}/constants.json`).href,
     path: 'generic/constants_min.json',
     type: 'JSON',
     patch(data) {
       const decoded = JSON.parse(data)
-      const newData = {
-        'schema': decoded.schema,
-        'manufacturers': {} as Record<string, string>,
-        'device-types': {} as Record<string, string>,
+      const newData: Record<string, string> = {
+        schema: 'constants1.schema.json',
       }
-      for (const manufacturer of usedConstants.manufacturers) {
-        newData.manufacturers[manufacturer] = decoded.manufacturers[manufacturer]
-        bundle.data.desc.device_identifiers.forEach((deviceIdentifier) => {
-          if (deviceIdentifier[0] === manufacturer)
-            deviceIdentifier[0] = decoded.manufacturers[manufacturer]
-        })
-      }
-      for (const deviceType of usedConstants['device-types'])
-        newData['device-types'][deviceType] = decoded['device-types'][deviceType]
+      for (const manufacturer of usedConstants.manufacturers)
+        newData[manufacturer] = decoded.manufacturers?.[manufacturer] ?? decoded[manufacturer]
+      for (const deviceType of usedConstants.deviceTypes)
+        newData[deviceType] = decoded['device-types']?.[deviceType] ?? decoded[deviceType]
       return JSON.stringify(newData, null, 4)
     },
   })
