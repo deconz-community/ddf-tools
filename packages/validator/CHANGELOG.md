@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.8.0
+
+### Minor Changes
+
+- f4cc735: Add support for schema constants2.schema.json
+
 ## 2.7.1
 
 ### Patch Changes
