@@ -17,7 +17,9 @@ export async function buildFromFile(
     manufacturers: string[]
     deviceTypes: string[]
   } = {
-    manufacturers: [],
+    manufacturers: typeof ddfc.manufacturername === 'string'
+      ? [ddfc.manufacturername]
+      : ddfc.manufacturername.filter((name, index) => ddfc.manufacturername.indexOf(name) === index),
     deviceTypes: [],
   }
 
@@ -77,8 +79,9 @@ export async function buildFromFile(
     patch(data) {
       const decoded = JSON.parse(data)
       const newData: Record<string, string> = {
-        schema: 'constants1.schema.json',
+        schema: 'constants2.schema.json',
       }
+      console.log({ usedConstants })
       for (const manufacturer of usedConstants.manufacturers)
         newData[manufacturer] = decoded.manufacturers?.[manufacturer] ?? decoded[manufacturer]
       for (const deviceType of usedConstants.deviceTypes)
