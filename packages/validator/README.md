@@ -18,7 +18,7 @@ You can validate all DDF in a specefic directory using the example below. The va
 Example :
 
 ```js
-import { readFile } from 'fs/promises'
+import { readFile } from 'node:fs/promises'
 import glob from 'glob'
 import { fromZodError } from 'zod-validation-error'
 import { validator } from '@deconz-community/ddf-validator'
@@ -103,7 +103,7 @@ Currently loaded generics.
 ### validator.loadGeneric()
 
 Load generic data from an object.
-Support files with schema `constants1.schema.json`, `resourceitem1.schema.json` and `subdevice1.schema.json`.
+Support files with schema `constants1.schema.json`, `constants2.schema.json`, `resourceitem1.schema.json` and `subdevice1.schema.json`.
 
 #### Arguments
 - `data` - : object; File data.
@@ -134,7 +134,7 @@ validator.loadGeneric({
 ### validator.validate()
 
 Validate DDF data from an object.
-Support files with schema `constants1.schema.json`, `resourceitem1.schema.json`, `subdevice1.schema.json` and `devcap1.schema.json`.
+Support files with schema `constants1.schema.json`, `constants2.schema.json`, `resourceitem1.schema.json`, `subdevice1.schema.json` and `devcap1.schema.json`.
 Make sure to load any need generic first.
 
 #### Arguments

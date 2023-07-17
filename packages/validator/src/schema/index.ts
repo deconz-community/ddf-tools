@@ -13,13 +13,18 @@ export * from './sub-device'
 export function mainSchema(generics: GenericsData) {
   return z.discriminatedUnion('schema', [
     s.ddfSchema(generics),
-    s.constantsSchema(generics),
+    s.constantsSchema1(generics),
+    s.constantsSchema2(generics),
     s.resourceSchema(generics),
     s.subDeviceSchema(generics),
   ]).superRefine((data, ctx) => {
+    // Splited in multiple to avoid typescript error
     switch (data.schema) {
       case 'devcap1.schema.json':
-        ddfRefines.map(v => v(data, ctx))
+        ddfRefines[data.schema].map(v => v(data, ctx))
+        break
+      case 'constants2.schema.json':
+        ddfRefines[data.schema].map(v => v(data, ctx))
         break
     }
   })

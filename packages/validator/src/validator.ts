@@ -27,6 +27,15 @@ export function createValidator(generics: GenericsData = {
           ...parsed['device-types'],
         }
         break
+      case 'constants2.schema.json':{
+        Object.keys(parsed).filter(k => k.startsWith('$MF_')).forEach((k) => {
+          generics.manufacturers[k] = parsed[k as keyof typeof parsed]! as string
+        })
+        Object.keys(parsed).filter(k => k.startsWith('$TYPE_')).forEach((k) => {
+          generics.deviceTypes[k] = parsed[k as keyof typeof parsed]! as string
+        })
+        break
+      }
       case 'resourceitem1.schema.json':{
         if (generics.attributes.includes(parsed.id))
           throw (new Error(`Got duplicate resource item with attribute id '${parsed.id}'.`))

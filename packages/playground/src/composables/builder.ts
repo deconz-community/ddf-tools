@@ -71,7 +71,7 @@ export async function buildFromFile(
 
   filesToAdd.push({
     url: new URL(`${genericDirectory}/constants.json`).href,
-    path: 'generic/constants.json',
+    path: 'generic/constants_min.json',
     type: 'JSON',
     patch(data) {
       const decoded = JSON.parse(data)
@@ -111,9 +111,9 @@ export async function buildFromFile(
     const aIsGeneric = a.path.startsWith('generic/')
     const bIsGeneric = b.path.startsWith('generic/')
     if (aIsGeneric && bIsGeneric) {
-      if (a.path === 'generic/constants.json')
+      if (a.path === 'generic/constants_min.json')
         return -1
-      if (b.path === 'generic/constants.json')
+      if (b.path === 'generic/constants_min.json')
         return 1
       return a.path.localeCompare(b.path)
     }

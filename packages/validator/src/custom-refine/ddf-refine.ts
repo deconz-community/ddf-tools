@@ -1,14 +1,21 @@
 import { z } from 'zod'
+import { constantsSchema2 } from '../schema'
 import type { ddfSchema } from '../schema'
 
-export const ddfRefines = [
-  validateManufacturerNameAndModelID,
-  validateRefreshIntervalAndBindingReportTime,
-  validateMandatoryItemsAttributes,
-  validateScriptEvalFunctions,
-] as const
-
 type DDF = z.infer<ReturnType<typeof ddfSchema>>
+type Constants2 = z.infer<ReturnType<typeof constantsSchema2>>
+
+export const ddfRefines = {
+  'devcap1.schema.json': [
+    validateManufacturerNameAndModelID,
+    validateRefreshIntervalAndBindingReportTime,
+    validateMandatoryItemsAttributes,
+    validateScriptEvalFunctions,
+  ],
+  'constants2.schema.json': [
+    validateConstants2,
+  ],
+} as const
 
 function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx) {
   const areBothString = typeof data.manufacturername === 'string'
@@ -43,7 +50,7 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
   if (!data.bindings)
     return
 
-  const hexa = (value: string | number) => `0x${(typeof value === 'number' ? value : parseInt(value, 16)).toString(16)}`
+  const hexa = (value: string | number) => `0x${(typeof value === 'number' ? value : Number.parseInt(value, 16)).toString(16)}`
 
   const bindingsReportTime: Record<string, number> = {}
   // Get value in numeric from hexa or numeric value
@@ -227,5 +234,34 @@ function validateScriptEvalFunctions(data: DDF, ctx: z.RefinementCtx) {
         }
       })
     })
+  })
+}
+
+function validateConstants2(data: Constants2, ctx: z.RefinementCtx) {
+  const baseSchema = constantsSchema2({
+    attributes: [],
+    resources: {},
+    manufacturers: {},
+    deviceTypes: {},
+  })
+
+  Object.keys(data).forEach((key) => {
+    if (Object.keys(baseSchema.shape).includes(key))
+      return
+    if (!['$MF_', '$TYPE_'].some(prefix => key.startsWith(prefix))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'The constant key should start with \'$MF_\' or \'$TYPE_\'',
+        path: [key],
+      })
+      return
+    }
+    if (typeof data[key] !== 'string') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'The constant value should be a string',
+        path: [key],
+      })
+    }
   })
 }

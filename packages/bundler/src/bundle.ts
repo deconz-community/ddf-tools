@@ -31,25 +31,27 @@ export function Bundle() {
         data.desc[key] = ddfc[key]
     })
 
-    const constants: {
-      manufacturers?: [string, string]
-      'device-types'?: [string, string]
-    } = (() => {
-      const constantsFile = data.files.find(
-        file => file.type === 'SCJS'
-        && file.path === 'generic/constants.json',
-      )
+    const constants_manufacturers: { [key: string]: string } = (() => {
+      const constantsFile = data.files.find(file => file.type === 'SCJS' && file.path === 'generic/constants_min.json')
       if (constantsFile === undefined || typeof constantsFile.data !== 'string')
         return {}
-      return JSON.parse(constantsFile.data)
+      const constantData = JSON.parse(constantsFile.data)
+      switch (constantData.schema) {
+        case 'constants1.schema.json':
+          return constantData.manufacturers
+        case 'constants2.schema.json':
+          return constantData
+        default:
+          return {}
+      }
     })()
 
-    const manufacturers = asArray(ddfc.manufacturername)
-    const modelid = asArray(ddfc.modelid)
+    const manufacturers = asArray(ddfc.manufacturername) as string[]
+    const modelid = asArray(ddfc.modelid) as string[]
     if (manufacturers.length === modelid.length) {
       for (let i = 0; i < manufacturers.length; i++) {
         data.desc.device_identifiers.push([
-          constants.manufacturers?.[manufacturers[i]] ?? manufacturers[i],
+          constants_manufacturers[manufacturers[i]] ?? manufacturers[i],
           modelid[i],
         ])
       }
