@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.10.0
+
+### Minor Changes
+
+- ce1135a: Add Double as datatype
+
 ## 2.9.0
 
 ### Minor Changes

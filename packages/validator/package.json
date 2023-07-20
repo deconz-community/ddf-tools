@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/ddf-validator",
-    "version": "2.9.0",
+    "version": "2.10.0",
     "description": "Validating DDF files for deconz",
     "keywords": [
         "deconz",
