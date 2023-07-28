@@ -11,6 +11,7 @@ To start the playground page open the folder `packages/playground` and run the c
 
 Current version of the playground can be found [here](https://deconz-community.github.io/ddf-tools/).
 
-## Store
+## DDF Store
 
-To start the app page open the folder `packages/store` and run the command `pnpm dev:app`.
+To start the frontend run the command `pnpm dev:toolbox`.
+To start the backend database run the command `pnpm dev:store`.
