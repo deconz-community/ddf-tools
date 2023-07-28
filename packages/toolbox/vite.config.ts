@@ -13,6 +13,8 @@ module.exports = defineConfig({
   base: '/ddf-tools/',
   resolve: {
     alias: {
+      '@deconz-community/ddf-bundler': path.resolve(__dirname, '../bundler/index.ts'),
+      '@deconz-community/ddf-validator': path.resolve(__dirname, '../validator/index.ts'),
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
