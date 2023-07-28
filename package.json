@@ -9,7 +9,9 @@
     "publish": "changeset publish",
     "build": "turbo run build",
     "build:playground": "pnpm --dir packages/playground run build",
-    "dev:playground": "pnpm --dir packages/playground run dev"
+    "dev:playground": "pnpm --dir packages/playground run dev",
+    "dev:toolbox": "pnpm --dir packages/toolbox run dev",
+    "dev:store": "cd /workspaces/ddf-tools/packages/store/ && nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run ./main.go serve"
   },
   "packageManager": "pnpm@8.6.8",
   "devDependencies": {
@@ -24,6 +26,7 @@
     "dts-bundle-generator": "^8.0.1",
     "eslint": "^8.45.0",
     "lint-staged": "^13.2.3",
+    "nodemon": "^3.0.1",
     "prettier": "^3.0.0",
     "stylelint": "^15.10.1",
     "stylelint-config-recommended": "^13.0.0",

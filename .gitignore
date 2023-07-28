@@ -23,3 +23,8 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Database files
+*.db
+pb_data
+pocketbase

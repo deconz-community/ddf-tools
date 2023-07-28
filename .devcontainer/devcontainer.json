@@ -1,48 +1,60 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.233.0/containers/typescript-node
 {
-	"name": "Node.js & TypeScript",
-	"build": {
-		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick a Node version: 18, 16, 14.
-		// Append -bullseye or -buster to pin to an OS version.
-		// Use -bullseye variants on local on arm64/Apple Silicon.
-		"args": { 
-			"VARIANT": "18-bullseye"
-		}
-	},
-
-    "customizations": {
-        "vscode": {
-	        // Add the IDs of extensions you want installed when the container is created.
-            "extensions": [
-				"antfu.iconify",
-				"antfu.vite",
-				"antfu.goto-alias",
-				"csstools.postcss",
-				"dbaeumer.vscode-eslint",
-				"Vue.volar",
-				"streetsidesoftware.code-spell-checker",
-				"esbenp.prettier-vscode",
-				"Tobermory.es6-string-html",
-				"mhutchie.git-graph",
-				"eamodio.gitlens",
-				"GitHub.copilot-chat"
-			]
+    "name": "Node.js & TypeScript",
+    "build": {
+        "dockerfile": "Dockerfile",
+        // Update 'VARIANT' to pick a Node version: 18, 16, 14.
+        // Append -bullseye or -buster to pin to an OS version.
+        // Use -bullseye variants on local on arm64/Apple Silicon.
+        "args": { 
+            "VARIANT": "18-bullseye"
         }
     },
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+    "customizations": {
+        "vscode": {
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "antfu.iconify",
+                "antfu.vite",
+                "antfu.goto-alias",
+                "csstools.postcss",
+                "dbaeumer.vscode-eslint",
+                "Vue.volar",
+                "streetsidesoftware.code-spell-checker",
+                "esbenp.prettier-vscode",
+                "yy0931.vscode-sqlite3-editor",
+                "golang.go",
+                "Tobermory.es6-string-html",
+                "mhutchie.git-graph",
+                "eamodio.gitlens",
+                "GitHub.copilot-chat"
+            ]
+        }
+    },
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pnpm install",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
 
-	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "node",
-	"portsAttributes": {
-		"4000": {
-			"label": "Vitesse"
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "pnpm install && cd /workspaces/ddf-tools/packages/store && go install",
+
+    // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "node",
+    "portsAttributes": {
+        "4000": {
+            "label": "Toolbox - Vitesse"
+        },
+        "4001": {
+            "label": "Playground - Vitesse"
+        },
+		"8090": {
+			"label": "Store - Pocketbase"
 		}
-	}
+    }
 }
