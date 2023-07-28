@@ -13,15 +13,15 @@ func init() {
 	m.Register(func(db dbx.Builder) error {
 		jsonData := `{
 			"id": "s3l41jpo7oosnpd",
-			"created": "2023-07-28 14:13:54.161Z",
-			"updated": "2023-07-28 14:13:54.167Z",
+			"created": "2023-07-28 14:30:48.157Z",
+			"updated": "2023-07-28 14:30:48.159Z",
 			"name": "user_info",
 			"type": "view",
 			"system": false,
 			"schema": [
 				{
 					"system": false,
-					"id": "ojjlgiq6",
+					"id": "q3rvzy3l",
 					"name": "name",
 					"type": "text",
 					"required": false,
@@ -34,7 +34,7 @@ func init() {
 				},
 				{
 					"system": false,
-					"id": "1tm4ofse",
+					"id": "jfuef2ig",
 					"name": "github_id",
 					"type": "json",
 					"required": false,
@@ -43,7 +43,7 @@ func init() {
 				},
 				{
 					"system": false,
-					"id": "lvpjjefx",
+					"id": "yo6dfe3w",
 					"name": "public_key",
 					"type": "text",
 					"required": false,

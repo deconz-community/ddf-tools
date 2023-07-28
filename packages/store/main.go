@@ -2,12 +2,18 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
+	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+
+	// register the migration files from the migrations package
+	_ "main/migrations"
 )
 
 func main() {
@@ -23,20 +29,19 @@ func main() {
 	})
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		/*
-			e.Router.AddRoute(echo.Route{
-				Method: http.MethodGet,
-				Path:   "/api/upload",
-				Handler: func(c echo.Context) error {
 
-					return c.JSON(http.StatusOK, map[string]string{"foo": "Hello world!"})
-				},
-				Middlewares: []echo.MiddlewareFunc{
-					apis.ActivityLogger(app),
-					apis.RequireRecordAuth("user"),
-				},
-			})
-		*/
+		e.Router.AddRoute(echo.Route{
+			Method: http.MethodGet,
+			Path:   "/api/upload",
+			Handler: func(c echo.Context) error {
+
+				return c.JSON(http.StatusOK, map[string]string{"foo": "Hello world!"})
+			},
+			Middlewares: []echo.MiddlewareFunc{
+				apis.ActivityLogger(app),
+				apis.RequireRecordAuth("user"),
+			},
+		})
 
 		return nil
 	})
