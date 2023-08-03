@@ -8,6 +8,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@deconz-community/ddf-playground"
+    "@deconz-community/ddf-playground",
+    "@deconz-community/ddf-store-app"
   ]
 }
