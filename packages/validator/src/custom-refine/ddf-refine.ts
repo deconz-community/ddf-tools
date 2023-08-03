@@ -129,6 +129,7 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx) {
       description: 'a color light should always have "state/ct" item.',
       if: {
         type: [
+          // TODO Use the constants file to resolve the types too
           '$TYPE_COLOR_TEMPERATURE_LIGHT',
           'Color Temperature Light',
           '$TYPE_EXTENDED_COLOR_LIGHT',
