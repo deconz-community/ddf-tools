@@ -1,13 +1,13 @@
 {
   "schema": "devcap1.schema.json",
-  "manufacturername": "$MF_PHILIPS",
-  "modelid": "H2L-ZBPH-RS",
-  "product": "H2L-ZBPH-RS",
+  "manufacturername": "$MF_IKEA",
+  "modelid": "TRADFRI control outlet",
+  "product": "TRADFRI control outlet",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
-      "type": "$TYPE_WINDOW_COVERING_DEVICE",
+      "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
       "uuid": [
         "$address.ext",
@@ -42,19 +42,12 @@
           "name": "attr/uniqueid"
         },
         {
-          "name": "state/lift",
-          "refresh.interval": 60,
-          "default": 0
+          "name": "state/alert",
+          "default": "none"
         },
         {
-          "name": "state/open",
-          "parse": {
-            "at": "0x0008",
-            "cl": "0x0102",
-            "ep": 0,
-            "eval": "Item.val = Attr.val < 100",
-            "fn": "zcl"
-          }
+          "name": "state/on",
+          "refresh.interval": 5
         },
         {
           "name": "state/reachable"
@@ -67,16 +60,13 @@
       "bind": "unicast",
       "src.ep": 1,
       "dst.ep": 1,
-      "cl": "0x0102",
-      "report": [
-        {
-          "at": "0x0008",
-          "dt": "0x20",
-          "min": 1,
-          "max": 100,
-          "change": "0x00000001"
-        }
-      ]
+      "cl": "0x0000"
+    },
+    {
+      "bind": "unicast",
+      "src.ep": 1,
+      "dst.ep": 1,
+      "cl": "0x0006"
     }
   ]
 }

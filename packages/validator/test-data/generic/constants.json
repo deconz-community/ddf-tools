@@ -3,6 +3,7 @@
 
     "manufacturers" : {
         "$MF_BOSCH": "Bosch",
+        "$MF_IKEA": "IKEA of Sweden",
         "$MF_LUMI": "LUMI",
         "$MF_LUTRON": "Lutron",
         "$MF_PHILIPS": "Philips",
@@ -12,7 +13,11 @@
         "$MF_XIAOMI": "XIAOMI"
     },
     "device-types": {
+        "$TYPE_AIR_PURIFIER": "ZHAAirPurifier",
         "$TYPE_AIR_QUALITY_SENSOR": "ZHAAirQuality",
+        "$TYPE_CARBONDIOXIDE_SENSOR": "ZHACarbonDioxide",
+        "$TYPE_FORMALDEHYDE_SENSOR": "ZHAFormaldehyde",
+        "$TYPE_PARTICULATEMATTER_SENSOR": "ZHAParticulateMatter",
         "$TYPE_ALARM_SENSOR": "ZHAAlarm",
         "$TYPE_BATTERY_SENSOR": "ZHABattery",
         "$TYPE_COLOR_DIMMABLE_LIGHT": "Color dimmable light",
