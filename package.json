@@ -9,6 +9,7 @@
     "publish": "changeset publish",
     "build": "turbo run build",
     "build:playground": "pnpm --dir packages/playground run build",
+    "dev:store": "pnpm --dir packages/store run dev",
     "dev:playground": "pnpm --dir packages/playground run dev",
     "dev:toolbox": "pnpm --dir packages/toolbox run dev"
   },

@@ -10,13 +10,13 @@ VERSION=$(cat $SCRIPT_PATH/../pb_version.md | cut -d " " -f3)
 echo "Installing pocketbase version $VERSION"
 
 # Download the pocketbase binary for the specified version
-wget -O pocketbase_${VERSION}_linux_amd64.zip https://github.com/pocketbase/pocketbase/releases/download/v${VERSION}/pocketbase_${VERSION}_linux_amd64.zip
+wget -O /tmp/pocketbase_${VERSION}_linux_amd64.zip https://github.com/pocketbase/pocketbase/releases/download/v${VERSION}/pocketbase_${VERSION}_linux_amd64.zip
 
 # Remove any existing pocketbase binary
-rm pocketbase
+rm $SCRIPT_PATH/../pocketbase
 
 # Extract the pocketbase binary from the downloaded zip file
-unzip pocketbase_${VERSION}_linux_amd64.zip pocketbase
+unzip /tmp/pocketbase_${VERSION}_linux_amd64.zip pocketbase -d $SCRIPT_PATH/../
 
 # Remove the downloaded zip file
-rm pocketbase_${VERSION}_linux_amd64.zip
+rm /tmp/pocketbase_${VERSION}_linux_amd64.zip
