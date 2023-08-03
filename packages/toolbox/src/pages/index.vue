@@ -6,7 +6,7 @@ const { client } = usePocketBase()
 
 const bundleList = computedAsync(
   async () => {
-    return (await client.collection('bundle_tree').getFullList({ expand: 'contributors' }))
+    return (await client.collection('bundle').getFullList({ expand: 'contributors' }))
       .sort((a, b) => a.name.localeCompare(b.name))
   },
   null, // initial state
@@ -54,7 +54,7 @@ const bundleList = computedAsync(
             <td>
               <ul>
                 <li v-for="contributor of bundle.contributors" :key="contributor">
-                  {{ bundle.expand.contributors.find(c => c.id === contributor).name }}
+                  {{ bundle.expand.contributors.find(c => c.id === contributor).username }}
                 </li>
               </ul>
             </td>

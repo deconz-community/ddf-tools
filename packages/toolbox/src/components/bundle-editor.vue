@@ -56,7 +56,7 @@ const signatures = computedAsync(async () => {
     return acc
   }, []).filter((item, index, self) => self.indexOf(item) === index)
 
-  const users = await pb.client.collection('user_info').getList(undefined, undefined, {
+  const users = await pb.client.collection('user').getList(undefined, undefined, {
     public_key: publicKeys,
   })
 

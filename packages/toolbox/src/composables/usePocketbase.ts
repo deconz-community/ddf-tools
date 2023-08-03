@@ -7,9 +7,7 @@ export const usePocketBaseSymbol: InjectionKey<ReturnType<typeof createPocketBas
 export interface UserProfile {
   id: string
   created: string
-  name: string
-  github_id?: number
-  public_key?: string
+  updated: string
   private_key?: string
 }
 
@@ -46,35 +44,6 @@ export function createPocketBase() {
     else { client.authStore.clear() }
   }
 
-  // Update cookie on auth change
-  client.authStore.onChange((token) => {
-    // Clear old auth cookie
-    if (!token || !client.authStore.isValid) {
-      cookies.remove('pocketbase_auth', cookieBaseParams)
-      return
-    }
-
-    // Save auth cookie
-    const tokenPayload = getTokenPayload(token)
-    cookies.set(cookieAuthKey, {
-      token: client.authStore.token,
-      model: client.authStore.model,
-    }, {
-      ...cookieBaseParams,
-      expires: new Date(tokenPayload.exp * 1000),
-    })
-
-    // Load user info
-    if (tokenPayload.id) {
-      client.collection('user_info').getOne<UserProfile>(tokenPayload.id).then((user) => {
-        profile.value = user
-      })
-    }
-    else {
-      profile.value = null
-    }
-  })
-
   const findOrCreate = async (
     collection: string,
     searchFields: { [key: string]: string },
@@ -109,6 +78,39 @@ export function createPocketBase() {
       }
     }
   }
+
+  // Update cookie on auth change
+  client.authStore.onChange((token) => {
+    client.collection('user_profile').unsubscribe()
+
+    // Clear old auth cookie
+    if (!token || !client.authStore.isValid) {
+      cookies.remove('pocketbase_auth', cookieBaseParams)
+      return
+    }
+
+    // Save auth cookie
+    const tokenPayload = getTokenPayload(token)
+    cookies.set(cookieAuthKey, {
+      token: client.authStore.token,
+      model: client.authStore.model,
+    }, {
+      ...cookieBaseParams,
+      expires: new Date(tokenPayload.exp * 1000),
+    })
+
+    if (client.authStore.model) {
+      client.collection('user_profile').getOne(client.authStore.model.profile).then((record) => {
+        console.log('Loading user profile')
+        profile.value = record
+      })
+
+      client.collection('user_profile').subscribe(client.authStore.model.profile, (event) => {
+        console.log('Updating user profile')
+        profile.value = event.record
+      })
+    }
+  })
 
   return { client, profile, findOrCreate }
 }

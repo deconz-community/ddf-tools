@@ -4,6 +4,8 @@ migrate((db) => {
   const collection = dao.findCollectionByNameOrId("_pb_users_auth_")
 
   collection.name = "user"
+  collection.listRule = ""
+  collection.viewRule = ""
   collection.createRule = "@request.data.is_admin:isset = false"
   collection.updateRule = "id = @request.auth.id && @request.data.is_admin:isset = false"
   collection.options = {
@@ -26,8 +28,8 @@ migrate((db) => {
   // add
   collection.schema.addField(new SchemaField({
     "system": false,
-    "id": "m4npj5tu",
-    "name": "private_key",
+    "id": "n0vn7e3t",
+    "name": "github_id",
     "type": "text",
     "required": false,
     "unique": false,
@@ -41,8 +43,8 @@ migrate((db) => {
   // add
   collection.schema.addField(new SchemaField({
     "system": false,
-    "id": "n7tjnhpu",
-    "name": "public_key",
+    "id": "g1ifh4vh",
+    "name": "name",
     "type": "text",
     "required": false,
     "unique": false,
@@ -64,12 +66,46 @@ migrate((db) => {
     "options": {}
   }))
 
+  // add
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "n7tjnhpu",
+    "name": "public_key",
+    "type": "text",
+    "required": false,
+    "unique": false,
+    "options": {
+      "min": null,
+      "max": null,
+      "pattern": ""
+    }
+  }))
+
+  // add
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "ckkxnrnx",
+    "name": "profile",
+    "type": "relation",
+    "required": false,
+    "unique": false,
+    "options": {
+      "collectionId": "57iemnebw1fd4wt",
+      "cascadeDelete": false,
+      "minSelect": null,
+      "maxSelect": 1,
+      "displayFields": []
+    }
+  }))
+
   return dao.saveCollection(collection)
 }, (db) => {
   const dao = new Dao(db)
   const collection = dao.findCollectionByNameOrId("_pb_users_auth_")
 
   collection.name = "users"
+  collection.listRule = null
+  collection.viewRule = null
   collection.createRule = null
   collection.updateRule = null
   collection.options = {
@@ -122,13 +158,19 @@ migrate((db) => {
   }))
 
   // remove
-  collection.schema.removeField("m4npj5tu")
+  collection.schema.removeField("n0vn7e3t")
+
+  // remove
+  collection.schema.removeField("g1ifh4vh")
+
+  // remove
+  collection.schema.removeField("tdonwlvd")
 
   // remove
   collection.schema.removeField("n7tjnhpu")
 
   // remove
-  collection.schema.removeField("tdonwlvd")
+  collection.schema.removeField("ckkxnrnx")
 
   return dao.saveCollection(collection)
 })

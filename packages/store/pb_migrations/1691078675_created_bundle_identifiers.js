@@ -2,8 +2,8 @@
 migrate((db) => {
   const collection = new Collection({
     "id": "a8avpfp4q0a21k2",
-    "created": "2023-08-03 10:37:01.507Z",
-    "updated": "2023-08-03 10:37:01.507Z",
+    "created": "2023-08-03 16:04:34.987Z",
+    "updated": "2023-08-03 16:04:34.987Z",
     "name": "bundle_identifiers",
     "type": "base",
     "system": false,

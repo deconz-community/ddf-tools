@@ -14,19 +14,22 @@ const createSnackbar = useSnackbar()
 const pb = usePocketBase()
 
 const settings = reactive({
-  private_key: pb.client.authStore.model?.private_key,
+  private_key: pb.profile.value?.private_key,
   public_key: pb.client.authStore.model?.public_key,
 })
 
 const errorMessage = ref('')
 
-const generateKeys = async () => {
+async function generateKeys() {
   settings.private_key = bytesToHex(secp256k1.utils.randomPrivateKey())
 }
 
 // Update public key when private key changes
 watch(toRef(settings, 'private_key'), () => {
   try {
+    if (!settings.private_key)
+      throw new Error('An error occurred.')
+
     settings.public_key = bytesToHex(secp256k1.getPublicKey(hexToBytes(settings.private_key)))
     errorMessage.value = ''
   }
@@ -35,7 +38,7 @@ watch(toRef(settings, 'private_key'), () => {
   }
 })
 
-const saveKeys = async () => {
+async function saveKeys() {
   const isConfirmed = await createConfirm({
     content: 'Any bundles signed with the old keys will no longer be valid.',
   })
@@ -51,6 +54,16 @@ const saveKeys = async () => {
       private_key: settings.private_key,
       public_key: settings.public_key,
     })
+
+    if (pb.profile.value) {
+      console.log('Updating profile', pb.profile.value.id)
+      pb.client.collection('user_profile').update(pb.profile.value.id, {
+        private_key: settings.private_key,
+      })
+    }
+    else {
+      throw new Error('User don\'t have a profile.')
+    }
   }
   catch (e) {
     console.error(e)
@@ -60,7 +73,7 @@ const saveKeys = async () => {
   createSnackbar({ text: 'New keys has been saved.', snackbarProps: { color: 'success' } })
 }
 
-const avatar = useGithubAvatar(computed(() => pb.profile.value?.github_id), 125)
+const avatar = useGithubAvatar(computed(() => pb.client.authStore.model?.github_id), 125)
 const userProfilLink = computed(() => `https://github.com/${pb.client.authStore.model?.username}`)
 </script>
 

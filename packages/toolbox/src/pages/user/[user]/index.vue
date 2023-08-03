@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import { computedAsync } from '@vueuse/core'
 import { useGithubAvatar } from '~/composables/useGithubAvatar'
-import type { UserProfile } from '~/composables/usePocketbase'
 import { usePocketBase } from '~/composables/usePocketbase'
 
 const props = defineProps<{
   user: string
 }>()
 
-const { client, profile } = usePocketBase()
+const { client } = usePocketBase()
 
 const userProfile = computedAsync(
   async () => {
     // If I look my own profile, I can get it from the profile store
-    if (profile.value?.id && profile.value.id === props.user)
-      return profile.value
+    if (client.authStore.model?.id && client.authStore.model.id === props.user)
+      return client.authStore.model
 
-    return (await client.collection('user_public_info').getOne<UserProfile>(props.user))
+    return (await client.collection('user').getOne(props.user))
   },
   null, // initial state
 )

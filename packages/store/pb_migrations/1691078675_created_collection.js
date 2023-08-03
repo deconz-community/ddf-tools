@@ -2,8 +2,8 @@
 migrate((db) => {
   const collection = new Collection({
     "id": "edu73sq7td7c8cv",
-    "created": "2023-08-03 10:37:01.507Z",
-    "updated": "2023-08-03 10:37:01.507Z",
+    "created": "2023-08-03 16:04:34.988Z",
+    "updated": "2023-08-03 16:04:34.988Z",
     "name": "collection",
     "type": "base",
     "system": false,
@@ -49,15 +49,17 @@ migrate((db) => {
       },
       {
         "system": false,
-        "id": "pezzx5zf",
+        "id": "vinylcuq",
         "name": "contributors",
-        "type": "text",
+        "type": "relation",
         "required": false,
         "unique": false,
         "options": {
-          "min": null,
-          "max": null,
-          "pattern": ""
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": []
         }
       }
     ],

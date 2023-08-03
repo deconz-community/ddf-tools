@@ -5,7 +5,7 @@ import { useGithubAvatar } from '~/composables/useGithubAvatar'
 import { usePocketBase } from '~/composables/usePocketbase'
 
 const instance = getCurrentInstance()
-const { client, profile } = usePocketBase()
+const { client } = usePocketBase()
 
 const router = useRouter()
 const route = useRoute()
@@ -20,22 +20,11 @@ client.authStore.onChange(() => {
 })
 
 const avatarSize = 50
-const avatarUrl = useGithubAvatar(computed(() => profile.value?.github_id), avatarSize - 2)
+const avatarUrl = useGithubAvatar(computed(() => client.authStore.model?.github_id), avatarSize - 2)
 
 async function login() {
   try {
     const result = await client.collection('user').authWithOAuth2({ provider: 'github' })
-    if (result.meta) {
-      const updateFields: Record<string, string> = {}
-      for (const field of ['email', 'username']) {
-        if (result.meta[field] !== result.record[field])
-          updateFields[field] = result.meta[field]
-      }
-      if (Object.keys(updateFields).length > 0) {
-        createSnackbar({ text: 'Updating user profile.' })
-        await client.collection('user').update(result.record.id, updateFields)
-      }
-    }
     createSnackbar({ text: `Logged in as ${result.record.username}.` })
   }
   catch (e) {
