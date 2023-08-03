@@ -12,8 +12,5 @@ FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
 # ARG EXTRA_NODE_VERSION=10
 # RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"
 
-# Install go
-RUN su node -c "wget -q -O - https://git.io/vQhTU | bash && /home/node/.go/bin/go install -v golang.org/x/tools/gopls@latest"
-
 # [Optional] Uncomment if you want to install more global node packages
 RUN su node -c "npm install --location=global pnpm turbo @changesets/cli"

@@ -9,7 +9,7 @@
         "ddf",
         "bundle"
     ],
-    "homepage": "https://github.com/deconz-community/ddf-tools/blob/main/packages/bundler/",
+    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/bundler",
     "bugs": {
         "url": "https://github.com/deconz-community/ddf-tools/issues/"
     },

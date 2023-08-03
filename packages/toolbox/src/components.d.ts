@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppBar: typeof import('./components/app-bar.vue')['default']
-    BtnConfirm: typeof import('./components/btn-confirm.vue')['default']
     BtnRoundedCircle: typeof import('./components/btn-rounded-circle.vue')['default']
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']

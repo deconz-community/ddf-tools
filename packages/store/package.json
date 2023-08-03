@@ -1,0 +1,45 @@
+{
+  "name": "@deconz-community/ddf-store",
+  "private": true,
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build:hooks": "rollup -c",
+    "dev:db": "./pocketbase serve"
+  },
+  "keywords": [],
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "devDependencies": {
+    "esbuild": "^0.18.17",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.27.0",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "typescript": "^5.1.6"
+  }
+}

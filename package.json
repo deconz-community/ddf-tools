@@ -10,8 +10,7 @@
     "build": "turbo run build",
     "build:playground": "pnpm --dir packages/playground run build",
     "dev:playground": "pnpm --dir packages/playground run dev",
-    "dev:toolbox": "pnpm --dir packages/toolbox run dev",
-    "dev:store": "cd /workspaces/ddf-tools/packages/store/ && nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run ./main.go serve"
+    "dev:toolbox": "pnpm --dir packages/toolbox run dev"
   },
   "packageManager": "pnpm@8.6.8",
   "devDependencies": {
@@ -43,5 +42,30 @@
     "vitest": "^0.33.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
   }
 }

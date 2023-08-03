@@ -63,5 +63,30 @@
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
     "vuetify-use-dialog": "^0.6.0"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/playground",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
   }
 }
