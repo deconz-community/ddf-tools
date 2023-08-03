@@ -1,5 +1,12 @@
 # @deconz-community/ddf-validator
 
+## 2.11.0
+
+### Minor Changes
+
+- c20fd0b: Add requirement of state/open to ZHAOpenClose devices
+- c20fd0b: Update test data
+
 ## 2.10.0
 
 ### Minor Changes
