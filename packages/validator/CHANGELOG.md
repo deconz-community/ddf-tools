@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.12.1
+
+### Patch Changes
+
+- 50abb20: Add missing type definition
+
 ## 2.12.0
 
 ### Minor Changes
