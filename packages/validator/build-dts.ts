@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import fs from 'fs'
+import fs from 'node:fs'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 import { glob } from 'glob'
@@ -58,6 +58,7 @@ export declare function createValidator(generics?: GenericsData): {
   loadGeneric: (data: unknown) => DDF;
   validate: (data: unknown) => DDF;
   getSchema: () => ZodType<DDF>;
+  version: string;
 };
 
 export {};
