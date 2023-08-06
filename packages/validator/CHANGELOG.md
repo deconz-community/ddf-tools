@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.12.0
+
+### Minor Changes
+
+- f5c02f4: Validate DDF against subdevice generics
+
 ## 2.11.0
 
 ### Minor Changes
