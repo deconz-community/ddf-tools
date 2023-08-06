@@ -21,10 +21,10 @@ export function mainSchema(generics: GenericsData) {
     // Splited in multiple to avoid typescript error
     switch (data.schema) {
       case 'devcap1.schema.json':
-        ddfRefines[data.schema].map(v => v(data, ctx))
+        ddfRefines[data.schema].map(v => v(data, ctx, generics))
         break
       case 'constants2.schema.json':
-        ddfRefines[data.schema].map(v => v(data, ctx))
+        ddfRefines[data.schema].map(v => v(data, ctx, generics))
         break
     }
   })

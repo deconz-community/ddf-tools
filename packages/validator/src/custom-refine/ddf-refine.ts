@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { constantsSchema2 } from '../schema'
 import type { ddfSchema } from '../schema'
+import type { GenericsData } from '../types'
 
 type DDF = z.infer<ReturnType<typeof ddfSchema>>
 type Constants2 = z.infer<ReturnType<typeof constantsSchema2>>
@@ -11,13 +12,14 @@ export const ddfRefines = {
     validateRefreshIntervalAndBindingReportTime,
     validateMandatoryItemsAttributes,
     validateScriptEvalFunctions,
+    validateMandatoryItemsForDevices,
   ],
   'constants2.schema.json': [
     validateConstants2,
   ],
 } as const
 
-function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx) {
+function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   const areBothString = typeof data.manufacturername === 'string'
       && typeof data.modelid === 'string'
 
@@ -45,7 +47,7 @@ function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx) {
   }
 }
 
-function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.RefinementCtx) {
+function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   // If there no bindings there is nothing to check
   if (!data.bindings)
     return
@@ -93,7 +95,7 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
   })
 }
 
-function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx) {
+function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   // If there no bindings there is nothing to check
   if (!data.bindings)
     return
@@ -222,7 +224,7 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx) {
   })
 }
 
-function validateScriptEvalFunctions(data: DDF, ctx: z.RefinementCtx) {
+function validateScriptEvalFunctions(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   const functions = ['parse', 'write'] as const
   data.subdevices.forEach((device, device_index) => {
     device.items.forEach((item, item_index) => {
@@ -252,12 +254,13 @@ function validateScriptEvalFunctions(data: DDF, ctx: z.RefinementCtx) {
   })
 }
 
-function validateConstants2(data: Constants2, ctx: z.RefinementCtx) {
+function validateConstants2(data: Constants2, ctx: z.RefinementCtx, _generics: GenericsData) {
   const baseSchema = constantsSchema2({
     attributes: [],
     resources: {},
     manufacturers: {},
     deviceTypes: {},
+    subDevices: {},
   })
 
   Object.keys(data).forEach((key) => {
@@ -278,5 +281,38 @@ function validateConstants2(data: Constants2, ctx: z.RefinementCtx) {
         path: [key],
       })
     }
+  })
+}
+
+function validateMandatoryItemsForDevices(data: DDF, ctx: z.RefinementCtx, generics: GenericsData) {
+  // If there no bindings there is nothing to check
+  if (!data.bindings)
+    return
+
+  data.subdevices.forEach((device, device_index) => {
+    const generic = generics.subDevices[device.type]
+    if (!generic) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `The device is missing the device definition for the type "${device.type}"`,
+        path: ['subdevices', device_index, 'items'],
+      })
+      return
+    }
+
+    let list = generic.items
+
+    if (generic.items_optional)
+      list = list.filter(item => !generic.items_optional!.includes(item))
+
+    list.forEach((item) => {
+      if (!device.items.find(i => i.name === item)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `The device should have the item "${item}" because it is mandatory for devices of type "${device.type}"`,
+          path: ['subdevices', device_index, 'items'],
+        })
+      }
+    })
   })
 }

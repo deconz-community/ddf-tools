@@ -1,3 +1,4 @@
+import { version } from '../package.json'
 import { mainSchema } from './schema'
 import type { GenericsData } from './types'
 
@@ -6,6 +7,7 @@ export function createValidator(generics: GenericsData = {
   manufacturers: {},
   deviceTypes: {},
   resources: {},
+  subDevices: {},
 }) {
   let schema = mainSchema(generics)
 
@@ -52,7 +54,10 @@ export function createValidator(generics: GenericsData = {
         break
       }
       case 'subdevice1.schema.json':
-        // No rules check for subdevice generic
+        // Index by type and name
+        generics.subDevices[parsed.type] = parsed
+        // TODO Remove by name ?
+        generics.subDevices[parsed.name] = parsed
         break
 
       case 'devcap1.schema.json':
@@ -68,5 +73,5 @@ export function createValidator(generics: GenericsData = {
     return schema.parse(data)
   }
 
-  return { generics, loadGeneric, validate, getSchema: () => schema }
+  return { generics, loadGeneric, validate, getSchema: () => schema, version }
 }

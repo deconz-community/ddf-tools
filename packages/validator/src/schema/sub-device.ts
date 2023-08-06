@@ -15,5 +15,6 @@ export function subDeviceSchema(generics: GenericsData) {
     order: z.number(),
     uuid: cf.uuid(),
     items: z.array(z.enum(generics.attributes as [string, ...string[]])),
+    items_optional: z.optional(z.array(z.enum(generics.attributes as [string, ...string[]]))),
   })
 }
