@@ -179,20 +179,6 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _gene
         ],
       },
     },
-    {
-      description: 'a ZHAOpenClose should always have "state/open" item.',
-      if: {
-        type: [
-          '$TYPE_OPEN_CLOSE_SENSOR',
-          'ZHAOpenClose',
-        ],
-      },
-      need: {
-        item: [
-          'state/open',
-        ],
-      },
-    },
   ]
 
   data.subdevices.forEach((device, device_index) => {
