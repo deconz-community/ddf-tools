@@ -8,6 +8,17 @@ import { sensorsSchema } from '../schemas/sensorSchema'
 export const configEndpoints = [
 
   makeEndpoint({
+    alias: 'createChallenge',
+    description: 'Creates a new authentication challenge which should be used as HMAC-Sha256(challenge, install code). '
+    + 'Both challenge and install code must be in lowercase hex format.',
+    method: 'get',
+    path: '/api/challenge',
+    response: z.object({
+      challenge: z.string(),
+    }),
+  }),
+
+  makeEndpoint({
     alias: 'createAPIKey',
     description: 'Creates a new API key which provides authorized access to the REST-API. '
     + 'The request will only succeed if the gateway is unlocked or valid HTTP basic '
@@ -25,10 +36,11 @@ export const configEndpoints = [
         schema: z.object({
           // TODO Blacklist devicetype to avoid specific api mode
           // Should not start with iConnect | iConnectHue | Echo | hue_ | "Hue "
-          devicetype: z.string().min(0).max(40).default('REST Client'),
-          username: z.optional(z.string().min(10).max(40)
+          'devicetype': z.string().min(0).max(40).default('REST Client'),
+          'username': z.optional(z.string().min(10).max(40)
             .default(() => (Math.random().toString(36).slice(2).toUpperCase())),
           ),
+          'hmac-sha256': z.optional(z.string()),
         }),
       },
     ],

@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { Discovery, Gateway } from '@deconz-community/rest-client'
+import hmacSHA256 from 'crypto-js/hmac-sha256'
 
 const apiUrl = ref<string>(import.meta.env.VITE_API_URL)
 const apiKey = ref<string>(import.meta.env.VITE_API_KEY)
+const installCode = ref<string>(import.meta.env.VITE_INSTALL_CODE)
+const challenge = ref<string>('')
+const challengeResult = computed(() => {
+  if (challenge.value.length === 0 || installCode.value.length === 0)
+    return ''
+  return hmacSHA256(challenge.value, installCode.value.toLowerCase())
+})
 
 const discovery = computed(() => Discovery())
 
@@ -50,6 +58,17 @@ test()
     <template #text>
       <v-text-field v-model="apiUrl" label="API Url" />
       <v-text-field v-model="apiKey" label="API Key" />
+
+      <v-expansion-panels>
+        <v-expansion-panel title="Authentication Challenge">
+          <template #text>
+            <v-text-field v-model="installCode" label="Install code" />
+            <v-text-field v-model="challenge" label="Challenge" />
+            <v-text-field v-model="challengeResult" readonly label="Challenge result" />
+          </template>
+        </v-expansion-panel>
+      </v-expansion-panels>
+
       <zodios-api
         v-for="api in gateway.client.api" :key="api.path"
         :api="api" :client="gateway.client" :api-key="apiKey"

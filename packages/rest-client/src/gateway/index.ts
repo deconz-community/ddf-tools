@@ -16,9 +16,9 @@ export function Gateway(address: string, apiKey: string) {
   const client = new Zodios(
     address,
     [
-      ...devicesEndpoints,
-      ...alarmSystemsEndpoints,
       ...configEndpoints,
+      ...alarmSystemsEndpoints,
+      ...devicesEndpoints,
       ...sensorsEndpoints,
       ...groupsEndpoints,
       ...lightsEndpoints,
