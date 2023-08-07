@@ -9,7 +9,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']
+    ObjectEditor: typeof import('./components/object-editor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ZodiosApi: typeof import('./components/zodios-api.vue')['default']
   }
 }
