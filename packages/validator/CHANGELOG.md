@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.13.0
+
+### Minor Changes
+
+- 42ef6e2: Reduce enum errors message length
+
 ## 2.12.1
 
 ### Patch Changes
