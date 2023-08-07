@@ -14,7 +14,22 @@ export function resourceSchema(_generics: GenericsData) {
       .describe('TODO: What is this ? What the difference with description ?'),
     'deprecated': z.optional(cf.date())
       .describe('Date of deprecation, if the item is deprecated, it\'s better to use the new one.'),
-    'datatype': z.optional(z.enum(['String', 'Bool', 'Int8', 'Int16', 'Int32', 'Int64', 'UInt8', 'UInt16', 'UInt32', 'UInt64', 'Double', 'Array', 'Array[3]', 'ISO 8601 timestamp']))
+    'datatype': z.optional(z.enum([
+      'String',
+      'Bool',
+      'Int8',
+      'Int16',
+      'Int32',
+      'Int64',
+      'UInt8',
+      'UInt16',
+      'UInt32',
+      'UInt64',
+      'Double',
+      'Array',
+      'Array[3]',
+      'ISO 8601 timestamp',
+    ]))
       .describe('Data type of the item.'),
     'access': z.optional(z.enum(['R', 'W', 'RW']))
       .describe('Access mode for this item, some of them are not editable.'),
