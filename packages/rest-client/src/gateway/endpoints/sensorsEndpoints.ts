@@ -15,6 +15,7 @@ export const sensorsEndpoints = [
       z.strictObject({ id: z.coerce.number() }),
     ),
     parameters: [
+      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',
@@ -46,6 +47,9 @@ export const sensorsEndpoints = [
     response: prepareResponse(
       sensorsSchema,
     ),
+    parameters: [
+      globalParameters.apiKey,
+    ],
   }),
 
   makeEndpoint({
@@ -57,6 +61,7 @@ export const sensorsEndpoints = [
       sensorSchema,
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.sensorId,
     ],
   }),
@@ -73,6 +78,7 @@ export const sensorsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.sensorId,
       {
         name: 'body',
@@ -96,6 +102,7 @@ export const sensorsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.sensorId,
       {
         name: 'body',
@@ -119,6 +126,7 @@ export const sensorsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.sensorId,
       {
         name: 'body',
@@ -146,6 +154,7 @@ export const sensorsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.sensorId,
       {
         name: 'body',

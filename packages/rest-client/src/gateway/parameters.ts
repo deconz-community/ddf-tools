@@ -6,7 +6,7 @@ export const globalParameters = makeParametersObject({
     name: 'apiKey',
     description: 'API Key',
     type: 'Path',
-    schema: z.string(),
+    schema: z.string().optional(),
   },
   deviceId: {
     name: 'groupId',

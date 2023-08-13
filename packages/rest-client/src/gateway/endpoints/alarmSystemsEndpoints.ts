@@ -18,6 +18,7 @@ export const alarmSystemsEndpoints = [
         .describe('The generated API key.'),
     ),
     parameters: [
+      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',
@@ -37,6 +38,9 @@ export const alarmSystemsEndpoints = [
     response: prepareResponse(
       alarmSystemsSchema,
     ),
+    parameters: [
+      globalParameters.apiKey,
+    ],
   }),
 
   makeEndpoint({
@@ -51,6 +55,7 @@ export const alarmSystemsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.alarmSystemId,
       {
         name: 'body',
@@ -74,6 +79,7 @@ export const alarmSystemsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.alarmSystemId,
       {
         name: 'body',
@@ -105,6 +111,7 @@ export const alarmSystemsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.alarmSystemId,
       globalParameters.deviceUniqueID,
       {
@@ -132,6 +139,7 @@ export const alarmSystemsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.alarmSystemId,
       globalParameters.deviceUniqueID,
     ],
@@ -153,6 +161,7 @@ export const alarmSystemsEndpoints = [
       },
     ),
     parameters: [
+      globalParameters.apiKey,
       globalParameters.alarmSystemId,
       {
         name: 'armMode',
