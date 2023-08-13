@@ -21,7 +21,7 @@ export const configEndpoints = [
   makeEndpoint({
     alias: 'createAPIKey',
     description: 'Creates a new API key which provides authorized access to the REST-API. '
-    + 'The request will only succeed if the gateway is unlocked or valid HTTP basic '
+    + 'The request will only succeed if the gateway is unlocked, is having a hmac-sha256 challenge or an valid HTTP basic '
     + 'authentification credentials are provided in the HTTP request header see authorization.',
     method: 'post',
     path: '/api',

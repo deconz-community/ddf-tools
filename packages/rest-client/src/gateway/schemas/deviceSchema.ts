@@ -1,26 +1,27 @@
 import { z } from 'zod'
 
 export const deviceSchema = z.object({
+  name: z.string().default('Device'),
+  manufacturername: z.string().default('Manufacturer'),
+  modelid: z.string().default('Model'),
   lastannounced: z.string().transform(value => new Date(value)).or(z.null())
     .describe('Last time the device announced itself to the network.'),
   lastseen: z.string().transform(value => new Date(value)).or(z.null())
     .describe('Last time the device has transmitted any data.'),
-  manufacturername: z.string().default('Manufacturer'),
-  modelid: z.string().default('Model'),
   productid: z.string().or(z.null()),
   subdevices: z.array(z.object({
-    config: z.record(z.string(), z.object({
+    config: z.optional(z.record(z.string(), z.object({
       lastupdated: z.string().transform(value => new Date(value)).or(z.null()),
       value: z.any(),
-    })),
-    state: z.record(z.string(), z.object({
+    }))),
+    state: z.optional(z.record(z.string(), z.object({
       lastupdated: z.string().transform(value => new Date(value)).or(z.null()),
       value: z.any(),
-    })),
+    }))),
     type: z.string(),
     uniqueid: z.string(),
   })),
-  swversion: z.string().describe('Firmware version.'),
+  swversion: z.string().or(z.null()).describe('Firmware version.'),
   uniqueid: z.string(),
 }).passthrough()
 

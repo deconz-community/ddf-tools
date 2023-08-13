@@ -1,2 +1,3 @@
-export * from './src/discovery'
-export * from './src/gateway'
+export { Discovery } from './src/discovery'
+export { Gateway } from './src/gateway'
+export { restMachine } from './src/machine'

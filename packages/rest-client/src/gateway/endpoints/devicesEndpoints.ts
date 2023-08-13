@@ -2,6 +2,7 @@ import { makeEndpoint } from '@zodios/core'
 import { z } from 'zod'
 import { globalParameters } from '../parameters'
 import { deviceSchema, introspectButtonEventItemSchema, introspectGenericItemSchema } from '../schemas/deviceSchema'
+import { prepareResponse } from '../utils'
 
 export const devicesEndpoints = [
 
@@ -30,7 +31,7 @@ export const devicesEndpoints = [
 
   makeEndpoint({
     alias: 'getDeviceItemIntrospect',
-    description: 'Returns the type definition of the specified item.',
+    description: 'Get the data type of the respective resource item as well as its defined values/boundaries or other relevant data.',
     method: 'get',
     path: '/api/:apiKey/devices/:deviceUniqueID/:item/introspect',
     response: z.union([
@@ -61,5 +62,52 @@ export const devicesEndpoints = [
     ],
   }),
 
-  // /api/<apikey>/devices/<uniqueid>/[<prefix>/]<item>/introspect
+  makeEndpoint({
+    alias: 'getDeviceFullDDF',
+    description: 'Returns the full DDF of the device specified by the provided MAC address.',
+    method: 'get',
+    path: '/api/:apiKey/devices/:deviceUniqueID/ddffull',
+    response: z.object({}).passthrough(),
+    parameters: [
+      globalParameters.apiKey,
+      globalParameters.deviceUniqueID,
+    ],
+  }),
+
+  makeEndpoint({
+    alias: 'reloadDeviceDDF',
+    description: 'Reload the DDF for the specified device MAC address. This might be required if you made some changes.',
+    method: 'put',
+    path: '/api/:apiKey/devices/:deviceUniqueID/ddf/reload',
+    response: prepareResponse(z.object({ reload: z.string() })),
+    parameters: [
+      globalParameters.apiKey,
+      globalParameters.deviceUniqueID,
+    ],
+  }),
+
+  makeEndpoint({
+    alias: 'pairDevice',
+    description: 'Pair a device by using zigbee install code.',
+    method: 'put',
+    path: '/api/:apiKey/devices/:deviceUniqueID/installcode',
+    response: z.object({
+      success: z.object({
+        installcode: z.string().describe('The device install code provided in the request.'),
+        mmohash: z.string().describe('The Matyas-Meyer-Oseas (MMO) hash calculated based on the provided installation code. It is automatically used by deCONZ to enable pairing with the target device.'),
+      }),
+    }),
+    parameters: [
+      globalParameters.apiKey,
+      globalParameters.deviceUniqueID,
+      {
+        name: 'body',
+        type: 'Body',
+        schema: z.object({
+          installcode: z.string().describe('6, 8, 12 or 16 Byte device installation code, plus 2 Byte CRC.'),
+        }),
+      },
+    ],
+  }),
+
 ] as const

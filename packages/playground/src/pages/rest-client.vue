@@ -7,7 +7,7 @@ const apiKey = ref<string>(import.meta.env.VITE_API_KEY)
 const installCode = ref<string>(import.meta.env.VITE_INSTALL_CODE)
 const challenge = ref<string>('')
 const challengeResult = computed(() => {
-  if (challenge.value.length === 0 || installCode.value.length === 0)
+  if (challenge.value.length !== 64 || installCode.value.length !== 16)
     return ''
   return hmacSHA256(challenge.value, installCode.value.toLowerCase())
 })
