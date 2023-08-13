@@ -26,7 +26,7 @@ export const gatewayMachine = createMachine({
 })
 
 export const restMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QTAYwPYDsBeBaATnAC4B0AkpgJZEDEASmALboBuYABFAIZFgDuXAJ4BtAAwBdRKAAO6WNUpYpIAB6JcAJgCcGkloAsAZgAcAVn0A2Q1tGiA7Pv0AaEIPUbDJC7dPbTW0ztTY30HAF8wlxQMHAJicipaAEEICE4efiExSSQQWXkiRUxlNQRNO2MvczsdAEZrWwdnV3UHEjNRXwCAoJC7CKi0LDxCWFIAEUpYDDZ8QXIIABswGknp1jA5kjGufCJs5XyFJVzSw1rKrR1jWstDCvutFzcykJINH07ajQsA840BiBosM4mMSGsZpt5gAxSiYCBwqDpXgCQSwGjQ9AAV3hyMyIgkhzkx2Kp0QdhqXjsHi0xjsogsdJqz3cWhI+g0GjpFn0olqFlqnVpgOBsVGEymkK2sPhiLxqPREI2WzA8IOuSOhROoDOnJIgVEBjqdNMLIQHhIdgu+l8txC91M9gikRAmHQKHguVFI2IRIKRRK6kMvL0RjMdxs9kcZs0-nePkFxhstXpWhFQzF8Qo1D9JMDZSuVVCdQaUeaL1w9V0HS6-kCwVC6ZiPrBStmLxkxK1pJ1iFqtTZFkC3yM-kN9xjKdqls+xlsZgsAJd3tBEvW7YWy1z3fz-LsVStGlHNi0E5aZVM08FX2+P0NDlqTZB4vBkuVMLhCMwSO4KKEns7f1tVURBzH0KkrFEUJeUcfwYxMEh+wMYJ51EH4kwsZ0wiAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QTAYwPYDsBeBaATnAC4B0AkpgJZEDEASmALboBuYABFAIZFgDuXAJ4BtAAwBdRKAAO6WNUpYpIAB6JcAZgCMAThKiNAFi0BWAEyjRZswA4bAdgA0IQeq2itJB1sNmtANhsTfyszDQBfcOcUDBwCYnIqWgBBCAhOHn4hMUkkEFl5IkVMZTUETVFDEntDE1E7DRstLW0bQ2dXcoCzEhC7KxNDQx17ezNDSOi0LDxCWFIAEUpYDDZ8QXIIABswGgBlIi58InYIZdWwdZzlAoUlPLLcM3t-Em0dHX97cx0zT50Ooh3KIvAZfAENPUTDoNDpJiAYjN4vMSEsVqxLhsAGKUTBnTBQDK8ASCWA0LHoACueKJWREEhucjuJQeiDM-j0Y2CoxMpkM9i0ThcQPqJHM438ukswyCESiCOmcTmi3OGPWJBxeNxhO4xKEZIO6Gkp1Va3puRkTKK91AZRCJEMNgsP3sQVMIXawoQw2qVh07kMlReuhskXlmHQKHgeURSuIjMKxVK6g0Yzeuk+3z+fw5gPKGmsb1hNi+-i+ozG8NjswSFGoCeZya6lTeOjaTuCJZ0wzzTyMXmL9kaRgMIwm8uryJV6LNDetLNtKfG6Y+Xx+OYBXs09mqI3qRlsI0G9iriprKLRF3VZG2YDnSdZzZsvX8tkM2nsVgMATzPs-fwDINJTbU9YnPacr2xXF8R1TISWjS1ExtVREA0EwvDGDltF0DQ0J0UR-DzdwdxqfDrE-R1-FTMNwiAA */
   id: 'deconz-rest',
   tsTypes: {} as import('./index.typegen').Typegen1,
   predictableActionArguments: true,
@@ -51,8 +51,8 @@ export const restMachine = createMachine({
     events: {} as
       { type: 'Add gateway' } |
       { type: 'Remove gateway' } |
-      { type: 'Discovery.start' } |
-      { type: 'Discovery.end' } |
+      { type: 'Start discovery' } |
+      { type: 'Stop discovery' } |
       {
         type: 'Found gateway'
         data: {
@@ -91,7 +91,7 @@ export const restMachine = createMachine({
       states: {
         'Idle': {
           on: {
-            'Discovery.start': {
+            'Start discovery': {
               target: 'Finding gateways',
               actions: assign({
                 discoveryResult: [],
@@ -99,6 +99,7 @@ export const restMachine = createMachine({
             },
           },
         },
+
         'Finding gateways': {
           invoke: {
             src: 'findGateways',
@@ -117,7 +118,7 @@ export const restMachine = createMachine({
               internal: true,
             },
 
-            'Discovery.end': {
+            'Stop discovery': {
               target: 'Idle',
               internal: true,
             },
@@ -194,7 +195,7 @@ export const restMachine = createMachine({
         }))
 
         sendBack({
-          type: 'Discovery.end',
+          type: 'Stop discovery',
         })
       }
 

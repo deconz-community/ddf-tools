@@ -23,7 +23,7 @@ watchEffect(() => {
     <template #text>
       Hello world
       <json-viewer :value="state.context.discoveryResult" />
-      <v-btn @click="send({ type: 'Discovery.start' })">
+      <v-btn @click="send({ type: 'Start discovery' })">
         Find gateways
       </v-btn>
     </template>
