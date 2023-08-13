@@ -8,6 +8,10 @@ inspect({ iframe: false })
 const { state, send } = useMachine(restMachine, {
   devTools: true,
 })
+
+watchEffect(() => {
+  console.log(state.value.context.discoveryResult)
+})
 </script>
 
 <template>
@@ -18,8 +22,8 @@ const { state, send } = useMachine(restMachine, {
 
     <template #text>
       Hello world
-      <json-viewer :value="state.context" />
-      <v-btn @click="send({ type: 'Find gateways' })">
+      <json-viewer :value="state.context.discoveryResult" />
+      <v-btn @click="send({ type: 'Discovery.start' })">
         Find gateways
       </v-btn>
     </template>

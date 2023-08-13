@@ -54,7 +54,7 @@ export interface Typegen1 {
 
   }
   eventsCausingServices: {
-    'findGateways': 'Find gateways'
+    'findGateways': 'Discovery.start' | 'Found gateway'
   }
   matchesStates: 'Discovery' | 'Discovery.Finding gateways' | 'Discovery.Idle' | 'Init' | { 'Discovery'?: 'Finding gateways' | 'Idle' }
   tags: never
