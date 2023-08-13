@@ -41,8 +41,20 @@ module.exports = defineConfig({
         'vue',
         'vue-router',
         'vue/macros',
+        '@vueuse/head',
+        '@vueuse/core',
+        {
+          // https://github.com/sindresorhus/ts-extras
+          'ts-extras': [
+            'objectKeys',
+          ],
+        },
       ],
       dts: 'src/auto-imports.d.ts',
+      dirs: [
+        'src/composables',
+        'src/stores',
+      ],
       vueTemplate: true,
     }),
 
