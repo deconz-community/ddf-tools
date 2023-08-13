@@ -7,8 +7,8 @@ export function pluginAuth(getApiKey: () => string): ZodiosPlugin {
       return {
         ...config,
         params: {
-          ...config.params,
           apiKey: getApiKey(),
+          ...config.params,
         },
       }
     },

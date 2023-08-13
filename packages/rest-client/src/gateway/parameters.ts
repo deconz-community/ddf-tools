@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { makeParametersObject } from '../types'
 
 export const globalParameters = makeParametersObject({
+  // The API Key is optional because it's will be loaded by the API Key plugin
   apiKey: {
     name: 'apiKey',
     description: 'API Key',
