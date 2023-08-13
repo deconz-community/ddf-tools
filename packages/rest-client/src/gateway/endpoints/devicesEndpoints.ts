@@ -12,9 +12,6 @@ export const devicesEndpoints = [
     method: 'get',
     path: '/api/:apiKey/devices',
     response: z.array(z.string()),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   makeEndpoint({
@@ -24,7 +21,6 @@ export const devicesEndpoints = [
     path: '/api/:apiKey/devices/:deviceUniqueID',
     response: deviceSchema,
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceUniqueID,
     ],
   }),
@@ -39,7 +35,6 @@ export const devicesEndpoints = [
       introspectButtonEventItemSchema,
     ]),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceUniqueID,
       {
         name: 'item',
@@ -57,7 +52,6 @@ export const devicesEndpoints = [
     path: '/api/:apiKey/devices/:deviceUniqueID/ddf',
     response: z.object({}).passthrough(),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceUniqueID,
     ],
   }),
@@ -69,7 +63,6 @@ export const devicesEndpoints = [
     path: '/api/:apiKey/devices/:deviceUniqueID/ddffull',
     response: z.object({}).passthrough(),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceUniqueID,
     ],
   }),
@@ -81,7 +74,6 @@ export const devicesEndpoints = [
     path: '/api/:apiKey/devices/:deviceUniqueID/ddf/reload',
     response: prepareResponse(z.object({ reload: z.string() })),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceUniqueID,
     ],
   }),
@@ -98,7 +90,6 @@ export const devicesEndpoints = [
       }),
     }),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceUniqueID,
       {
         name: 'body',

@@ -15,7 +15,6 @@ export const groupsEndpoints = [
       z.strictObject({ id: z.coerce.number() }),
     ),
     parameters: [
-      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',
@@ -38,9 +37,6 @@ export const groupsEndpoints = [
     response: prepareResponse(
       groupsSchema,
     ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   makeEndpoint({
@@ -52,7 +48,6 @@ export const groupsEndpoints = [
       groupSchema,
     ),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.deviceId,
     ],
   }),

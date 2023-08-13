@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { makeEndpoint } from '@zodios/core'
 import { prepareResponse } from '../utils'
-import { globalParameters } from '../parameters'
 import { configSchema, writableConfigSchema } from '../schemas/configSchema'
 import { sensorsSchema } from '../schemas/sensorSchema'
 
@@ -56,7 +55,6 @@ export const configEndpoints = [
       { removePrefix: /^\/config\/whitelist\// },
     ),
     parameters: [
-      globalParameters.apiKey,
       {
         name: 'oldApiKey',
         description: 'Old API Key',
@@ -91,9 +89,6 @@ export const configEndpoints = [
       ]),
       { removePrefix: /^\/config\// },
     ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   makeEndpoint({
@@ -115,9 +110,6 @@ export const configEndpoints = [
         sensors: sensorsSchema,
       }),
     ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   makeEndpoint({
@@ -130,7 +122,6 @@ export const configEndpoints = [
       { removePrefix: /^\/config\// },
     ),
     parameters: [
-      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',
@@ -149,9 +140,6 @@ export const configEndpoints = [
         .describe('The newest software version available'),
       { removePrefix: /^\/config\// },
     ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   makeEndpoint({
@@ -164,9 +152,6 @@ export const configEndpoints = [
         .describe('The newest frimware version available'),
       { removePrefix: /^\/config\// },
     ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   makeEndpoint({
@@ -179,7 +164,6 @@ export const configEndpoints = [
       { removePrefix: /^\/config\// },
     ),
     parameters: [
-      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',
@@ -203,7 +187,6 @@ export const configEndpoints = [
       { removePrefix: /^\/config\// },
     ),
     parameters: [
-      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',

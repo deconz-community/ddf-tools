@@ -1,5 +1,4 @@
 import { makeEndpoint } from '@zodios/core'
-import { globalParameters } from '../parameters'
 import { lightsSchema } from '../schemas/lightSchema'
 import { prepareResponse } from '../utils'
 
@@ -13,9 +12,6 @@ export const lightsEndpoints = [
     response: prepareResponse(
       lightsSchema,
     ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
   }),
 
   /*
@@ -29,7 +25,6 @@ export const lightsEndpoints = [
       lightSchema,
     ),
     parameters: [
-      globalParameters.apiKey,
       globalParameters.lightId,
     ],
   }),
