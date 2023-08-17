@@ -28,7 +28,8 @@
 				"Tobermory.es6-string-html",
 				"mhutchie.git-graph",
 				"eamodio.gitlens",
-				"GitHub.copilot-chat"
+				"GitHub.copilot-chat",
+				"statelyai.stately-vscode"
 			]
         }
     },

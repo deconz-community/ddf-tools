@@ -29,3 +29,5 @@ coverage
 pb_data
 pb_hooks
 pocketbase
+
+*.typegen.ts

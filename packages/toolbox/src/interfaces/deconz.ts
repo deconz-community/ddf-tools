@@ -8,7 +8,7 @@ export interface GatewayCredentials {
   id: string
   name: string
   apiKey: string
-  URIs: { [key in typeof GatewayURITypes[number]]?: string[] }
+  URIs: { [key in typeof GatewayURITypes[number]]: string[] }
 }
 
 export interface GatewayURI {

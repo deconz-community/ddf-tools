@@ -1,32 +1,44 @@
 import type { Ref } from 'vue'
-import { createMachine } from 'xstate'
+import { assign, createMachine } from 'xstate'
 import { useMachine } from '@xstate/vue'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
 export const gatewayMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8B0AlgHYFoDEAwgPZFFgDGaA2gAwC6ioADlbKQTU4gAHogC0AdhZ4AnAEYALCwBsAJgCsLLduUAaEDkRzNAXxP7UGbPno06jYlDIQaYQkQBuVANZvLWXDxbWgY0RwRiL3p0ASJWNnihHj4wwSQRcQBmOTk8AA481Ty5DW0dfUMETNU5Mwt0AJs7UMcyMAAndqp2vC4AG3QAM26AWzx-ayDmhyIoCM8qaNS49kT05P400FEEDRk8DQk8hUyWOQl1I5YJCsRq2vMQCcDg+zDZts7u3oG0Yfaxs8miEZnNIosYjR4kw5Bx1rxNkQhDtVEo8Apjkp1Opzpc8tdbgglMo8Oo6k8GpNXi0Ph0uj1+kNRuNKS9pu8wQslrFoao4dwEctkYhVBJcnIZOpMiczhcrjcDIgFDJVOSgXgqINBn1iGBKOy1gKUrFhVUJPsWDJMlccXLioSJarHkCyABVLgQBoAAno7UgYCIYRQfVghpAGyF6R2YjkLDy+Rx6jUmjKKkJkgkatZ+E12t1eDp30iwYIEC9AEEAAoASS9vhwZAAYgRhF6CLBYABXMBhiMmqNGFhSvDKarHU64o5yQlYrNWQK5nV0AtfHqdoh+lD0AAWKAARn09c3W+2uz32ElBf3toPh6OijLJ-bFVUavkZB+rXkZMoMQoFHOjQalqS5uJA-CzHg5YQBAfodmQAByYDCMwF7wsaWwZAgxglKSxjKNitp4tOL6ZMoJKisqX4-n+AHOtmwF5suhZrkQ3hEFQmBEE2LZth23a9lemE7LGd5jo+dokZUyrSGS9HzjmIH5uBHJQTWdZgA2SEoYJGFIgO2E4qoeFJoRT5SUq6jGdacn1ApjGgQWEAQVAam1vWZCVn6HgCJ2oZoUaiKmiUo54FoRwScRhJkRREhUZk36-pigGTIuynORyziuHgsBoA0LL2WlzEZY4ulBQZon7AoNQyEORFTg6aikmYjwcRAcBCECl56aaYjqAouQFEUJTqOmci-s18lAcQpDdeVN4IJIsmpitaakfGtkUvZ1KgnNkYLZI8ZDcUpSpnoL6qD+KULkQoF7deWFiMqmT5IUJ2jaREqTXZQFFWA93CYgEinGF1zjrKUUvmIqLfVtv1KcuzmwPuh4QAD+kLUcxmHOD5mEqO12KUxYGrujpoSEcoMRROkmEqo0p4Jkn7UUlJx5ITDnKaueDrpuO4o-96HzVheSZC9OORQ1pFvt+n4JTRyVTalCMk-S7geCWZZVu5mlkwZhQkuFuO0y+s5KwuKsrmr67sZxGPhkJ9s7Mc6hhUzlo05D0m1bD6p-U5Ll6wtJTGFTxteyKYsHHFH7y6zCUc-7KmOG5GmVIF+1YXICWG2DkvPtJLAKPkFyJ5byeQdBsFwPAQuZyJOdh-nFlVF9FPxYltFl8TAeqQAIq4QdZ2R8ZG83M7fngI0tSYQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBGLgA4AdEoCs89QDYATOq6Gj2gDQgciAMwB2AL62zqDNhwqm9UXimw0ZFSgAzDGoACgMuAEo8JyxcNw80bj4kECERMQkUmQRZay4VAE55ABYuPXCjMrMLBF1dS3tHMhcVSnF6MEpmeig8CHEweIA3QQBrQbb6Dq6kyTTRJnFJbNlikpV5eV0C7XltUqVtbXVqq22Vfd0tDV1DAt07BxAYlsnp7t6wampBahUiVjoAK-AC2rXanUSvDmwgWSyyiEU6hUtwKSmsxWs8msNmKxSUpwQlnOl2u6luXHujyazjib0h7k+31+-0BaGB1DB9Jm8mSAlhGWWiA0hSUpUs2iUVylBWspnMiFK2hU6gle2s6kxml0Skaz2adIhXUZeC+Pz+AKBoPBU0hHF0fNSAsWmVA2U21hUxUsBnkSllDyUli4lkJxXuKhDu20Gq1W2p+tprkEAQCrHcYDwAGEjVDHfNBQiidYCpGCjYlFxNBrrEp5IT5Pc9S84im0xmVGaWQBXei0FCUAAWKAARqxMwAxJhSchMWCwbtgWYpAsuoUIJGWC7EsXB7HqWv1hVEq5qArn8v+-Zi4rNg3J1Ppjqd5l-dxDNhMCDkACCAAUAElyHGfApxnOcFyXaEV2deE3URKst20HdvS4fdDzDKs7yTFQ2yfQYuz+XtRnoQRMHoPAwNnedF2Xfl0jXItN23HVUPQuswwKfJ1Gw2IH3bZ9IAWHo+gGFQfD8Ft+PwzsIGEqA6KdBi4OkBD1FLYori49RqwPDjjxKLceKeKTcMfDshI+FR-yAkC8AAOTAKQ8xhZTXVUjdtRVLRjh09ijxqYpyRUGxjJpPizIEgi5KsmzgLAfA-1oIZFm7ThoPouF3PdXRkMjLhazYmt9JqCVlQecNLx2fE8V4lo8IsmLGWsiAIFoecHKclyYLc9ctC2bydB03SMOPMqUQxc9LCvGrbz1UiIDgSQpNcrL11kGN8iUKU630QlZDRfLDFueRLB2Ax1LquJ3FEVbC3gnI8hVSoXuMBs1hVK7XG5D47sYh6FE0FEjmsB4A30bFikJSw-UjK4-QPZQbDlL7cPofC-pUlY9F0NQdq2E4DMsYpPpM+9Ioxnq1qLHF8kMQq92KgK5EUZ7jr0oNtuDBNTIa585NgUdxwgTHssQawSxRPSir05mEAl1G+YI19RfXCXVHp3c0KZwl6hJs7z0lRRKx2MpFfMwTXxUXt+yHIWwFVosgy3fQGe12XodPf0L2m6qb3NqKX3NYZP2-OKQMdh6pWVTWZdGwKsLJnClaDnt6BIsj3NXLHhSCyMzspRmPePcNuIDmTLMZSOPK2LR8rd-zdeJCbKoKTVyTqeRy8a+TrMA+Kaky+6a+mmOCq1xuS64En0TCxMIpTyuehatq4HgKnh-dUf64nnWxsbFQJcq33r1qpOF4t6Le4AEQGaut8lHe45KxV-Q2fR7HsIA */
   id: 'gateway',
+  predictableActionArguments: true,
 
   tsTypes: {} as import('./useGateway.typegen').Typegen0,
   schema: {
     context: {} as {
       credentials: GatewayCredentials
+      uri_api: string | null
+      uri_websocket: string | null
+    },
+    services: {} as {
+      connectToGateway: {
+        data: {
+          api: string
+          websocket: string
+        }
+      }
     },
   },
 
   states: {
     init: {
-      on: {
-        Connect: 'connecting',
+      after: {
+        500: 'connecting',
       },
     },
 
     connecting: {
       invoke: {
+        id: 'connect',
         src: 'connectToGateway',
-
         onDone: {
           target: 'online',
+          actions: ['useURIs'],
         },
 
         onError: [{
@@ -89,7 +101,7 @@ export const gatewayMachine = createMachine({
 
           initial: 'Address',
 
-          onDone: '#gateway.connecting',
+          onDone: '#gateway.init',
         },
       },
 
@@ -106,6 +118,23 @@ export const gatewayMachine = createMachine({
   on: {
     'Update credentials': '.init',
   },
+
+}, {
+  services: {
+    connectToGateway: async (context, event) => {
+      return { api: '', websocket: '' }
+    },
+  },
+  actions: {
+    useURIs: assign({
+      uri_api: (context, event) => event.data.api,
+      uri_websocket: (context, event) => event.data.websocket,
+    }),
+  },
+  guards: {
+    isInvalidAPIKey: () => false,
+    isUnreachable: () => false,
+  },
 })
 
 export function useGateway(credentials: Ref<GatewayCredentials>) {
@@ -113,7 +142,11 @@ export function useGateway(credentials: Ref<GatewayCredentials>) {
 
   const machine = useMachine(gatewayMachine, {
     id: `${gatewayMachine.id}-${id.value}`,
+    devTools: true,
   })
+
+  registerNinja(machine.service)
+
   // const id2 = toRef(credentials.value, 'id')
 
   const data = ref({})
