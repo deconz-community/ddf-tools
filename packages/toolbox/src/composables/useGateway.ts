@@ -158,53 +158,24 @@ export const gatewayMachine = createMachine({
 export function useGateway(credentials: Ref<GatewayCredentials>) {
   const id = computed(() => credentials.value?.id)
 
-  /*
-  const machine = useInterpret(gatewayMachine, {
-    id: `${gatewayMachine.id}-${id.value}`,
-    devTools: true,
-  })
-  */
-
-  const state = ref(gatewayMachine.initialState)
-
-  inspect({
-    // options
-    // url: 'https://stately.ai/viz?inspect', // (default)
-    iframe: false, // open in new window
-  })
+  inspect({ iframe: false })
 
   const machine = interpret(gatewayMachine, {
     id: `${gatewayMachine.id}-${id.value}`,
     devTools: true,
-  }).onTransition((newState) => {
+  })
+
+  const state = ref(machine.initialState)
+  machine.onTransition((newState) => {
     state.value = newState
-  }).start()
+  })
+
+  machine.start()
+
   registerNinja(machine)
 
-  /*
-  const machine = useNinjaMachine(gatewayMachine, {
-    // id: `${gatewayMachine.id}-${id.value}`,
-    devTools: true,
-  })
-  */
-
-  // registerNinja(service)
-
-  // const id2 = toRef(credentials.value, 'id')
-
-  const data = ref({})
-
-  const connect = () => {
-
-  }
-
-  // Delay the connection for 1.5 seconds.
-  const { stop } = useTimeoutFn(() => {
-    connect()
-  }, 100)
-
   const destroy = () => {
-    stop()
+    machine.stop()
   }
 
   return {
@@ -212,8 +183,6 @@ export function useGateway(credentials: Ref<GatewayCredentials>) {
     credentials,
     machine,
     state,
-    data,
-    connect,
     destroy,
   }
 }
