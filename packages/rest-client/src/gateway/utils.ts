@@ -84,10 +84,17 @@ export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, opti
           if (typeof item.success === 'string') {
             result.success.value = getString(item.success)
           }
+          else if (item.success === null) {
+            // Because null is an object
+            result.success.value = null
+          }
           else if (typeof item.success === 'object') {
             // Loop for probably only one item
             for (const [key, value] of Object.entries(item.success ?? {}))
               result.success[getString(key)] = value
+          }
+          else {
+            result.success.value = item.success
           }
         }
         if ('error' in item) {

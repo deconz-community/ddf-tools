@@ -54,7 +54,8 @@ export const configEndpoints = [
     method: 'delete',
     path: '/api/:apiKey/config/whitelist/:oldApiKey',
     response: prepareResponse(
-      z.string().optional().transform(message => message ?? 'Key not found.'),
+      z.union([z.string(), z.boolean()]).optional()
+        .transform(message => typeof message === 'string' ? message : 'Key not found.'),
       { removePrefix: /^\/config\/whitelist\// },
     ),
     parameters: [

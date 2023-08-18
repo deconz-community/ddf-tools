@@ -21,10 +21,12 @@ export function pluginTransformResponse(): ZodiosPlugin {
     response: async (_api, config, response) => {
       // console.log({ _api, config, response })
 
-      if (response.data === '') {
+      if (response.data === '' || (Array.isArray(response.data) && response.data.length === 0)) {
         switch (response.status) {
           case 200: {
-            response.data = true
+            response.data = [{
+              success: true,
+            }]
             break
           }
           case 404: {
@@ -38,15 +40,25 @@ export function pluginTransformResponse(): ZodiosPlugin {
 
             break
           }
+          default: {
+            response.data = {
+              error: {
+                address: config.url,
+                description: 'Something went wrong',
+                type: 7,
+              },
+            }
+
+            break
+          }
         }
       }
-
-      if (response.status === 200) {
+      else if (response.status === 200) {
         switch (config.method) {
           case 'get' : {
-            response.data = {
+            response.data = [{
               success: response.data,
-            }
+            }]
           }
         }
       }
@@ -59,7 +71,7 @@ export function pluginTransformResponse(): ZodiosPlugin {
       else
         response.headers['content-type'] = 'application/json'
 
-      // console.log('Plugin response', response)
+      console.log('Plugin response', response)
       return response
     },
   }
