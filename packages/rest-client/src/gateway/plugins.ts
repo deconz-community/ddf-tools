@@ -71,7 +71,7 @@ export function pluginTransformResponse(): ZodiosPlugin {
       else
         response.headers['content-type'] = 'application/json'
 
-      console.log('Plugin response', response)
+      // console.log('Plugin response', response)
       return response
     },
   }
