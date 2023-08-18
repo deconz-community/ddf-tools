@@ -18,7 +18,7 @@ const gateway = computed(() => Gateway(apiUrl.value, apiKey.value))
 
 async function test() {
   try {
-    // const result = await gateway.client.createAPIKey({ devicetype: 'test' })
+    // const result = await gateway.value.client.createChallenge()
     // console.log({ result })
 
     /*
@@ -37,7 +37,7 @@ test()
 </script>
 
 <template>
-  <v-card width="100%" class="ma-2">
+  <v-card v-if="false" width="100%" class="ma-2">
     <template #title>
       Discovery
     </template>

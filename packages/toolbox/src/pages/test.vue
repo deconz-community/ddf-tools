@@ -1,11 +1,23 @@
 <script setup lang="ts">
-const gateway = useGatewaysStore()
+const gatewayStore = useGatewaysStore()
 
 const creds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
 
-const machine = computed(() => {
-  return gateway.gateways[creds.id]?.machine
+const gateway = computed(() => {
+  return Object.values(gatewayStore.gateways)?.[0]
 })
+
+function resetCreds() {
+  const credentials = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
+  objectKeys(gatewayStore.credentials).forEach((key) => {
+    delete gatewayStore.credentials[key]
+  })
+  gatewayStore.addCredentials(credentials)
+}
+
+function removeCreds() {
+  gatewayStore.removeCredentials(creds.id)
+}
 
 /*
 const context = useSelector(machine.value, state => state.context)
@@ -29,16 +41,21 @@ const nextEvents = computed(() => {
     </template>
 
     <template #text>
-      Hello world
+      <v-btn @click="resetCreds()">
+        Reset credentials
+      </v-btn>
+      <v-btn @click="removeCreds()">
+        Remove credentials
+      </v-btn>
 
-      <json-viewer :value="gateway.credentials" />
+      <json-viewer :value="gatewayStore.credentials" />
 
-      <template v-if="gateway.gateways[creds.id]">
-        <json-viewer :value="gateway.gateways[creds.id].state.value.context" />
+      <template v-if="gateway">
+        <json-viewer :value="gateway.state.value.context" />
         <v-btn
-          v-for="nextEvent in gateway.gateways[creds.id].state.value.nextEvents"
+          v-for="nextEvent in gateway.state.value.nextEvents"
           :key="nextEvent"
-          @click="machine.send(nextEvent)"
+          @click="gateway.machine.send(nextEvent)"
         >
           {{ nextEvent }}
         </v-btn>

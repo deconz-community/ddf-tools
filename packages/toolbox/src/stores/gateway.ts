@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { objectEntries } from 'ts-extras'
+import { v4 as uuidv4 } from 'uuid'
 import { useGateway } from '~/composables/useGateway'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
@@ -8,35 +10,37 @@ export const useGatewaysStore = defineStore('gateways', () => {
   const credentials = shallowReactive<Record<string, GatewayCredentials>>({})
   const gateways = shallowReactive<Record<string, ReturnType<typeof useGateway>>>({})
 
-  // Sync gateway data with credentials
-  watch(() => objectKeys(credentials).length, (currentValue, oldValue) => {
-    if (oldValue < currentValue) {
-      // Credentials was added
-      objectKeys(credentials).forEach((id) => {
-        if (!gateways[id])
-          gateways[id] = useGateway(toRef(credentials, id))
-      })
-    }
-    else {
-      // Credentials was deleted
-      objectKeys(gateways).forEach((id) => {
-        if (credentials[id] === undefined) {
-          gateways[id].destroy()
-          delete gateways[id]
-        }
-      })
-    }
-  })
-
-  const updateCredentials = (newCredentials: GatewayCredentials) => {
-    credentials[newCredentials.id] = newCredentials
+  const addCredentials = (newCredentials: GatewayCredentials) => {
+    credentials[uuidv4()] = newCredentials
   }
 
   const removeCredentials = (gatewayID: string) => {
-    delete credentials[gatewayID]
+    objectEntries(credentials).forEach(([uuid, data]) => {
+      if (data.id === gatewayID)
+        delete credentials[uuid]
+    })
   }
 
-  return { credentials, gateways, updateCredentials, removeCredentials }
+  // Sync gateway data with credentials
+  watch(credentials, () => {
+    // Check for new credentials
+    objectKeys(credentials).forEach((id) => {
+      if (gateways[id] === undefined) {
+        const credentialsRef = toRef(credentials, id)
+        gateways[id] = useGateway(credentialsRef)
+      }
+    })
+
+    // Check for deleted credentials
+    objectKeys(gateways).forEach((id) => {
+      if (credentials[id] === undefined) {
+        gateways[id].destroy()
+        delete gateways[id]
+      }
+    })
+  }, { deep: true })
+
+  return { credentials, gateways, addCredentials, removeCredentials }
 }, {
   // https://github.com/prazdevs/pinia-plugin-persistedstate
   // For later : https://github.com/prazdevs/pinia-plugin-persistedstate/issues/60#issuecomment-1120244473

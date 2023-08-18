@@ -13,9 +13,11 @@ export const configEndpoints = [
     + 'Both challenge and install code must be in lowercase hex format.',
     method: 'get',
     path: '/api/challenge',
-    response: z.object({
-      challenge: z.string(),
-    }),
+    response: prepareResponse(
+      z.object({
+        challenge: z.string().optional(),
+      }).transform(result => result.challenge),
+    ),
   }),
 
   makeEndpoint({

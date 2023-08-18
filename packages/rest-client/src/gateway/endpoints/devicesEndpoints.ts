@@ -1,8 +1,8 @@
 import { makeEndpoint } from '@zodios/core'
 import { z } from 'zod'
 import { globalParameters } from '../parameters'
-import { deviceSchema, introspectButtonEventItemSchema, introspectGenericItemSchema } from '../schemas/deviceSchema'
 import { prepareResponse } from '../utils'
+import { deviceSchema, introspectButtonEventItemSchema, introspectGenericItemSchema } from '../schemas/deviceSchema'
 
 export const devicesEndpoints = [
 
@@ -11,7 +11,7 @@ export const devicesEndpoints = [
     description: 'Returns a list of all devices. If there are no devices in the system an empty array [] is returned.',
     method: 'get',
     path: '/api/:apiKey/devices',
-    response: z.array(z.string()),
+    response: prepareResponse(z.array(z.string())),
     parameters: [
       globalParameters.apiKey,
     ],
@@ -22,7 +22,7 @@ export const devicesEndpoints = [
     description: 'Returns the group with the specified id.',
     method: 'get',
     path: '/api/:apiKey/devices/:deviceUniqueID',
-    response: deviceSchema,
+    response: prepareResponse(deviceSchema),
     parameters: [
       globalParameters.apiKey,
       globalParameters.deviceUniqueID,
@@ -34,10 +34,10 @@ export const devicesEndpoints = [
     description: 'Get the data type of the respective resource item as well as its defined values/boundaries or other relevant data.',
     method: 'get',
     path: '/api/:apiKey/devices/:deviceUniqueID/:item/introspect',
-    response: z.union([
+    response: prepareResponse(z.union([
       introspectGenericItemSchema,
       introspectButtonEventItemSchema,
-    ]),
+    ])),
     parameters: [
       globalParameters.apiKey,
       globalParameters.deviceUniqueID,
@@ -55,7 +55,7 @@ export const devicesEndpoints = [
     description: 'Returns the device with the specified id.',
     method: 'get',
     path: '/api/:apiKey/devices/:deviceUniqueID/ddf',
-    response: z.object({}).passthrough(),
+    response: prepareResponse(z.object({}).passthrough()),
     parameters: [
       globalParameters.apiKey,
       globalParameters.deviceUniqueID,
@@ -67,7 +67,7 @@ export const devicesEndpoints = [
     description: 'Returns the full DDF of the device specified by the provided MAC address.',
     method: 'get',
     path: '/api/:apiKey/devices/:deviceUniqueID/ddffull',
-    response: z.object({}).passthrough(),
+    response: prepareResponse(z.object({}).passthrough()),
     parameters: [
       globalParameters.apiKey,
       globalParameters.deviceUniqueID,
@@ -91,12 +91,10 @@ export const devicesEndpoints = [
     description: 'Pair a device by using zigbee install code.',
     method: 'put',
     path: '/api/:apiKey/devices/:deviceUniqueID/installcode',
-    response: z.object({
-      success: z.object({
-        installcode: z.string().describe('The device install code provided in the request.'),
-        mmohash: z.string().describe('The Matyas-Meyer-Oseas (MMO) hash calculated based on the provided installation code. It is automatically used by deCONZ to enable pairing with the target device.'),
-      }),
-    }),
+    response: prepareResponse(z.object({
+      installcode: z.string().describe('The device install code provided in the request.'),
+      mmohash: z.string().describe('The Matyas-Meyer-Oseas (MMO) hash calculated based on the provided installation code. It is automatically used by deCONZ to enable pairing with the target device.'),
+    })),
     parameters: [
       globalParameters.apiKey,
       globalParameters.deviceUniqueID,

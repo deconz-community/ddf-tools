@@ -6,49 +6,93 @@ interface PrepareResponseOptions {
   removePrefix?: RegExp
 }
 
-export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, options: PrepareResponseOptions = {}) {
+interface PrepareNewResponseOptions {
+  removePrefix?: RegExp
+}
+
+export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, options: PrepareNewResponseOptions = {}) {
+  function getString(string: string) {
+    if (options.removePrefix === undefined)
+      return string
+    return string.replace(options.removePrefix, '')
+  }
+
+  const errorsMap: Record<number, string> = {
+    1: 'UNAUTHORIZED_USER',
+    2: 'INVALID_JSON',
+    3: 'RESOURCE_NOT_AVAILABLE',
+    4: 'METHOD_NOT_AVAILABLE',
+    5: 'MISSING_PARAMETER',
+    6: 'PARAMETER_NOT_AVAILABLE',
+    7: 'INVALID_VALUE',
+    8: 'PARAMETER_NOT_MODIFIABLE',
+    11: 'TOO_MANY_ITEMS',
+    100: 'DUPLICATE_EXIST',
+    501: 'NOT_ALLOWED_SENSOR_TYPE',
+    502: 'SENSOR_LIST_FULL',
+    601: 'RULE_ENGINE_FULL',
+    607: 'CONDITION_ERROR',
+    608: 'ACTION_ERROR',
+    901: 'INTERNAL_ERROR',
+
+    950: 'NOT_CONNECTED',
+    951: 'BRIDGE_BUSY',
+
+    101: 'LINK_BUTTON_NOT_PRESSED',
+    201: 'DEVICE_OFF',
+    202: 'DEVICE_NOT_REACHABLE',
+    301: 'BRIDGE_GROUP_TABLE_FULL',
+    302: 'DEVICE_GROUP_TABLE_FULL',
+    402: 'DEVICE_SCENES_TABLE_FULL',
+  }
+
   return z.preprocess(
     (data: unknown) => {
-      const unwrappedCompleteData: {
-        success: Record<string, unknown>
-        errors: {
+      // console.log('data', data)
+
+      const result: {
+        success?: any
+        errors?: {
           address: string
           description: string
           type: number
+          code: string
         }[]
-      } = {
-        success: {},
-        errors: [],
-      }
+      } = {}
 
-      const dataArray: unknown[] = Array.isArray(data)
-        ? data
-        : [{ success: data }]
+      const rawData = z.array(z.object({
+        success: z.any().optional(),
+        error: z.object({
+          address: z.string(),
+          description: z.string(),
+          type: z.number(),
+        }).optional(),
+      })).parse(data)
 
-      // Loop for each data and unwrap it
-      dataArray.forEach((item) => {
-        if (typeof item !== 'object' || item === null)
-          throw new Error('Invalid data recieved')
+      // console.log('rawData', rawData)
 
-        // Handle success
+      rawData.forEach((item) => {
         if ('success' in item) {
+          if (Array.isArray(item.success)) {
+            result.success = item.success
+            return
+          }
+
+          if (result.success === undefined)
+            result.success = {}
+
           if (typeof item.success === 'string') {
-            unwrappedCompleteData.success.value = options.removePrefix !== undefined
-              ? item.success.replace(options.removePrefix, '')
-              : item.success
+            result.success.value = getString(item.success)
           }
           else if (typeof item.success === 'object') {
-          // Loop for probably only one item
-            for (const [key, value] of Object.entries(item.success ?? {})) {
-              unwrappedCompleteData.success[
-                options.removePrefix !== undefined
-                  ? key.replace(options.removePrefix, '')
-                  : key
-              ] = value
-            }
+            // Loop for probably only one item
+            for (const [key, value] of Object.entries(item.success ?? {}))
+              result.success[getString(key)] = value
           }
         }
-        else if ('error' in item) {
+        if ('error' in item) {
+          if (result.errors === undefined)
+            result.errors = []
           if (typeof item.error === 'string') {
             throw new TypeError('Not Implemented')
           }
@@ -59,43 +103,32 @@ export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, opti
               type: z.number(),
             }).parse(item.error)
 
-            unwrappedCompleteData.errors.push({
-              address: options.removePrefix !== undefined
-                ? error.address.replace(options.removePrefix, '')
-                : error.address,
-              description: error.description,
-              type: error.type,
+            result.errors.push({
+              ...error,
+              address: getString(error.address),
+              code: errorsMap[error.type] ?? 'UNKNOWN_ERROR',
             })
           }
         }
       })
 
-      // Remove empty data
-      const resultData: {
-        success?: unknown
-        errors?: {
-          address: string
-          type: number
-          description: string
-        }[]
-      } = {
-        success: undefined,
+      // Différents formats de résultats:
+      // 'patch' ->  [ { "success": { "reload": "60:a4:23:ff:ba:f0:47:22" } } ]
+      // 'data'  ->  [ 'foo', 'bar' ]
+      // 'data'  ->  { "reload": "60:a4:23:ff:ba:f0:47:22" }
+
+      // Unwrap success value if only one
+      if (result.success !== undefined) {
+        const successKeys = Object.keys(result.success)
+        if (successKeys.length === 1 && successKeys[0] === 'value') {
+          // console.log('unwrap value')
+          result.success = result.success.value
+        }
       }
 
-      if (unwrappedCompleteData.success !== undefined) {
-        const successKeys = Object.keys(unwrappedCompleteData.success)
-        if (successKeys.length === 1 && successKeys[0] === 'value')
-          resultData.success = unwrappedCompleteData.success.value
-        else
-          resultData.success = unwrappedCompleteData.success
-      }
+      // console.log('result', result)
 
-      if (unwrappedCompleteData.errors.length > 0)
-        resultData.errors = unwrappedCompleteData.errors
-
-      // console.log({ data, unwrappedCompleteData, resultData })
-
-      return resultData
+      return result
     },
     z.strictObject({
       success: successSchema.optional(),

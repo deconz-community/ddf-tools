@@ -8,7 +8,7 @@ export const deviceSchema = z.object({
     .describe('Last time the device announced itself to the network.'),
   lastseen: z.string().transform(value => new Date(value)).or(z.null())
     .describe('Last time the device has transmitted any data.'),
-  productid: z.string().or(z.null()),
+  productid: z.string().or(z.null()).optional(),
   subdevices: z.array(z.object({
     config: z.optional(z.record(z.string(), z.object({
       lastupdated: z.string().transform(value => new Date(value)).or(z.null()),

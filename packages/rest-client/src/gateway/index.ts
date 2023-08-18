@@ -1,11 +1,12 @@
 import { Zodios } from '@zodios/core'
-import { configEndpoints } from './endpoints/configEndpoints'
-import { alarmSystemsEndpoints } from './endpoints/alarmSystemsEndpoints'
+
 import { pluginAuth, pluginTransformResponse } from './plugins'
+import { devicesEndpoints } from './endpoints/devicesEndpoints'
+import { alarmSystemsEndpoints } from './endpoints/alarmSystemsEndpoints'
+import { configEndpoints } from './endpoints/configEndpoints'
 import { groupsEndpoints } from './endpoints/groupsEndpoints'
 import { lightsEndpoints } from './endpoints/lightsEndpoints'
 import { sensorsEndpoints } from './endpoints/sensorsEndpoints'
-import { devicesEndpoints } from './endpoints/devicesEndpoints'
 
 export interface GatewayCredentials {
   address: string

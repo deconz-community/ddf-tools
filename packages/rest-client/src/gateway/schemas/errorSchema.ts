@@ -5,5 +5,6 @@ export const errorSchema = z.array(
     address: z.string(),
     description: z.string(),
     type: z.number(),
+    code: z.string(),
   }),
 )

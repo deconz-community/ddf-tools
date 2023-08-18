@@ -2,11 +2,25 @@ import type { Ref } from 'vue'
 import { assign, createMachine, interpret } from 'xstate'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
-import { inspect } from '@xstate/inspect'
+import { Gateway } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
+const defaultContext = {
+  credentials: {
+    apiKey: '<nouser>',
+    id: '<unknown>',
+    name: '',
+    URIs: {
+      api: [],
+      websocket: [],
+    },
+  },
+  uri_api: null,
+  uri_websocket: null,
+}
+
 export const gatewayMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBGLgA4AdEoCs89QDYATOq6Gj2gDQgciAMwB2AL62zqDNhwqm9UXimw0ZFSgAzDGoACgMuAEo8JyxcNw80bj4kECERMQkUmQRZay4VAE55ABYuPXCjMrMLBF1dS3tHMhcVSnF6MEpmeig8CHEweIA3QQBrQZiWtvoOrvcoBHcRynQmcSSkyTTRNczQbIUlVXklEuKCy3VrawuC6sRi+pVLc9LipRejy21GkEm46azbq9fodYZjCbNAHtTrAxb0Zarda8DjyZICYQ7cSSA66eQFQr1bRlF5cPFXaz3BDqPFqbSWJTnSwneTWeTyX7-VyA2HzPoDcHjFRc1owuY9eGIjIbXTo1KYjI4uR1XQqbQnIpHUrk65U4nFQr0jTqR7ybRKbR2Bx-KHcsXA-lgpYQ4W20UzXkS50raUoyxy7aKrJyfHyQpcG6nUk6ynmRDaAr5YpG9QmvHmy2ct2CAIBVjuMB4ADC9s2KUDuyVCEsNZUXAu1iUXE01iupyp33yymsxQM1gzJyuWeccRzeYLKjA1GogmowzYTAg5AAggAFACS5HG+AAYkwpOQmLBYABXMBljHpSvBhCKCNqyy6RmWListvyPVcBrWkVj-NgqcZznE96FGehBEweg8D3A8j1Pc9eC2BVr32RA720FRinkXQCnpc4CgMdQlD1I4VHUYdYlcP8J0gHYekdQYfD8X9c3-QZaOBC95SvbEbxKK4VDyd5cI0G5LAKWMakfA09EuAiXgTZkCgolpqIAiA6KgFQ103bc8AAOTAKREkQ8tkN41Db3UIoyK0bRUxbd89QMNRineG5NCbax6hU0dWJojTgW0jctzAfBV1oIY1hPThTMvLE9mkNCXlVQxG2KF830bD842pbQDR7dyXn4nQrSaEcqP89TNO0iAIFoY8DKMkyA3MxLsi0GzNB0BysvbXKdAKtylGsYre1K3zKvHADp1nFQQNoFBKAACxQAAjVhCxgw9jzPLiKwspLbzSh8n00c1vO0dUqU0AlE0MXR0rNfQfl+cCIDgSQuSQnj2rkS18iOJ9sPUKlZAKVRKgktlTXypRJviUQfoSqtcnyCpKkx0xcpKMNyJ-N0eXFKBkaDSyFE0FRdCu7ybm8-RWWKDsTjrPFBzyD5rle8rKJUcQ2NJlCjtkPRVSB059CpeQXjIhG1LAQXDuyeyDTS59X1bbKwcUMijHeUTFCUXRijKm0Kr5qrBg02B1s2iBFb+hBrgJfR0syzX+pqa45ctydZuoB2qzyVKI3VvqcpqDLVVKQwSj0RRxI5Anzflv2gPm+hFpW22FbM36g4E12w49iPEFutQCkri4lFw943J96b2P9+d8yXHTQpqeKyaO1su1DjKNac3LiW-HnVN9wC5pAsCIMSg7Hf7Akv0TC5B614fSPxse-MbydAvmQO+Jw1X+-dofI5fQThoKLDE-ZS4G7Yveavb7dD8suP1DrU+189+Mv2eMNDyJwIw+WTrzVOHF5i1XqnAeAecUZ8WTF-NWA9w43RZsbIqWFxqZnAePXeUCegqAACIDHfkdM41hv5u1-qXBAF0yI3xGgREB3lvz2CAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbBxlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXHDItG4+JBAhETEJMpkEWSM9FVdVWx1bPR95HTM9dUtrBFVVFSMjV0UxifGx11sAoLJQ5UpxejBKZnooPAhxMEKAN0EAa328pZX6NY2IqAQIo8p0JnESkskK0Rfq0FrZDNcyjGRhcii6jjBin6iHkqi4akU6j0LXkzWa6nk8nmIHOBUu102212a0OJzOizxq3WhPu9Eez1evA4RlKAmEX3Ekj+pnkyj0Tg6hm8pjatmhCBc6mU8kMXjBwNso2xuLC+Optx2e1Jp2UKuWVJuW1p9Kqb1UrPK7KqXLkpj00r001cXi4Isc4p0LWUSNROh06jtrn5yopqoNhM1JIeZN1of1V3VRujT1NTPkFs+1pqcjGOj5bU8ZmFvndVkQehMykUsr9AYaQbmgRxccEiUSrAiYDwAGFw+8ypnvjaEJjeR55LZ3N1WpOjOKZfCuLN1Bl2kHc42FiECq3253lGBqNRBNRDmwmBByABBAAKAElyKd8AAxJhSchMWCwACuYH7bMqIdswQOxAWdVQvHkHwZ1cOcywQT08x0ENtzCXcOxJQ9j1Pb96GOehBEweg8Ffd9Px-P9eA+K0gN+GxHD5ZFq2cLQMh0VxxQrIwUPyNC2ww-ZIC+LZlFvB8nzwAA5MApGKKiBxozlgJBDI1D0fQ-WnNpYI9JxpRcWZdDGLhbFULEmz1dD9yEwlRPvR8wHwG9aAOF5v04eSAI5H5pEQExMgcbSMWg7S4IGNx7A0CLnBU-R1J4pYrMwiBhKgUSIAgWgvykmS5IzRSfNqFT4VUdT1L9IwYLCxAIrUAynHUWKDGQiyW346yjxPZRcNoFBKAACxQAAjVgu1Ij8v1-f9LUApS6JAydlHA1xukdUyDGqiUA29TJXUnRrkX8bECIgOBJBVajZsKuRYJUQwIJMHRxVkTwEoKCJREu7zh3qWx4QyXbAcBvRxX85QWq3Xj4wJW4vqzeb6m6NT+RaOwhmnPp4OMQFXVGFa-tcCd2jetD6AEuHaN8upHCMPlYVg1QnqxxrwdMSqkS0WxNGrEnlCSsAKbmqmDBKoKoMq0LnqMf7ef55QUtgYbRogQXroQCE1DFkLZ3FRxZfazDOuoVXhwJzX9vFqr539KtdpBZFpaUbjWtQvmDcEo3uvoXqBqVgWFKu03DHBkzIO1nT4JcVRpW0MFxl6Lx1H1vdDews8O0vMSHIGLz4ap1p7UZi3w82xDweTgSD093D8MInzByF2pHDzCDFHHEvOKVF2oblmzYYD77lN8aOYOCiWdaxnReSirwGgyRnkT0CvrJS2ys6fE3lNhXlR8tyX4LLxPDO6dxTPMyHEvdg9V9udLMrgeAB7zort8C4vx4j8LvAceqYpXOKIbNldr3G+IkAAiexN7zTMFwPMu8O7wQrIuREx9jJnwCAEIAA */
   id: 'gateway',
   predictableActionArguments: true,
   tsTypes: {} as import('./useGateway.typegen').Typegen0,
@@ -15,6 +29,12 @@ export const gatewayMachine = createMachine({
       credentials: GatewayCredentials
       uri_api: string | null
       uri_websocket: string | null
+    },
+    events: {} as | {
+      type: 'Fix issue' | 'Done' | 'Next' | 'Previous' | 'Connect'
+    } | {
+      type: 'Update credentials'
+      data?: GatewayCredentials
     },
     services: {} as {
       connectToGateway: {
@@ -26,19 +46,7 @@ export const gatewayMachine = createMachine({
     },
   },
 
-  context: {
-    credentials: {
-      apiKey: '<nouser>',
-      id: '',
-      name: '',
-      URIs: {
-        api: [],
-        websocket: [],
-      },
-    },
-    uri_api: null,
-    uri_websocket: null,
-  },
+  context: structuredClone(defaultContext),
 
   states: {
     init: {
@@ -114,8 +122,6 @@ export const gatewayMachine = createMachine({
           },
 
           initial: 'Address',
-
-          onDone: '#gateway.connecting',
         },
       },
 
@@ -130,12 +136,23 @@ export const gatewayMachine = createMachine({
   initial: 'init',
 
   on: {
-    'Update credentials': '.init',
+    'Update credentials': {
+      target: '.connecting',
+      actions: 'updateCredentials',
+    },
   },
 
 }, {
   services: {
     connectToGateway: async (context, event) => {
+      const uri = context.credentials.URIs.api[0]
+
+      const client = Gateway(uri, context.credentials.apiKey)
+
+      const config = await client.client.getConfig()
+
+      console.log(config)
+
       if (Math.random() > 0.5)
         return Err('unreachable' as const)
       return Ok({ api: null, websocket: null })
@@ -145,6 +162,9 @@ export const gatewayMachine = createMachine({
     useURIs: assign({
       uri_api: (context, event) => event.data.unwrap().api,
       uri_websocket: (context, event) => event.data.unwrap().websocket,
+    }),
+    updateCredentials: assign({
+      credentials: (context, event) => event.data ?? structuredClone(defaultContext.credentials),
     }),
   },
   guards: {
@@ -158,9 +178,13 @@ export const gatewayMachine = createMachine({
 export function useGateway(credentials: Ref<GatewayCredentials>) {
   const id = computed(() => credentials.value?.id)
 
-  inspect({ iframe: false })
+  // inspect({ iframe: false })
 
-  const machine = interpret(gatewayMachine, {
+  // Create machine with credentials
+  const machine = interpret(gatewayMachine.withContext({
+    ...gatewayMachine.context,
+    credentials: credentials.value,
+  }), {
     id: `${gatewayMachine.id}-${id.value}`,
     devTools: true,
   })
@@ -172,10 +196,19 @@ export function useGateway(credentials: Ref<GatewayCredentials>) {
 
   machine.start()
 
-  registerNinja(machine)
+  const handles = [
+    registerNinja(machine),
+    watch(() => state.value.context.credentials, (data) => {
+      credentials.value = data
+    }),
+    watch(credentials, (data) => {
+      machine.send({ type: 'Update credentials', data })
+    }),
+    () => machine.stop(),
+  ]
 
   const destroy = () => {
-    machine.stop()
+    handles.map(handle => handle())
   }
 
   return {
