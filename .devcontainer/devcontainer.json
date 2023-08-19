@@ -29,7 +29,8 @@
 				"mhutchie.git-graph",
 				"eamodio.gitlens",
 				"GitHub.copilot-chat",
-				"statelyai.stately-vscode"
+				"statelyai.stately-vscode",
+				"yoavbls.pretty-ts-errors"
 			]
         }
     },

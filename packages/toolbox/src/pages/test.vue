@@ -19,6 +19,8 @@ function removeCreds() {
   gatewayStore.removeCredentials(creds.id)
 }
 
+function test() {
+}
 /*
 const context = useSelector(machine.value, state => state.context)
 
@@ -46,6 +48,9 @@ const nextEvents = computed(() => {
       </v-btn>
       <v-btn @click="removeCreds()">
         Remove credentials
+      </v-btn>
+      <v-btn @click="test()">
+        TEST
       </v-btn>
 
       <json-viewer :value="gatewayStore.credentials" />

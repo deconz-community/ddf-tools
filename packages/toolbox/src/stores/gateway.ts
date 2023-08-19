@@ -23,22 +23,23 @@ export const useGatewaysStore = defineStore('gateways', () => {
 
   // Sync gateway data with credentials
   watch(credentials, () => {
-    // Check for new credentials
-    objectKeys(credentials).forEach((id) => {
-      if (gateways[id] === undefined) {
-        const credentialsRef = toRef(credentials, id)
-        gateways[id] = useGateway(credentialsRef)
-      }
-    })
+    const credentialsList = Object.keys(credentials)
+    const gatewayList = Object.keys(gateways)
 
-    // Check for deleted credentials
-    objectKeys(gateways).forEach((id) => {
-      if (credentials[id] === undefined) {
-        gateways[id].destroy()
-        delete gateways[id]
-      }
-    })
-  }, { deep: true })
+    credentialsList
+      .filter(uuid => !gatewayList.includes(uuid))
+      .forEach((uuid) => {
+        const credentialsRef = toRef(credentials, uuid)
+        gateways[uuid] = useGateway(credentialsRef)
+      })
+
+    gatewayList
+      .filter(uuid => !credentialsList.includes(uuid))
+      .forEach((uuid) => {
+        gateways[uuid].destroy()
+        delete gateways[uuid]
+      })
+  })
 
   return { credentials, gateways, addCredentials, removeCredentials }
 }, {
@@ -47,6 +48,7 @@ export const useGatewaysStore = defineStore('gateways', () => {
   persist: {
     paths: [
       'credentials',
+      'liste',
     ],
   },
 

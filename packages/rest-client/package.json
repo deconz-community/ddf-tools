@@ -65,7 +65,7 @@
     "packageManager": "pnpm@8.6.12",
     "devDependencies": {
         "@types/jsdom": "^21.1.1",
-        "@types/node": "^20.5.0",
+        "@types/node": "^20.5.1",
         "@types/pako": "^2.0.0",
         "@typescript-eslint/eslint-plugin": "^6.4.0",
         "@typescript-eslint/parser": "^6.4.0",
@@ -90,8 +90,8 @@
         "zod-validation-error": "^1.5.0"
     },
     "dependencies": {
-        "@zodios/core": "^10.9.4",
+        "@zodios/core": "^10.9.2",
         "axios": "^1.4.0",
-        "zod": "^3.22.1"
+        "zod": "^3.22.2"
     }
 }
