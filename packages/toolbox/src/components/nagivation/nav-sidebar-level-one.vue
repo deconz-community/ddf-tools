@@ -27,9 +27,11 @@ const links = computed(() => {
         <template v-for="link, _index in links" :key="_index">
           <v-divider v-if="link === 'divider'" />
           <template v-else-if="link === 'gateways'">
-            <template v-for="item, uuid in GatewaysStore.credentials" :key="item.id">
-              <gateway-badge :uuid="uuid" :credentials="item" />
-            </template>
+            <gateway-badge
+              v-for="item, uuid in GatewaysStore.credentials" :key="uuid"
+              :uuid="uuid"
+              :credentials="item"
+            />
           </template>
           <v-list-item v-else class="ma-1 justify-center">
             <btn-rounded-circle :to="link.to">

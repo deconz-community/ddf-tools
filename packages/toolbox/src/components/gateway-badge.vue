@@ -20,7 +20,7 @@ const active = computed(() => props.credentials.id === 'WIP')
   <v-list-item class="ma-1 justify-center">
     <btn-rounded-circle
       :color="badgeColor"
-      :to="`/gateway/${props.credentials.id}`"
+      :to="`/gateway/${props.uuid}`"
       :active="active"
     >
       {{ props.credentials.name.substring(0, 1) }}
