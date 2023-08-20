@@ -36,12 +36,18 @@ export function Gateway(address: string, apiKey: string) {
   return client
 }
 
-export type FindGatewayResult = Result<{
+interface GatewayInfo {
   gateway: ReturnType<typeof Gateway>
   uri: string
+  apiKey: string
   bridgeID: string
-}, {
-  type: 'invalid_api_key' | 'unreachable' | 'unknown'
+}
+
+export type FindGatewayResult = Result<GatewayInfo,
+(
+  ({ type: 'bridge_id_mismatch' | 'invalid_api_key' } & GatewayInfo) |
+  ({ type: 'unreachable' | 'unknown' } & Partial<Pick<GatewayInfo, 'uri' | 'apiKey'>>)
+) & {
   message?: string
 }>
 
@@ -57,36 +63,41 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         if (!config.success)
           throw new Error('No response from the gateway')
 
+        const info = {
+          gateway,
+          uri,
+          apiKey,
+          bridgeID: config.success.bridgeid,
+        }
+
         if (expectedBridgeID.length > 0 && config.success.bridgeid !== expectedBridgeID) {
+          // TODO Mixed result, I found one but it's not the one I was looking for
           return Err({
-            uri,
-            type: 'unreachable',
+            type: 'bridge_id_mismatch',
             message: 'Bridge ID mismatch',
+            ...info,
             priority: 20,
           } as const)
         }
 
         if (!('whitelist' in config.success)) {
+          // TODO Mixed result, I found it but the key is invalid
           return Err({
-            uri,
             type: 'invalid_api_key',
             message: 'Invalid API key',
+            ...info,
             priority: 30,
           } as const)
         }
 
         resolved = true
-        resolve(Ok({
-          gateway,
-          uri,
-          apiKey,
-          bridgeID: config.success.bridgeid,
-        }))
+        resolve(Ok(info))
         return undefined
       }
       catch (e) {
         return Err({
           uri,
+          apiKey,
           type: 'unreachable',
           message: 'No response from the gateway',
           priority: 10,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Gateway } from '@deconz-community/rest-client'
+import { FindGateway } from '@deconz-community/rest-client'
 import { useSelector } from '@xstate/vue'
 import type { GatewayMachine } from '~/stores/gateway'
 
@@ -15,7 +15,22 @@ const cantPrevious = useSelector(machine, state => !state.can('Previous'))
 const cantNext = useSelector(machine, state => !state.can('Next'))
 
 async function fetchKeyWithInstallCode() {
-  const client = Gateway('api', '<nouser>')
+  const finding = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
+
+  const gateway = finding.mapOrElse((error) => {
+    switch (error.type) {
+      case 'invalid_api_key':
+      case 'bridge_id_mismatch':
+        return error.gateway
+    }
+  }, success => success.gateway)
+
+  if (!gateway)
+    return finding
+
+  const challenge = await gateway.createChallenge()
+
+  console.log(challenge)
 }
 
 /*
@@ -47,6 +62,7 @@ const v = useVuelidate(rules, state)
   <v-card>
     <template #title>
       <span>{{ credentials.name }}</span>
+      <json-viewer :value="credentials" />
       <v-btn @click="machine.send('Edit credentials')">
         Edit Credentials
       </v-btn>
@@ -111,6 +127,9 @@ const v = useVuelidate(rules, state)
           <template v-else-if="state.matches('offline.editing.API key')">
             <v-text-field v-model="credentials.apiKey" label="API Key" />
             <v-text-field v-model="installCode" label="Install code" />
+            <v-btn @click="fetchKeyWithInstallCode()">
+              Fetch API key
+            </v-btn>
           </template>
         </v-card>
       </template>
