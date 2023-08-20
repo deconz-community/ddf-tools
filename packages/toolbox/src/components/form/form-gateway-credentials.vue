@@ -17,16 +17,10 @@ const cantNext = useSelector(machine, state => !state.can('Next'))
 async function fetchKeyWithInstallCode() {
   const finding = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
 
-  const gateway = finding.mapOrElse((error) => {
-    switch (error.type) {
-      case 'invalid_api_key':
-      case 'bridge_id_mismatch':
-        return error.gateway
-    }
-  }, success => success.gateway)
+  if (finding.isErr())
+    return console.error(finding.error)
 
-  if (!gateway)
-    return finding
+  const gateway = finding.unwrap().gateway
 
   const challenge = await gateway.createChallenge()
 
