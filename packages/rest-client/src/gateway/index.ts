@@ -49,9 +49,9 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
   return new Promise((resolve) => {
     let resolved = false
 
-    const queries = URIs.map(async (api) => {
+    const queries = URIs.map(async (uri) => {
       try {
-        const gateway = Gateway(api, apiKey)
+        const gateway = Gateway(uri, apiKey)
         const config = await gateway.getConfig()
 
         if (!config.success)
@@ -59,7 +59,7 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
 
         if (expectedBridgeID.length > 0 && config.success.bridgeid !== expectedBridgeID) {
           return Err({
-            api,
+            uri,
             type: 'unreachable',
             message: 'Bridge ID mismatch',
             priority: 20,
@@ -68,7 +68,7 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
 
         if (!('whitelist' in config.success)) {
           return Err({
-            api,
+            uri,
             type: 'invalid_api_key',
             message: 'Invalid API key',
             priority: 30,
@@ -78,14 +78,14 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         resolved = true
         resolve(Ok({
           gateway,
-          uri: api,
+          uri,
           bridgeID: config.success.bridgeid,
         }))
         return undefined
       }
       catch (e) {
         return Err({
-          api,
+          uri,
           type: 'unreachable',
           message: 'No response from the gateway',
           priority: 10,
