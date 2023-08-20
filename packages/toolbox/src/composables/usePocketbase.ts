@@ -101,12 +101,12 @@ export function createPocketBase() {
 
     if (client.authStore.model) {
       client.collection('user_profile').getOne(client.authStore.model.profile).then((record) => {
-        console.log('Loading user profile')
+        // console.log('Loading user profile')
         profile.value = record
       })
 
       client.collection('user_profile').subscribe(client.authStore.model.profile, (event) => {
-        console.log('Updating user profile')
+        // console.log('Updating user profile')
         profile.value = event.record
       })
     }

@@ -48,7 +48,6 @@ export const useGatewaysStore = defineStore('gateways', () => {
   persist: {
     paths: [
       'credentials',
-      'liste',
     ],
   },
 

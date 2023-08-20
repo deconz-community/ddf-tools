@@ -41,7 +41,10 @@ export const gatewayMachine = createMachine({
         data: Result<{
           api: string | null
           websocket: string | null
-        }, 'invalid_api_key' | 'unreachable' | Error>
+        }, {
+          type: 'invalid_api_key' | 'unreachable' | 'unknown'
+          message?: string
+        }>
       }
     },
   },
@@ -144,19 +147,77 @@ export const gatewayMachine = createMachine({
 
 }, {
   services: {
-    connectToGateway: async (context, event) => {
-      const uri = context.credentials.URIs.api[0]
 
-      const client = Gateway(uri, context.credentials.apiKey)
+    connectToGateway: context => new Promise((resolve) => {
+      let resolved = false
 
-      const config = await client.client.getConfig()
+      const queries = context.credentials.URIs.api.map(async (api) => {
+        try {
+          const client = Gateway(api, context.credentials.apiKey)
+          const config = await client.client.getConfig()
 
-      console.log(config)
+          if (!config.success)
+            throw new Error('No response from the gateway')
 
-      if (Math.random() > 0.5)
-        return Err('unreachable' as const)
-      return Ok({ api: null, websocket: null })
-    },
+          if (config.success.bridgeid !== context.credentials.id) {
+            return Err({
+              api,
+              type: 'unreachable',
+              message: 'Bridge ID mismatch',
+              priority: 20,
+            } as const)
+          }
+
+          if (!('whitelist' in config.success)) {
+            return Err({
+              api,
+              type: 'invalid_api_key',
+              message: 'Invalid API key',
+              priority: 30,
+            } as const)
+          }
+
+          resolved = true
+          resolve(Ok({
+            api,
+            websocket: context.credentials.URIs.websocket[0],
+          }))
+        }
+        catch (e) {
+          return Err({
+            api,
+            type: 'unreachable',
+            message: 'No response from the gateway',
+            priority: 10,
+          } as const)
+        }
+      })
+
+      Promise.allSettled(queries).then((queriesResult) => {
+        if (resolved)
+          return
+
+        const error = queriesResult
+          .map((result) => {
+            if (result.status === 'fulfilled')
+              return result.value
+            return undefined
+          })
+          .filter(result => result !== undefined && result.isErr())
+          .sort((a, b) => {
+            return b!.unwrapErr().priority - a!.unwrapErr().priority
+          })
+          .shift()
+
+        if (error)
+          return resolve(error)
+
+        return resolve(Err({
+          type: 'unreachable',
+          message: 'No response from the gateway',
+        } as const))
+      })
+    }),
   },
   actions: {
     useURIs: assign({
@@ -170,8 +231,8 @@ export const gatewayMachine = createMachine({
   guards: {
     isOk: (context, event) => event.data.isOk(),
     // isErr: (context, event) => event.data.isErr(),
-    isInvalidAPIKey: (context, event) => event.data.isErr() && event.data.unwrapErr() === 'invalid_api_key',
-    isUnreachable: (context, event) => event.data.isErr() && event.data.unwrapErr() === 'unreachable',
+    isInvalidAPIKey: (context, event) => event.data.isErr() && event.data.unwrapErr().type === 'invalid_api_key',
+    isUnreachable: (context, event) => event.data.isErr() && event.data.unwrapErr().type === 'unreachable',
   },
 })
 
