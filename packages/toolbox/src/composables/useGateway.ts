@@ -3,6 +3,7 @@ import { assign, createMachine, interpret } from 'xstate'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
 import { Gateway } from '@deconz-community/rest-client'
+import { inspect } from '@xstate/inspect'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
 const defaultContext: {
@@ -24,14 +25,14 @@ const defaultContext: {
 }
 
 export const gatewayMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbBxlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXHDItG4+JBAhETEJMpkEWSM9FVdVWx1bPR95HTM9dUtrBFVVFSMjV0UxifGx11sAoLJQ5UpxejBKZnooPAhxMEKAN0EAa328pZX6NY2IqAQIo8p0JnESkskK0Rfq0FrZDNcyjGRhcii6jjBin6iHkqi4akU6j0LXkzWa6nk8nmIHOBUu102212a0OJzOizxq3WhPu9Eez1evA4RlKAmEX3Ekj+pnkyj0Tg6hm8pjatmhCBc6mU8kMXjBwNso2xuLC+Optx2e1Jp2UKuWVJuW1p9Kqb1UrPK7KqXLkpj00r001cXi4Isc4p0LWUSNROh06jtrn5yopqoNhM1JIeZN1of1V3VRujT1NTPkFs+1pqcjGOj5bU8ZmFvndVkQehMykUsr9AYaQbmgRxcfErAi+yYEFYYGisXiSRSqSMmRHmRyetb7fCXbA7zKme+Nrqw9dyh04q6ec9o1sLka-q4ehDIQKk5JAAVBII21tyBAwAcmJQ4JGO3SYxP6Df9pfr7c7w+T5wMaggpt8by8B8VqLtmy6uioShePIrQelwvLbkYu5Iro3hHk2E6JIk354AAwuGc5spUMG-DCmLKB4yHuN0rS2K4Rgbh09GzOoGTtEGuaNgsJ5hIIhHfsoYDUNQgjUMoACu9C0CglAABYoAARt2eAAGJMFI5BMLAsBybOkHztBnKwXYgLOqorjdI6tiqAY7FlhKAbeiOLReA0qj+PhLZiVOknSbJDxsJ25AAILngAkuQpz4Lp+mGcZpkZhZPzSDYrHKLZSE+CxbEen5a7HvkIlBSSIUyfJ9DHPQgiYPQOl6QZRkmRRlpUZZNEIHY9gGMMQpaBkOiuOKFZGOVSyiURwUQF8WzKDF8WJXgAByYBSMUZmURyWW1CCGRqHo+h+sxbTFW5bS8s4bi2LoYxcE5WIBcJyhzeJkBLVAK1xQlYD4OetCPoIcmcHt3UHUuJiZA4V0YoVV2uQMD1qC4szOMd+hnTNp5VfsP2EitEAQLQRmbdtu0ZT1h2IMd8LOedfqYSj4roxoD3YzxuM6PjIlflOnZaQASmAiQUypAGPs+kO0zDsH1K69oeL49keGhFZ6OKwz2BhWH7rhARNo197wGUKpQXTS71H5vKGHZJjrm5siePRo6oiCjROYJzYfREojW4rfX1LY8IZKOUeZDrblw2V70VfGBK3MHWah74RinfyLR2EMzF9G5xiAq6oz2eHrjIe0AufULaxp9R2XLnCeaO2xfm68O9GmJhe44YeNdnh2M4N71Tf1CWfKwu3LsDF0Uql732EHnhQlJ0Pyi-jeUAy0BFv7en4-2a30-Oxu-rdzufcr4PhOj-TCAGEziPyMjrGozmEee2x2FOQYt-zRJItWAGluwQHvkuCEagX5v2ugMRwADvpSRkhA2CFdoGsSRmzd+58pTjG0KiasbgXCIOCsg2SCklKqVAWAVBfV2joRegVbBcDEAuFUNKbQYJxi9C8OoUh1VyGHAihAaKANEp0Kbq0e0flMGvxYR-BAnotwCKJkIhSDUmpZQXGPWojg8x2UUAxWBiipqqIkotQkkijq+A4UVLBRVFFdF5FzLG6gcYGH5onWahMLG-X+mtIG1iGawl5PY+RjiSp5j4bMJ67hXrmOJrcUm5M4D72hofI6oSEZyJMRzbwDhMZOHcbzTxiTLHJIACJ7GCQgMwXA8zhLyW5Cs8IPAPTiS9VQb0AhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbBxlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXHDItG4+JBAhETEJMpkEWSM9FVdVWx1bPR95HTM9dUtrBFVVFSMjV0UxifGx11sAoLJQ5UpxejBKZnooPAhxMEKAN0EAa328pZX6NY2IqAQIo8p0JnESkskK0Rfq0FrZDNcyjGRhcii6jjBin6iHkqi4akU6j0LXkzWa6nk8nmIHOBUu102212a0OJzOizxq3WhPu9Eez1evA4RlKAmEX3Ekj+pnkyj0Tg6hm8pjatmhCBc6mU8kMXjBwNso2xuLC+Optx2e1Jp2UKuWVJuW1p9Kqb1UrPK7KqXLkpj00r001cXi4Isc4p0LWUSNROh06jtrn5yopqoNhM1JIeZN1of1V3VRujT1NTPkFs+1pqcjGOj5bU8ZmFvndVkQehMykUsr9AYaQbmgRxcfErAi+yYEFYYDwACUwIlaLAABbkCBgA5MShwd5lTPfG11Iyu+0eXyuDKKLgyhri4b2T2jWwuRr+rh6EMhAqt9vhLs9mJxDAJZJgNLLzKf7K5Fv0NtR+9ZzZSoF2zJdMlUZQdHFLo80PIxjyRXRvAvJs9RvEkAAVBEEf8oDHCcpzgSMOzpGN0L-W9sNw24CMnadYGNQQU2+N5eA+K1QN+HNXRUJQvHkVoPW3KDTAQk9kPPS98jCQREkSf8ewAYXDIDLRAzkwMxXkPEE9xulaWxXCMGCOmULhZnUDJ2iDXNGwWK9ZPkxTlDfahBGoZQAFd6FoFBKGHFAACNuzwAAxJgpHIJhYFgLywDU+dNO4hA7EBZ1VA3etbFUAwTLLCUA29T8Wi8BpVH8NCW2c283I8w42E7cgAEFMIASXIU58AiqKYrihL2LnTjkukGwjOUDKssdHK8o9CqoOkpY5IU2rqHczyfOOehBEwehwsi6LYvixLhp+UbUscPlkWrZwtAyHRXHFCsjEW68apJSAvi2ZRWo6rq8AAOTAKRikG4COTO2oQQyNQ9H0P0DLaYyPScaUXFmXQxi4HKsSqxzlGWlzPsJH72s6sB8Ew2hJ0ELzODB9SIcXExMgcJGMR8QzkYKtx7A0XnnGh-Q4depyVo+iAvqgH6IAgIdYEB4HQYzU7mas+Fcvhv0EKR-KBl5tR0acdQhYMHRRYJ979mJjViX2WJ4nQq3XMlwkTo0yGbA3CaJlsMFbC4HRMS8Pc2irGt-UDflcabbbx3gMoVQ4j3F3qCreUMTKTGggrlzUY3DHBIwt2RVQLYiURk6ZsD6gDqCvwbz89HFFmFrxmT4wJW4q6zFL6m6WH+RaOwhgMvoCuMQFXVGDcA9cQT2gtjCwB7rjzrTwO+VhYyKpbwxzLExDTxQpfKIA7tV5Gv5RjDzOd5zgYuilafxKQs9UIcjvl+Uai8LooiE7g17uvDceY77Zxgv6A+R4JLvyXlbS+nsEAGA1uzeQnNdZ70BObduS1naS1gMFbsEBEGLkVFKCqRkOY6yMnrRAFUP7NnxoTVa61SFgTnmoNBGDaGQKlOMbQqJqxuBcPA8W1s1r1R8n5AKRCV5DRThw-e1kBI8O5vrIqShBHjF6F4dQYiiaSM8g8RqEAWpky6uwlKrR7SUNUTQ9RiBPRwQMawqR9Ato7TOklJBjg8yZS3GCNRdDkFKlwW9cRLspZWPOjfSCXNqFcxCV0Xk-NZiCyssLHBn88GRJtt9X65MBhALXlDWEvIEnoIcSE5xE0jaY3cDjVxEspYyzlnAQBjNgFlNUBU7h1TxQuHhIhdJJtMlm2adbV2txlAABE9gxLKZvSpwSnp5w8LzBp2NekBACEAA */
   id: 'gateway',
   predictableActionArguments: true,
   tsTypes: {} as import('./useGateway.typegen').Typegen0,
   schema: {
     context: {} as typeof defaultContext,
     events: {} as | {
-      type: 'Fix issue' | 'Done' | 'Next' | 'Previous' | 'Connect' | 'Refresh devices'
+      type: 'Fix issue' | 'Done' | 'Next' | 'Previous' | 'Connect' | 'Refresh devices' | string
     } | {
       type: 'Update credentials'
       data?: GatewayCredentials
@@ -152,6 +153,8 @@ export const gatewayMachine = createMachine({
           },
 
           initial: 'Address',
+
+          onDone: 'disabled',
         },
       },
 
@@ -274,7 +277,7 @@ export const gatewayMachine = createMachine({
 export function useGateway(credentials: Ref<GatewayCredentials>) {
   const id = computed(() => credentials.value?.id)
 
-  // inspect({ iframe: false })
+  inspect({ iframe: false })
 
   // Create machine with credentials
   const machine = interpret(gatewayMachine.withContext({

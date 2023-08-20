@@ -9,7 +9,7 @@ export const useGatewaysStore = defineStore('gateways', () => {
   const route = useRoute()
 
   const credentials = reactive<Record<string, GatewayCredentials>>({})
-  const gateways = reactive<Record<string, Raw<ReturnType<typeof useGateway>>>>({})
+  const gateways = shallowReactive<Record<string, Raw<ReturnType<typeof useGateway>>>>({})
 
   const addCredentials = (newCredentials: GatewayCredentials) => {
     credentials[uuidv4()] = newCredentials
@@ -30,6 +30,7 @@ export const useGatewaysStore = defineStore('gateways', () => {
     credentialsList
       .filter(uuid => !gatewayList.includes(uuid))
       .forEach((uuid) => {
+        console.log('Creating gateway', uuid)
         const credentialsRef = toRef(credentials, uuid)
         gateways[uuid] = markRaw(useGateway(credentialsRef))
       })

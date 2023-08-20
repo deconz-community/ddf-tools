@@ -6,7 +6,12 @@
     <nav-topbar-details />
     <perfect-scrollbar>
       <v-main>
-        <router-view />
+        <suspense>
+          <router-view />
+          <template #fallback>
+            Loading page ...
+          </template>
+        </suspense>
       </v-main>
     </perfect-scrollbar>
   </v-layout>
