@@ -1,8 +1,9 @@
 import type { Ref } from 'vue'
 import { assign, createMachine, interpret } from 'xstate'
 import type { Result } from 'ts-results-es'
-import { Err, Ok } from 'ts-results-es'
-import { Gateway } from '@deconz-community/rest-client'
+import { Ok } from 'ts-results-es'
+import { FindGateway } from '@deconz-community/rest-client'
+import type { FindGatewayResult, Gateway } from '@deconz-community/rest-client'
 import { inspect } from '@xstate/inspect'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
@@ -48,12 +49,7 @@ export const gatewayMachine = createMachine({
     },
     services: {} as {
       connectToGateway: {
-        data: Result<{
-          gateway: ReturnType<typeof Gateway>
-        }, {
-          type: 'invalid_api_key' | 'unreachable' | 'unknown'
-          message?: string
-        }>
+        data: FindGatewayResult
       }
       fetchDevices: {
         data: Result<string[], never>
@@ -188,78 +184,11 @@ export const gatewayMachine = createMachine({
 
 }, {
   services: {
-
-    connectToGateway: context => new Promise((resolve) => {
-      // TODO Move this to the rest client package
-      let resolved = false
-
-      const queries = context.credentials.URIs.api.map(async (api) => {
-        try {
-          const gateway = Gateway(api, context.credentials.apiKey)
-          const config = await gateway.getConfig()
-
-          if (!config.success)
-            throw new Error('No response from the gateway')
-
-          if (config.success.bridgeid !== context.credentials.id) {
-            return Err({
-              api,
-              type: 'unreachable',
-              message: 'Bridge ID mismatch',
-              priority: 20,
-            } as const)
-          }
-
-          if (!('whitelist' in config.success)) {
-            return Err({
-              api,
-              type: 'invalid_api_key',
-              message: 'Invalid API key',
-              priority: 30,
-            } as const)
-          }
-
-          resolved = true
-          resolve(Ok({ gateway }))
-        }
-        catch (e) {
-          return Err({
-            api,
-            type: 'unreachable',
-            message: 'No response from the gateway',
-            priority: 10,
-          } as const)
-        }
-      })
-
-      Promise.allSettled(queries).then((queriesResult) => {
-        if (resolved)
-          return
-
-        const error = queriesResult
-          .map((result) => {
-            if (result.status === 'fulfilled')
-              return result.value
-            return undefined
-          })
-          .filter(result => result !== undefined && result.isErr())
-          .sort((a, b) => {
-            return b!.unwrapErr().priority - a!.unwrapErr().priority
-          })
-          .shift()
-
-        if (error)
-          return resolve(error)
-
-        return resolve(Err({
-          type: 'unreachable',
-          message: 'No response from the gateway',
-        } as const))
-      })
-    }),
-
-    fetchDevices: context => new Promise((resolve) => {
-      context.gateway?.getDevices().then((result) => {
+    connectToGateway: context => FindGateway(context.credentials.URIs.api, context.credentials.apiKey, context.credentials.id),
+    fetchDevices: context => new Promise((resolve, reject) => {
+      if (!context.gateway)
+        return reject(new Error('No gateway client'))
+      context.gateway.getDevices().then((result) => {
         resolve(Ok(result.success!))
       })
     }),

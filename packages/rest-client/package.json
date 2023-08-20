@@ -92,6 +92,7 @@
     "dependencies": {
         "@zodios/core": "^10.9.5",
         "axios": "^1.4.0",
+        "ts-results-es": "^4.0.0",
         "zod": "^3.22.2"
     }
 }

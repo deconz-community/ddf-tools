@@ -1,2 +1,2 @@
-export { Discovery } from './src/discovery'
-export { Gateway } from './src/gateway'
+export * from './src/discovery'
+export * from './src/gateway'
