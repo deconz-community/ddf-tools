@@ -36,7 +36,5 @@ export function Gateway(address: string, apiKey: string) {
   client.use(pluginAuth(() => apiKey))
   client.use(pluginTransformResponse())
 
-  const updateApiKey = (newApiKey: string) => apiKey = newApiKey
-
-  return { client, updateApiKey }
+  return client
 }

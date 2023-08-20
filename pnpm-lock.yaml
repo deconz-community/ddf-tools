@@ -341,8 +341,8 @@ importers:
   packages/rest-client:
     dependencies:
       '@zodios/core':
-        specifier: ^10.9.2
-        version: 10.9.2(axios@1.4.0)(zod@3.22.2)
+        specifier: ^10.9.5
+        version: 10.9.5(axios@1.4.0)(zod@3.22.2)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -473,6 +473,12 @@ importers:
       '@noble/secp256k1':
         specifier: ^2.0.0
         version: 2.0.0
+      '@vuelidate/core':
+        specifier: ^2.0.3
+        version: 2.0.3(vue@3.3.4)
+      '@vuelidate/validators':
+        specifier: ^2.0.3
+        version: 2.0.3(vue@3.3.4)
       '@vueuse/components':
         specifier: ^10.3.0
         version: 10.3.0(vue@3.3.4)
@@ -5069,6 +5075,32 @@ packages:
   /@vue/shared@3.3.4:
     resolution: {integrity: sha512-7OjdcV8vQ74eiz1TZLzZP4JwqM5fA94K6yntPS5Z25r9HDuGNzaGdgvwKYq6S+MxwF0TFRwe50fIR/MYnakdkQ==}
 
+  /@vuelidate/core@2.0.3(vue@3.3.4):
+    resolution: {integrity: sha512-AN6l7KF7+mEfyWG0doT96z+47ljwPpZfi9/JrNMkOGLFv27XVZvKzRLXlmDPQjPl/wOB1GNnHuc54jlCLRNqGA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^2.0.0 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.3.4
+      vue-demi: 0.13.11(vue@3.3.4)
+    dev: false
+
+  /@vuelidate/validators@2.0.3(vue@3.3.4):
+    resolution: {integrity: sha512-P4WtmczPRbwmVihKlSAs3pIjIil4xjHW+Qoi58MCw7vnKuYr/IHarOFkwp0K8eIIqiQqY4URM5Gb4aeDjna6Yw==}
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^2.0.0 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.3.4
+      vue-demi: 0.13.11(vue@3.3.4)
+    dev: false
+
   /@vuetify/loader-shared@1.7.1(vue@3.3.4)(vuetify@3.3.13):
     resolution: {integrity: sha512-kLUvuAed6RCvkeeTNJzuy14pqnkur8lTuner7v7pNE/kVhPR97TuyXwBSBMR1cJeiLiOfu6SF5XlCYbXByEx1g==}
     peerDependencies:
@@ -5290,8 +5322,8 @@ packages:
       xstate: 4.38.2
     dev: false
 
-  /@zodios/core@10.9.2(axios@1.4.0)(zod@3.22.2):
-    resolution: {integrity: sha512-aY8FgE6Y+91oBaMfTnqibGoHO62OiKKHoiQAq76PYJbU7InFeWsSRhpnBwpibWopRjz45AlqojxKo3QeSAYC7w==}
+  /@zodios/core@10.9.5(axios@1.4.0)(zod@3.22.2):
+    resolution: {integrity: sha512-HCRYBRapQBzK7ZJ2PPqyk15W8cuGdC+4bZqvGzjExstjGhSp76nUWPbcgUL0D31/QEek4DdPZryckRzp8BHj+w==}
     peerDependencies:
       axios: ^0.x || ^1.0.0
       zod: ^3.x
@@ -13009,6 +13041,21 @@ packages:
       '@codemirror/state': 6.2.1
       '@codemirror/view': 6.14.1
       codemirror: 6.0.1(@lezer/common@1.0.3)
+      vue: 3.3.4
+    dev: false
+
+  /vue-demi@0.13.11(vue@3.3.4):
+    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
       vue: 3.3.4
     dev: false
 

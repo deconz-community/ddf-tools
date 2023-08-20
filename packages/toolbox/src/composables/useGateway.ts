@@ -3,9 +3,19 @@ import { assign, createMachine, interpret } from 'xstate'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
 import { Gateway } from '@deconz-community/rest-client'
+import { inspect } from '@xstate/inspect'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
-const defaultContext: {
+export const deviceMachine = createMachine({
+  id: 'device',
+  predictableActionArguments: true,
+  tsTypes: {} as import('./useGateway.typegen').Typegen0,
+  schema: {
+
+  },
+})
+
+const defaultGatewayContext: {
   credentials: GatewayCredentials
   gateway?: ReturnType<typeof Gateway>
   devices_list: string[]
@@ -24,14 +34,14 @@ const defaultContext: {
 }
 
 export const gatewayMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbBxlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXHDItG4+JBAhETEJMpkEWSM9FVdVWx1bPR95HTM9dUtrBFVVFSMjV0UxifGx11sAoLJQ5UpxejBKZnooPAhxMEKAN0EAa328pZX6NY2IqAQIo8p0JnESkskK0Rfq0FrZDNcyjGRhcii6jjBin6iHkqi4akU6j0LXkzWa6nk8nmIHOBUu102212a0OJzOizxq3WhPu9Eez1evA4RlKAmEX3Ekj+pnkyj0Tg6hm8pjatmhCBc6mU8kMXjBwNso2xuLC+Optx2e1Jp2UKuWVJuW1p9Kqb1UrPK7KqXLkpj00r001cXi4Isc4p0LWUSNROh06jtrn5yopqoNhM1JIeZN1of1V3VRujT1NTPkFs+1pqcjGOj5bU8ZmFvndVkQehMykUsr9AYaQbmgRxcfErAi+yYEFYYDwACUwIlaLAABbkCBgA5MShwd5lTPfG11Iyu+0eXyuDKKLgyhri4b2T2jWwuRr+rh6EMhAqt9vhLs9mJxDAJZJgNLLzKf7K5Fv0NtR+9ZzZSoF2zJdMlUZQdHFLo80PIxjyRXRvAvJs9RvEkAAVBEEf8oDHCcpzgSMOzpGN0L-W9sNw24CMnadYGNQQU2+N5eA+K1QN+HNXRUJQvHkVoPW3KDTAQk9kPPS98jCQREkSf8ewAYXDIDLRAzkwMxXkPEE9xulaWxXCMGCOmULhZnUDJ2iDXNGwWK9ZPkxTlDfahBGoZQAFd6FoFBKGHFAACNuzwAAxJgpHIJhYFgLywDU+dNO4hA7EBZ1VA3etbFUAwTLLCUA29T8Wi8BpVH8NCW2c283I8w42E7cgAEFMIASXIU58AiqKYrihL2LnTjkukGwjOUDKssdHK8o9CqoOkpY5IU2rqHczyfOOehBEwehwsi6LYvixLhp+UbUscPlkWrZwtAyHRXHFCsjEW68apJSAvi2ZRWo6rq8AAOTAKRikG4COTO2oQQyNQ9H0P0DLaYyPScaUXFmXQxi4HKsSqxzlGWlzPsJH72s6sB8Ew2hJ0ELzODB9SIcXExMgcJGMR8QzkYKtx7A0XnnGh-Q4depyVo+iAvqgH6IAgIdYEB4HQYzU7mas+Fcvhv0EKR-KBl5tR0acdQhYMHRRYJ979mJjViX2WJ4nQq3XMlwkTo0yGbA3CaJlsMFbC4HRMS8Pc2irGt-UDflcabbbx3gMoVQ4j3F3qCreUMTKTGggrlzUY3DHBIwt2RVQLYiURk6ZsD6gDqCvwbz89HFFmFrxmT4wJW4q6zFL6m6WH+RaOwhgMvoCuMQFXVGDcA9cQT2gtjCwB7rjzrTwO+VhYyKpbwxzLExDTxQpfKIA7tV5Gv5RjDzOd5zgYuilafxKQs9UIcjvl+Uai8LooiE7g17uvDceY77Zxgv6A+R4JLvyXlbS+nsEAGA1uzeQnNdZ70BObduS1naS1gMFbsEBEGLkVFKCqRkOY6yMnrRAFUP7NnxoTVa61SFgTnmoNBGDaGQKlOMbQqJqxuBcPA8W1s1r1R8n5AKRCV5DRThw-e1kBI8O5vrIqShBHjF6F4dQYiiaSM8g8RqEAWpky6uwlKrR7SUNUTQ9RiBPRwQMawqR9Ato7TOklJBjg8yZS3GCNRdDkFKlwW9cRLspZWPOjfSCXNqFcxCV0Xk-NZiCyssLHBn88GRJtt9X65MBhALXlDWEvIEnoIcSE5xE0jaY3cDjVxEspYyzlnAQBjNgFlNUBU7h1TxQuHhIhdJJtMlm2adbV2txlAABE9gxLKZvSpwSnp5w8LzBp2NekBACEAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbHwAUQhRKloIBmY2Tl5JIRExCSRpRCM9Vz1lPXUjVy87I0UDS2sEdXlXZX0NPQ0teVtddQCgslDlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXF7+tG4+DJTRJnFJGQRZbJVXVVsdWz0feR0zAsrEVVUVIyLFD6-i206QFZ6lHE9DAlGY9CgeAg4jA6wAboIANawgFrIH0EFgvpQBB9BGUdD7ehbLbJYR7A4ZI6yOZ1IpGFyKO6OJmKJ4IeSqLhqRTqJpOc7nGryP6onDKdGY8GQ6Eg+FIlHdNHA0HS3H0fGE8QkozbATktKHOSmeT5Jw3QzeUxXWzslzqZTyQwlYyuIy2d6ipXiyWq7FQmHy5HKMUSlVYiHqzVpEmqPUgXaGqnG7KOnKfYpW3yOdk6C7KPm1HQ6dSmHJ6X6Bf7esMYv0QgNyvEKkM130RnHNgkx3gceTxxNEo3HIo6fJXTxmLM29l6EzKcpFktl3KVrohNbiVh9WFMCCsMB4ABKYHGtFgAAtyLE4UxKHBSTsDUPkyOuKo8h5fK45oouE7snZV57Dzd5bBcPR2i4PQvQ3cUtx3Xp90PIYRgwMZJjAGYjHmXD5iWUMEKbZDH31VIX1AakcPfep2TuMdQPdCCoJgqtCPobc5QABUEQROKga8wFve9YEbXcNRbdjONhHi+OxQThLgKNBG7IkSSSJ9yMpSi5Bw15HU8GpLlzf96lMJi+RY2DVng8ZxmkvAAGFw02DSyIpdIdI5eRTQ8Vp3HuS5bDdOibmULhXHAuZrlyUc12rODlEEOzpOULDqEEahlAAV3oWgUEoC8UAAIwPPAIiiGg6EYFh2FIhNn20zIEDsblilUH9skij85ztUsDK0XI3VcJR1HiwiUsQ9LMvhNg93IABBLiAElyGRcJIjQaJqviOq3IarTPOa1rlHazqclsHqjFzVQx00LRHAMYwTWsnpkvsqbqAyrLcsRehBEwehys27bYhqhJ6sHJqjhOs77guq7ZxwhdtEUV5TE+d9Xs3Sa5UgPYG1lWFhlGCaPrxzbsUhxqjphn9Ts+NpWi4HQfK8ICrgXZ1i1LLqKxFNia3e1L8elZQltW9a8AAOTAKRXIHGnhwZNw1D0fRi0Cq4QqsRArlNVodGx2zydhUXsXFla1rAfAuNoW9BGyxJFcO5WyjqIKvHkHxPeu3XqkitRwJaVxyjcFxjaS3GzcpiFxYgCBz1E2X5ep13XxVuoPw14t3W1v2qjcewLnu2ow68Do-n+2J4AyMUyXTryTlu01DA6kwdHZZGLmcDunF8fmBfXGz1lEBuPOHE5bG5OY8Ln+Y9C7rl6kj9tpXHpMm98Iw1YrC47BeQL1DoopwvMn9p5Gx7I6IsAN4o5rm5Z-JOTdW6u8MM+cN5WoOsi8ahYcUQnuA899oa6WzC-du79-Z3AdO+MCzESzQRvkA7ivF+IKTvHAMBtM5A-jHG3N+ndYEli-hZSCyDWLDzetHXBw4DDclusFGoPt84fzqLPFmmhnQGEuDfaOyhIiwBKgeCA9DXwegdMwr2bDgoF2eP4QWiVhafW+hIryl81Da1YXneRdEyGhy0DoK+JglBKJoTjU2aUvozVyvlQqoi76aQnpIz+0VZF6J1oXfqShtBlwKBXAR1jppZTxHNCAi0rbrQ0c1S4eQZG6N9jdBiwSRa2J+vQP6AMjpQzwQgRwY4Op-iZHI7xiA5xGDSVNWOUBYlHHeHMBwOjvZeIURyVmQdNAmNaGY3Q1CEoj1URTAmUBLaSxtvUrInId6eySew-2eYxyRSNsooZgjzZxwWgnJOUyEBmFMM0lhrTkn+xcNyRwpdQ6BIjms2hITanKAACIwj2WYUycyTkLKqHObkHcAgBCAA */
   id: 'gateway',
   predictableActionArguments: true,
-  tsTypes: {} as import('./useGateway.typegen').Typegen0,
+  tsTypes: {} as import('./useGateway.typegen').Typegen1,
   schema: {
-    context: {} as typeof defaultContext,
+    context: {} as typeof defaultGatewayContext,
     events: {} as | {
-      type: 'Fix issue' | 'Done' | 'Next' | 'Previous' | 'Connect' | 'Refresh devices' | string
+      type: 'Edit credentials' | 'Done' | 'Next' | 'Previous' | 'Connect' | 'Refresh devices'
     } | {
       type: 'Update credentials'
       data?: GatewayCredentials
@@ -51,7 +61,7 @@ export const gatewayMachine = createMachine({
     },
   },
 
-  context: structuredClone(defaultContext),
+  context: structuredClone(defaultGatewayContext),
 
   states: {
     init: {
@@ -113,17 +123,17 @@ export const gatewayMachine = createMachine({
           states: {
             'unreachable': {
               on: {
-                'Fix issue': '#gateway.offline.editing.Address',
+                'Edit credentials': '#gateway.offline.editing.Address',
               },
             },
             'invalid API key': {
               on: {
-                'Fix issue': '#gateway.offline.editing.API key',
+                'Edit credentials': '#gateway.offline.editing.API key',
               },
             },
             'unknown': {
               on: {
-                'Fix issue': '#gateway.offline.editing',
+                'Edit credentials': '#gateway.offline.editing',
               },
             },
           },
@@ -172,18 +182,21 @@ export const gatewayMachine = createMachine({
       target: '.connecting',
       actions: 'updateCredentials',
     },
+
+    'Edit credentials': '.offline.editing',
   },
 
 }, {
   services: {
 
     connectToGateway: context => new Promise((resolve) => {
+      // TODO Move this to the rest client package
       let resolved = false
 
       const queries = context.credentials.URIs.api.map(async (api) => {
         try {
           const gateway = Gateway(api, context.credentials.apiKey)
-          const config = await gateway.client.getConfig()
+          const config = await gateway.getConfig()
 
           if (!config.success)
             throw new Error('No response from the gateway')
@@ -246,7 +259,7 @@ export const gatewayMachine = createMachine({
     }),
 
     fetchDevices: context => new Promise((resolve) => {
-      context.gateway?.client.getDevices().then((result) => {
+      context.gateway?.getDevices().then((result) => {
         resolve(Ok(result.success!))
       })
     }),
@@ -256,7 +269,7 @@ export const gatewayMachine = createMachine({
       gateway: (context, event) => event.data.unwrap().gateway,
     }),
     updateCredentials: assign({
-      credentials: (context, event) => event.data ?? structuredClone(defaultContext.credentials),
+      credentials: (context, event) => event.data ?? structuredClone(defaultGatewayContext.credentials),
     }),
     updateDeviceList: assign({
       devices_list: (context, event) => event.data.unwrap(),
@@ -276,7 +289,7 @@ export const gatewayMachine = createMachine({
 export function useGateway(credentials: Ref<GatewayCredentials>) {
   const id = computed(() => credentials.value?.id)
 
-  // inspect({ iframe: false })
+  inspect({ iframe: false })
 
   // Create machine with credentials
   const machine = interpret(gatewayMachine.withContext({

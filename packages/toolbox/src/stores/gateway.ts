@@ -5,13 +5,13 @@ import type { Raw } from 'vue'
 import { useGateway } from '~/composables/useGateway'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
-export type StoredGateway = Raw<ReturnType<typeof useGateway>>
+export type GatewayMachine = Raw<ReturnType<typeof useGateway>>
 
 export const useGatewaysStore = defineStore('gateways', () => {
   const route = useRoute()
 
   const credentials = reactive<Record<string, GatewayCredentials>>({})
-  const gateways = shallowReactive<Record<string, StoredGateway>>({})
+  const gateways = shallowReactive<Record<string, GatewayMachine>>({})
 
   const addCredentials = (newCredentials: GatewayCredentials) => {
     credentials[uuidv4()] = newCredentials
@@ -32,7 +32,7 @@ export const useGatewaysStore = defineStore('gateways', () => {
     credentialsList
       .filter(uuid => !gatewayList.includes(uuid))
       .forEach((uuid) => {
-        console.log('Creating gateway', uuid)
+        // console.log('Creating gateway', uuid)
         const credentialsRef = toRef(credentials, uuid)
         gateways[uuid] = markRaw(useGateway(credentialsRef))
       })
@@ -45,7 +45,7 @@ export const useGatewaysStore = defineStore('gateways', () => {
       })
   })
 
-  const getGateway = (uuid: string, timeout = 1000) => new Promise<StoredGateway | undefined>((resolve) => {
+  const getGateway = (uuid: string, timeout = 1000) => new Promise<GatewayMachine | undefined>((resolve) => {
     const store = useGatewaysStore()
 
     const findGateway = () => {

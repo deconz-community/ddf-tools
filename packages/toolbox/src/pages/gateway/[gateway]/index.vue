@@ -36,12 +36,15 @@ function send(event: string) {
       Gateway Page
     </template>
     <template #text>
+      <!--
       <json-viewer :value="state.toStrings().pop()" />
       <json-viewer :value="state.context" />
 
       <v-btn :disabled="!state.can('Fix issue')" @click="machine.send('Fix issue')">
         Fix issue
       </v-btn>
+      -->
+      <form-gateway-credentials :gateway="gateway" />
 
       <!--
       <json-viewer :value="state.context" />
@@ -55,3 +58,11 @@ function send(event: string) {
     </template>
   </v-card>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
+}
+</route>
