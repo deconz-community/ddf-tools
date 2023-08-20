@@ -1,56 +1,28 @@
 <script setup lang="ts">
 const GatewaysStore = useGatewaysStore()
 
-const list = ref()
+type Link = ({ icon: string ; title: string ;to: string } | 'divider' | 'gateways')
 
-const links = computed<({
-  icon: string
-  title: string
-  to: string
-} | 'divider' | 'gateways')[]>(() => {
-    const list = []
+const links = computed(() => {
+  const list: Link[] = []
 
-    list.push({
-      icon: 'mdi-home',
-      title: 'Home',
-      to: '/',
-    })
-
-    list.push({
-      icon: 'mdi-shovel',
-      title: 'Sandbox',
-      to: '/sandbox',
-    })
-
-    list.push({
-      icon: 'mdi-upload',
-      title: 'Upload',
-      to: '/upload',
-    })
-
-    list.push('divider')
+  list.push({ icon: 'mdi-home', title: 'Home', to: '/' })
+  list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
+  list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
+  list.push('divider')
+  if (objectKeys(GatewaysStore.credentials).length > 0) {
     list.push('gateways')
     list.push('divider')
+  }
+  list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
 
-    list.push({
-      icon: 'mdi-compass',
-      title: 'Gateways',
-      to: '/gateway',
-    })
-
-    return list
-  })
-
-/*
-onMounted(() => {
-  console.log('Mouted', list)
+  return list
 })
-*/
 </script>
 
 <template>
   <v-navigation-drawer width="72" permanent>
-    <v-list id="#nav-level-one-list" ref="list" nav class="d-flex flex-column pa-0" height="100%">
+    <v-list id="#nav-level-one-list" nav class="d-flex flex-column pa-0" height="100%">
       <perfect-scrollbar>
         <template v-for="link, _index in links" :key="_index">
           <v-divider v-if="link === 'divider'" />
