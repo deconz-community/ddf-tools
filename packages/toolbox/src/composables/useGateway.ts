@@ -208,10 +208,14 @@ export const gatewayMachine = createMachine({
     }),
   },
   guards: {
-    isOk: (context, event) => event.data.isOk(),
+    isOk: (context, event) => event.data.isOk()
+      && event.data.unwrap().code === 'ok',
     // isErr: (context, event) => event.data.isErr(),
-    isInvalidAPIKey: (context, event) => event.data.isErr() && event.data.unwrapErr().type === 'invalid_api_key',
-    isUnreachable: (context, event) => event.data.isErr() && event.data.unwrapErr().type === 'unreachable',
+    // TODO, need to handle the bridge_id_mismatch error
+    isInvalidAPIKey: (context, event) => event.data.isOk()
+      && ['invalid_api_key', 'bridge_id_mismatch'].includes(event.data.unwrap().code),
+    isUnreachable: (context, event) => event.data.isErr()
+      && event.data.unwrapErr().code === 'unreachable',
   },
 })
 

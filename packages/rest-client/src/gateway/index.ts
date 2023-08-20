@@ -43,13 +43,19 @@ interface GatewayInfo {
   bridgeID: string
 }
 
-export type FindGatewayResult = Result<GatewayInfo,
-(
-  ({ type: 'bridge_id_mismatch' | 'invalid_api_key' } & GatewayInfo) |
-  ({ type: 'unreachable' | 'unknown' } & Partial<Pick<GatewayInfo, 'uri' | 'apiKey'>>)
-) & {
-  message?: string
-}>
+export type FindGatewayResult = Result<
+  (
+    { code: 'ok' } |
+    {
+      code: 'bridge_id_mismatch' | 'invalid_api_key'
+      message: string
+    }
+  ) & GatewayInfo,
+  {
+    code: 'unreachable' | 'unknown'
+    message?: string
+  } & Partial<Pick<GatewayInfo, 'uri' | 'apiKey'>>
+>
 
 export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''): Promise<FindGatewayResult> {
   return new Promise((resolve) => {
@@ -63,7 +69,7 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         if (!config.success)
           throw new Error('No response from the gateway')
 
-        const info = {
+        const info: GatewayInfo = {
           gateway,
           uri,
           apiKey,
@@ -71,9 +77,9 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         }
 
         if (expectedBridgeID.length > 0 && config.success.bridgeid !== expectedBridgeID) {
-          // TODO Mixed result, I found one but it's not the one I was looking for
+          // Return error now but will be returned later in Ok state
           return Err({
-            type: 'bridge_id_mismatch',
+            code: 'bridge_id_mismatch',
             message: 'Bridge ID mismatch',
             ...info,
             priority: 20,
@@ -81,9 +87,9 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         }
 
         if (!('whitelist' in config.success)) {
-          // TODO Mixed result, I found it but the key is invalid
+          // Return error now but will be returned later in Ok state
           return Err({
-            type: 'invalid_api_key',
+            code: 'invalid_api_key',
             message: 'Invalid API key',
             ...info,
             priority: 30,
@@ -91,15 +97,18 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         }
 
         resolved = true
-        resolve(Ok(info))
+        resolve(Ok({
+          code: 'ok',
+          ...info,
+        }))
         return undefined
       }
       catch (e) {
         return Err({
+          code: 'unreachable',
+          message: 'No response from the gateway',
           uri,
           apiKey,
-          type: 'unreachable',
-          message: 'No response from the gateway',
           priority: 10,
         } as const)
       }
@@ -109,7 +118,7 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
       if (resolved)
         return
 
-      const error = queriesResult
+      const result = queriesResult
         .map((result) => {
           if (result.status === 'fulfilled')
             return result.value
@@ -121,13 +130,32 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         })
         .shift()
 
-      if (error)
-        return resolve(error)
+      if (result === undefined) {
+        return resolve(Err({
+          code: 'unreachable',
+          message: 'No response from the gateway',
+        } as const))
+      }
 
-      return resolve(Err({
-        type: 'unreachable',
-        message: 'No response from the gateway',
-      } as const))
+      if (result.isErr()) {
+        const data = result.unwrapErr()
+        if (data.code === 'invalid_api_key' || data.code === 'bridge_id_mismatch') {
+          return resolve(Ok({
+            code: data.code,
+            message: data.message,
+            gateway: data.gateway,
+            uri: data.uri,
+            apiKey: data.apiKey,
+            bridgeID: data.bridgeID,
+          }))
+        }
+        return resolve(Err({
+          code: data.code,
+          message: data.message,
+          uri: data.uri,
+          apiKey: data.apiKey,
+        }))
+      }
     })
   })
 }
