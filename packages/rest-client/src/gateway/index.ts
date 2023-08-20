@@ -79,6 +79,7 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         resolve(Ok({
           gateway,
           uri,
+          apiKey,
           bridgeID: config.success.bridgeid,
         }))
         return undefined
