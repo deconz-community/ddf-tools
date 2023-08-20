@@ -3,7 +3,6 @@ import { assign, createMachine, interpret } from 'xstate'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
 import { Gateway } from '@deconz-community/rest-client'
-import { inspect } from '@xstate/inspect'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
 const defaultContext: {
@@ -277,7 +276,7 @@ export const gatewayMachine = createMachine({
 export function useGateway(credentials: Ref<GatewayCredentials>) {
   const id = computed(() => credentials.value?.id)
 
-  inspect({ iframe: false })
+  // inspect({ iframe: false })
 
   // Create machine with credentials
   const machine = interpret(gatewayMachine.withContext({

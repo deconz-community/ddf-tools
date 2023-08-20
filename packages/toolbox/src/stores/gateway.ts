@@ -5,11 +5,13 @@ import type { Raw } from 'vue'
 import { useGateway } from '~/composables/useGateway'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
+export type StoredGateway = Raw<ReturnType<typeof useGateway>>
+
 export const useGatewaysStore = defineStore('gateways', () => {
   const route = useRoute()
 
   const credentials = reactive<Record<string, GatewayCredentials>>({})
-  const gateways = shallowReactive<Record<string, Raw<ReturnType<typeof useGateway>>>>({})
+  const gateways = shallowReactive<Record<string, StoredGateway>>({})
 
   const addCredentials = (newCredentials: GatewayCredentials) => {
     credentials[uuidv4()] = newCredentials
@@ -43,7 +45,30 @@ export const useGatewaysStore = defineStore('gateways', () => {
       })
   })
 
-  return { credentials, gateways, addCredentials, removeCredentials }
+  const getGateway = (uuid: string, timeout = 1000) => new Promise<StoredGateway | undefined>((resolve) => {
+    const store = useGatewaysStore()
+
+    const findGateway = () => {
+      const gateway = store.gateways[uuid]
+      if (gateway) {
+        resolve(gateway)
+        return true
+      }
+      return false
+    }
+
+    if (findGateway())
+      return
+
+    const watcher = store.$subscribe(() => {
+      if (findGateway())
+        watcher()
+    })
+
+    setTimeout(() => resolve(undefined), timeout)
+  })
+
+  return { credentials, gateways, addCredentials, removeCredentials, getGateway }
 }, {
   // https://github.com/prazdevs/pinia-plugin-persistedstate
   // For later : https://github.com/prazdevs/pinia-plugin-persistedstate/issues/60#issuecomment-1120244473

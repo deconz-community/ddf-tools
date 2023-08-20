@@ -1,45 +1,27 @@
 <script setup lang="ts">
+import { useSelector } from '@xstate/vue'
+
 const props = defineProps<{
   gateway: string
 }>()
 
 const gateways = useGatewaysStore()
 
-const gateway = await new Promise<any>((resolve, reject) => {
-  const checkGateway = () => {
-    const gateway = gateways.gateways[props.gateway]
-    if (gateway) {
-      resolve(gateway)
-      return true
-    }
-    return false
-  }
+const gateway = await gateways.getGateway(props.gateway)
 
-  if (checkGateway()) {
-    console.log('Early return')
-    return
-  }
+if (!gateway)
+  throw new Error('no gateway')
 
-  const watcher = gateways.$subscribe(() => {
-    if (checkGateway()) {
-      watcher()
-      console.log('Cleaning up watcher')
-    }
-  })
+const { state, machine } = gateway
 
-  setTimeout(() => {
-    reject(new Error('Timeout'))
-  }, 1000)
-})
-
-console.log(gateway)
+const canFixIssue = useSelector(machine, state => state.can('Fix issue'))
 
 /*
 const gateway = gateways.gateways[props.gateway]
 
 console.log(gateway)
 
-const state = computed(() => gateway.state.value)
+const state = computed(() => state.value)
 
 function send(event: string) {
   console.log('sending event', event)
@@ -53,14 +35,15 @@ function send(event: string) {
     <template #title>
       Gateway Page
     </template>
-    <!--
-    <template v-if="gateway" #text>
+    <template #text>
+      <json-viewer :value="state.toStrings().pop()" />
       <json-viewer :value="state.context" />
 
-      <v-btn @click="send('Fix issue')">
+      <v-btn :disabled="!state.can('Fix issue')" @click="machine.send('Fix issue')">
         Fix issue
       </v-btn>
 
+      <!--
       <json-viewer :value="state.context" />
 
       <v-btn v-if="state.can('Fix issue')" @click="gateway.machine.send('Fix issue')">
@@ -68,8 +51,7 @@ function send(event: string) {
       </v-btn>
 
       <p>Is offline : {{ state.matches("offline") }}</p>
-
+      -->
     </template>
-    -->
   </v-card>
 </template>
