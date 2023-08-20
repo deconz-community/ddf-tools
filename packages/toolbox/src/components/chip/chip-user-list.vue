@@ -28,7 +28,7 @@ const users = computed(() => {
       :key="user.id"
     >
       <v-list-item-title>
-        <user-chip
+        <chip-user
           :user="user"
         />
       </v-list-item-title>

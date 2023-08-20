@@ -1,3 +1,7 @@
+<script setup lang="ts">
+
+</script>
+
 <template>
   <v-app-bar
     color="teal-darken-4"
@@ -7,9 +11,6 @@
       <v-img
         gradient="to top right, rgba(19,84,122,.8), rgba(128,208,199,.8)"
       />
-    </template>
-    <template #prepend>
-      <v-app-bar-nav-icon icon="mdi-home" to="/" />
     </template>
 
     <v-app-bar-title>DDF Store</v-app-bar-title>

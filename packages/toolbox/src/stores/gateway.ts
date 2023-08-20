@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 import { objectEntries } from 'ts-extras'
 import { v4 as uuidv4 } from 'uuid'
+import type { Raw } from 'vue'
 import { useGateway } from '~/composables/useGateway'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
 export const useGatewaysStore = defineStore('gateways', () => {
   const route = useRoute()
 
-  const credentials = shallowReactive<Record<string, GatewayCredentials>>({})
-  const gateways = shallowReactive<Record<string, ReturnType<typeof useGateway>>>({})
+  const credentials = reactive<Record<string, GatewayCredentials>>({})
+  const gateways = reactive<Record<string, Raw<ReturnType<typeof useGateway>>>>({})
 
   const addCredentials = (newCredentials: GatewayCredentials) => {
     credentials[uuidv4()] = newCredentials
@@ -30,7 +31,7 @@ export const useGatewaysStore = defineStore('gateways', () => {
       .filter(uuid => !gatewayList.includes(uuid))
       .forEach((uuid) => {
         const credentialsRef = toRef(credentials, uuid)
-        gateways[uuid] = useGateway(credentialsRef)
+        gateways[uuid] = markRaw(useGateway(credentialsRef))
       })
 
     gatewayList

@@ -4,6 +4,10 @@ import { usePocketBase } from '~/composables/usePocketbase'
 
 const { client } = usePocketBase()
 
+const App = useAppStore()
+
+App.navigationTitle = 'Home'
+
 const bundleList = computedAsync(
   async () => {
     return (await client.collection('bundle').getFullList({ expand: 'contributors' }))
@@ -72,3 +76,11 @@ const bundleList = computedAsync(
     </template>
   </v-card>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "breadcrumbs": "none"
+  }
+}
+</route>

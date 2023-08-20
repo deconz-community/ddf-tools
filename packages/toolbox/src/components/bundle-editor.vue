@@ -77,7 +77,7 @@ const signatures = computedAsync(async () => {
     <template #title>
       {{ bundle.data.desc.product }}
       <template v-for="signature in signatures" :key="signature.signature">
-        <user-chip :user="signature.user" class="ma-2" />
+        <chip-user :user="signature.user" class="ma-2" />
       </template>
     </template>
 

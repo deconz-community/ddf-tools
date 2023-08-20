@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const gatewayStore = useGatewaysStore()
 
-console.log(import.meta.env.VITE_GATEWAY_CREDENTIALS)
-
 const creds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
 
 const gateway = computed(() => {

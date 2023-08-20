@@ -78,7 +78,7 @@ const downloadURL = computed(() => {
           text-color="white"
           text="Pre-release"
         />
-        <user-chip
+        <chip-user
           v-for="user of bundle.expand.contributors"
           :key="user.id"
           :user="user"

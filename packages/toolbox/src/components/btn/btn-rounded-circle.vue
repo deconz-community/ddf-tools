@@ -1,16 +1,13 @@
 <script setup lang="ts">
-
-</script>
-
-<script>
-export default {
+defineOptions({
   inheritAttrs: false,
-}
+})
 </script>
 
 <template>
   <v-hover v-slot="{ isHovering, props }">
     <v-btn
+      height="48"
       block
       variant="outlined"
       :rounded="isHovering ? 'rounded-xl' : 'circle'"
@@ -26,5 +23,6 @@ export default {
     transition: all 0.1s ease-in-out;
     /* https://github.com/vuetifyjs/vuetify/issues/15626 */
     will-change: transform;
+    aspect-ratio: 1;
   }
 </style>

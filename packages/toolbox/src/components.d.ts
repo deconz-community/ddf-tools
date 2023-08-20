@@ -8,16 +8,25 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppBar: typeof import('./components/app-bar.vue')['default']
-    BtnRoundedCircle: typeof import('./components/btn-rounded-circle.vue')['default']
+    BtnRoundedCircle: typeof import('./components/btn/btn-rounded-circle.vue')['default']
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']
     BundleSignaturesEditor: typeof import('./components/bundle-signatures-editor.vue')['default']
+    ChipUser: typeof import('./components/chip/chip-user.vue')['default']
+    ChipUserList: typeof import('./components/chip/chip-user-list.vue')['default']
+    GatewayBadge: typeof import('./components/gateway-badge.vue')['default']
     ListBundles: typeof import('./components/list-bundles.vue')['default']
     LoginButton: typeof import('./components/login-button.vue')['default']
+    NavSidebarLevelOne: typeof import('./components/nagivation/nav-sidebar-level-one.vue')['default']
+    NavSidebarLevelTwo: typeof import('./components/nagivation/nav-sidebar-level-two.vue')['default']
+    NavSidebarLevelTwoGateway: typeof import('./components/nagivation/nav-sidebar-level-two-gateway.vue')['default']
+    NavTopbarDetails: typeof import('./components/nagivation/nav-topbar-details.vue')['default']
+    NavTopbarGlobal: typeof import('./components/nagivation/nav-topbar-global.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SpotGatewayState: typeof import('./components/spot/spot-gateway-state.vue')['default']
     TableCollection: typeof import('./components/table-collection.vue')['default']
-    UserChip: typeof import('./components/user-chip.vue')['default']
-    UserChipList: typeof import('./components/user-chip-list.vue')['default']
+    UserChip: typeof import('./components/chip/user-chip.vue')['default']
+    UserChipList: typeof import('./components/chip/user-chip-list.vue')['default']
   }
 }
