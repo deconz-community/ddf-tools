@@ -14,7 +14,7 @@ if (!gateway)
 
 const { state, machine } = gateway
 
-const canFixIssue = useSelector(machine, state => state.can('Fix issue'))
+const canFixIssue = useSelector(machine, state => state.can('Edit credentials'))
 
 /*
 const gateway = gateways.gateways[props.gateway]
@@ -28,9 +28,31 @@ function send(event: string) {
   gateway.machine.send(event)
 }
 */
+const drawer = ref(false)
+onMounted(() => setTimeout(() => drawer.value = true, 0))
 </script>
 
 <template>
+  <portal to="before-content">
+    <v-navigation-drawer v-model="drawer" width="240" permanent>
+      <v-toolbar height="48" :title="state.context.credentials.name" />
+      <v-list lines="one">
+        <template v-for="device, index in state.context.devices" :key="index">
+          <list-item-device :device="device" />
+        </template>
+
+        <!--
+        <v-list-item
+          v-for="item in state.context.devices"
+          :key="item.title"
+          :title="item.title"
+          subtitle="..."
+        />
+        -->
+      </v-list>
+    </v-navigation-drawer>
+  </portal>
+
   <v-card class="ma-2">
     <template #title>
       Gateway Page
@@ -62,7 +84,7 @@ function send(event: string) {
 <route lang="json">
 {
   "meta": {
-    "hideLevelTwoSidebar": true
+    "hideLevelTwoSidebar": false
   }
 }
 </route>

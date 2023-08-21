@@ -1,3 +1,4 @@
+import type { ApiOf, ZodiosBodyByAlias, ZodiosHeaderParamsByAlias, ZodiosQueryParamsByAlias, ZodiosResponseByAlias } from '@zodios/core'
 import { Zodios } from '@zodios/core'
 
 import type { Result } from 'ts-results-es'
@@ -35,6 +36,13 @@ export function Gateway(address: string, apiKey: string) {
 
   return client
 }
+
+export type Api = ApiOf<ReturnType<typeof Gateway>>
+
+export type BodyParams<Alias extends string> = ZodiosBodyByAlias<Api, Alias>
+export type QueryParams<Alias extends string> = ZodiosQueryParamsByAlias<Api, Alias>
+export type HeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<Api, Alias>
+export type Response<Alias extends string> = ZodiosResponseByAlias<Api, Alias>
 
 interface GatewayInfo {
   gateway: ReturnType<typeof Gateway>

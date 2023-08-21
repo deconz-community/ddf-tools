@@ -1,26 +1,80 @@
 import type { Ref } from 'vue'
-import { assign, createMachine, interpret } from 'xstate'
+import type { ActorRefFrom } from 'xstate'
+import { assign, createMachine, interpret, spawn } from 'xstate'
 import type { Result } from 'ts-results-es'
 import { Ok } from 'ts-results-es'
 import { FindGateway } from '@deconz-community/rest-client'
-import type { FindGatewayResult, Gateway } from '@deconz-community/rest-client'
-import { inspect } from '@xstate/inspect'
+import type { FindGatewayResult, Gateway, Response } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from '~/interfaces/deconz'
 
+export interface deviceContext {
+  id: string
+  gateway: ReturnType<typeof Gateway>
+  data: Response<'getDevice'>['success']
+}
+
 export const deviceMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QTANwJYGMwDp0QBswBiAD1gBcBDC3KgM1oCcAKAZgAYuuBKYlDNjyEwAbQ4BdRKAAOAe1joK6OQDtpIUogBMARl05dAVgBs2owBoQAT0S6uAXwdWBWXPTAVMAC3Sqo-Gq4fqhyANa4rkIeXr7+CCFymDQqquIS6RryispqGloIALScOEYA7AAcuuZWtgh6ACw4ZWVsDWxlRk4uaG44MT5+AWBMTHJMODIENPTjALY4Ue6eg-GJyblpkplIINlKqfmIbBUmOACcHZY2Oh2lTs4gqnIo8LtLWQoHebsFhZWlSrVa51fTdEBLYRET45Q6-RD-HAmXRlXQVTq1RDnCr3R6QgZxKAw77qeEIFFNIxsYGY+rVXE9QS4EZjJjEzZHBBGCpNE7aKo1G71NgmB4OIA */
   id: 'device',
+
   predictableActionArguments: true,
   tsTypes: {} as import('./useGateway.typegen').Typegen0,
-  schema: {
 
+  schema: {
+    context: {} as deviceContext,
+    services: {} as {
+      fetchData: {
+        data: Response<'getDevice'>
+      }
+    },
+  },
+
+  states: {
+    idle: {
+      after: {
+        300000: 'fetching',
+      },
+    },
+
+    fetching: {
+      invoke: {
+        src: 'fetchData',
+
+        onDone: {
+          target: 'idle',
+          actions: 'saveData',
+        },
+
+        onError: 'error',
+      },
+    },
+
+    error: {},
+  },
+
+  initial: 'fetching',
+}, {
+  services: {
+    fetchData: context => context.gateway.getDevice({
+      params: {
+        deviceUniqueID: context.id,
+      },
+    }),
+  },
+  actions: {
+    saveData: assign({
+      data: (context, event) => event.data.success,
+    }),
   },
 })
 
-const defaultGatewayContext: {
+export interface gatewayContext {
   credentials: GatewayCredentials
   gateway?: ReturnType<typeof Gateway>
-  devices_list: string[]
-} = {
+  devices: Record<string, ActorRefFrom<typeof deviceMachine>>
+}
+
+const defaultGatewayContext: gatewayContext = {
   credentials: {
     apiKey: '<nouser>',
     id: '<unknown>',
@@ -31,16 +85,16 @@ const defaultGatewayContext: {
     },
   },
   gateway: undefined,
-  devices_list: [],
+  devices: {},
 }
 
 export const gatewayMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbHwAUQhRKloIBmY2Tl5JIRExCSRpRCM9Vz1lPXUjVy87I0UDS2sEdXlXZX0NPQ0teVtddQCgslDlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXF7+tG4+DJTRJnFJGQRZbJVXVVsdWz0feR0zAsrEVVUVIyLFD6-i206QFZ6lHE9DAlGY9CgeAg4jA6wAboIANawgFrIH0EFgvpQBB9BGUdD7ehbLbJYR7A4ZI6yOZ1IpGFyKO6OJmKJ4IeSqLhqRTqJpOc7nGryP6onDKdGY8GQ6Eg+FIlHdNHA0HS3H0fGE8QkozbATktKHOSmeT5Jw3QzeUxXWzslzqZTyQwlYyuIy2d6ipXiyWq7FQmHy5HKMUSlVYiHqzVpEmqPUgXaGqnG7KOnKfYpW3yOdk6C7KPm1HQ6dSmHJ6X6Bf7esMYv0QgNyvEKkM130RnHNgkx3gceTxxNEo3HIo6fJXTxmLM29l6EzKcpFktl3KVrohNbiVh9WFMCCsMB4ABKYHGtFgAAtyLE4UxKHBSTsDUPkyOuKo8h5fK45oouE7snZV57Dzd5bBcPR2i4PQvQ3cUtx3Xp90PIYRgwMZJjAGYjHmXD5iWUMEKbZDH31VIX1AakcPfep2TuMdQPdCCoJgqtCPobc5QABUEQROKga8wFve9YEbXcNRbdjONhHi+OxQThLgKNBG7IkSSSJ9yMpSi5Bw15HU8GpLlzf96lMJi+RY2DVng8ZxmkvAAGFw02DSyIpdIdI5eRTQ8Vp3HuS5bDdOibmULhXHAuZrlyUc12rODlEEOzpOULDqEEahlAAV3oWgUEoC8UAAIwPPAIiiGg6EYFh2FIhNn20zIEDsblilUH9skij85ztUsDK0XI3VcJR1HiwiUsQ9LMvhNg93IABBLiAElyGRcJIjQaJqviOq3IarTPOa1rlHazqclsHqjFzVQx00LRHAMYwTWsnpkvsqbqAyrLcsRehBEwehys27bYhqhJ6sHJqjhOs77guq7ZxwhdtEUV5TE+d9Xs3Sa5UgPYG1lWFhlGCaPrxzbsUhxqjphn9Ts+NpWi4HQfK8ICrgXZ1i1LLqKxFNia3e1L8elZQltW9a8AAOTAKRXIHGnhwZNw1D0fRi0Cq4QqsRArlNVodGx2zydhUXsXFla1rAfAuNoW9BGyxJFcO5WyjqIKvHkHxPeu3XqkitRwJaVxyjcFxjaS3GzcpiFxYgCBz1E2X5ep13XxVuoPw14t3W1v2qjcewLnu2ow68Do-n+2J4AyMUyXTryTlu01DA6kwdHZZGLmcDunF8fmBfXGz1lEBuPOHE5bG5OY8Ln+Y9C7rl6kj9tpXHpMm98Iw1YrC47BeQL1DoopwvMn9p5Gx7I6IsAN4o5rm5Z-JOTdW6u8MM+cN5WoOsi8ahYcUQnuA899oa6WzC-du79-Z3AdO+MCzESzQRvkA7ivF+IKTvHAMBtM5A-jHG3N+ndYEli-hZSCyDWLDzetHXBw4DDclusFGoPt84fzqLPFmmhnQGEuDfaOyhIiwBKgeCA9DXwegdMwr2bDgoF2eP4QWiVhafW+hIryl81Da1YXneRdEyGhy0DoK+JglBKJoTjU2aUvozVyvlQqoi76aQnpIz+0VZF6J1oXfqShtBlwKBXAR1jppZTxHNCAi0rbrQ0c1S4eQZG6N9jdBiwSRa2J+vQP6AMjpQzwQgRwY4Op-iZHI7xiA5xGDSVNWOUBYlHHeHMBwOjvZeIURyVmQdNAmNaGY3Q1CEoj1URTAmUBLaSxtvUrInId6eySew-2eYxyRSNsooZgjzZxwWgnJOUyEBmFMM0lhrTkn+xcNyRwpdQ6BIjms2hITanKAACIwj2WYUycyTkLKqHObkHcAgBCAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbHwAUQhRKloIBmY2Tl5JIRExCSRpRCM9Vz1lPXUjVy87I0UDS2sEdXlXZX0NPQ0teVtddQCgslDlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXF7+tG4+DJTRJnFJGQRZbJVXVVsdWz0feR0zAsrEVVUVIyLFD6-i206QFZ6lHE9DAlGY9CgeAg4jA6wAboIANawgFrIH0EFgvpQBB9BGUdD7ehbLbJYR7A4ZI6yOZ1IpGFyKO6OJmKJ4IeSqLhqRTqJpOc7nGryP6onDKdGY8GQ6Eg+FIlHdNHA0HS3H0fGE8QkozbATktKHOSmeT5Jw3QzeUxXWzslzqZTyQwlYyuIy2d6ipXiyWq7FQmHy5HKMUSlVYiHqzVpEmqPUgXaGqnG7KOnKfYpW3yOdk6C7KPm1HQ6dSmHJ6X6Bf7esMYv0QgNyvEKkM130RnHNgkx3gceTxxNEo3HIo6fJXTxmLM29l6EzKcpFktl3KVrohNbiVh9WFMCCsMB4ABKYHGtFgAAtyLE4UxKHBSTsDUPkyOuC9lO4dJ93i4rl52XkeZ6lMd0XD0douD0L0N3FLcd16fdDyGEYMDGSYwBmIx5hw+YllDeCmyQx99VSF9QGpbD33qQC50dbMIKgwo7ndGDVjg+htzlAAFQRBC4qBrzAW971gRtdw1FtxjANBKAvAARYS7wfJInzIykKLkbDXDHJQvFaHQ7S0ED3lscDIOgqsCPGcYuMPABhcNNlU0iKXSTSOXkU0PFaL93X-IxaO5LhXDMuZrlyUc12rWDlEEGy7OUTDqEEahlAAV3oWgUDklAACMDzwCIohoOhGBYdgSITZ8NMyBA7G5YpVB07JQtUAxAqsRAXFUR1tFyN1XCUdRous2yEOS1L4TYPdyAAQW4gBJchkXCSI0GiMr4kqlzqvU9y6oaz9BXuHJbHaudc1UMdNC0RwDGME02J6eLxrlSa0syxF6EETB6CK9bNticqEiqwdaqOI6mpas6Ls6qo525bQtFeUxPnfZ7NwSib1v9WVYWGUYxsSyA9ghMGaoOyGdM-T42laLgdC8gCuoQa77EXHTl1aisRSsmtXpJ3GIWUBbltWvAADkwCkZyB0p4cGTcNQ9H0Yt7kuWw3VzJxHUuTG4Ox97hagUWlpWsB8G42hb0EdLEnl-bFbKOpNf0nw3fh7rQrUMyWlcco3BcA24qN2FSelUWIAgc8xOl2WKad18lbqdq1eLfyta96ofYuW7akDrwOj+H7YngDIxTJJOPJOa6HUMZqTEM1nsN95w3A8LwfGLRQQ76UQq7c4cTlsbk5lwif5j0dkTDHkP22lQekxr3wjBVisLjsF4NfUQCimUd93h00ehvukPCLAJfyLq2uoPyTk3WumeDAP0CdEzICIKG8-OIQvcDyvhDLSvg6gN0fs3KoQEx5vw-lBTwP9Eq8X4tiISIk4CAKpnIc49gwFNz3nULQqsXBOhGtkUaAsw4YOHAYbk7N3aZ21i3HI9Rz5h2UJEWA+UDwQCoa+D0Do6E1A9gFdk11LLrnYqHN64dqApWoLwjyJ81D-iEQw7OdwHQB0IV5LWigoLXVYdIpKsipqZWyrlAql81JDz4YYeoXAtaqM9naUsfVtAFwKEXQxJMTFpTxDNCA81zarQUXVS4eRBFATUVdMcOhvETV8Rleg31foHXBpghAjgxzNT0UyYRWdZyen5rFQWOMyZQFCUcd4cwHAqKic41mdxTR50XL5PRTQ4nFMkaU425Szbi0tpUrInI15uycSI1meYxyhU6RIl6bCI7YijjHOA5dXLLzqmYUwtTHH1ImVUFw3JHD5wDp44OXT5lGMWSLeSMIhkIDMFwU0Yy9kFNZojZQTcAgBCAA */
   id: 'gateway',
   predictableActionArguments: true,
   tsTypes: {} as import('./useGateway.typegen').Typegen1,
   schema: {
-    context: {} as typeof defaultGatewayContext,
+    context: {} as gatewayContext,
     events: {} as | {
       type: 'Edit credentials' | 'Done' | 'Next' | 'Previous' | 'Connect' | 'Refresh devices'
     } | {
@@ -99,16 +153,19 @@ export const gatewayMachine = createMachine({
         'Pooling devices': {
           invoke: {
             src: 'fetchDevices',
+
             onDone: {
               target: 'idle',
-              actions: 'updateDeviceList',
+              actions: 'updateDevices',
             },
+
+            id: 'fetchDevices',
           },
         },
       },
 
       initial: 'idle',
-      exit: 'cleanUpDevices',
+      exit: 'updateDevices',
     },
 
     offline: {
@@ -200,11 +257,36 @@ export const gatewayMachine = createMachine({
     updateCredentials: assign({
       credentials: (context, event) => event.data ?? structuredClone(defaultGatewayContext.credentials),
     }),
-    updateDeviceList: assign({
-      devices_list: (context, event) => event.data.unwrap(),
-    }),
-    cleanUpDevices: assign({
-      devices_list: [],
+
+    updateDevices: assign({
+      devices: (context, event) => {
+        const devices = context.devices
+
+        const newList = event.type === 'done.invoke.fetchDevices' ? event.data.unwrap() : []
+        const oldList = objectKeys(devices)
+
+        if (newList.length > 0 && !context.gateway)
+          throw new Error('No gateway client')
+
+        newList
+          .filter(uuid => !oldList.includes(uuid))
+          .forEach((uuid) => {
+            devices[uuid] = spawn(deviceMachine.withContext({
+              id: uuid,
+              gateway: context.gateway!,
+              data: undefined,
+            }), uuid)
+          })
+
+        oldList
+          .filter(uuid => !newList.includes(uuid))
+          .forEach((uuid) => {
+            devices[uuid].stop?.()
+            delete devices[uuid]
+          })
+
+        return devices
+      },
     }),
   },
   guards: {
@@ -222,14 +304,14 @@ export const gatewayMachine = createMachine({
 export function useGateway(credentials: Ref<GatewayCredentials>) {
   const id = computed(() => credentials.value?.id)
 
-  inspect({ iframe: false })
+  // inspect({ iframe: false })
 
   // Create machine with credentials
   const machine = interpret(gatewayMachine.withContext({
     ...gatewayMachine.context,
     credentials: credentials.value,
   }), {
-    id: `${gatewayMachine.id}-${id.value}`,
+    id: id.value,
     devTools: true,
   })
 

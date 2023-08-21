@@ -80,7 +80,8 @@ const bundleList = computedAsync(
 <route lang="json">
 {
   "meta": {
-    "breadcrumbs": "none"
+    "breadcrumbs": "none",
+    "hideLevelTwoSidebar": true
   }
 }
 </route>

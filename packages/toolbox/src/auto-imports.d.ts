@@ -35,6 +35,7 @@ declare global {
   const customRef: typeof import('vue')['customRef']
   const debouncedRef: typeof import('@vueuse/core')['debouncedRef']
   const debouncedWatch: typeof import('@vueuse/core')['debouncedWatch']
+  const defaultDeviceContext: typeof import('./composables/useGateway')['defaultDeviceContext']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const deviceMachine: typeof import('./composables/useGateway')['deviceMachine']

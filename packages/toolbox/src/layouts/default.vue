@@ -1,11 +1,10 @@
 <template>
   <v-layout>
-    <v-system-bar color="grey-darken-3" />
-
     <nav-topbar-global />
     <nav-sidebar-level-one />
-    <nav-sidebar-level-two />
     <nav-topbar-details />
+
+    <portal-target name="before-content" />
     <!--
     <perfect-scrollbar>
       -->

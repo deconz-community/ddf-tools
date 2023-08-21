@@ -84,3 +84,11 @@ const nextEvents = computed(() => {
     </template>
   </v-card>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
+}
+</route>

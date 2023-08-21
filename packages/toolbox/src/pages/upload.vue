@@ -70,3 +70,11 @@ const upload = async () => {
     <bundle-editor v-model="bundles[index]" />
   </template>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
+}
+</route>

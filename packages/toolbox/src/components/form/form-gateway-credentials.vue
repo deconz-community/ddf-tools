@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { BodyParams } from '@deconz-community/rest-client'
 import { FindGateway } from '@deconz-community/rest-client'
 import { useSelector } from '@xstate/vue'
+import hmacSHA256 from 'crypto-js/hmac-sha256'
 import type { GatewayMachine } from '~/stores/gateway'
 
 const props = defineProps<{
@@ -10,58 +12,52 @@ const props = defineProps<{
 const { state, credentials, machine } = props.gateway
 const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE)
 
-const cantConnect = useSelector(machine, state => !state.can('Connect'))
+const canConnect = useSelector(machine, state => state.can('Connect'))
 const cantPrevious = useSelector(machine, state => !state.can('Previous'))
 const cantNext = useSelector(machine, state => !state.can('Next'))
 
-async function fetchKeyWithInstallCode() {
-  const finding = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
+async function fetchKey() {
+  const result = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
 
-  if (finding.isErr())
-    return console.error(finding.error)
+  if (result.isErr()) {
+    console.error(result.error)
+    return result
+  }
 
-  const gateway = finding.unwrap().gateway
+  const gateway = result.unwrap().gateway
 
-  const challenge = await gateway.createChallenge()
+  const params: BodyParams<'createAPIKey'> = {
+    devicetype: '@deconz-community/toolbox',
+  }
 
-  console.log(challenge)
+  if (installCode.value.length > 0) {
+    const challenge = await gateway.createChallenge()
+
+    if (!challenge.success) {
+      console.error(challenge.errors)
+      return challenge
+    }
+
+    params['hmac-sha256'] = hmacSHA256(challenge.success, installCode.value.toLowerCase()).toString()
+  }
+
+  const apiKey = await gateway.createAPIKey(params)
+
+  if (!apiKey.success) {
+    console.error(apiKey.errors)
+    return apiKey
+  }
+  credentials.value.apiKey = apiKey.success
 }
-
-/*
-function errorMessages(errors: ErrorObject[]) {
-  return errors.map(error => unref(error.$message))
-}
-
-const error = ref('')
-
-const rules = {
-  apiKey: {
-    required,
-  },
-}
-
-const state = reactive<{
-  apiKey: string
-  URIs: Record<string, string[]>
-}>({
-  apiKey: '',
-  URIs: {},
-})
-
-const v = useVuelidate(rules, state)
-*/
 </script>
 
 <template>
   <v-card>
     <template #title>
       <span>{{ credentials.name }}</span>
-      <json-viewer :value="credentials" />
+      <v-spacer />
       <v-btn @click="machine.send('Edit credentials')">
         Edit Credentials
-      </v-btn>
-      <v-btn :disabled="cantConnect" @click="machine.send('Connect')">
-        Connect
       </v-btn>
     </template>
 
@@ -69,6 +65,7 @@ const v = useVuelidate(rules, state)
       <v-alert type="success" title="Info">
         You are connected to the gateway.
       </v-alert>
+      <json-viewer :value="Object.keys(state.context.devices)" />
     </template>
 
     <template v-if="state.matches('connecting')">
@@ -95,7 +92,7 @@ const v = useVuelidate(rules, state)
       <template v-else-if="state.matches('offline.disabled')">
         <v-alert type="info" title="Info">
           The gateway is disabled.
-          <v-btn :disabled="cantConnect" @click="machine.send('Connect')">
+          <v-btn v-if="canConnect" @click="machine.send('Connect')">
             Connect
           </v-btn>
         </v-alert>
@@ -121,22 +118,22 @@ const v = useVuelidate(rules, state)
           <template v-else-if="state.matches('offline.editing.API key')">
             <v-text-field v-model="credentials.apiKey" label="API Key" />
             <v-text-field v-model="installCode" label="Install code" />
-            <v-btn @click="fetchKeyWithInstallCode()">
+            <v-btn @click="fetchKey()">
               Fetch API key
             </v-btn>
           </template>
+
+          <v-card-actions>
+            <v-btn :disabled="cantPrevious" @click="machine.send('Previous')">
+              Previous
+            </v-btn>
+            <v-btn :disabled="cantNext" @click="machine.send('Next')">
+              Next
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </template>
     </template>
-
-    <v-card-actions>
-      <v-btn :disabled="cantPrevious" @click="machine.send('Previous')">
-        Previous
-      </v-btn>
-      <v-btn :disabled="cantNext" @click="machine.send('Next')">
-        Next
-      </v-btn>
-    </v-card-actions>
 
     <!--
     <template v-if="props.credentials" #subtitle>

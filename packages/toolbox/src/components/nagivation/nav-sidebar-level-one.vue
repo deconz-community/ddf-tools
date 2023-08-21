@@ -36,11 +36,9 @@ const links = computed(() => {
           <v-list-item v-else class="ma-1 justify-center">
             <btn-rounded-circle :to="link.to">
               <v-icon :icon="link.icon" size="x-large" />
-              <!-- See https://github.com/vuetifyjs/vuetify/issues/18097
               <v-tooltip location="right" activator="parent">
                 {{ link.title }}
               </v-tooltip>
-              -->
             </btn-rounded-circle>
           </v-list-item>
         </template>

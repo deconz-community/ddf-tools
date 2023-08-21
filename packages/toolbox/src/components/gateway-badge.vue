@@ -24,11 +24,9 @@ const active = computed(() => props.credentials.id === 'WIP')
       :active="active"
     >
       {{ props.credentials.name.substring(0, 1) }}
-      <!-- See https://github.com/vuetifyjs/vuetify/issues/18097
       <v-tooltip location="right" activator="parent">
         {{ props.credentials.name }}
       </v-tooltip>
-      -->
     </btn-rounded-circle>
   </v-list-item>
 </template>

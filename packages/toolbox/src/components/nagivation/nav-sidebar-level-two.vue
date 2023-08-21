@@ -10,6 +10,11 @@ const App = useAppStore()
   <div>
     <v-navigation-drawer v-model="drawer" width="240" permanent>
       <v-toolbar height="48" :title="App.navigationTitle" />
+
+      <portal-target name="sidebar-level-two">
+        Portal taget
+      </portal-target>
+
       <div v-if="App.isGatewayRoute">
         <spot-gateway-state />
       </div>
