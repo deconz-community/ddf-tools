@@ -491,6 +491,9 @@ importers:
       '@vueuse/integrations':
         specifier: ^10.3.0
         version: 10.3.0(universal-cookie@6.0.1)(vue@3.3.4)
+      '@xstate/immer':
+        specifier: ^0.3.3
+        version: 0.3.3(immer@10.0.2)(xstate@4.38.2)
       '@xstate/vue':
         specifier: ^2.0.0
         version: 2.0.0(vue@3.3.4)(xstate@4.38.2)
@@ -503,6 +506,9 @@ importers:
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
+      immer:
+        specifier: ^10.0.2
+        version: 10.0.2
       pinia:
         specifier: ^2.1.6
         version: 2.1.6(typescript@5.1.6)(vue@3.3.4)
@@ -5246,6 +5252,16 @@ packages:
       - supports-color
     dev: true
 
+  /@xstate/immer@0.3.3(immer@10.0.2)(xstate@4.38.2):
+    resolution: {integrity: sha512-6AcNYkWdQrU+BKRg0MVjC2HBRZrZWADHJXcUL9uXem4BFpw9qy9NlbLPWkvnDayvmUq2sbYrzWTfxBMaiOhe5A==}
+    peerDependencies:
+      immer: ^9.0.6 || ^10
+      xstate: ^4.37.2
+    dependencies:
+      immer: 10.0.2
+      xstate: 4.38.2
+    dev: false
+
   /@xstate/inspect@0.8.0(ws@8.13.0)(xstate@4.38.2):
     resolution: {integrity: sha512-wSkFeOnp+7dhn+zTThO0M4D2FEqZN9lGIWowJu5JLa2ojjtlzRwK8SkjcHZ4rLX8VnMev7kGjgQLrGs8kxy+hw==}
     peerDependencies:
@@ -8259,6 +8275,10 @@ packages:
     resolution: {integrity: sha512-MAb38BcSbH0eHNBxn7ql2NH/kX33OkB3lZ1BNdh7ENeRChHTYsTvWrMubiIAMNS2llXEEgZ1MUOBtXChP3kaFQ==}
     engines: {node: '>= 4'}
     dev: true
+
+  /immer@10.0.2:
+    resolution: {integrity: sha512-Rx3CqeqQ19sxUtYV9CU911Vhy8/721wRFnJv3REVGWUmoAcIwzifTsdmJte/MV+0/XpM35LZdQMBGkRIoLPwQA==}
+    dev: false
 
   /immutable@4.3.1:
     resolution: {integrity: sha512-lj9cnmB/kVS0QHsJnYKD1uo3o39nrbKxszjnqS9Fr6NB7bZzW45U6WSGBPKXDL/CvDKqDNPA4r3DoDQ8GTxo2A==}
