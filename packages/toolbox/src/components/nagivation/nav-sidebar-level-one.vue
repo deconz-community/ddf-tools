@@ -15,6 +15,7 @@ const links = computed(() => {
     list.push('divider')
   }
   list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
+  list.push({ icon: 'mdi-magnify', title: 'Discovery', to: '/discovery' })
 
   return list
 })
