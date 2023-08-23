@@ -58,7 +58,7 @@ export const appMachine = createMachine({
 
   entry: [
     'init',
-    // 'loadSettings',
+    'loadSettings',
     'syncGatewayMachines',
   ],
 

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // const discovery = useActor(computed(() => app.service.children.get('discovery')!))
-
+const sampleCreds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
 const appActor = useAppMachine('app')
 
 const discovery = useAppMachine('discovery')
-const gateway = useAppMachine('gateway', { id: '***REMOVED***' })
+
+const gateway = useAppMachine('gateway', { id: sampleCreds.id })
 
 // const discovery = useActor(app.children.get('discovery')!)
-// const gateway = useActor(app.children.get('***REMOVED***')!)
 
 /*
 const discovery = useSelector(app.service, (state) => {
@@ -32,7 +32,7 @@ function test() {
 function addGateway() {
   appActor.send({
     type: 'ADD_GATEWAY_CREDENTIALS',
-    credentials: JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS),
+    credentials: sampleCreds,
   })
 }
 
@@ -60,7 +60,7 @@ function scan() {
 
   {{ appActor.state.value?.context.credentials }}
 
-  <json-viewer :value="gateway.state.value?.value ?? 'No Value'" :expand-depth="5" />
+  <json-viewer v-if="gateway.state.value" :value="gateway.state.value.value" :expand-depth="5" />
 </template>
 
 <route lang="json">

@@ -9,12 +9,7 @@
     <perfect-scrollbar>
       -->
     <v-main>
-      <suspense>
-        <router-view />
-        <template #fallback>
-          Loading page ...
-        </template>
-      </suspense>
+      <router-view />
     </v-main>
     <!--
     </perfect-scrollbar>
