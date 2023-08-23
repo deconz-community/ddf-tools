@@ -14,12 +14,8 @@ export interface MachineData<Type extends AnyStateMachine> {
 }
 
 export interface MachinesTypes {
-  app: MachineData<typeof appMachine> & {
-    params: undefined
-  }
-  discovery: MachineData<typeof discoveryMachine> & {
-    params: undefined
-  }
+  app: MachineData<typeof appMachine>
+  discovery: MachineData<typeof discoveryMachine>
   /*
   'discovery-worker': {
     interpreter: InterpreterFrom<typeof discoveryMachineWorker>
@@ -33,19 +29,35 @@ export interface MachinesTypes {
       id: string
     }
   }
+}
 
+export type MachinesWithParams = {
+  [K in keyof MachinesTypes]: 'params' extends keyof MachinesTypes[K] ? K : never;
+}[keyof MachinesTypes]
+
+export type MachinesWithoutParams = Exclude<keyof MachinesTypes, MachinesWithParams>
+
+export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
+  // actor: ShallowRef<MachinesTypes[Type]['interpreter'] | undefined>
+  state: ShallowRef<MachinesTypes[Type]['state'] | undefined>
+  send: MachinesTypes[Type]['interpreter']['send']
 }
 
 const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
 
-export function useAppMachine<Type extends keyof MachinesTypes>(
+export function useAppMachine<Type extends MachinesWithoutParams>(
+  type: Type,
+): UseAppMachineReturn<Type>
+
+export function useAppMachine<Type extends MachinesWithParams>(
   type: Type,
   params: MachinesTypes[Type]['params'],
-): {
-    // actor: ShallowRef<MachinesTypes[Type]['interpreter'] | undefined>
-    state: ShallowRef<MachinesTypes[Type]['state'] | undefined>
-    send: MachinesTypes[Type]['interpreter']['send']
-  } {
+): UseAppMachineReturn<Type>
+
+export function useAppMachine<Type extends keyof MachinesTypes>(
+  type: Type,
+  params?: any,
+): UseAppMachineReturn<Type> {
   const app = inject(appMachineSymbol)
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
@@ -56,21 +68,22 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
     if (type === 'discovery')
       return state.children.discovery
     if (type === 'gateway')
-      return state.children[params!.id]
+      return state.children[params.id]
     return undefined
   })
 
-  const noop = (event: unknown) => {
+  const logEvent = (event: unknown) => {
     console.error('Event lost', event)
   }
+  const noop = () => {}
   const stateRef = shallowRef<MachinesTypes[Type]['state'] | undefined>(actorRef.value?.getSnapshot())
-  const sendRef = shallowRef<MachinesTypes[Type]['interpreter']['send']>(noop as any)
+  const sendRef = shallowRef<MachinesTypes[Type]['interpreter']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
   watch(actorRef, (newActor, _, onCleanup) => {
     if (!newActor) {
       stateRef.value = undefined
-      sendRef.value = noop as any
+      sendRef.value = logEvent as any
       return
     }
 
@@ -80,8 +93,8 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
       next: (emitted) => {
         stateRef.value = emitted
       },
-      complete: () => {},
-      error: () => {},
+      complete: noop,
+      error: noop,
     })
 
     onCleanup(() => unsubscribe())
