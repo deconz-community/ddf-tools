@@ -140,7 +140,10 @@ export const appMachine = createMachine({
 
         for (const id of currentCredentials) {
           if (!draft.gateways.has(id)) {
-            const gateway = spawn(gatewayMachine, context.credentials[id].id)
+            const gateway = spawn(gatewayMachine.withContext({
+              // TODO Fix this
+              // credentials: context.credentials,
+            }), context.credentials[id].id)
             draft.gateways.set(id, gateway)
           }
         }

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { FindGateway } from '@deconz-community/rest-client'
+
 // const discovery = useActor(computed(() => app.service.children.get('discovery')!))
 const sampleCreds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
+
+console.log(sampleCreds)
 const appActor = useAppMachine('app')
 
 const discovery = useAppMachine('discovery')
@@ -26,7 +30,10 @@ const debug = computed(() => {
   }
 })
 
-function test() {
+async function test() {
+  const test = await FindGateway(sampleCreds.URIs.api, sampleCreds.apiKey, sampleCreds.id)
+
+  console.log(test)
 }
 
 function addGateway() {

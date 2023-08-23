@@ -30,8 +30,7 @@
 				"eamodio.gitlens",
 				"GitHub.copilot-chat",
 				"statelyai.stately-vscode",
-				"yoavbls.pretty-ts-errors",
-				"Orta.vscode-twoslash-queries"
+				"yoavbls.pretty-ts-errors"
 			]
         }
     },

@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    AppBar: typeof import('./components/app-bar.vue')['default']
     BtnRoundedCircle: typeof import('./components/btn/btn-rounded-circle.vue')['default']
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']
@@ -18,7 +17,6 @@ declare module 'vue' {
     GatewayBadge: typeof import('./components/gateway-badge.vue')['default']
     ListBundles: typeof import('./components/list-bundles.vue')['default']
     ListDevices: typeof import('./components/list/list-devices.vue')['default']
-    ListeDevices: typeof import('./components/list/liste-devices.vue')['default']
     ListItemDevice: typeof import('./components/list/list-item-device.vue')['default']
     LoginButton: typeof import('./components/login-button.vue')['default']
     NavSidebarLevelOne: typeof import('./components/nagivation/nav-sidebar-level-one.vue')['default']
@@ -30,7 +28,5 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SpotGatewayState: typeof import('./components/spot/spot-gateway-state.vue')['default']
     TableCollection: typeof import('./components/table-collection.vue')['default']
-    UserChip: typeof import('./components/chip/user-chip.vue')['default']
-    UserChipList: typeof import('./components/chip/user-chip-list.vue')['default']
   }
 }
