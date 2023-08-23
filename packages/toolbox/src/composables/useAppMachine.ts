@@ -1,56 +1,50 @@
-import type { App, EffectScope, Prop } from 'vue'
+import type { App } from 'vue'
 import createXStateNinjaSingleton from 'xstate-ninja'
 import { interpret } from 'xstate'
-import type { AnyStateMachine, InterpreterFrom, StateFrom } from 'xstate'
+import type { InterpreterFrom } from 'xstate'
 import { inspect } from '@xstate/inspect'
 import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { discoveryMachineWorker } from '~/machines/discovery-worker'
 
-interface AppMachine<
-  Type extends keyof MachinesMap = 'app',
-  Machine extends AnyStateMachine = MachinesMap[Type],
-  Interpreter = InterpreterFrom<Machine>,
-> {
-  state: Ref<StateFrom<Machine>>
-  send: Prop<Interpreter, 'send'>
-  service: Interpreter
+export interface MachinesTypes {
+  app: {
+    machine: typeof appMachine
+    params: undefined
+  }
+  discovery: {
+    machine: typeof discoveryMachine
+    params: undefined
+  }
+  'discovery-worker': {
+    machine: typeof discoveryMachineWorker
+    params: {
+      id: string
+    }
+  }
+  gateway: {
+    machine: typeof gatewayMachine
+    params: {
+      id: string
+    }
+  }
 }
 
-export type UseAppMachine = AppMachine & {
-  scope: EffectScope
-}
+const appMachineSymbol: InjectionKey<InterpreterFrom<MachinesTypes['app']['machine']>> = Symbol('AppMachine')
 
-export interface MachinesMap {
-  app: typeof appMachine
-  discovery: typeof discoveryMachine
-  'discovery-worker': typeof discoveryMachineWorker
-  gateway: typeof gatewayMachine
-}
-
-const appMachineSymbol: InjectionKey<InterpreterFrom<typeof appMachine>> = Symbol('AppMachine')
-
-export type useAppMachineSelector = {
-  type: 'app'
-} | {
-  type: 'discovery'
-} | {
-  type: 'discovery-worker'
-  id: string
-} | {
-  type: 'gateway'
-  id: string
-}
-
-export function useAppMachine<MachineType extends keyof MachinesMap>(type: MachineType = 'app', id?: string): InterpreterFrom<MachinesMap[MachineType]> | null {
-  console.log(id)
+export function useAppMachine<MachineType extends keyof MachinesTypes>(
+  type: MachineType,
+  params: MachinesTypes[MachineType]['params'],
+): InterpreterFrom<MachinesTypes[MachineType]['machine']> | null {
   const app = inject(appMachineSymbol)
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
 
   switch (type) {
     case 'app':
-      return app as any
+      console.log(params)
+
+      return app
 
     case 'discovery':
       return null
