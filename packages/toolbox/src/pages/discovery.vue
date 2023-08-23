@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { useActor } from '@xstate/vue'
-
-const app = useAppMachine()
-
 // const discovery = useActor(computed(() => app.service.children.get('discovery')!))
 
-const appActor = useActor(app)
+const appActor = useAppMachine('app')
 
-const discovery = useActor(app.children.get('discovery')!)
+const discovery = useAppMachine('discovery')
+const gateway = useAppMachine('gateway', { id: '***REMOVED***' })
+
+// const discovery = useActor(app.children.get('discovery')!)
 // const gateway = useActor(app.children.get('***REMOVED***')!)
 
 /*
@@ -22,12 +21,12 @@ const discovery = useSelector(app.service, (state) => {
 
 const debug = computed(() => {
   return {
-    childrens: Array.from(app.children.keys()),
+    childrens: appActor.state.value ? Object.keys(appActor.state.value.children) : [],
+    // childrens: appActor.state.value ? Array.from(appActor.state.value.children.keys()) : [],
   }
 })
 
 function test() {
-
 }
 
 function addGateway() {
@@ -53,13 +52,15 @@ function scan() {
   <v-btn @click="addGateway()">
     add Gateway
   </v-btn>
-  <v-btn v-if="discovery" :disabled="!discovery.state.value.can('Scan')" @click="scan()">
+  <v-btn v-if="discovery.state.value" :disabled="!discovery.state.value.can('Scan')" @click="scan()">
     Scan
   </v-btn>
-  <json-viewer :value="debug" :expand-depth="5" />
-  {{ appActor.state.value.context.credentials }}
 
-  <!-- {{ gateway.state.value.value }} -->
+  <json-viewer :value="debug" :expand-depth="5" />
+
+  {{ appActor.state.value?.context.credentials }}
+
+  <json-viewer :value="gateway.state.value?.value ?? 'No Value'" :expand-depth="5" />
 </template>
 
 <route lang="json">
