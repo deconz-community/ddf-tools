@@ -42,7 +42,9 @@
     "vuetify": "^3.3.13",
     "vuetify-use-dialog": "^0.6.2",
     "xstate": "^4.38.2",
-    "xstate-ninja": "^1.3.4"
+    "xstate-ninja": "^1.3.4",
+    "zod": "^3.22.2",
+    "zod-empty": "^1.0.6"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.40.2",

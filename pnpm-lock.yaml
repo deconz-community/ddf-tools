@@ -551,6 +551,12 @@ importers:
       xstate-ninja:
         specifier: ^1.3.4
         version: 1.3.4(xstate@4.38.2)
+      zod:
+        specifier: ^3.22.2
+        version: 3.22.2
+      zod-empty:
+        specifier: ^1.0.6
+        version: 1.0.6
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^0.40.2
@@ -8769,7 +8775,6 @@ packages:
 
   /just-clone@6.0.1:
     resolution: {integrity: sha512-zZZqzGDaSktIsIq9+NEP2RAUlvPmDzmPekw5QcLFlFMrCJWXrrRD58EYm5GT3LWLdHc7BN1AyGOTgj/ZrrYLZQ==}
-    dev: true
 
   /kind-of@6.0.3:
     resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
@@ -13656,7 +13661,6 @@ packages:
     engines: {node: '>=16.12.0', npm: '>=8.1.0'}
     dependencies:
       just-clone: 6.0.1
-    dev: true
 
   /zod-to-json-schema@3.21.4(zod@3.21.4):
     resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
