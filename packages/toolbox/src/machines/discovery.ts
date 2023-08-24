@@ -12,8 +12,7 @@ export const defaultDiscoveryContext: Readonly<DiscoveryContext> = {
 }
 
 export const discoveryMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMroCGAdgNoAMAuoqAA6awoAuKTA04gAHogC0ARgCcAZgA0IAlLmyAvhuWoMOfMVIUa9ZtI5IQPPoOGiJCGQuWrH6rTrRZchIhkYMKAxQNFx0AO4MAAThmHgA1visFty8AkIilg5OSipqspoeIAyYEHCiut4GotbpdllSAEwALNIuUvKdRACsRZX6vkZgNWm2maDZcrmu0vIA7H1eA8T+DIHBIzYZ9mrN3e1u8s2Lej4rputQRMLDlrVjO46ycwcAHIWepwZ+F0FXALaMVypLb1CZSZ4HSTNABsPROVV8q0uREBDEMgX4mzq43EUmasgOrS0WiAA */
-
+  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMroCGAdgNoAMAuoqAA6awoAuKTA04gAHogCMAJgAsRAJwBWAMwylAGhAFE0lksUKjC2bKUsA7LIAckpQF97W1Bhz5ipCjXrNJHJCA8fILCohIIkpIqhtKS1hbmLElJKlo6CCos8kl6krIKWbIyFgBsjs5oWLiERBiMDCgMUDRcdADuDAAEbZh4ANb4rP7cvAJCIgHhJSySRNbWJQtyagrW0iVpUtYGsgkWckpmsdKqjk4gDJgQcKIuVe6iQWOhk4gAtPGKFpIl+6ayLGktgsmwQbxUFiI0gUFm+0MOFniu3KIDubhqnjAj1GIQmoHC4IUXx+f1MgOBoL0BmMRlM5istgc5zR1WIdQYDSa2OC4zCiEyJSIFhYvwUKhKZii81BMKhgKBwqO6hUKJZ7lqPk5UCIwixASeuL5GUOQpFFjFEqUUusoLi8mF0gVWSUx1OzMq6LZmsa2oAtox0iMeS98fyrEQSgpIkoTApIwlNNp+fpTbJMnplgmzvYgA */
   id: 'discovery',
   predictableActionArguments: true,
 
@@ -66,13 +65,7 @@ export const discoveryMachine = createMachine({
           }), 'fo')
           */
         },
-        many: {
-          states: {
-            init: {},
-          },
-
-          initial: 'init',
-        },
+        many: {},
       },
 
       initial: 'one',
