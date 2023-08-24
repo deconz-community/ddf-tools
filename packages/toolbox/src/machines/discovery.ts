@@ -115,7 +115,7 @@ export const discoveryMachine = createMachine({
         console.error(error)
       }
 
-      await Promise.allSettled(guesses.map(async (uri) => {
+      return Promise.allSettled(guesses.map(async (uri) => {
         const client = Gateway(uri, '<nouser>', { timeout: 1500 })
         const config = await client.getConfig()
         if (config.success) {
