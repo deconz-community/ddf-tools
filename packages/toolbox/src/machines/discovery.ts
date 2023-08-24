@@ -12,6 +12,7 @@ export const defaultDiscoveryContext: Readonly<DiscoveryContext> = {
 }
 
 export const discoveryMachine = createMachine({
+  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMroCGAdgNoAMAuoqAA6awoAuKTA04gAHogC0ARgCcAZgA0IAlLmyAvhuWoMOfMVIUa9ZtI5IQPPoOGiJCGQuWrH6rTrRZchIhkYMKAxQNFx0AO4MAAThmHgA1visFty8AkIilg5OSipqspoeIAyYEHCiut4GotbpdllSAEwALNIuUvKdRACsRZX6vkZgNWm2maDZcrmu0vIA7H1eA8T+DIHBIzYZ9mrN3e1u8s2Lej4rputQRMLDlrVjO46ycwcAHIWepwZ+F0FXALaMVypLb1CZSZ4HSTNABsPROVV8q0uREBDEMgX4mzq43EUmasgOrS0WiAA */
 
   id: 'discovery',
   predictableActionArguments: true,
