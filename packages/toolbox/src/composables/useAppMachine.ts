@@ -16,14 +16,6 @@ export interface MachineData<Type extends AnyStateMachine> {
 export interface MachinesTypes {
   app: MachineData<typeof appMachine>
   discovery: MachineData<typeof discoveryMachine>
-  /*
-  'discovery-worker': {
-    interpreter: InterpreterFrom<typeof discoveryMachineWorker>
-    params: {
-      id: string
-    }
-  }
-  */
   gateway: MachineData<typeof gatewayMachine> & {
     params: {
       id: string

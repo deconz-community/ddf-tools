@@ -21,5 +21,5 @@ export function Discovery() {
     }],
   )
 
-  return { client }
+  return client
 }

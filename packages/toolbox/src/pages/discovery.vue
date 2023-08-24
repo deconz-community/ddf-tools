@@ -1,47 +1,42 @@
 <script setup lang="ts">
-import { FindGateway } from '@deconz-community/rest-client'
-
 // const discovery = useActor(computed(() => app.service.children.get('discovery')!))
-const sampleCreds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
+// const sampleCreds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
 
-console.log(sampleCreds)
-const appActor = useAppMachine('app')
+// console.log(sampleCreds)
+const app = useAppMachine('app')
 
 const discovery = useAppMachine('discovery')
 
-/*
-const discovery = useSelector(app.service, (state) => {
-  return {
-    value: state.children.get(discovery).getSnapshot().value,
-    can: state.children.discovery.getSnapshot().can,
-    send: state.children.discovery.send,
-  }
-})
-*/
-
-const debug = computed(() => {
-  return {
-    childrens: appActor.state.value ? Object.keys(appActor.state.value.children) : [],
-    // childrens: appActor.state.value ? Array.from(appActor.state.value.children.keys()) : [],
-  }
+const resultsList = computed(() => {
+  return discovery.state.value ? Array.from(discovery.state.value.context.results.values()) : []
 })
 
 async function test() {
-  const test = await FindGateway(sampleCreds.URIs.api, sampleCreds.apiKey, sampleCreds.id)
 
-  console.log(test)
 }
 
 function addGateway() {
-  appActor.send({
-    type: 'ADD_GATEWAY_CREDENTIALS',
-    credentials: sampleCreds,
-  })
+  if (resultsList.value.length > 0) {
+    const result = resultsList.value[0]
+    app.send({
+      type: 'ADD_GATEWAY_CREDENTIALS',
+      credentials: {
+        apiKey: '',
+        id: result.id,
+        name: result.name,
+        URIs: {
+          api: result.uri,
+          websocket: [],
+        },
+      },
+    })
+  }
 }
 
 function scan() {
   discovery.send({
-    type: 'Scan',
+    type: 'Start scan',
+    uri: 'http://localhost',
   })
 }
 </script>
@@ -54,13 +49,21 @@ function scan() {
   <v-btn @click="addGateway()">
     add Gateway
   </v-btn>
-  <v-btn v-if="discovery.state.value" :disabled="!discovery.state.value.can('Scan')" @click="scan()">
+  <v-btn v-if="discovery.state.value" :disabled="!discovery.state.value.can('Start scan')" @click="scan()">
     Scan
   </v-btn>
 
-  <json-viewer :value="debug" :expand-depth="5" />
+  <pre>{{ discovery.state.value?.value }}</pre>
 
-  {{ appActor.state.value?.context.credentials }}
+  <pre>{{ JSON.stringify(resultsList, null, 2) }}</pre>
+
+  <!--
+  <json-viewer
+    v-if="discovery.state.value"
+    :value="discovery.state.value.value"
+    :expand-depth="5"
+  />
+  -->
 
   <!--
   <json-viewer v-if="gateway.state.value" :value="gateway.state.value.value" :expand-depth="5" />

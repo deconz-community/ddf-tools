@@ -1,108 +1,141 @@
-import type { ActorRefFrom } from 'xstate'
-import { assign, createMachine, spawn } from 'xstate'
+import { Discovery, Gateway } from '@deconz-community/rest-client'
 import { produce } from 'immer'
-import { discoveryMachineWorker } from './discovery-worker'
+import { assign, createMachine } from 'xstate'
 
-export interface DiscoveryContext {
-  workers: ActorRefFrom<typeof discoveryMachineWorker>[]
+export interface DiscoveryResult {
+  id: string
+  name: string
+  uri: string[]
 }
 
-export const defaultDiscoveryContext: Readonly<DiscoveryContext> = {
-  workers: [],
+export interface DiscoveryContext {
+  results: Map<string, DiscoveryResult>
 }
 
 export const discoveryMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMroCGAdgNoAMAuoqAA6awoAuKTA04gAHogC0AJgCcAGhAFEARgDMANgC+Wxagw58xUhRr1mKjkhA8+g4aIkJJa2UVkaWstQHYArIrKCNIaACxEfjp6aFi4hEQYjAwoDFA0XHQA7gwABJmYeADW+KxW3LwCQiLWTn5qoYGqvjq6IAyYEHCi+rFGoraVDjVS0moqjc4qXhFRID2G8SZg-RX21aBOkioAHGoT6tqt83HEiQzJqSt2VY6I0izbRCwqfhrSAUp3kUcxC6fmFygRGEy2sAzWt2CryeLzeHyCKhU0hmPwMJwSAJSQIAtowguVrkMNndthoJiFwt8dEA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngMQDKALpgA4AEGAhgHYDaADALqKiWawpkqYGnEAA9EAWgBMkgCwA6AJwB2AGwBWFZLUAaEAUQBGeQA4WLJdINXZ0gMxKAvg92oMOfATn0GDFAyhEAGKYAK4MENRQdGRgAO50BKwcSCDcvPyCwmIItraScipKympq9irGBiwGuvoIVrZykkq2MjKSKnnqxpIKTi5oWLiEcigQADZgpGR0eGS06IxJwml8AkIp2eIGCnJKBsZKOnqGtipyZmayLblGFn0groMeXgs+fgEQgmAjDNiYANbfR7uYbeXz+BB+P4LDLMdhLFIrWFZCSSFiNNRKUwKBQ9FRGaw1RBqAxyPJKFgdFgyYzKU62JzOEAMTAQODCYFDWpcHirTIbCS2KxEhDiCwFHFNLHGA6Y1T3TnPUYTZa85EC0XtWwi6xyNQXMwaFiyErGBUDEGeMHvVXpNYouqlc4GDRaHUGfL6g1Gk1qM2MoA */
 
   id: 'discovery',
   predictableActionArguments: true,
-
   tsTypes: {} as import('./discovery.typegen').Typegen0,
 
   schema: {
     context: {} as DiscoveryContext,
     events: {} as {
-      type: 'Scan'
+      type: 'Start scan'
       uri?: string
+    } | {
+      type: 'Stop scan'
     } | {
       type: 'Spawn worker'
       uri: string
+    } | {
+      type: 'Found gateway'
+      uri: string
+      id: string
+      name: string
     },
   },
 
-  context: structuredClone(defaultDiscoveryContext),
+  context: (): DiscoveryContext => ({
+    results: new Map(),
+  }),
 
   states: {
     idle: {
+      exit: 'cleanupResults',
+
       on: {
-        Scan: [
-          {
-            target: 'scanning.one',
-            cond: 'hasUri',
-          },
-          {
-            target: 'scanning.many',
-          },
-        ],
+        'Start scan': 'scanning',
       },
     },
+
     scanning: {
-      states: {
-        one: {
-          entry: assign({
-            workers: (context, { uri }) => produce(context.workers, (draft) => {
-              draft.push(
-                spawn(discoveryMachineWorker.withContext({
-                  uri: uri!,
-                }), uri!),
-              )
-            }),
-
-          }),
-
-          /*
-          spawn(discoveryMachineWorker.withContext({
-            uri: event.uri!,
-          }), 'fo')
-          */
-        },
-        many: {},
+      invoke: {
+        src: 'scan',
+        onDone: 'idle',
       },
 
-      initial: 'one',
-
       on: {
-        'Spawn worker': {
+        'Found gateway': {
           target: 'scanning',
+          actions: 'saveGatewayResult',
           internal: true,
-          actions: 'spawnWorker',
         },
       },
     },
   },
 
   initial: 'idle',
-  entry: 'init',
+
+  on: {
+    'Stop scan': '.idle',
+  },
 }, {
   actions: {
-    init: assign({
-      workers: () => {
-        return []
-      },
+    cleanupResults: assign({
+      results: new Map(),
     }),
-    spawnWorker: assign({
-      workers: (context, { uri }) => produce(context.workers, (draft) => {
-        draft.push(
-          spawn(discoveryMachineWorker.withContext({
-            uri: uri!,
-          }), uri!),
-        )
+
+    saveGatewayResult: assign({
+      results: (context, { id, name, uri }) => produce(context.results, (draft) => {
+        if (draft.has(id)) {
+          const result = draft.get(id)!
+          result.name = name
+          result.uri.push(uri)
+        }
+        else {
+          draft.set(id, { id, name, uri: [uri] })
+        }
       }),
     }),
+    /*
+    saveGatewayResult: (context, event) => {
+      console.log({ context, event })
+    },
+    */
+
   },
-  guards: {
-    hasUri: (context, { uri }) => {
-      return uri != null
+  services: {
+    scan: (context, event) => async (callback) => {
+      const guesses = [
+        'http://localhost',
+        'http://localhost:443',
+        'http://localhost:8080',
+        'http://homeassistant.local:40850',
+        'http://core-deconz.local.hass.io:40850',
+      ]
+
+      if (event.uri && !guesses.includes(event.uri))
+        guesses.push(event.uri)
+
+      try {
+        const discovery = await Discovery().discover()
+        discovery.forEach((gateway) => {
+          const uri = `http://${gateway.internalipaddress}:${gateway.internalport}`
+          if (!guesses.includes(uri))
+            guesses.push(uri)
+        })
+      }
+      catch (error) {
+        console.error(error)
+      }
+
+      await Promise.allSettled(guesses.map(async (uri) => {
+        const client = Gateway(uri, '<nouser>')
+        const config = await client.getConfig()
+        if (config.success) {
+          console.log('found gateway', config.success.bridgeid, config.success.name, uri)
+
+          callback({
+            type: 'Found gateway',
+            id: config.success.bridgeid,
+            name: config.success.name,
+            uri,
+          })
+        }
+      }))
+      console.log('done')
     },
   },
 })
