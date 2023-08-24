@@ -3,6 +3,7 @@ import { Zodios } from '@zodios/core'
 
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
+import type { AxiosRequestConfig } from 'axios'
 import { pluginAuth, pluginTransformResponse } from './plugins'
 import { devicesEndpoints } from './endpoints/devicesEndpoints'
 import { alarmSystemsEndpoints } from './endpoints/alarmSystemsEndpoints'
@@ -11,7 +12,7 @@ import { groupsEndpoints } from './endpoints/groupsEndpoints'
 import { lightsEndpoints } from './endpoints/lightsEndpoints'
 import { sensorsEndpoints } from './endpoints/sensorsEndpoints'
 
-export function Gateway(address: string, apiKey: string) {
+export function Gateway(address: string, apiKey: string, axiosConfig: AxiosRequestConfig = {}) {
   const client = new Zodios(
     address,
     [
@@ -24,8 +25,10 @@ export function Gateway(address: string, apiKey: string) {
     ],
     {
       axiosConfig: {
+        ...axiosConfig,
         validateStatus: () => true,
         headers: {
+          ...axiosConfig.headers,
           Accept: 'application/vnd.ddel.v1.1', // Version recommended by Manup
         },
       },

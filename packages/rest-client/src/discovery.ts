@@ -1,7 +1,8 @@
 import { Zodios } from '@zodios/core'
+import type { AxiosRequestConfig } from 'axios'
 import { z } from 'zod'
 
-export function Discovery() {
+export function Discovery(axiosConfig: AxiosRequestConfig = {}) {
   const client = new Zodios('https://phoscon.de',
     [{
       method: 'get',
@@ -19,6 +20,9 @@ export function Discovery() {
       alias: 'discover',
       description: 'Get discovered gateways from Phoscon API',
     }],
+    {
+      axiosConfig,
+    },
   )
 
   return client
