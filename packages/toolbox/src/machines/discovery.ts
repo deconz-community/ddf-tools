@@ -89,12 +89,6 @@ export const discoveryMachine = createMachine({
         }
       }),
     }),
-    /*
-    saveGatewayResult: (context, event) => {
-      console.log({ context, event })
-    },
-    */
-
   },
   services: {
     scan: (context, event) => async (callback) => {
@@ -125,8 +119,6 @@ export const discoveryMachine = createMachine({
         const client = Gateway(uri, '<nouser>')
         const config = await client.getConfig()
         if (config.success) {
-          console.log('found gateway', config.success.bridgeid, config.success.name, uri)
-
           callback({
             type: 'Found gateway',
             id: config.success.bridgeid,
@@ -135,7 +127,6 @@ export const discoveryMachine = createMachine({
           })
         }
       }))
-      console.log('done')
     },
   },
 })
