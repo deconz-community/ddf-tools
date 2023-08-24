@@ -9,10 +9,6 @@ const appActor = useAppMachine('app')
 
 const discovery = useAppMachine('discovery')
 
-const gateway = useAppMachine('gateway', { id: sampleCreds.id })
-
-// const discovery = useActor(app.children.get('discovery')!)
-
 /*
 const discovery = useSelector(app.service, (state) => {
   return {
@@ -46,7 +42,6 @@ function addGateway() {
 function scan() {
   discovery.send({
     type: 'Scan',
-    uri: 'http://localhost',
   })
 }
 </script>
@@ -67,7 +62,9 @@ function scan() {
 
   {{ appActor.state.value?.context.credentials }}
 
+  <!--
   <json-viewer v-if="gateway.state.value" :value="gateway.state.value.value" :expand-depth="5" />
+  -->
 </template>
 
 <route lang="json">

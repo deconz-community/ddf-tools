@@ -12,7 +12,7 @@ export const defaultDiscoveryContext: Readonly<DiscoveryContext> = {
 }
 
 export const discoveryMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMroCGAdgNoAMAuoqAA6awoAuKTA04gAHogCMAdhYAaEAUTTJRAKwBfDQtQYc+YqQo16zSRyQgefQcNESEktQE4iLAMzOWANgBMahSUEX0l3dS1tEAZMCDhRXSxcQlFrASERSwcAWn9AxCynFnDIhP1CEnIwFN40u0zEX3c8hBVinTREgyIMRgYUBihqm3T7RHdpABYiXwAOSVzFfMlvLXa9JOIehj6BomEqy1TbDNAHCd9fabmFoNbNEo6yzdMdqCIAW0Yg7hrj0YRzjMiM4QjNpAFFsFQsUtEA */
+
   id: 'discovery',
   predictableActionArguments: true,
 
@@ -23,6 +23,9 @@ export const discoveryMachine = createMachine({
     events: {} as {
       type: 'Scan'
       uri?: string
+    } | {
+      type: 'Spawn worker'
+      uri: string
     },
   },
 
@@ -62,10 +65,24 @@ export const discoveryMachine = createMachine({
           }), 'fo')
           */
         },
-        many: {},
+        many: {
+          states: {
+            init: {},
+          },
+
+          initial: 'init',
+        },
       },
 
       initial: 'one',
+
+      on: {
+        'Spawn worker': {
+          target: 'scanning',
+          internal: true,
+          actions: 'spawnWorker',
+        },
+      },
     },
   },
 
@@ -77,6 +94,15 @@ export const discoveryMachine = createMachine({
       workers: () => {
         return []
       },
+    }),
+    spawnWorker: assign({
+      workers: (context, { uri }) => produce(context.workers, (draft) => {
+        draft.push(
+          spawn(discoveryMachineWorker.withContext({
+            uri: uri!,
+          }), uri!),
+        )
+      }),
     }),
   },
   guards: {

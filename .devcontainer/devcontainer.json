@@ -23,14 +23,15 @@
 				"dbaeumer.vscode-eslint",
 				"Vue.volar",
 				"streetsidesoftware.code-spell-checker",
-				"esbenp.prettier-vscode",
 				"yy0931.vscode-sqlite3-editor",
 				"Tobermory.es6-string-html",
 				"mhutchie.git-graph",
 				"eamodio.gitlens",
 				"GitHub.copilot-chat",
 				"statelyai.stately-vscode",
-				"yoavbls.pretty-ts-errors"
+				"yoavbls.pretty-ts-errors",
+				"ZixuanChen.vitest-explorer",
+				"christian-kohler.npm-intellisense"
 			]
         }
     },
@@ -43,7 +44,7 @@
     // "forwardPorts": [],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "pnpm install",
+    "postCreateCommand": "pnpm install && cd packages/store/ && pnpm run install:pocketbase",
 
     // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
     "remoteUser": "node",

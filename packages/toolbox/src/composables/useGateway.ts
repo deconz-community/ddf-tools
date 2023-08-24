@@ -16,8 +16,8 @@ export interface deviceContext {
 export const deviceMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QTANwJYGMwDp0QBswBiAD1gBcBDC3KgM1oCcAKAZgAYuuBKYlDNjyEwAbQ4BdRKAAOAe1joK6OQDtpIUogBMARl05dAVgBs2owBoQAT0S6uAXwdWBWXPTAVMAC3Sqo-Gq4fqhyANa4rkIeXr7+CCFymDQqquIS6RryispqGloIALScOEYA7AAcuuZWtgh6ACw4ZWVsDWxlRk4uaG44MT5+AWBMTHJMODIENPTjALY4Ue6eg-GJyblpkplIINlKqfmIbBUmOACcHZY2Oh2lTs4gqnIo8LtLWQoHebsFhZWlSrVa51fTdEBLYRET45Q6-RD-HAmXRlXQVTq1RDnCr3R6QgZxKAw77qeEIFFNIxsYGY+rVXE9QS4EZjJjEzZHBBGCpNE7aKo1G71NgmB4OIA */
   id: 'device',
-
   predictableActionArguments: true,
+
   tsTypes: {} as import('./useGateway.typegen').Typegen0,
 
   schema: {

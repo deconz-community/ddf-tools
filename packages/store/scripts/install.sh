@@ -4,7 +4,7 @@
 SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
 
 # Get the version number from the pb_version.md file
-VERSION=$(cat $SCRIPT_PATH/../pb_version.md | cut -d " " -f3)
+VERSION=$(grep -oP '\d+\.\d+\.\d+' $SCRIPT_PATH/../pb_version.md)
 
 # Print the version number being installed
 echo "Installing pocketbase version $VERSION"

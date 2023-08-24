@@ -7,7 +7,8 @@
     "build:hooks": "rollup -c",
     "dev": "concurrently -k -p \"[{name}]\" -n \"db,hooks\" -c \"yellow.bold,cyan.bold\" \"pnpm:dev:db\" \"pnpm:dev:hooks\"",
     "dev:db": "./scripts/start.sh",
-    "dev:hooks": "rollup -cw"
+    "dev:hooks": "rollup -cw",
+    "install:pocketbase": "./scripts/install.sh"
   },
   "keywords": [],
   "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
@@ -36,10 +37,10 @@
     "url": "https://github.com/sponsors/Zehir"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0",
-    "esbuild": "^0.18.17",
+    "concurrently": "^8.2.1",
+    "esbuild": "^0.19.2",
     "rimraf": "^5.0.1",
-    "rollup": "^3.27.0",
+    "rollup": "^3.28.1",
     "rollup-plugin-esbuild": "^5.0.0",
     "typescript": "^5.1.6"
   }
