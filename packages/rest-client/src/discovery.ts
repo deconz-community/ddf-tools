@@ -21,7 +21,10 @@ export function Discovery(axiosConfig: AxiosRequestConfig = {}) {
       description: 'Get discovered gateways from Phoscon API',
     }],
     {
-      axiosConfig,
+      axiosConfig: {
+        timeout: 5000,
+        ...axiosConfig,
+      },
     },
   )
 

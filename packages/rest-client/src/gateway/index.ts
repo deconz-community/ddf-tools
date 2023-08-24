@@ -25,6 +25,7 @@ export function Gateway(address: string, apiKey: string, axiosConfig: AxiosReque
     ],
     {
       axiosConfig: {
+        timeout: 5000,
         ...axiosConfig,
         validateStatus: () => true,
         headers: {
