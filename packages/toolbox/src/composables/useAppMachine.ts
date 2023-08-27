@@ -3,9 +3,9 @@ import createXStateNinjaSingleton from 'xstate-ninja'
 import { interpret } from 'xstate'
 import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
 import { inspect } from '@xstate/inspect'
-import { useSelector } from '@xstate/vue'
 import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
+import type { gatewayMachine } from '~/machines/gateway'
 
 export interface MachineData<Type extends AnyStateMachine> {
   interpreter: InterpreterFrom<Type>
@@ -35,7 +35,7 @@ export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
   send: MachinesTypes[Type]['interpreter']['send']
 }
 
-const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
+export const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
 
 // TODO Accept ref as params
 export function useAppMachine<Type extends MachinesWithoutParams>(
@@ -55,7 +55,7 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
 
-  const actorRef = useSelector(app, (state) => {
+  const selector = (state: MachinesTypes['app']['state']) => {
     if (type === 'app')
       return app
     if (type === 'discovery')
@@ -63,6 +63,17 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
     if (type === 'gateway')
       return state.children[params.id]
     return undefined
+  }
+
+  const actorRef = shallowRef(selector(app.getSnapshot()))
+  const subActor = app.subscribe((emitted) => {
+    const nextSelected = selector(emitted)
+    if (actorRef.value !== nextSelected)
+      actorRef.value = nextSelected
+  })
+
+  onScopeDispose(() => {
+    subActor.unsubscribe()
   })
 
   const logEvent = (event: unknown) => {
@@ -90,7 +101,10 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
       error: noop,
     })
 
-    onCleanup(() => unsubscribe())
+    onCleanup(() => {
+      console.log('Cleanup')
+      unsubscribe()
+    })
   },
   {
     immediate: true,

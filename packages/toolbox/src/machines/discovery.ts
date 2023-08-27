@@ -15,7 +15,7 @@ export interface DiscoveryContext {
 }
 
 export const discoveryMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngMQCiqALgNoAMAuoqAA6awrkqYB2DIAHogFoAbAFYhAOgDsARgAskgJyyRIgEwAOaiIUAaEAURzJ46qbNjqq5SPUBfW3tQYc+AuMhsUnKEQhcw4rDkAIbkAU5YuITuFF5QNPRIIMys7Fw8-AgCAMwislJCQqrSIqai0tSysnoGCKoKxlYi2erSQpLZ0pIy9o5oka4xnt5EAMIANixgCTwpnulJmQKyCtImqkKVbYU7Qtk1iPUiUsotbR1dPQ4gES7RHuze4gCueChEAHJgvFR0syzzbiLQR7agmWRCdSSEQHBCSYriVaqSrqbLZBTqWQtXo3fp3NwPOLiYKMFAAfQA1mBiAAhYLoCkzJJzNJA0BLbIycRqbJY6GwtTqRHSZGyVHozHY663KIE2JPEnkqnEL4-JlMAGsjKCaS68RVaS8tRySX8-SIeFrJEotEYrF2aV42VDR5QcTYYLjFAQUJE17vPycAJebCYKniGWDQlPD1en2ul5vBAhzDoX1cBLq5KajhsviCbKVRGFSSFXKSWTFXTmuGqbL6kU2iX2nGR+7yt2x72+p7+oj4PCYPDiRjjUIAMyHAFsI06ox33Z7uwn-cnOKG06zM39mTmFuzBCtVOD6tIFCoNFoobD4fXZI2xbbJQ6+s5ndHO0v40TFZTqb5-HEFNwzbOVhk-OMezdX9lTXDd004bdEg1VJc21BBC2PLRqExVQNBEEoihhGtbwbUVxTtKVXwGdtwMXSCExg-8ByHEcx3ISc8BnUCXSJLtvwVUk-wIODUwQpD-lQ-d8ww+s6y0epJHUAixFUYjalI+9yKfFtHTfQYMGCThAjTThODiACgyA9cw3COdokM4zHPM7xRM3XMJN3KS8yWeohWhFplGKMU+XUw8wWoUQGgUUx0UitTW3stxHJMoyXJ8ABlchMEYAACRysxZNDgSyRSTBsZpVBkELOTChAjBMMxTAsJobES-SHNMoCIHGMAiCy4I8HIfLTMKvcfILQ1xEKUxz2C006vqKRqArGwVk2BRavamjkq65yLIAMUwZ5OAgXKoFCMAAHdggIMbvPQkVjlLZS8khM1agEGwpAUNT71KOKiO2-FeN7N4iAAVUYeMwFyiGACUAEl7sBdCBE0etKneurtHraRlLFGxmyla5OEwCA4B4UDJNRkr0YUBRwWx2EBDrY9FD+kpqEBhK9J20GoBprU6eUtYsahOrskhMjucLVotHkYH3wXf0heKg8siKIVxY+xAhBKYVtOJl9cQ6sDGKE5U1ekpYRXyJRVhEboTVC2FNmMa1H2NpX5zo2Bglwa2JowvD9RWTpucsDoqjduRpqKJtKJNniP3o5c4iDtGVHyPCNhWhTNG0WFNCFLTE+fH3aITfioMTFBM7p0oJFz92C6vSRi-PQ3y906iQdTmuLaVakG41s9ypwyt8MItTO+OT2KIrvmQcc0eZK+5FxDrORTielm5GOepOYBmKgeX50Uu9Xq16WeRj23qpmj3ms1H1XlLGoBmNq28+DL20z0o3x1JYLenRH6dFnjWA2m1ZAfy-p-H+9ggA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMoAuAhnrQAQb0B2A2gAwC6ioAA6ZYKWikzsBIAB6IAtADYArIqIAOAOzKALOvUBmAJybFARkMAaEAUSaDRAEz2dOzZp0Gdu5WYC+ftaoGDj4xGzs7CjsUJQQkmAk7NiYANaJwVi4hEQRUTEI0Sno9OKSPLwV0sKiZVJIsgqKOmZERopGjq7t6r4W1rYI8g7cZprq3DodOqOKio6OAUFoWWG5JZHRsXSYgqwbVQ01YhL1oHJDzdxO9kbcRp6q3AYDiGZGDmbGytyTY9yKAzqIxLECZUI5PJbSgAMUwAFd2BBmFBSmAAO70AiHIQiE6SaQXeRjHREbiORT2ey6IzKXrqV4Iew3LxuDxeHwGAKBEDsTAQODScHZQa42qnQkKYFGMlTLTKRnyO5EXzuLSOEmaWn+HnCtakCjVPF1SVDXqtSaKeWM9qgvWQjb5KBG8UEhpEzzXVSKbhaQEGK3GRnKGU-X6jZTuZ7AxTcvxAA */
 
   id: 'discovery',
 
@@ -30,22 +30,11 @@ export const discoveryMachine = createMachine({
     } | {
       type: 'Stop scan'
     } | {
-      type: 'Spawn worker'
-      uri: string
-    } | {
       type: 'Found gateway'
       uri: string
       id: string
       name: string
       version: string
-    } | {
-      type: 'Edit'
-      id: string
-    } | {
-      type: 'Close' | 'Next' | 'Back'
-    } | {
-      type: 'Update URI'
-      data: string[]
     },
   },
 
@@ -55,105 +44,37 @@ export const discoveryMachine = createMachine({
   }),
 
   states: {
-    editing: {
-      states: {
-        uri: {
-          on: {
-            'Next': 'validating.uri',
-
-            'Update URI': {
-              target: 'uri',
-              internal: true,
-              actions: 'updateURI',
-            },
-          },
-        },
-
-        api_key: {
-          on: {
-            Back: 'uri',
-            Next: 'validating.api_key',
-          },
-        },
-
-        save: {
-          type: 'final',
-        },
-
-        validating: {
-          states: {
-            uri: {
-              invoke: {
-                src: 'validateURI',
-                onDone: '#discovery.editing.api_key',
-                onError: '#discovery.editing.uri',
-              },
-            },
-
-            api_key: {
-              invoke: {
-                src: 'validateAPIKey',
-                onDone: '#discovery.editing.save',
-                onError: '#discovery.editing.api_key',
-              },
-            },
-          },
-
-          initial: 'uri',
+    idle: {
+      on: {
+        'Start scan': {
+          target: 'scanning',
+          actions: 'cleanupResults',
         },
       },
+    },
 
-      initial: 'uri',
+    scanning: {
+      invoke: {
+        src: 'scan',
+        onDone: 'idle',
+      },
 
       on: {
-        Close: 'scan',
-      },
+        'Stop scan': 'idle',
 
-      onDone: 'scan',
-      entry: 'setEditing',
-      exit: 'setEditing',
-    },
-
-    scan: {
-      states: {
-        idle: {
-          on: {
-            'Start scan': {
-              target: 'scanning',
-              actions: 'cleanupResults',
-            },
-          },
-        },
-
-        scanning: {
-          invoke: {
-            src: 'scan',
-            onDone: 'idle',
-          },
-
-          on: {
-            'Stop scan': 'idle',
-
-            'Found gateway': {
-              target: 'scanning',
-              internal: true,
-              actions: 'saveGatewayResult',
-            },
-          },
-
-          entry: 'cleanupResults',
+        'Found gateway': {
+          target: 'scanning',
+          internal: true,
+          actions: 'saveGatewayResult',
         },
       },
 
-      initial: 'idle',
+      entry: 'cleanupResults',
     },
   },
 
-  on: {
-    Edit: '.editing',
-  },
+  initial: 'idle',
 
-  initial: 'scan',
 }, {
   actions: {
     cleanupResults: assign({

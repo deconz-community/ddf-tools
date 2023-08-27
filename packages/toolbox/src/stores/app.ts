@@ -5,8 +5,18 @@ export const useAppStore = defineStore('app', () => {
 
   const isGatewayRoute = computed(() => useRoute().params.gateway !== undefined)
 
+  /*
+  const appMachine = inject(appMachineSymbol)
+
+  const machines: {
+    app: UseAppMachineReturn['app']
+  } = {
+    app: useAppMachine('app'),
+  }
+  */
+
   return {
-    navigationTitle, isGatewayRoute,
+    navigationTitle, isGatewayRoute, // machines,
   }
 })
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const GatewaysStore = useGatewaysStore()
+const app = useAppMachine('app')
 
 type Link = ({ icon: string ; title: string ;to: string } | 'divider' | 'gateways')
 
@@ -10,7 +10,7 @@ const links = computed(() => {
   list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
   list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
   list.push('divider')
-  if (objectKeys(GatewaysStore.credentials).length > 0) {
+  if (app.state.value && objectKeys(app.state.value.context.credentials).length > 0) {
     list.push('gateways')
     list.push('divider')
   }
@@ -29,9 +29,8 @@ const links = computed(() => {
           <v-divider v-if="link === 'divider'" />
           <template v-else-if="link === 'gateways'">
             <gateway-badge
-              v-for="item, uuid in GatewaysStore.credentials" :key="uuid"
-              :uuid="uuid"
-              :credentials="item"
+              v-for="item, uuid in app.state.value?.context.credentials" :key="uuid"
+              :gateway-id="item.id"
             />
           </template>
           <v-list-item v-else class="ma-1 justify-center">

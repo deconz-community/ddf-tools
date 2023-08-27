@@ -1,22 +1,19 @@
 <script setup lang="ts">
-import { useSelector } from '@xstate/vue'
-
 const props = defineProps<{
   gateway: string
 }>()
 
+/*
 const gateways = useGatewaysStore()
 
 const gateway = await gateways.getGateway(props.gateway)
 
 if (!gateway)
   throw new Error('no gateway')
-
 const { state, machine } = gateway
 
 const canFixIssue = useSelector(machine, state => state.can('Edit credentials'))
 
-/*
 const gateway = gateways.gateways[props.gateway]
 
 console.log(gateway)
@@ -34,6 +31,7 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
 
 <template>
   <portal to="before-content">
+    <!--
     <v-navigation-drawer v-model="drawer" width="240" permanent>
       <v-toolbar height="48" :title="state.context.credentials.name" />
       <v-list lines="one">
@@ -41,16 +39,15 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
           <list-item-device :device="device" />
         </template>
 
-        <!--
         <v-list-item
           v-for="item in state.context.devices"
           :key="item.title"
           :title="item.title"
           subtitle="..."
         />
-        -->
       </v-list>
     </v-navigation-drawer>
+    -->
   </portal>
 
   <v-card class="ma-2">
@@ -66,7 +63,9 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
         Fix issue
       </v-btn>
       -->
+      <!--
       <form-gateway-credentials :gateway="gateway" />
+      -->
 
       <!--
       <json-viewer :value="state.context" />

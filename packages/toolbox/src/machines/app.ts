@@ -5,6 +5,7 @@ import zodEmpty from 'zod-empty'
 import { enableMapSet, produce } from 'immer'
 import { v4 as uuid } from 'uuid'
 import { discoveryMachine } from './discovery'
+import { gatewayMachine } from './gateway'
 
 enableMapSet()
 
@@ -22,6 +23,7 @@ const storageSchema = z.object({
 })
 
 type SavedContext = z.output<typeof storageSchema>
+export type GatewayCredentials = SavedContext['credentials'][string]
 
 export type AppContext = SavedContext & {
   machine: {
@@ -67,10 +69,12 @@ export const appMachine = createMachine({
       actions: [
         assign({
           credentials: (context, { credentials }) => produce(context.credentials, (draft) => {
+            console.log(credentials)
             draft[uuid()] = credentials
           }),
         }),
         'syncGatewayMachines',
+        // 'saveSettings',
       ],
     },
     UPDATE_GATEWAY_CREDENTIALS: {
@@ -139,15 +143,14 @@ export const appMachine = createMachine({
         const currentCredentials = Object.keys(context.credentials)
 
         for (const id of currentCredentials) {
-          if (!draft.gateways.has(id))
-            console.log('TODO: spawn gateway machine')
-            /*
-            const gateway = spawn(gatewayMachine.withContext({
-              // TODO Fix this
-              // credentials: context.credentials,
-            }), context.credentials[id].id)
-            draft.gateways.set(id, gateway)
-            */
+          if (!draft.gateways.has(id)) {
+            const newMachine = spawn(gatewayMachine, context.credentials[id].id)
+            draft.gateways.set(id, newMachine)
+            newMachine.send({
+              type: 'Update credentials',
+              data: context.credentials[id],
+            })
+          }
         }
 
         for (const [id, gateway] of draft.gateways) {

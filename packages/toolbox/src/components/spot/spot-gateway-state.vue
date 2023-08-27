@@ -1,10 +1,9 @@
 <script setup lang="ts">
 const App = useAppStore()
-const GatewaysStore = useGatewaysStore()
 </script>
 
 <template>
-  <div v-if="GatewaysStore.activeGateway !== undefined">
+  <div>
     <!-- WIP
     <v-tooltip
       :text="Gateway.activeGateway.pooling.state.messages.value"

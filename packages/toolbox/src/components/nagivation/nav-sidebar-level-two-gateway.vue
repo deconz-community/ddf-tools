@@ -2,7 +2,6 @@
 const route = useRoute()
 
 const App = useAppStore()
-const GatewayStore = useGatewaysStore()
 
 const baseURL = computed(() => {
   return '/gateway/FOO'

@@ -73,50 +73,20 @@ watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
   -->
 
   <template v-if="discovery.state.value">
-    <template v-if="discovery.state.value.matches('scan')">
-      <v-card
-        v-for="result in discovery.state.value.context.results.values()" :key="result.id"
-        class="ma-3"
-        @click="discovery.send({ type: 'Edit', id: result.id })"
-      >
-        <v-card-item>
-          <v-card-title>
-            {{ result.name }}
-            <v-chip class="ml-2">
-              {{ result.version }}
-            </v-chip>
-          </v-card-title>
-          <v-card-subtitle>{{ result.id }}</v-card-subtitle>
-        </v-card-item>
-      </v-card>
-    </template>
-    <template v-else-if="discovery.state.value.matches('editing') && editingData">
-      <v-divider />
-      <v-card class="ma-3">
-        <v-card-item>
-          <v-card-title>
-            {{ editingData.name }}
-            <v-chip class="ml-2">
-              {{ editingData.version }}
-            </v-chip>
-          </v-card-title>
-          <v-card-subtitle>{{ editingData.id }}</v-card-subtitle>
-
-          <v-btn class="ma-2" @click="editingData.uri.push('')">
-            Add URI
-          </v-btn>
-          <v-card-text>
-            <template v-for="(uri, index) in editingData.uri" :key="index">
-              <v-text-field
-                v-model="editingData.uri[index]"
-                append-icon="mdi-delete"
-                @click:append="editingData.uri.splice(index, 1)"
-              />
-            </template>
-          </v-card-text>
-        </v-card-item>
-      </v-card>
-    </template>
+    <v-card
+      v-for="result in discovery.state.value.context.results.values()" :key="result.id"
+      class="ma-3"
+    >
+      <v-card-item>
+        <v-card-title>
+          {{ result.name }}
+          <v-chip class="ml-2">
+            {{ result.version }}
+          </v-chip>
+        </v-card-title>
+        <v-card-subtitle>{{ result.id }}</v-card-subtitle>
+      </v-card-item>
+    </v-card>
   </template>
 
   <!--
