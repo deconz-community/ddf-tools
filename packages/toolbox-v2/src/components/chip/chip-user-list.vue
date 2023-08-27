@@ -1,0 +1,37 @@
+<script setup lang="ts">
+interface User {
+  id: string
+  name: string
+  created: string
+  github_id: number | null
+}
+
+const props = defineProps<{
+  title: string
+  icon?: string
+  users: User[] | User
+}>()
+
+const users = computed(() => {
+  if (Array.isArray(props.users))
+    return props.users
+  else
+    return [props.users]
+})
+</script>
+
+<template>
+  <v-list v-if="users.length > 0" lines="one">
+    <v-list-item :title="props.title" :prepend-icon="props.icon ?? 'mdi-account'" />
+    <v-list-item
+      v-for="user of users"
+      :key="user.id"
+    >
+      <v-list-item-title>
+        <chip-user
+          :user="user"
+        />
+      </v-list-item-title>
+    </v-list-item>
+  </v-list>
+</template>
