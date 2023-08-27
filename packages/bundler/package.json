@@ -57,23 +57,23 @@
         "test:watch": "vitest",
         "up": "taze major -I"
     },
-    "packageManager": "pnpm@8.6.12",
+    "packageManager": "pnpm@8.7.0",
     "devDependencies": {
         "@types/jsdom": "^21.1.2",
-        "@types/node": "^20.5.4",
+        "@types/node": "^20.5.6",
         "@types/pako": "^2.0.0",
         "@typescript-eslint/eslint-plugin": "^6.4.1",
         "@typescript-eslint/parser": "^6.4.1",
         "dts-bundle-generator": "^8.0.1",
-        "eslint": "^8.47.0",
+        "eslint": "^8.48.0",
         "lint-staged": "^14.0.1",
         "stylelint": "^15.10.3",
         "stylelint-config-recommended": "^13.0.0",
         "stylelint-config-sass-guidelines": "^10.0.0",
         "taze": "^0.11.2",
-        "typescript": "^5.1.6",
+        "typescript": "^5.2.2",
         "vite": "^4.4.9",
-        "vitest": "^0.34.2"
+        "vitest": "^0.34.3"
     },
     "dependencies": {
         "@noble/curves": "^1.2.0",

@@ -37,6 +37,7 @@ module.exports = defineConfig({
 
     Layouts(),
     
+    // https://github.com/antfu/unplugin-auto-import
     AutoImport({
       imports: [
         'vue',

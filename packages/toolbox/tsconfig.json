@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": "./",
     "module": "ESNext",
     "target": "ESNext",
     "lib": [
@@ -12,6 +11,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "skipLibCheck": true,
+    "isolatedModules": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noUnusedLocals": true,
@@ -40,6 +40,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/components.d.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"

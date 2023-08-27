@@ -37,6 +37,7 @@ export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
 
 const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
 
+// TODO Accept ref as params
 export function useAppMachine<Type extends MachinesWithoutParams>(
   type: Type,
 ): UseAppMachineReturn<Type>

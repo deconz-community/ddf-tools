@@ -31,7 +31,8 @@
 				"statelyai.stately-vscode",
 				"yoavbls.pretty-ts-errors",
 				"ZixuanChen.vitest-explorer",
-				"christian-kohler.npm-intellisense"
+				"christian-kohler.npm-intellisense",
+				"Vue.vscode-typescript-vue-plugin"
 			]
         }
     },

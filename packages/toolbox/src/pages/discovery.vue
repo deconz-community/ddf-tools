@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// import Drafter from '~/components/drafter.vue'
+import type { DiscoveryResult } from '~/machines/discovery'
+
 // const discovery = useActor(computed(() => app.service.children.get('discovery')!))
 // const sampleCreds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
 
@@ -39,6 +42,16 @@ function scan() {
     uri: 'http://localhost',
   })
 }
+
+onMounted(() => {
+  discovery.send({ type: 'Start scan' })
+})
+
+const editingData = ref<undefined | DiscoveryResult>(undefined)
+
+watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
+  editingData.value = structuredClone(newValue)
+})
 </script>
 
 <template>
@@ -53,9 +66,68 @@ function scan() {
     Scan
   </v-btn>
 
+  <!--
   <pre>{{ discovery.state.value?.value }}</pre>
 
   <pre>{{ JSON.stringify(resultsList, null, 2) }}</pre>
+
+  {{ editingData }}
+  -->
+
+  <template v-if="discovery.state.value">
+    <template v-if="discovery.state.value.matches('scan')">
+      <v-card
+        v-for="result in discovery.state.value.context.results.values()" :key="result.id"
+        class="ma-3"
+        @click="discovery.send({ type: 'Edit', id: result.id })"
+      >
+        <v-card-item>
+          <v-card-title>
+            {{ result.name }}
+            <v-chip class="ml-2">
+              {{ result.version }}
+            </v-chip>
+          </v-card-title>
+          <v-card-subtitle>{{ result.id }}</v-card-subtitle>
+        </v-card-item>
+      </v-card>
+    </template>
+    <template v-else-if="discovery.state.value.matches('editing') && editingData">
+      <v-divider />
+      ------------------
+      <v-divider />
+      <Drafter v-slot="{ draft }" :data="() => discovery.state.value?.context.editing">
+        {{ draft }}
+      </Drafter>
+      <v-divider />
+      ------------------
+      <v-divider />
+      <v-card class="ma-3">
+        <v-card-item>
+          <v-card-title>
+            {{ editingData.name }}
+            <v-chip class="ml-2">
+              {{ editingData.version }}
+            </v-chip>
+          </v-card-title>
+          <v-card-subtitle>{{ editingData.id }}</v-card-subtitle>
+
+          <v-btn class="ma-2" @click="editingData.uri.push('')">
+            Add URI
+          </v-btn>
+          <v-card-text>
+            <template v-for="(uri, index) in editingData.uri" :key="index">
+              <v-text-field
+                v-model="editingData.uri[index]"
+                append-icon="mdi-delete"
+                @click:append="editingData.uri.splice(index, 1)"
+              />
+            </template>
+          </v-card-text>
+        </v-card-item>
+      </v-card>
+    </template>
+  </template>
 
   <!--
   <json-viewer

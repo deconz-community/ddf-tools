@@ -20,7 +20,7 @@
       "vitest/globals"
     ],
     "paths": {
-      "~/*": ["src/*"],
+      "~/*": ["src/*"]
     }
   },
   "include": [
@@ -32,6 +32,6 @@
     "**/*.test.ts",
     "**/test",
     "node_modules",
-    "pb_hooks",
+    "pb_hooks"
   ]
 }
