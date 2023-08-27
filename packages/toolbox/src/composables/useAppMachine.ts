@@ -3,6 +3,8 @@ import createXStateNinjaSingleton from 'xstate-ninja'
 import { interpret } from 'xstate'
 import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
 import { inspect } from '@xstate/inspect'
+import { useXstateSelector } from './xstate/useXstateSelector'
+import { useXstateActor } from './xstate/useXstateActor'
 import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
@@ -55,7 +57,7 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
 
-  const selector = (state: MachinesTypes['app']['state']) => {
+  const actorRef = useXstateSelector(app, (state) => {
     if (type === 'app')
       return app
     if (type === 'discovery')
@@ -63,55 +65,29 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
     if (type === 'gateway')
       return state.children[params.id]
     return undefined
-  }
-
-  const actorRef = shallowRef(selector(app.getSnapshot()))
-  const subActor = app.subscribe((emitted) => {
-    const nextSelected = selector(emitted)
-    if (actorRef.value !== nextSelected)
-      actorRef.value = nextSelected
-  })
-
-  onScopeDispose(() => {
-    subActor.unsubscribe()
   })
 
   const logEvent = (event: unknown) => {
     console.error('Event lost', event)
   }
-  const noop = () => {}
+
   const stateRef = shallowRef<MachinesTypes[Type]['state'] | undefined>(actorRef.value?.getSnapshot())
   const sendRef = shallowRef<MachinesTypes[Type]['interpreter']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
-  watch(actorRef, (newActor, _, onCleanup) => {
+  watch(actorRef, (newActor) => {
     if (!newActor) {
       stateRef.value = undefined
       sendRef.value = logEvent as any
       return
     }
-
-    stateRef.value = newActor.getSnapshot()
-    sendRef.value = newActor.send as any
-    const { unsubscribe } = newActor.subscribe({
-      next: (emitted) => {
-        stateRef.value = emitted
-      },
-      complete: noop,
-      error: noop,
-    })
-
-    onCleanup(() => {
-      console.log('Cleanup')
-      unsubscribe()
-    })
-  },
-  {
-    immediate: true,
-  })
+    const newNewActor = useXstateActor(newActor)
+    sendRef.value = newNewActor.send as any
+    syncRef(stateRef, newNewActor.state, { direction: 'rtl' })
+  }, { immediate: true })
 
   return {
-    // actor: actorRef,
+    actor: actorRef,
     state: stateRef,
     send,
   } as any
