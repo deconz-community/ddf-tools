@@ -18,6 +18,8 @@ async function test() {
 
 }
 
+const getData = () => discovery.state.value?.context.editing
+
 function addGateway() {
   if (resultsList.value.length > 0) {
     const result = resultsList.value[0]
@@ -96,7 +98,7 @@ watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
       <v-divider />
       ------------------
       <v-divider />
-      <Drafter v-slot="{ draft }" :data="() => discovery.state.value?.context.editing">
+      <Drafter v-slot="{ draft }" :data="getData">
         {{ draft }}
       </Drafter>
       <v-divider />
