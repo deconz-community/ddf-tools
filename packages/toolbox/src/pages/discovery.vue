@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import Drafter from '~/components/drafter.vue'
 import type { DiscoveryResult } from '~/machines/discovery'
 
 // const discovery = useActor(computed(() => app.service.children.get('discovery')!))
@@ -17,8 +16,6 @@ const resultsList = computed(() => {
 async function test() {
 
 }
-
-const getData = () => discovery.state.value?.context.editing
 
 function addGateway() {
   if (resultsList.value.length > 0) {
@@ -49,8 +46,7 @@ onMounted(() => {
   discovery.send({ type: 'Start scan' })
 })
 
-const editingData = ref<undefined | DiscoveryResult>(undefined)
-
+const editingData = ref<undefined | DiscoveryResult>(discovery.state.value?.context.editing)
 watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
   editingData.value = structuredClone(newValue)
 })
@@ -95,14 +91,6 @@ watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
       </v-card>
     </template>
     <template v-else-if="discovery.state.value.matches('editing') && editingData">
-      <v-divider />
-      ------------------
-      <v-divider />
-      <Drafter v-slot="{ draft }" :data="getData">
-        {{ draft }}
-      </Drafter>
-      <v-divider />
-      ------------------
       <v-divider />
       <v-card class="ma-3">
         <v-card-item>

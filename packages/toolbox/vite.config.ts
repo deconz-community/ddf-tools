@@ -8,8 +8,6 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
-
-
 module.exports = defineConfig({
   base: '/ddf-tools/',
   resolve: {
@@ -29,8 +27,6 @@ module.exports = defineConfig({
         }),
       },
     }),
-
-    Vuetify({}),
 
     Pages({
       extensions: ['vue'],
@@ -70,6 +66,9 @@ module.exports = defineConfig({
       dts: 'src/components.d.ts',
     }),
 
+    Vuetify({
+      autoImport: true,
+    }),
     
     // https://github.com/antfu/vite-plugin-pwa
     VitePWA({
