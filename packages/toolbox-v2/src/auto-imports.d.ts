@@ -115,6 +115,7 @@ declare global {
   const useActiveElement: typeof import('@vueuse/core')['useActiveElement']
   const useAnimate: typeof import('@vueuse/core')['useAnimate']
   const useAppMachine: typeof import('./composables/useAppMachine')['useAppMachine']
+  const useAppStore: typeof import('./stores/app')['useAppStore']
   const useArrayDifference: typeof import('@vueuse/core')['useArrayDifference']
   const useArrayEvery: typeof import('@vueuse/core')['useArrayEvery']
   const useArrayFilter: typeof import('@vueuse/core')['useArrayFilter']
@@ -180,6 +181,7 @@ declare global {
   const useGamepad: typeof import('@vueuse/core')['useGamepad']
   const useGateway: typeof import('./composables/useGateway')['useGateway']
   const useGatewayScanner: typeof import('./composables/useGatewayScanner')['useGatewayScanner']
+  const useGatewaysStore: typeof import('./stores/gateway')['useGatewaysStore']
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useGithubAvatar: typeof import('./composables/useGithubAvatar')['useGithubAvatar']
   const useHead: typeof import('@vueuse/head')['useHead']
@@ -420,6 +422,7 @@ declare module 'vue' {
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useAppMachine: UnwrapRef<typeof import('./composables/useAppMachine')['useAppMachine']>
+    readonly useAppStore: UnwrapRef<typeof import('./stores/app')['useAppStore']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
     readonly useArrayEvery: UnwrapRef<typeof import('@vueuse/core')['useArrayEvery']>
     readonly useArrayFilter: UnwrapRef<typeof import('@vueuse/core')['useArrayFilter']>
@@ -485,6 +488,7 @@ declare module 'vue' {
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGateway: UnwrapRef<typeof import('./composables/useGateway')['useGateway']>
     readonly useGatewayScanner: UnwrapRef<typeof import('./composables/useGatewayScanner')['useGatewayScanner']>
+    readonly useGatewaysStore: UnwrapRef<typeof import('./stores/gateway')['useGatewaysStore']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGithubAvatar: UnwrapRef<typeof import('./composables/useGithubAvatar')['useGithubAvatar']>
     readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
@@ -719,6 +723,7 @@ declare module '@vue/runtime-core' {
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useAppMachine: UnwrapRef<typeof import('./composables/useAppMachine')['useAppMachine']>
+    readonly useAppStore: UnwrapRef<typeof import('./stores/app')['useAppStore']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
     readonly useArrayEvery: UnwrapRef<typeof import('@vueuse/core')['useArrayEvery']>
     readonly useArrayFilter: UnwrapRef<typeof import('@vueuse/core')['useArrayFilter']>
@@ -784,6 +789,7 @@ declare module '@vue/runtime-core' {
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGateway: UnwrapRef<typeof import('./composables/useGateway')['useGateway']>
     readonly useGatewayScanner: UnwrapRef<typeof import('./composables/useGatewayScanner')['useGatewayScanner']>
+    readonly useGatewaysStore: UnwrapRef<typeof import('./stores/gateway')['useGatewaysStore']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGithubAvatar: UnwrapRef<typeof import('./composables/useGithubAvatar')['useGithubAvatar']>
     readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
