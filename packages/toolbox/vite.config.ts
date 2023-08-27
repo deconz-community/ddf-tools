@@ -24,6 +24,7 @@ module.exports = defineConfig({
     VueMacros({
       plugins: {
         vue: Vue({
+          include: [/\.vue$/],
           reactivityTransform: false,
         }),
       },
