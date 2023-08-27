@@ -1,16 +1,16 @@
-<script lang="ts" setup generic="T extends Record<string, any>">
+<script lang="ts" setup generic="T extends any">
+import { produce } from 'immer'
+
 const props = defineProps<{
-  data: () => T
+  data: Ref<T>
 }>()
 
 defineSlots<{
   default: (props: { draft: T }) => any
 }>()
 
-const draft = ref(structuredClone(props.data()))
-
-watch(toRef(() => props.data()), (newValue) => {
-  draft.value = structuredClone(newValue)
+const draft = useCloned(props.data, {
+  clone: data => produce(data, () => { }),
 })
 </script>
 
