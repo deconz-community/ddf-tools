@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const app = useAppMachine('app')
 
-type Link = ({ icon: string ; title: string ;to: string } | 'divider' | 'gateways')
+type Link = ({ icon: string ; title: string ;to: string } | 'divider' | { gateway: string })
 
 const links = computed(() => {
   const list: Link[] = []
@@ -10,12 +10,17 @@ const links = computed(() => {
   list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
   list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
   list.push('divider')
-  /*
-  if (app.state.value && objectKeys(app.state.value.context.credentials).length > 0) {
-    list.push('gateways')
-    list.push('divider')
+
+  if (app.state.value) {
+    const gateways = Array.from(app.state.value.context.machine.gateways.keys())
+    if (gateways.length > 0) {
+      gateways.forEach((gatewayId) => {
+        list.push({ gateway: gatewayId })
+      })
+      list.push('divider')
+    }
   }
-  */
+
   list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
   list.push({ icon: 'mdi-magnify', title: 'Discovery', to: '/discovery' })
 
@@ -29,10 +34,9 @@ const links = computed(() => {
       <perfect-scrollbar>
         <template v-for="link, _index in links" :key="_index">
           <v-divider v-if="link === 'divider'" />
-          <template v-else-if="link === 'gateways'">
+          <template v-else-if="'gateway' in link">
             <gateway-badge
-              v-for="item, uuid in app.state.value?.context.credentials" :key="uuid"
-              :gateway-id="item.id"
+              :gateway-id="link.gateway"
             />
           </template>
           <v-list-item v-else class="ma-1 justify-center">

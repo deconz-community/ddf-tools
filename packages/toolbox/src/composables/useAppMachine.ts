@@ -25,11 +25,13 @@ export interface MachinesTypes {
   }
 }
 
-export type MachinesWithParams = {
+export type MachineWithParams = {
   [K in keyof MachinesTypes]: 'params' extends keyof MachinesTypes[K] ? K : never;
 }[keyof MachinesTypes]
 
-export type MachinesWithoutParams = Exclude<keyof MachinesTypes, MachinesWithParams>
+export type MachineWithoutParams = Exclude<keyof MachinesTypes, MachineWithParams>
+
+export type Machine = MachineWithParams | MachineWithoutParams
 
 export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
   // actor: ShallowRef<MachinesTypes[Type]['interpreter'] | undefined>
@@ -40,11 +42,11 @@ export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
 export const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
 
 // TODO Accept ref as params
-export function useAppMachine<Type extends MachinesWithoutParams>(
+export function useAppMachine<Type extends MachineWithoutParams>(
   type: Type,
 ): UseAppMachineReturn<Type>
 
-export function useAppMachine<Type extends MachinesWithParams>(
+export function useAppMachine<Type extends MachineWithParams>(
   type: Type,
   params: MachinesTypes[Type]['params'],
 ): UseAppMachineReturn<Type>

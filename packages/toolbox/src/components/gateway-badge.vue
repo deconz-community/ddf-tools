@@ -5,15 +5,16 @@ const props = defineProps<{
   gatewayId: string
 }>()
 
+const gateway = useAppMachine('gateway', { id: props.gatewayId })
+const route = useRoute()
+
 const badgeColor = computed(() => {
   return Color(`#${props.gatewayId.substring(10)}`)
     .lightness(80)
     .hex()
 })
 
-const gateway = useAppMachine('gateway', { id: props.gatewayId })
-
-const active = computed(() => props.gatewayId === 'WIP')
+const active = computed(() => props.gatewayId === route.params.gateway)
 </script>
 
 <template>

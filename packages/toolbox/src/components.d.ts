@@ -7,11 +7,13 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    BtnEvent: typeof import('./components/btn/btn-event.vue')['default']
     BtnRoundedCircle: typeof import('./components/btn/btn-rounded-circle.vue')['default']
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']
     BundleSignaturesEditor: typeof import('./components/bundle-signatures-editor.vue')['default']
     CardGateway: typeof import('./components/card/card-gateway.vue')['default']
+    ChipGatewayState: typeof import('./components/chip/chip-gateway-state.vue')['default']
     ChipUser: typeof import('./components/chip/chip-user.vue')['default']
     ChipUserList: typeof import('./components/chip/chip-user-list.vue')['default']
     Drafter: typeof import('./components/drafter.vue')['default']
