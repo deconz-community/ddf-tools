@@ -11,7 +11,6 @@ export interface DiscoveryResult {
 
 export interface DiscoveryContext {
   results: Map<string, DiscoveryResult>
-  editing?: DiscoveryResult
 }
 
 export const discoveryMachine = createMachine({
@@ -26,7 +25,7 @@ export const discoveryMachine = createMachine({
     context: {} as DiscoveryContext,
     events: {} as {
       type: 'Start scan'
-      uri?: string
+      uri?: string | string[]
     } | {
       type: 'Stop scan'
     } | {
@@ -40,7 +39,6 @@ export const discoveryMachine = createMachine({
 
   context: (): DiscoveryContext => ({
     results: new Map(),
-    editing: undefined,
   }),
 
   states: {
@@ -96,6 +94,7 @@ export const discoveryMachine = createMachine({
       }),
     }),
 
+    /*
     setEditing: assign({
       editing: (context, event) => 'id' in event ? context.results.get(event.id) : undefined,
     }),
@@ -107,6 +106,7 @@ export const discoveryMachine = createMachine({
         draft.uri = event.data
       }),
     }),
+    */
   },
   services: {
     scan: (context, event) => async (callback) => {
@@ -118,8 +118,12 @@ export const discoveryMachine = createMachine({
         'http://core-deconz.local.hass.io:40850',
       ]
 
-      if (event.uri && !guesses.includes(event.uri))
-        guesses.push(event.uri)
+      const uris = event.uri ? Array.isArray(event.uri) ? event.uri : [event.uri] : []
+
+      uris.forEach((uri) => {
+        if (!guesses.includes(uri))
+          guesses.push(uri)
+      })
 
       try {
         const discovery = await Discovery().discover()

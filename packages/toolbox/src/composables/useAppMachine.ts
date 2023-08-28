@@ -53,18 +53,26 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
   type: Type,
   params?: any,
 ): UseAppMachineReturn<Type> {
+  // console.error('useAppMachine', type, params)
   const app = inject(appMachineSymbol)
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
 
   const actorRef = useXstateSelector(app, (state) => {
+    // console.log('useXstateSelector', type, params)
     if (type === 'app')
       return app
-    if (type === 'discovery')
+    if (type === 'discovery' && state.children.discovery)
       return state.children.discovery
-    if (type === 'gateway')
+    if (type === 'gateway' && state.children[params.id])
       return state.children[params.id]
+
+    // console.log('Not found')
     return undefined
+  })
+
+  watch(actorRef, (newActor) => {
+    // console.log('watch actorRef', type, params)
   })
 
   const logEvent = (event: unknown) => {
@@ -82,8 +90,12 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
       return
     }
     const newNewActor = useXstateActor(newActor)
-    sendRef.value = newNewActor.send as any
-    syncRef(stateRef, newNewActor.state, { direction: 'rtl' })
+
+    watch(newNewActor.state, (newState) => {
+      sendRef.value = newNewActor.send as any
+      stateRef.value = newState
+      // console.log('Watch', newState)
+    }, { immediate: true })
   }, { immediate: true })
 
   return {
@@ -104,9 +116,17 @@ export function createAppMachine() {
           })
         }
 
+        // console.log('Interpreting machine')
+
         const service = interpret(appMachine, {
           devTools: true,
-        }).start()
+        })
+
+        // console.log('Starting service')
+
+        service.start()
+
+        // console.log('App machine started')
 
         // Handle Ninja registration
         const ninja = createXStateNinjaSingleton()

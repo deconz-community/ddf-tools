@@ -21,7 +21,7 @@ function addGateway() {
   if (resultsList.value.length > 0) {
     const result = resultsList.value[0]
     app.send({
-      type: 'ADD_GATEWAY_CREDENTIALS',
+      type: 'Add gateway',
       credentials: {
         apiKey: '',
         id: result.id,
@@ -43,7 +43,9 @@ function scan() {
 }
 
 onMounted(() => {
+  console.log('Start scan')
   discovery.send({ type: 'Start scan' })
+  console.log('End scan')
 })
 
 const editingData = ref<undefined | DiscoveryResult>(discovery.state.value?.context.editing)

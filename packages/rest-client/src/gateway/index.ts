@@ -57,7 +57,10 @@ interface GatewayInfo {
 
 export type FindGatewayResult = Result<
   (
-    { code: 'ok' } |
+    {
+      code: 'ok'
+      config: Response<'getConfig'>['success']
+    } |
     {
       code: 'bridge_id_mismatch' | 'invalid_api_key'
       message: string
@@ -111,6 +114,7 @@ export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         resolved = true
         resolve(Ok({
           code: 'ok',
+          config: config.success,
           ...info,
         }))
         return undefined

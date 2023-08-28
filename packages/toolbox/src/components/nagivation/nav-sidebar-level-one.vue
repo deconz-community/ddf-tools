@@ -10,10 +10,12 @@ const links = computed(() => {
   list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
   list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
   list.push('divider')
+  /*
   if (app.state.value && objectKeys(app.state.value.context.credentials).length > 0) {
     list.push('gateways')
     list.push('divider')
   }
+  */
   list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
   list.push({ icon: 'mdi-magnify', title: 'Discovery', to: '/discovery' })
 

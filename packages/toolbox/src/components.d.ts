@@ -11,6 +11,7 @@ declare module 'vue' {
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']
     BundleSignaturesEditor: typeof import('./components/bundle-signatures-editor.vue')['default']
+    CardGateway: typeof import('./components/card/card-gateway.vue')['default']
     ChipUser: typeof import('./components/chip/chip-user.vue')['default']
     ChipUserList: typeof import('./components/chip/chip-user-list.vue')['default']
     Drafter: typeof import('./components/drafter.vue')['default']
