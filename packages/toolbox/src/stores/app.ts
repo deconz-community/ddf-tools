@@ -11,7 +11,7 @@ export const useAppStore = defineStore('app', () => {
   const machines: {
     app: UseAppMachineReturn['app']
   } = {
-    app: useAppMachine('app'),
+    app: useAppMachine({type:'app'}),
   }
   */
 

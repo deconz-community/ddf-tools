@@ -16,24 +16,29 @@ export interface MachineData<Type extends AnyStateMachine> {
 }
 
 export interface MachinesTypes {
-  app: MachineData<typeof appMachine>
-  discovery: MachineData<typeof discoveryMachine>
+  app: MachineData<typeof appMachine> & {
+    selector: {
+      type: 'app'
+    }
+  }
+  discovery: MachineData<typeof discoveryMachine> & {
+    selector: {
+      type: 'discovery'
+    }
+  }
   gateway: MachineData<typeof gatewayMachine> & {
-    params: {
+    selector: {
+      type: 'gateway'
       id: string
     }
   }
 }
 
-export type MachineWithParams = {
-  [K in keyof MachinesTypes]: 'params' extends keyof MachinesTypes[K] ? K : never;
-}[keyof MachinesTypes]
+export type MachineType = keyof MachinesTypes
 
-export type MachineWithoutParams = Exclude<keyof MachinesTypes, MachineWithParams>
+export type UseMachineSelector<Type extends MachineType> = MachinesTypes[Type]['selector']
 
-export type Machine = MachineWithParams | MachineWithoutParams
-
-export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
+export interface UseAppMachineReturn<Type extends MachineType> {
   // actor: ShallowRef<MachinesTypes[Type]['interpreter'] | undefined>
   state: ShallowRef<MachinesTypes[Type]['state'] | undefined>
   send: MachinesTypes[Type]['interpreter']['send']
@@ -42,19 +47,7 @@ export interface UseAppMachineReturn<Type extends keyof MachinesTypes> {
 export const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
 
 // TODO Accept ref as params
-export function useAppMachine<Type extends MachineWithoutParams>(
-  type: Type,
-): UseAppMachineReturn<Type>
-
-export function useAppMachine<Type extends MachineWithParams>(
-  type: Type,
-  params: MachinesTypes[Type]['params'],
-): UseAppMachineReturn<Type>
-
-export function useAppMachine<Type extends keyof MachinesTypes>(
-  type: Type,
-  params?: any,
-): UseAppMachineReturn<Type> {
+export function useAppMachine<Type extends MachineType>(params: UseMachineSelector<Type>): UseAppMachineReturn<Type> {
   // console.error('useAppMachine', type, params)
   const app = inject(appMachineSymbol)
   if (!app)
@@ -62,11 +55,11 @@ export function useAppMachine<Type extends keyof MachinesTypes>(
 
   const actorRef = useXstateSelector(app, (state) => {
     // console.log('useXstateSelector', type, params)
-    if (type === 'app')
+    if (params.type === 'app')
       return app
-    if (type === 'discovery' && state.children.discovery)
+    if (params.type === 'discovery' && state.children.discovery)
       return state.children.discovery
-    if (type === 'gateway' && state.children[params.id])
+    if (params.type === 'gateway' && state.children[params.id])
       return state.children[params.id]
 
     // console.log('Not found')

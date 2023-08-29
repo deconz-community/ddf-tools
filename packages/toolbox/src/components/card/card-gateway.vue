@@ -5,9 +5,9 @@ const props = defineProps<{
 
 // console.log('Init component card-gateway', props.id)
 
-const app = useAppMachine('app')
-const gateway = useAppMachine('gateway', { id: props.id })
-const discovery = useAppMachine('discovery')
+const app = useAppMachine({ type: 'app' })
+const gateway = useAppMachine({ type: 'gateway', id: props.id })
+const discovery = useAppMachine({ type: 'discovery' })
 
 const isNew = computed(() => gateway.state.value === undefined)
 

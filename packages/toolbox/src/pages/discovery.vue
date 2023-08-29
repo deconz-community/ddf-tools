@@ -5,9 +5,9 @@ import type { DiscoveryResult } from '~/machines/discovery'
 // const sampleCreds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
 
 // console.log(sampleCreds)
-const app = useAppMachine('app')
+const app = useAppMachine({ type: 'app' })
 
-const discovery = useAppMachine('discovery')
+const discovery = useAppMachine({ type: 'discovery' })
 
 const resultsList = computed(() => {
   return discovery.state.value ? Array.from(discovery.state.value.context.results.values()) : []

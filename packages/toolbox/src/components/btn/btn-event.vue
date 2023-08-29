@@ -1,14 +1,14 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="Type extends (MachineWithoutParams | MachineWithParams)">
+import type { MachineWithParams, MachineWithoutParams } from '~/composables/useAppMachine'
+
 defineOptions({
   inheritAttrs: false,
 })
 
 const props = defineProps<{
-  machine: ReturnType<typeof useAppMachine>
-  event: string
+  machine: ReturnType<typeof useAppMachine<Type>>
+  event: any
 }>()
-
-type Event = ReturnType<typeof useAppMachine>['send']
 </script>
 
 <template>
