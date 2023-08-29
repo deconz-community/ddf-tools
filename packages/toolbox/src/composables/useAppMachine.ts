@@ -15,39 +15,38 @@ export interface MachineData<Type extends AnyStateMachine> {
   events: EventFrom<Type>
 }
 
-export interface MachinesTypes {
-  app: MachineData<typeof appMachine> & {
-    selector: {
-      type: 'app'
-    }
+export type Machines = MachineData<typeof appMachine> & {
+  selector: {
+    type: 'app'
   }
-  discovery: MachineData<typeof discoveryMachine> & {
-    selector: {
-      type: 'discovery'
-    }
+} | MachineData<typeof discoveryMachine> & {
+  selector: {
+    type: 'discovery'
   }
-  gateway: MachineData<typeof gatewayMachine> & {
-    selector: {
-      type: 'gateway'
-      id: string
-    }
+} | MachineData<typeof gatewayMachine> & {
+  selector: {
+    type: 'gateway'
+    id: string
   }
 }
 
-export type MachineType = keyof MachinesTypes
+export type MachineType = Machines['selector']['type']
+export type Machine<Type extends MachineType> = Extract<Machines, { selector: { type: Type } }>
 
-export type UseMachineSelector<Type extends MachineType> = MachinesTypes[Type]['selector']
+export type MachineSelector<Type extends MachineType> = Machine<Type>['selector']
 
 export interface UseAppMachineReturn<Type extends MachineType> {
   // actor: ShallowRef<MachinesTypes[Type]['interpreter'] | undefined>
-  state: ShallowRef<MachinesTypes[Type]['state'] | undefined>
-  send: MachinesTypes[Type]['interpreter']['send']
+  state: ShallowRef<Machine<Type>['state'] | undefined>
+  send: Machine<Type>['interpreter']['send']
 }
 
-export const appMachineSymbol: InjectionKey<MachinesTypes['app']['interpreter']> = Symbol('AppMachine')
+export const appMachineSymbol: InjectionKey<Machine<'app'>['interpreter']> = Symbol('AppMachine')
+
+export type EventTest = EventFrom<Machine<'app'>['interpreter']>['type']
 
 // TODO Accept ref as params
-export function useAppMachine<Type extends MachineType>(params: UseMachineSelector<Type>): UseAppMachineReturn<Type> {
+export function useAppMachine<Type extends MachineType>(params: MachineSelector<Type>): UseAppMachineReturn<Type> {
   // console.error('useAppMachine', type, params)
   const app = inject(appMachineSymbol)
   if (!app)
@@ -74,8 +73,8 @@ export function useAppMachine<Type extends MachineType>(params: UseMachineSelect
     console.error('Event lost', event)
   }
 
-  const stateRef = shallowRef<MachinesTypes[Type]['state'] | undefined>(actorRef.value?.getSnapshot())
-  const sendRef = shallowRef<MachinesTypes[Type]['interpreter']['send']>(logEvent as any)
+  const stateRef = shallowRef<MachinesTypes[Machine]['state'] | undefined>(actorRef.value?.getSnapshot())
+  const sendRef = shallowRef<MachinesTypes[Machine]['interpreter']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
   watch(actorRef, (newActor) => {
