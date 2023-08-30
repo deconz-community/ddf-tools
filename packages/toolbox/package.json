@@ -72,6 +72,7 @@
     "stylelint-config-sass-guidelines": "^10.0.0",
     "taze": "^0.11.2",
     "ts-node": "^10.9.1",
+    "ts-toolbelt": "^9.6.0",
     "typescript": "^5.2.2",
     "unplugin-auto-import": "^0.16.6",
     "unplugin-vue-components": "^0.25.1",
