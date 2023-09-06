@@ -1,7 +1,7 @@
 import type { App, ShallowRef } from 'vue'
 import createXStateNinjaSingleton from 'xstate-ninja'
 import { interpret } from 'xstate'
-import type { AnyStateMachine, InterpreterFrom, StateFrom } from 'xstate'
+import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
 import { inspect } from '@xstate/inspect'
 import { useXstateSelector } from './xstate/useXstateSelector'
 import { useXstateActor } from './xstate/useXstateActor'
@@ -9,31 +9,33 @@ import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
 
-export interface MachineData<Type extends AnyStateMachine> {
+export interface AppMachinePart<Type extends AnyStateMachine> {
   interpreter: InterpreterFrom<Type>
   state: StateFrom<Type>
-  // events: EventFrom<Type>
+  events: EventFrom<Type>
 }
 
-export type Machine =
-| { type: 'app' } & MachineData<typeof appMachine>
-| { type: 'discovery' } & MachineData<typeof discoveryMachine>
-| { type: 'gateway' } & MachineData<typeof gatewayMachine> & { query: { id: string } }
+export type AppMachine =
+| { type: 'app' } & AppMachinePart<typeof appMachine>
+| { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
+| { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
 
-export type ExtractMachine<Type extends Machine['type']> = Extract<Machine, { type: Type }>
-export type MachineQuery<Type extends Machine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
+export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
+export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
 
 export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['interpreter']> = Symbol('AppMachine')
 
-export function useAppMachine<Type extends Machine['type']>(
+export interface UseAppMachine<Type extends AppMachine['type']> {
+  actor: ShallowRef<ExtractMachine<Type>['interpreter'] | undefined>
+  state: ShallowRef<ExtractMachine<Type>['state'] | undefined>
+  send: ExtractMachine<Type>['interpreter']['send']
+}
+
+export function useAppMachine<Type extends AppMachine['type']>(
   ...args: MachineQuery<Type> extends never
     ? [type: Type]
     : [type: Type, query: MachineQuery<Type>]
-): {
-    actor: ShallowRef<ExtractMachine<Type>['interpreter'] | undefined>
-    state: ShallowRef<ExtractMachine<Type>['state'] | undefined>
-    send: ExtractMachine<Type>['interpreter']['send']
-  } {
+): UseAppMachine<Type> {
   const [type, query] = args
   // console.error('useAppMachine', type, params)
   const app = inject(appMachineSymbol)

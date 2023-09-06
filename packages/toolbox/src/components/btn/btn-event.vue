@@ -1,14 +1,14 @@
-<script setup lang="ts" generic="Type extends MachineType">
+<script setup lang="ts" generic="Type extends AppMachine['type']">
 import type { EventFrom } from 'xstate'
-import type { MachineType } from '~/composables/useAppMachine'
+import type { AppMachine, ExtractMachine, UseAppMachine } from '~/composables/useAppMachine'
 
 defineOptions({
   inheritAttrs: false,
 })
 
 const props = defineProps<{
-  machine: ReturnType<typeof useAppMachine<Type>>
-  event: EventFrom<typeof useAppMachine<Type>>
+  machine: UseAppMachine<Type>
+  event: EventFrom<ExtractMachine<Type>>
 }>()
 </script>
 

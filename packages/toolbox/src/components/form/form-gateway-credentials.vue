@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import type { BodyParams } from '@deconz-community/rest-client'
 import { FindGateway } from '@deconz-community/rest-client'
-import { useSelector } from '@xstate/vue'
 import hmacSHA256 from 'crypto-js/hmac-sha256'
-import type { GatewayMachine } from '~/stores/gateway'
+import type { UseAppMachine } from '~/composables/useAppMachine'
 
 const props = defineProps<{
-  gateway: GatewayMachine
+  gateway: UseAppMachine<'gateway'>
 }>()
 
-const { state, credentials, machine } = props.gateway
+const { state, send } = props.gateway
 const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE)
 
-const canConnect = useSelector(machine, state => state.can('Connect'))
-const cantPrevious = useSelector(machine, state => !state.can('Previous'))
-const cantNext = useSelector(machine, state => !state.can('Next'))
+/*
+const canConnect = computed(() => state.value?.can('Connect'))
+const cantPrevious = computed(() => !state.can('Previous'))
+const cantNext = computed(() => !state.can('Next'))
+*/
 
 async function fetchKey() {
   const result = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
@@ -52,90 +53,45 @@ async function fetchKey() {
 </script>
 
 <template>
-  <v-card>
+  FORM
+  <!--
+  <v-card class="ma-2" elevation="1" variant="outlined">
     <template #title>
-      <span>{{ credentials.name }}</span>
-      <v-spacer />
-      <v-btn @click="machine.send('Edit credentials')">
-        Edit Credentials
+      Editing credentials
+    </template>
+    <template v-if="gateway.state.value!.matches('offline.editing.Address')">
+      <v-btn @click="credentials.URIs.api.push('')">
+        Add
+      </v-btn>
+      <template v-for="address, index of credentials.URIs.api" :key="index">
+        <v-text-field
+          v-model="credentials.URIs.api[index]"
+          append-inner-icon="mdi-close"
+          @click:append-inner="credentials.URIs.api.splice(index, 1)"
+        />
+      </template>
+    </template>
+    <template v-else-if="gateway.state.value!.matches('offline.editing.API key')">
+      <v-text-field v-model="credentials.apiKey" label="API Key" />
+      <v-text-field v-model="installCode" label="Install code" />
+      <v-btn @click="fetchKey()">
+        Fetch API key
       </v-btn>
     </template>
 
-    <template v-if="state.matches('online')">
-      <v-alert type="success" title="Info">
-        You are connected to the gateway.
-      </v-alert>
-      <json-viewer :value="Object.keys(state.context.devices)" />
-    </template>
+    <v-card-actions>
+      <v-btn :disabled="cantPrevious" @click="machine.send('Previous')">
+        Previous
+      </v-btn>
+      <v-btn :disabled="cantNext" @click="machine.send('Next')">
+        Next
+      </v-btn>
+    </v-card-actions>
+  </v-card>
 
-    <template v-if="state.matches('connecting')">
-      <v-alert type="info" title="Info">
-        Connecting to the gateway...
-      </v-alert>
-    </template>
+  -->
 
-    <template v-if="state.matches('offline')">
-      <template v-if="state.matches('offline.error')">
-        <v-alert type="error" title="Error while connecting to the gateway">
-          <template v-if="state.matches('offline.error.unreachable')">
-            The gateway is unreachable.
-          </template>
-          <template v-else-if="state.matches('offline.error.invalid API key')">
-            The API key is invalid.
-          </template>
-          <template v-else>
-            Something went wrong.
-          </template>
-        </v-alert>
-      </template>
-
-      <template v-else-if="state.matches('offline.disabled')">
-        <v-alert type="info" title="Info">
-          The gateway is disabled.
-          <v-btn v-if="canConnect" @click="machine.send('Connect')">
-            Connect
-          </v-btn>
-        </v-alert>
-      </template>
-
-      <template v-else-if="state.matches('offline.editing')">
-        <v-card class="ma-2" elevation="1" variant="outlined">
-          <template #title>
-            Editing credentials
-          </template>
-          <template v-if="state.matches('offline.editing.Address')">
-            <v-btn @click="credentials.URIs.api.push('')">
-              Add
-            </v-btn>
-            <template v-for="address, index of credentials.URIs.api" :key="index">
-              <v-text-field
-                v-model="credentials.URIs.api[index]"
-                append-inner-icon="mdi-close"
-                @click:append-inner="credentials.URIs.api.splice(index, 1)"
-              />
-            </template>
-          </template>
-          <template v-else-if="state.matches('offline.editing.API key')">
-            <v-text-field v-model="credentials.apiKey" label="API Key" />
-            <v-text-field v-model="installCode" label="Install code" />
-            <v-btn @click="fetchKey()">
-              Fetch API key
-            </v-btn>
-          </template>
-
-          <v-card-actions>
-            <v-btn :disabled="cantPrevious" @click="machine.send('Previous')">
-              Previous
-            </v-btn>
-            <v-btn :disabled="cantNext" @click="machine.send('Next')">
-              Next
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </template>
-    </template>
-
-    <!--
+  <!--
     <template v-if="props.credentials" #subtitle>
       <span>{{ props.credentials.id }}</span>
     </template>
@@ -187,5 +143,4 @@ async function fetchKey() {
     </v-card-text>
     </v-form>
     -->
-  </v-card>
 </template>
