@@ -46,23 +46,23 @@ function removeGateway() {
 </script>
 
 <template>
-  <v-card v-if="gateway.state.value" class="ma-3">
+  <v-card class="ma-3">
     <v-card-item>
       <v-card-title>
         {{ name }}
         <v-chip v-if="version" class="ml-2">
           {{ version }}
         </v-chip>
-        <chip-gateway-state :state="gateway.state" class="ma-2" />
         <v-chip v-if="isNew" class="ml-2" color="success">
           New
         </v-chip>
+        <chip-gateway-state v-else :state="gateway.state" class="ml-2" />
       </v-card-title>
       <v-card-subtitle>{{ props.id }}</v-card-subtitle>
-      <v-card-text>
-        <pre>{{ gateway.state.value.value }}</pre>
-        <template v-if="gateway.state.value.matches('offline')">
-          <template v-if="gateway.state.value.matches('offline.error.invalid API key')">
+      <v-card-text v-if="!isNew">
+        <pre>{{ gateway.state.value!.value }}</pre>
+        <template v-if="gateway.state.value!.matches('offline')">
+          <template v-if="gateway.state.value!.matches('offline.error.invalid API key')">
             Oh noooo
           </template>
         </template>
@@ -71,11 +71,13 @@ function removeGateway() {
         <pre>{{ gateway.state.value.value }}</pre>
         -->
       </v-card-text>
-      <v-card-actions>
-        <v-btn v-if="isNew" elevation="2" @click="addGateway()">
+      <v-card-actions v-if="isNew">
+        <v-btn elevation="2" @click="addGateway()">
           Add
         </v-btn>
-        <v-btn v-else elevation="2" @click="removeGateway()">
+      </v-card-actions>
+      <v-card-actions v-else>
+        <v-btn elevation="2" @click="removeGateway()">
           Remove
         </v-btn>
         <btn-event elevation="2" :machine="gateway" event="Edit credentials" />
