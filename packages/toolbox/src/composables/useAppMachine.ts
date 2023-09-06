@@ -1,7 +1,7 @@
 import type { App, ShallowRef } from 'vue'
 import createXStateNinjaSingleton from 'xstate-ninja'
 import { interpret } from 'xstate'
-import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
+import type { AnyStateMachine, InterpreterFrom, StateFrom } from 'xstate'
 import { inspect } from '@xstate/inspect'
 import { useXstateSelector } from './xstate/useXstateSelector'
 import { useXstateActor } from './xstate/useXstateActor'
@@ -12,56 +12,57 @@ import type { gatewayMachine } from '~/machines/gateway'
 export interface MachineData<Type extends AnyStateMachine> {
   interpreter: InterpreterFrom<Type>
   state: StateFrom<Type>
-  events: EventFrom<Type>
+  // events: EventFrom<Type>
 }
 
-export type Machines = MachineData<typeof appMachine> & {
-  selector: {
-    type: 'app'
-  }
-} | MachineData<typeof discoveryMachine> & {
-  selector: {
-    type: 'discovery'
-  }
-} | MachineData<typeof gatewayMachine> & {
-  selector: {
-    type: 'gateway'
-    id: string
-  }
-}
+export type Machine =
+| { type: 'app' } & MachineData<typeof appMachine>
+| { type: 'discovery' } & MachineData<typeof discoveryMachine>
+| { type: 'gateway' } & MachineData<typeof gatewayMachine> & { query: { id: string } }
 
-export type MachineType = Machines['selector']['type']
-export type Machine<Type extends MachineType> = Extract<Machines, { selector: { type: Type } }>
+export type ExtractMachine<Type extends Machine['type']> = Extract<Machine, { type: Type }>
+export type MachineQuery<Type extends Machine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
 
-export type MachineSelector<Type extends MachineType> = Machine<Type>['selector']
+export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['interpreter']> = Symbol('AppMachine')
 
-export interface UseAppMachineReturn<Type extends MachineType> {
-  // actor: ShallowRef<MachinesTypes[Type]['interpreter'] | undefined>
-  state: ShallowRef<Machine<Type>['state'] | undefined>
-  send: Machine<Type>['interpreter']['send']
-}
-
-export const appMachineSymbol: InjectionKey<Machine<'app'>['interpreter']> = Symbol('AppMachine')
-
-export type EventTest = EventFrom<Machine<'app'>['interpreter']>['type']
-
-// TODO Accept ref as params
-export function useAppMachine<Type extends MachineType>(params: MachineSelector<Type>): UseAppMachineReturn<Type> {
+export function useAppMachine<Type extends Machine['type']>(
+  ...args: MachineQuery<Type> extends never
+    ? [type: Type]
+    : [type: Type, query: MachineQuery<Type>]
+): {
+    actor: ShallowRef<ExtractMachine<Type>['interpreter'] | undefined>
+    state: ShallowRef<ExtractMachine<Type>['state'] | undefined>
+    send: ExtractMachine<Type>['interpreter']['send']
+  } {
+  const [type, query] = args
   // console.error('useAppMachine', type, params)
   const app = inject(appMachineSymbol)
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
 
   const actorRef = useXstateSelector(app, (state) => {
-    // console.log('useXstateSelector', type, params)
-    if (params.type === 'app')
-      return app
-    if (params.type === 'discovery' && state.children.discovery)
-      return state.children.discovery
-    if (params.type === 'gateway' && state.children[params.id])
-      return state.children[params.id]
+    switch (type) {
+      case 'app':
+        return app
 
-    // console.log('Not found')
+      case 'discovery':
+        if (state.children.discovery)
+          return state.children.discovery
+        break
+
+      case 'gateway':{
+        const { id } = query as MachineQuery<'gateway'>
+        if (state.children[id])
+          return state.children[id]
+        break
+      }
+
+      default : {
+        const _exhaustiveCheck: never = type
+        throw new Error(`Unhandled machine type: ${_exhaustiveCheck}`)
+      }
+    }
+
     return undefined
   })
 
@@ -73,8 +74,8 @@ export function useAppMachine<Type extends MachineType>(params: MachineSelector<
     console.error('Event lost', event)
   }
 
-  const stateRef = shallowRef<MachinesTypes[Machine]['state'] | undefined>(actorRef.value?.getSnapshot())
-  const sendRef = shallowRef<MachinesTypes[Machine]['interpreter']['send']>(logEvent as any)
+  const stateRef = shallowRef<ExtractMachine<Type>['state'] | undefined>(actorRef.value?.getSnapshot())
+  const sendRef = shallowRef<ExtractMachine<Type>['interpreter']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
   watch(actorRef, (newActor) => {

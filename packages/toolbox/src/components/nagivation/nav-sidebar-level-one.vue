@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const app = useAppMachine({type:'app'})
+const app = useAppMachine('app')
 
 type Link = ({ icon: string ; title: string ;to: string } | 'divider' | { gateway: string })
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import CardGateway from '~/components/card/card-gateway.vue'
 
-const app = useAppMachine({ type: 'app' })
+const app = useAppMachine('app')
 
-const discovery = useAppMachine({ type: 'discovery' })
+const discovery = useAppMachine('discovery')
 
 onMounted(() => {
   // console.log('Start scan')
