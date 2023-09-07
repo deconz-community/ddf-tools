@@ -6,11 +6,9 @@ const props = defineProps<{
 const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
 
 const credentials = computed(() => {
-  console.log('Update credentials')
   return gateway.state?.context.credentials
 })
 const devices = computed(() => {
-  console.log('Update devices')
   return Object.keys(gateway.state?.context.devices ?? [])
 })
 /*
