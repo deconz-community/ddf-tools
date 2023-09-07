@@ -1,8 +1,9 @@
-import { assign, createMachine, sendParent } from 'xstate'
+import { assign, createMachine, sendParent, spawn } from 'xstate'
 import { FindGateway } from '@deconz-community/rest-client'
 import type { FindGatewayResult, Gateway, Response } from '@deconz-community/rest-client'
 import { Ok, type Result } from 'ts-results-es'
 import type { GatewayCredentials } from './app'
+import { deviceMachine } from './device'
 
 export interface gatewayContext {
   credentials: GatewayCredentials
@@ -210,11 +211,11 @@ export const gatewayMachine = createMachine({
         newList
           .filter(uuid => !oldList.includes(uuid))
           .forEach((uuid) => {
-            devices[uuid] = 'foo' /* spawn(deviceMachine.withContext({
+            devices[uuid] = spawn(deviceMachine.withContext({
               id: uuid,
               gateway: context.gateway!,
               data: undefined,
-            }), uuid) */
+            }), uuid)
           })
 
         oldList

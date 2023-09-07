@@ -8,6 +8,7 @@ import { useXstateSelector } from './xstate/useXstateSelector'
 import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
+import type { deviceMachine } from '~/machines/device'
 
 export interface AppMachinePart<Type extends AnyStateMachine> {
   interpreter: InterpreterFrom<Type>
@@ -19,6 +20,7 @@ export type AppMachine =
 | { type: 'app' } & AppMachinePart<typeof appMachine>
 | { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
 | { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
+| { type: 'device' } & AppMachinePart<typeof deviceMachine> & { query: { gateway: string ; id: string } }
 
 export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
 export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
@@ -35,13 +37,20 @@ export function useAppMachine<Type extends AppMachine['type']>(
     ? [type: Type]
     : [type: Type, query: MaybeRef<MachineQuery<Type>>]
 ): UseAppMachine<Type> {
-  const type = args[0] as Type
-
   // console.error('useAppMachine', type, params)
   const app = inject(appMachineSymbol)
   if (!app)
     throw new Error('useAppMachine() is called but was not created.')
 
+  return effectScope().run(() => getMachine(app, args[0], args[1])) as any
+  // return scope.run(() => foo(app, ...args)) as any
+}
+
+function getMachine<Type extends AppMachine['type']>(
+  app: ExtractMachine<'app'>['interpreter'],
+  type: Type,
+  _query?: MaybeRef<MachineQuery<Type>>,
+): UseAppMachine<Type> {
   const actorRef = useXstateSelector(app, (state) => {
     switch (type) {
       case 'app':
@@ -53,12 +62,22 @@ export function useAppMachine<Type extends AppMachine['type']>(
         break
 
       case 'gateway':{
-        const query = unref(args[1]) as MachineQuery<'gateway'>
+        const query = unref(_query) as MachineQuery<'gateway'>
         const gateway = state.children[query.id]
         if (gateway)
           return gateway
-        else
-          console.warn('Gateway not found', query)
+        break
+      }
+
+      case 'device':{
+        const device = effectScope().run(() => {
+          const query = unref(_query) as MachineQuery<'device'>
+          const gateway = getMachine(app, 'gateway', computed(() => ({ id: query.gateway })))
+          return gateway.state?.children[query.id]
+        })
+
+        if (device)
+          return device
         break
       }
 

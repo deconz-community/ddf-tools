@@ -3,12 +3,12 @@ const props = defineProps<{
   gateway: string
   device: string
 }>()
+
+const device = useAppMachine('device', computed(() => ({ gateway: props.gateway, id: props.device })))
 </script>
 
 <template>
-  Coucou from device
-  {{ props.gateway }}
-  {{ props.device }}
+  <pre>{{ device.state?.context.data }}</pre>
 </template>
 
 <route lang="json">
