@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/*
 const gatewayStore = useGatewaysStore()
 
 const creds = JSON.parse(import.meta.env.VITE_GATEWAY_CREDENTIALS)
@@ -21,6 +22,7 @@ function removeCreds() {
 
 function test() {
 }
+*/
 /*
 const context = useSelector(machine.value, state => state.context)
 
@@ -43,6 +45,8 @@ const nextEvents = computed(() => {
     </template>
 
     <template #text>
+      Foo
+<!--
       <v-btn @click="resetCreds()">
         Reset credentials
       </v-btn>
@@ -54,18 +58,17 @@ const nextEvents = computed(() => {
       </v-btn>
 
       <json-viewer :value="gatewayStore.credentials" />
-
       <template v-if="gateway">
-        <json-viewer :value="gateway.state.value.context" />
+        <json-viewer :value="gateway.state.context" />
         <v-btn
-          v-for="nextEvent in gateway.state.value.nextEvents"
+          v-for="nextEvent in gateway.state.nextEvents"
           :key="nextEvent"
-          @click="gateway.machine.send(nextEvent)"
+          @click="gateway.send(nextEvent)"
         >
           {{ nextEvent }}
         </v-btn>
       </template>
-      <!--
+      
 
       <template v-if="machine">
         <json-viewer

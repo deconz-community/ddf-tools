@@ -15,7 +15,7 @@ const props = defineProps<{
 <template>
   <v-btn
     v-bind="{ ...props, ...$attrs }"
-    :disabled="props.machine.state?.value?.can(props.event as any) !== true"
+    :disabled="props.machine.state?.can(props.event as any) !== true"
     @click="props.machine.send(props.event as any)"
   >
     {{ props.event }}

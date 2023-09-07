@@ -11,7 +11,7 @@ const props = defineProps<{
 const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE ?? '')
 
 const { cloned: credentials, sync: resetCredentials } = useCloned(
-  computed(() => props.gateway.state.value?.context.credentials),
+  computed(() => props.gateway.state?.context.credentials),
   { clone: structuredClone },
 )
 
@@ -69,9 +69,9 @@ function save() {
 </script>
 
 <template>
-  <template v-if="credentials">
+  <template v-if="credentials && gateway.state">
     <v-card variant="outlined">
-      <template v-if="gateway.state.value!.matches('offline.editing.Address')">
+      <template v-if="gateway.state.matches('offline.editing.Address')">
         <v-card-title>
           Editing address
         </v-card-title>
@@ -88,7 +88,7 @@ function save() {
           </template>
         </v-card-text>
       </template>
-      <template v-else-if="gateway.state.value!.matches('offline.editing.API key')">
+      <template v-else-if="gateway.state.matches('offline.editing.API key')">
         <v-card-title>
           Editing API Key
         </v-card-title>
@@ -100,17 +100,17 @@ function save() {
           </v-btn>
         </v-card-text>
       </template>
-      <v-card-actions v-if="gateway.state.value!.matches('offline.editing')">
+      <v-card-actions v-if="gateway.state.matches('offline.editing')">
         <v-btn
           elevation="2"
-          :disabled="gateway.state.value!.can('Previous') !== true"
+          :disabled="gateway.state.can('Previous') !== true"
           @click="gateway.send('Previous')"
         >
           Previous
         </v-btn>
         <v-btn
           elevation="2"
-          :disabled="gateway.state.value!.can('Next') !== true"
+          :disabled="gateway.state.can('Next') !== true"
           @click="gateway.send('Next')"
         >
           Next

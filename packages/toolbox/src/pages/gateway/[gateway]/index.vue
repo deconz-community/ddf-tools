@@ -3,6 +3,16 @@ const props = defineProps<{
   gateway: string
 }>()
 
+const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
+
+const credentials = computed(() => {
+  console.log('Update credentials')
+  return gateway.state?.context.credentials
+})
+const devices = computed(() => {
+  console.log('Update devices')
+  return Object.keys(gateway.state?.context.devices ?? [])
+})
 /*
 const gateways = useGatewaysStore()
 
@@ -18,7 +28,7 @@ const gateway = gateways.gateways[props.gateway]
 
 console.log(gateway)
 
-const state = computed(() => state.value)
+const state = computed(() => state)
 
 function send(event: string) {
   console.log('sending event', event)
@@ -55,6 +65,8 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
       Gateway Page
     </template>
     <template #text>
+      <pre>{{ credentials }}</pre>
+      <pre>{{ devices }}</pre>
       <!--
       <json-viewer :value="state.toStrings().pop()" />
       <json-viewer :value="state.context" />

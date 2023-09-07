@@ -1,3 +1,4 @@
+import type { ShallowRef } from 'vue'
 import { shallowRef } from 'vue'
 import type { ActorRef, Subscribable } from 'xstate'
 import { defaultGetSnapshot } from './useXstateActor'
@@ -14,7 +15,11 @@ export function useXstateSelector<
   compare: (a: T, b: T) => boolean = defaultCompare,
   getSnapshot: (a: TActor) => TEmitted = defaultGetSnapshot,
 ) {
-  const selected = shallowRef(selector(getSnapshot(actor)))
+  const selected = shallowRef() as ShallowRef<T>
+
+  const cleanup = watchEffect(() => {
+    selected.value = selector(getSnapshot(actor))
+  })
 
   const updateSelectedIfChanged = (nextSelected: T) => {
     if (!compare(selected.value, nextSelected))
@@ -27,6 +32,7 @@ export function useXstateSelector<
   })
 
   onScopeDispose(() => {
+    cleanup()
     sub?.unsubscribe()
   })
 

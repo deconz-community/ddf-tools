@@ -10,9 +10,10 @@ const discoveryUri = ref<string>(JSON.parse(import.meta.env.VITE_GATEWAY_DISCOVE
 const newList = computed(() => {
   const list = []
 
-  const discoveredGateway = discovery.state.value ? Array.from(discovery.state.value.context.results.values()) : []
+  const discoveredGateway = discovery.state ? Array.from(discovery.state.context.results.values()) : []
   // console.log(discoveredGateway)
-  const existingGateway = app.state.value ? Array.from(app.state.value.context.machine.gateways.keys()) : []
+
+  const existingGateway = app.state ? Array.from(app.state.context.machine.gateways.keys()) : []
 
   list.push(...existingGateway)
 
@@ -21,6 +22,7 @@ const newList = computed(() => {
       return
     list.push(value.id)
   })
+
   return list
 })
 </script>
@@ -35,12 +37,12 @@ const newList = computed(() => {
         v-model="discoveryUri"
         label="Address"
         hide-details
-        :loading="discovery.state.value?.matches('scanning')"
+        :loading="discovery.state?.matches('scanning')"
       />
     </v-card-text>
     <v-card-actions>
       <v-btn
-        :disabled="discovery.state.value?.matches('scanning')"
+        :disabled="discovery.state?.matches('scanning')"
         @click="discovery.send({ type: 'Start scan', uri: discoveryUri.split(',') })"
       >
         Scan

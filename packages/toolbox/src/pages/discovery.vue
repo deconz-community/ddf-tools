@@ -10,7 +10,7 @@ const app = useAppMachine('app')
 const discovery = useAppMachine('discovery')
 
 const resultsList = computed(() => {
-  return discovery.state.value ? Array.from(discovery.state.value.context.results.values()) : []
+  return discovery.state ? Array.from(discovery.state.context.results.values()) : []
 })
 
 async function test() {
@@ -41,15 +41,16 @@ function scan() {
     uri: 'http://localhost',
   })
 }
-
+/*
 onMounted(() => {
   console.log('Start scan')
   discovery.send({ type: 'Start scan' })
   console.log('End scan')
 })
+*/
 
-const editingData = ref<undefined | DiscoveryResult>(discovery.state.value?.context.editing)
-watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
+const editingData = ref<undefined | DiscoveryResult>(discovery.state?.context.editing)
+watch(toRef(() => discovery.state?.context.editing), (newValue) => {
   editingData.value = structuredClone(newValue)
 })
 </script>
@@ -62,21 +63,21 @@ watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
   <v-btn @click="addGateway()">
     add Gateway
   </v-btn>
-  <v-btn v-if="discovery.state.value" :disabled="!discovery.state.value.can('Start scan')" @click="scan()">
+  <v-btn v-if="discovery.state" :disabled="!discovery.state.can('Start scan')" @click="scan()">
     Scan
   </v-btn>
 
   <!--
-  <pre>{{ discovery.state.value?.value }}</pre>
+  <pre>{{ discovery.state?.value }}</pre>
 
   <pre>{{ JSON.stringify(resultsList, null, 2) }}</pre>
 
   {{ editingData }}
   -->
 
-  <template v-if="discovery.state.value">
+  <template v-if="discovery.state">
     <v-card
-      v-for="result in discovery.state.value.context.results.values()" :key="result.id"
+      v-for="result in discovery.state.context.results.values()" :key="result.id"
       class="ma-3"
     >
       <v-card-item>
@@ -93,14 +94,14 @@ watch(toRef(() => discovery.state.value?.context.editing), (newValue) => {
 
   <!--
   <json-viewer
-    v-if="discovery.state.value"
-    :value="discovery.state.value.value"
+    v-if="discovery.state"
+    :value="discovery.state"
     :expand-depth="5"
   />
   -->
 
   <!--
-  <json-viewer v-if="gateway.state.value" :value="gateway.state.value.value" :expand-depth="5" />
+  <json-viewer v-if="gateway.state" :value="gateway.state" :expand-depth="5" />
   -->
 </template>
 

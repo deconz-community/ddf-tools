@@ -122,10 +122,10 @@ export const appMachine = createMachine({
 
     spawnGateway: assign({
       machine: (context, { credentials }) => produce(context.machine, (draft) => {
-        const newMachine = spawn(gatewayMachine.withContext({
+        const newMachine = spawn(gatewayMachine.withContext(structuredClone({
           ...gatewayMachine.context,
           credentials,
-        }), credentials.id)
+        })), credentials.id)
         draft.gateways.set(credentials.id, newMachine)
       }),
     }),

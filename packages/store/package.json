@@ -40,7 +40,7 @@
     "concurrently": "^8.2.1",
     "esbuild": "^0.19.2",
     "rimraf": "^5.0.1",
-    "rollup": "^3.28.1",
+    "rollup": "^3.29.0",
     "rollup-plugin-esbuild": "^5.0.0",
     "typescript": "^5.2.2"
   }

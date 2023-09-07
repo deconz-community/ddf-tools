@@ -11,8 +11,8 @@ const links = computed(() => {
   list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
   list.push('divider')
 
-  if (app.state.value) {
-    const gateways = Array.from(app.state.value.context.machine.gateways.keys())
+  if (app.state) {
+    const gateways = Array.from(app.state.context.machine.gateways.keys())
     if (gateways.length > 0) {
       gateways.forEach((gatewayId) => {
         list.push({ gateway: gatewayId })

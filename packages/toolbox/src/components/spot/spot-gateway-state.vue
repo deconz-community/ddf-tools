@@ -18,7 +18,7 @@ const App = useAppStore()
           :color="Gateway.activeGateway.pooling.state.color.value"
         >
           <v-icon start icon="mdi-api" />
-          {{ Gateway.activeGateway.pooling.state.state.value }}
+          {{ Gateway.activeGateway.pooling.state.state }}
         </v-chip>
       </template>
     </v-tooltip>
@@ -36,7 +36,7 @@ const App = useAppStore()
           :color="Gateway.activeGateway.websocket.state.color.value"
         >
           <v-icon start icon="mdi-link-variant" />
-          {{ Gateway.activeGateway.websocket.state.state.value }}
+          {{ Gateway.activeGateway.websocket.state.state }}
         </v-chip>
       </template>
     </v-tooltip>

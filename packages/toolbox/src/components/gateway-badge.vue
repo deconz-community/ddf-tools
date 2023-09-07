@@ -24,9 +24,9 @@ const active = computed(() => props.gatewayId === route.params.gateway)
       :to="`/gateway/${props.gatewayId}`"
       :active="active"
     >
-      {{ gateway.state.value?.context.credentials.name.substring(0, 1) }}
+      {{ gateway.state?.context.credentials.name.substring(0, 1) }}
       <v-tooltip location="right" activator="parent">
-        {{ gateway.state.value?.context.credentials.name }}
+        {{ gateway.state?.context.credentials.name }}
       </v-tooltip>
     </btn-rounded-circle>
   </v-list-item>
