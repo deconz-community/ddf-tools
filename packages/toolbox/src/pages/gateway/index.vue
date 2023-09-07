@@ -51,3 +51,11 @@ const newList = computed(() => {
   </v-card>
   <CardGateway v-for="gateway in newList" :id="gateway" :key="gateway" />
 </template>
+
+<route lang="json">
+  {
+    "meta": {
+      "hideLevelTwoSidebar": true
+    }
+  }
+  </route>
