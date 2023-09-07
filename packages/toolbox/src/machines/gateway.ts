@@ -1,4 +1,4 @@
-import { assign, createMachine } from 'xstate'
+import { assign, createMachine, sendParent } from 'xstate'
 import { FindGateway } from '@deconz-community/rest-client'
 import type { FindGatewayResult, Gateway, Response } from '@deconz-community/rest-client'
 import { Ok, type Result } from 'ts-results-es'
@@ -12,17 +12,20 @@ export interface gatewayContext {
 }
 
 export const gatewayMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiALQBmAJwA6AEwAWRVsUBWAGx75ARlVH5AGhA5EigOzLbt+evUAOLotfquR-QF8-S1QMbHwAUQhRKloIBmY2Tl5JIRExCSRpRCM9Vz1lPXUjVy87I0UDS2sEdXlXZX0NPQ0teVtddQCgslDlJnpRPClYNDJlFAAzDGoACh0uLgBKPGCsXF7+tG4+DJTRJnFJGQRZbJVXVVsdWz0feR0zAsrEVVUVIyLFD6-i206QFZ6lHE9DAlGY9CgeAg4jA6wAboIANawgFrIH0EFgvpQBB9BGUdD7ehbLbJYR7A4ZI6yOZ1IpGFyKO6OJmKJ4IeSqLhqRTqJpOc7nGryP6onDKdGY8GQ6Eg+FIlHdNHA0HS3H0fGE8QkozbATktKHOSmeT5Jw3QzeUxXWzslzqZTyQwlYyuIy2d6ipXiyWq7FQmHy5HKMUSlVYiHqzVpEmqPUgXaGqnG7KOnKfYpW3yOdk6C7KPm1HQ6dSmHJ6X6Bf7esMYv0QgNyvEKkM130RnHNgkx3gceTxxNEo3HIo6fJXTxmLM29l6EzKcpFktl3KVrohNbiVh9WFMCCsMB4ABKYHGtFgAAtyLE4UxKHBSTsDUPkyOuC9lO4dJ93i4rl52XkeZ6lMd0XD0douD0L0N3FLcd16fdDyGEYMDGSYwBmIx5hw+YllDeCmyQx99VSF9QGpbD33qQC50dbMIKgwo7ndGDVjg+htzlAAFQRBC4qBrzAW971gRtdw1FtxjANBKAvAARYS7wfJInzIykKLkbDXDHJQvFaHQ7S0ED3lscDIOgqsCPGcYuMPABhcNNlU0iKXSTSOXkU0PFaL93X-IxaO5LhXDMuZrlyUc12rWDlEEGy7OUTDqEEahlAAV3oWgUDklAACMDzwCIohoOhGBYdgSITZ8NMyBA7G5YpVB07JQtUAxAqsRAXFUR1tFyN1XCUdRous2yEOS1L4TYPdyAAQW4gBJchkXCSI0GiMr4kqlzqvU9y6oaz9BXuHJbHaudc1UMdNC0RwDGME02J6eLxrlSa0syxF6EETB6CK9bNticqEiqwdaqOI6mpas6Ls6qo525bQtFeUxPnfZ7NwSib1v9WVYWGUYxsSyA9ghMGaoOyGdM-T42laLgdC8gCuoQa77EXHTl1aisRSsmtXpJ3GIWUBbltWvAADkwCkZyB0p4cGTcNQ9H0Yt7kuWw3VzJxHUuTG4Ox97hagUWlpWsB8G42hb0EdLEnl-bFbKOpNf0nw3fh7rQrUMyWlcco3BcA24qN2FSelUWIAgc8xOl2WKad18lbqdq1eLfyta96ofYuW7akDrwOj+H7YngDIxTJJOPJOa6HUMZqTEM1nsJ5GoyiZdWdNUEO+lEKu3OHE5bG5OZcPH+Y9HZExR5D9tpQHpMa98IwVYrC47BeDX1EAoplHfd4dJHob7pDwiwEX8i6trqD8k5N1rungx98uLxbnuE1XDPziEL3A9L4hlpXwdQG4P2blUICo9QI6EzEBCCX9+axXPsoXi-FsRCREnAABVM5DnHsKApuu86haFVi4J0I1sijQFmHbBw4DDcnZu7TO2sW45BAlwJw3hFDtTMkYM+YdlCRFgPlA8EBaGvg9A6RhNQPYBXZNdSy652KhzeuHagKVqDiI8sfNQ-4ZHMOzncB03CQqqycOQqc-DVFJXUVNTK2VcoFQvmpQeEjDD1A4Uwz2dpSx9W0AXAoRcrEk1sWlPEM0IDzXNqtLRdVLh5GkUBAxV0xw6GCRNUJGV6DfV+gdcGOCECODHM1RQPlZFZ1nJ6RByjBY4zJlAWJRx3hzAcHopJ3jWZ3FNK8GBZivIFEsdUl6AiI7YjNuLS2jSsiclXm7fRHSqh5jHKFNJQysbWNGSLOa0dY5TIQGYUwrStbzLkazFw3JHD5wDoE4OazDYbJNsoeSMI9lmC4KaOZ7TTkI1bk3AIAQgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5RQIYBcwHcUE8DEAqgA4TpgAEAxgE6RgB2aAligDawDaADALqKhEA9rCbNB9fiAAeiACwAOAHQAmAIzz5qgGyrlyzVtkBmAKwAaEDkQmA7IpNdHRo7ICcq2VpNHXAX18WqBjY+ACiEKJUtBAMzGycvJJCImISSNKIHnqK8q5c8jZcssomrvLGFlYIarIqyoaussYF8so2-oFkIYpM9KJ4UrBoZIooAGYY1AAUDlwAlHhBWLg9fWjcfOnJokzikjII8lz2JrKFpbNqNrKViPquikVabVwurkY2NlpaHSBL3ZRxPQwJRmPQoHgIOIwKsAG6CADWMP+K0B9GBoN6UAQvXhlHQu3oGw2SWEOz26QOAFoTIotFx3kYuDYmSZcoYbLcEKdVIpCkZVILVI0TNoTL8UThFGiMWCIVDgXDEciuqigSC5Tj6HiCeJiapNgIyal9ohTA9bK8XD4jqZVEYuSZDIpiq5CvbhblZOKAn9VVKZRqsZDoUqkYpJdL1ZjwVqdalicpDSBtibKWanTkbA4Sjps0Z5FytDYlHpNNdZNovkZlBL-VH0UHwSHFbjlRH64GY9i2-iE7wOEZk6nCaaEAW7GyLm62s5VE6uTY3XVy00q1oa3XgitxKxejCmBBWGA8AAlMBjWiwAAW5BisKYlDgJK2xtH6YQVK05UUwpKmlcPIdALR0WRXJlhQ8BRlFkLdlilXd9x6I8T0GYYMFGCYwGmVRHDwxwFkjRDWxQl8jRSd9QGpLxaUacp7SKVwN2LItSkUN0vkcbNlFeZQjDg7piJhAAFQRBD3cE7zAB8n1gFsD21dsxjANBKGvAARaTH2fRJXwoikqMQL8bF5Jj8hKXC8y0VwuUrWjvF0QVvT45wBJ3MYxgkk8AGFo3WXTyPJNJDIQBRaQ8YDGl0VwTG8G5LDNJicgc3JmS4ec9HaX0iI8rzFGw6hBGoRQAFd6FoFA1JQAAjY88HCSIaDoRgWHYMiUzfAyMgQXD5C0PkvD6wCjmMUVQKMcD0vcJpWlg7L60EXKkIKoq4TYQ9yAAQWEgBJcgkTCCI0CiZq4jagKOv04Lut6-qvjZayyiKO0i1aPl9D-VR3S4No3IQpbFRW4qyoRehBEweh6qOk6Yha+J2pHLqDlugaHuG56xoSw4GXegCrnSn75D+xRFs85ajqxRRtr2g68GE2gH0EEqEmHTrruRlwlH5Fx6lseoSiLep2KMb4+NkZkbVUYnSbyyAdnBKmIAgK85IAOTAKR-NZq6x3na4+StYovBsfnzCx55+veUWXAlsopd+MGYngdJJVJHWPypGLeRMEo8hZQolx+rkqWUB5AMA5wfFFXRTlrebtylXpRDdoKxz6+x+UrbRzQULQuR444Ta8b8nL4+QC2Jrs5RTtMQrULkPgm0wBW-N5Sm-aX6C8mvKO6z3XnsX2JYDvJlHzzQXW8GoS1ws4486BOSa7pDD2PHukaM+RYsH0ph+ZUfHWLOomNKe16TOfj4-gpe8tE8SsSkmS4HX9mjKaOxXiFbx3AKJp4qqU4E0TZMT6p8EWzFpYAzAC-McJYHhfR4k0N09Jyh5yxj4Qu+gRaaErDWQwkCyaKgiLAGqx4IAwI-OoFwigBT3FsG6KOtkjjsRLG0d+5cChOgIbLaghVqAUJCuXOwCCihuE4qg2yJZwKmB+oHJo3Dlq8NWmVCqVVarQL0qnD8uQ7CpSXN8G0oobJYydLSE25cppQVmgowGSjiq4nWhALau19pgCqIFWu3UNDhRNqI5B+RPCvWULjT631fpX0ElA-KdjSr0FBuDa6iNX4IDyLUHikc2jeB9tmLkRxeTmNCQTcJC9r4y3JvLKAAibpMkLobXmRcBZYzOA8HwbgprOHpCbS+JTImEJhHLOUVMXEHSqcjGaBs5yekKExNBVRvy0mMMXLepgeJEwie5Pp+UKYK02krFWozMjjO5oKMo0zDCH36l6PqGgeLqFFP4fwQA */
   id: 'gateway',
   predictableActionArguments: true,
   tsTypes: {} as import('./gateway.typegen').Typegen0,
   schema: {
     context: {} as gatewayContext,
     events: {} as | {
-      type: 'Edit credentials' | 'Done' | 'Next' | 'Previous' | 'Connect' | 'Refresh devices'
+      type: 'Edit credentials' | 'Done' | 'Next' | 'Previous' | 'Save' | 'Connect' | 'Refresh devices'
     } | {
       type: 'Update credentials'
       data: GatewayCredentials
+    } | {
+      type: 'Generate API Key'
+      installcode?: string
     },
     services: {} as {
       connectToGateway: {
@@ -30,6 +33,9 @@ export const gatewayMachine = createMachine({
       }
       fetchDevices: {
         data: Result<string[], never>
+      }
+      createApiKey: {
+        data: Result<string, never>
       }
     },
   },
@@ -57,21 +63,21 @@ export const gatewayMachine = createMachine({
     },
 
     connecting: {
-      invoke: {
+      invoke: [{
         src: 'connectToGateway',
 
         onDone: [{
           target: 'online.Pooling devices',
-          actions: ['useClient'],
           cond: 'isOk',
+          actions: 'useClient',
         }, {
           target: 'offline.error.unreachable',
           cond: 'isUnreachable',
         }, {
           target: 'offline.error.invalid API key',
           cond: 'isInvalidAPIKey',
-        }, 'offline.error.unknown'],
-      },
+        }, 'offline.error'],
+      }],
     },
 
     online: {
@@ -134,9 +140,9 @@ export const gatewayMachine = createMachine({
           states: {
             'API key': {
               on: {
-                Next: 'Done',
                 Previous: 'Address',
               },
+
             },
 
             'Address': {
@@ -144,15 +150,9 @@ export const gatewayMachine = createMachine({
                 Next: 'API key',
               },
             },
-
-            'Done': {
-              type: 'final',
-            },
           },
 
           initial: 'Address',
-
-          onDone: 'disabled',
         },
       },
 
@@ -169,7 +169,7 @@ export const gatewayMachine = createMachine({
   on: {
     'Update credentials': {
       target: '.init',
-      actions: 'updateCredentials',
+      actions: ['updateCredentials', 'saveSettings'],
     },
 
     'Edit credentials': '.offline.editing',
@@ -185,6 +185,7 @@ export const gatewayMachine = createMachine({
         resolve(Ok(result.success!))
       })
     }),
+
   },
   actions: {
     useClient: assign({
@@ -193,6 +194,8 @@ export const gatewayMachine = createMachine({
     updateCredentials: assign({
       credentials: (context, event) => event.data,
     }),
+
+    saveSettings: sendParent({ type: 'Save settings' }),
 
     updateDevices: assign({
       devices: (context, event) => {

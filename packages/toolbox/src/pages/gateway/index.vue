@@ -5,10 +5,7 @@ const app = useAppMachine('app')
 
 const discovery = useAppMachine('discovery')
 
-onMounted(() => {
-  // console.log('Start scan')
-  discovery.send({ type: 'Start scan', uri: JSON.parse(import.meta.env.VITE_GATEWAY_DISCOVERY_URI) })
-})
+const discoveryUri = ref<string>(JSON.parse(import.meta.env.VITE_GATEWAY_DISCOVERY_URI).join(','))
 
 const newList = computed(() => {
   const list = []
@@ -29,5 +26,26 @@ const newList = computed(() => {
 </script>
 
 <template>
+  <v-card class="ma-3">
+    <v-card-title>
+      Scan for gateways
+    </v-card-title>
+    <v-card-text>
+      <v-text-field
+        v-model="discoveryUri"
+        label="Address"
+        hide-details
+        :loading="discovery.state.value?.matches('scanning')"
+      />
+    </v-card-text>
+    <v-card-actions>
+      <v-btn
+        :disabled="discovery.state.value?.matches('scanning')"
+        @click="discovery.send({ type: 'Start scan', uri: discoveryUri.split(',') })"
+      >
+        Scan
+      </v-btn>
+    </v-card-actions>
+  </v-card>
   <CardGateway v-for="gateway in newList" :id="gateway" :key="gateway" />
 </template>

@@ -8,8 +8,12 @@ const props = defineProps<{
   gateway: UseAppMachine<'gateway'>
 }>()
 
-const { state, send } = props.gateway
-const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE)
+const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE ?? '')
+
+const { cloned: credentials, sync: resetCredentials } = useCloned(
+  computed(() => props.gateway.state.value?.context.credentials),
+  { clone: structuredClone },
+)
 
 /*
 const canConnect = computed(() => state.value?.can('Connect'))
@@ -18,6 +22,9 @@ const cantNext = computed(() => !state.can('Next'))
 */
 
 async function fetchKey() {
+  if (!credentials.value)
+    throw new Error('No credentials')
+
   const result = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
 
   if (result.isErr()) {
@@ -31,7 +38,7 @@ async function fetchKey() {
     devicetype: '@deconz-community/toolbox',
   }
 
-  if (installCode.value.length > 0) {
+  if (installCode.value && installCode.value.length > 0) {
     const challenge = await gateway.createChallenge()
 
     if (!challenge.success) {
@@ -50,97 +57,71 @@ async function fetchKey() {
   }
   credentials.value.apiKey = apiKey.success
 }
+
+function save() {
+  if (!credentials.value)
+    throw new Error('No credentials')
+  props.gateway.send({
+    type: 'Update credentials',
+    data: JSON.parse(JSON.stringify(credentials.value)),
+  })
+}
 </script>
 
 <template>
-  FORM
-  <!--
-  <v-card class="ma-2" elevation="1" variant="outlined">
-    <template #title>
-      Editing credentials
-    </template>
-    <template v-if="gateway.state.value!.matches('offline.editing.Address')">
-      <v-btn @click="credentials.URIs.api.push('')">
-        Add
-      </v-btn>
-      <template v-for="address, index of credentials.URIs.api" :key="index">
-        <v-text-field
-          v-model="credentials.URIs.api[index]"
-          append-inner-icon="mdi-close"
-          @click:append-inner="credentials.URIs.api.splice(index, 1)"
-        />
+  <template v-if="credentials">
+    <v-card variant="outlined">
+      <template v-if="gateway.state.value!.matches('offline.editing.Address')">
+        <v-card-title>
+          Editing address
+        </v-card-title>
+        <v-card-text>
+          <v-btn @click="credentials.URIs.api.push('')">
+            Add
+          </v-btn>
+          <template v-for="address, index of credentials.URIs.api" :key="index">
+            <v-text-field
+              v-model="credentials.URIs.api[index]"
+              append-inner-icon="mdi-close"
+              @click:append-inner="credentials.URIs.api.splice(index, 1)"
+            />
+          </template>
+        </v-card-text>
       </template>
-    </template>
-    <template v-else-if="gateway.state.value!.matches('offline.editing.API key')">
-      <v-text-field v-model="credentials.apiKey" label="API Key" />
-      <v-text-field v-model="installCode" label="Install code" />
-      <v-btn @click="fetchKey()">
-        Fetch API key
-      </v-btn>
-    </template>
-
-    <v-card-actions>
-      <v-btn :disabled="cantPrevious" @click="machine.send('Previous')">
-        Previous
-      </v-btn>
-      <v-btn :disabled="cantNext" @click="machine.send('Next')">
-        Next
-      </v-btn>
-    </v-card-actions>
-  </v-card>
-
-  -->
-
-  <!--
-    <template v-if="props.credentials" #subtitle>
-      <span>{{ props.credentials.id }}</span>
-    </template>
-    <v-form @submit.prevent="save">
-      <v-card-text class="overflow-y-auto">
-        <v-row dense>
-          <!- Errors display ->
-    <v-col v-show="error.length > 0" :cols="12">
-      <v-alert type="error">
-        {{ error }}
-      </v-alert>
-    </v-col>
-
-    <v-col :cols="12">
-      <v-text-field
-        v-model="state.apiKey"
-        label="API Key"
-        required
-        :error-messages="errorMessages(v.apiKey.$errors)"
-        @input="v.apiKey.$touch()"
-        @blur="v.apiKey.$touch()"
-      />
-    </v-col>
-
-    <v-col :cols="12">
-      <v-list>
-        <template v-for="uriType in objectKeys(state.URIs)" :key="uriType">
-          <v-list-subheader>{{ uriType }}</v-list-subheader>
-
-          <v-list-item
-            v-for="address, index of state.URIs[uriType]" :key="index"
-            :value="address"
-            :title="address"
-          >
-            <template #append>
-              <v-icon icon="mdi-close" @click="removeAddress(uriType, index)" />
-            </template>
-          </v-list-item>
-        </template>
-      </v-list>
-    </v-col>
-    </v-row>
-
-    <v-card-actions>
-      <v-btn type="submit" color="success">
-        Save
-      </v-btn>
-    </v-card-actions>
-    </v-card-text>
-    </v-form>
-    -->
+      <template v-else-if="gateway.state.value!.matches('offline.editing.API key')">
+        <v-card-title>
+          Editing API Key
+        </v-card-title>
+        <v-card-text>
+          <v-text-field v-model="credentials.apiKey" label="API Key" />
+          <v-text-field v-model="installCode" label="Install code" />
+          <v-btn @click="fetchKey()">
+            Fetch API key
+          </v-btn>
+        </v-card-text>
+      </template>
+      <v-card-actions v-if="gateway.state.value!.matches('offline.editing')">
+        <v-btn
+          elevation="2"
+          :disabled="gateway.state.value!.can('Previous') !== true"
+          @click="gateway.send('Previous')"
+        >
+          Previous
+        </v-btn>
+        <v-btn
+          elevation="2"
+          :disabled="gateway.state.value!.can('Next') !== true"
+          @click="gateway.send('Next')"
+        >
+          Next
+        </v-btn>
+        <v-btn
+          elevation="2"
+          @click="save()"
+        >
+          Save
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </template>
 </template>
