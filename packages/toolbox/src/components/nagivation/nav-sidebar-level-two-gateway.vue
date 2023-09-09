@@ -1,12 +1,10 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const gatewayID = route.params.gateway as string
-
 const baseURL = computed(() => {
-  if (gatewayID === undefined)
+  if (route.params.gateway === undefined)
     return ''
-  return `/gateway/${gatewayID}`
+  return `/gateway/${route.params.gateway}`
 })
 
 const gateway = useAppMachine('gateway', computed(() => ({ id: route.params.gateway as string })))
@@ -16,7 +14,7 @@ const devices = computed(() => {
 
   if (gateway.state) {
     objectKeys(gateway.state.context.devices).forEach((id) => {
-      const device = useAppMachine('device', computed(() => ({ gateway: gatewayID, id })))
+      const device = useAppMachine('device', computed(() => ({ gateway: route.params.gateway as string, id })))
       /*
       // Hide empty devices like the gateway itself
       if (device.state?.context.data?.name === undefined)
