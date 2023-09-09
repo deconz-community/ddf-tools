@@ -45,6 +45,12 @@ async function deleteKey(key: string) {
       oldApiKey: key,
     },
   })
+
+  // Workaround for https://github.com/dresden-elektronik/deconz-rest-plugin/issues/7216
+  await client.updateConfig({
+    unlock: 1,
+  })
+
   execute()
 }
 </script>
