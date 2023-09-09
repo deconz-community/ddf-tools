@@ -22,6 +22,7 @@ const { state, isLoading, execute } = useAsyncState(async () => {
   if (config.success === undefined || !('whitelist' in config.success))
     return []
 
+  // TODO disable if deleting used key / or add warning
   return objectEntries(config.success.whitelist).map(([key, value]) => ({
     key,
     name: value.name,
@@ -64,6 +65,8 @@ async function deleteKey(key: string) {
       </v-btn>
     </v-card-title>
     <v-card-text>
+      <!-- TODO Add search field -->
+      <!-- TODO Sort by default on created from new to old -->
       <v-data-table
         :loading="isLoading"
         :headers="[{
@@ -111,9 +114,7 @@ async function deleteKey(key: string) {
         </template>
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.actions="{ item }">
-          <v-btn @click="deleteKey(item.columns.key)">
-            Delete
-          </v-btn>
+          <v-btn icon="mdi-delete" size="small" color="error" @click="deleteKey(item.columns.key)" />
         </template>
       </v-data-table>
     </v-card-text>
