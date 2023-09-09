@@ -62,7 +62,7 @@ function removeGateway() {
         <v-chip v-if="isNew" class="ml-2" color="info">
           New
         </v-chip>
-        <chip-gateway-state v-else :state="gateway.state" class="ml-2" />
+        <chip-gateway-state v-else :gateway="gateway" class="ml-2" />
       </v-card-title>
       <v-card-subtitle>{{ props.id }}</v-card-subtitle>
       <v-card-text v-if="!isNew">

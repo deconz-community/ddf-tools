@@ -8,7 +8,10 @@ const device = useAppMachine('device', computed(() => ({ gateway: props.gateway,
 </script>
 
 <template>
-  <pre>{{ device.state?.context.data }}</pre>
+  <pre v-if="device.state && device.state.context.data">{{ device.state.context.data }}</pre>
+  <p v-else>
+    No data for device {{ props.device }}
+  </p>
 </template>
 
 <route lang="json">

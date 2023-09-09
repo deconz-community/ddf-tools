@@ -4,11 +4,12 @@ import type { FindGatewayResult, Gateway, Response } from '@deconz-community/res
 import { Ok, type Result } from 'ts-results-es'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
+import type { UseAppMachine } from '~/composables/useAppMachine'
 
 export interface gatewayContext {
   credentials: GatewayCredentials
   gateway?: ReturnType<typeof Gateway>
-  devices: Record<string, any>
+  devices: Record<string, UseAppMachine<'device'>>
   config: Response<'getConfig'>['success']
 }
 

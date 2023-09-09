@@ -1,9 +1,13 @@
 <script setup lang="ts">
 const App = useAppStore()
+
+const route = useRoute()
+const gateway = useAppMachine('gateway', computed(() => ({ id: route.params.gateway as string })))
 </script>
 
 <template>
   <div>
+    {{ gateway.state?.context.credentials.name }}
     <!-- WIP
     <v-tooltip
       :text="Gateway.activeGateway.pooling.state.messages.value"

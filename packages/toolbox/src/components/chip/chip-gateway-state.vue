@@ -1,42 +1,48 @@
 <script setup lang="ts">
-import type { MachinesTypes } from '~/composables/useAppMachine'
+import type { UseAppMachine } from '~/composables/useAppMachine'
 
 defineOptions({
   inheritAttrs: false,
 })
 
 const props = defineProps<{
-  state: MachinesTypes['gateway']['state']
+  gateway: UseAppMachine<'gateway'>
 }>()
 
-const errorMessage = computed(() => {
-  if (props.state.matches('offline.error.invalid API key'))
-    return 'Invalid API Key'
-  if (props.state.matches('offline.error.unreachable'))
-    return 'Unreachable'
-  return 'Unknown error'
+const state = computed<{
+  color: string
+  text: string
+  tooltip?: string
+}>(() => {
+  const state = props.gateway.state
+
+  if (state === undefined)
+    return { color: 'gray', text: 'Loading...' }
+
+  if (state.matches('online'))
+    return { color: 'green', text: 'Online', tooltip: `${Object.keys(state.context.devices).length} devices` }
+
+  if (['connecting', 'init'].some(state.matches))
+    return { color: 'blue', text: 'Connecting' }
+  if (state.matches('offline.disabled'))
+    return { color: 'gray', text: 'Disabled' }
+
+  if (state.matches('offline.error.invalid API key'))
+    return { color: 'red', text: 'Offline', tooltip: 'Invalid API key' }
+  if (state.matches('offline.error.unreachable'))
+    return { color: 'red', text: 'Offline', tooltip: 'Unreachable' }
+  if (state.matches('offline.error'))
+    return { color: 'red', text: 'Offline', tooltip: 'Unknown error' }
+
+  return { color: 'gray', text: 'What ?!?', tooltip: state.value.toString() }
 })
 </script>
 
 <template>
-  <v-chip v-if="['connecting', 'init'].some(props.state.matches)" v-bind="$attrs" color="blue">
-    Connecting
-  </v-chip>
-  <v-chip v-else-if="props.state.matches('online')" v-bind="$attrs" color="green">
-    Online
-  </v-chip>
-  <v-chip v-else-if="props.state.matches('offline.disabled')" v-bind="$attrs" color="gray">
-    Disabled
-  </v-chip>
-  <v-tooltip v-else-if="props.state.matches('offline')" :text="errorMessage">
+  <v-tooltip v-if="state.tooltip" :text="state.tooltip">
     <template #activator="{ props: localProps }">
-      <v-chip v-bind="{ ...localProps, ...$attrs }" color="red">
-        Offline
-      </v-chip>
+      <v-chip v-bind="{ ...localProps, ...$attrs }" :color="state.color" :text="state.text" />
     </template>
   </v-tooltip>
-  <v-chip v-else v-bind="$attrs" color="gray">
-    What ?!?
-    {{  props.state.value  }}
-  </v-chip>
+  <v-chip v-else v-bind="$attrs" :color="state.color" :text="state.text" />
 </template>

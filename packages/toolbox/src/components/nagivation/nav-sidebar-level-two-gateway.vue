@@ -1,63 +1,64 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const App = useAppStore()
+const gatewayID = route.params.gateway as string
 
 const baseURL = computed(() => {
-  return '/gateway/FOO'
-  /*
-  if (GatewayStore.activeGateway?.id === undefined)
+  if (gatewayID === undefined)
     return ''
-  return `/gateway/${GatewayStore.activeGateway.id}`
-  */
+  return `/gateway/${gatewayID}`
 })
 
-const items = computed(() => {
-  const list: any[] = []
+const gateway = useAppMachine('gateway', computed(() => ({ id: route.params.gateway as string })))
 
-  /*
-  if (GatewayStore.activeGateway === undefined)
-    return list
+const devices = computed(() => {
+  const devices: { name: string; id: string; type: string }[] = []
 
-  list.push({
-    title: 'Home',
-    props: {
-      prependIcon: 'mdi-home',
-      to: `${baseURL.value}/`,
-    },
+  if (gateway.state) {
+    objectKeys(gateway.state.context.devices).forEach((id) => {
+      const device = useAppMachine('device', computed(() => ({ gateway: gatewayID, id })))
+      /*
+      // Hide empty devices like the gateway itself
+      if (device.state?.context.data?.name === undefined)
+        return
+      */
+
+      devices.push({
+        name: device.state?.context.data?.name ?? id,
+        id,
+        type: device.state?.context.data?.subdevices[0]?.type ?? 'Unknown',
+      })
+    })
+  }
+
+  devices.sort((a, b) => {
+    const typeCompare = a.type.localeCompare(b.type)
+    if (typeCompare !== 0)
+      return typeCompare
+    return a.name.localeCompare(b.name)
   })
 
-  list.push({ type: 'divider' })
-  list.push({
-    type: 'subheader',
-    title: 'Settings',
-    props: {
-      to: `${baseURL.value}/settings/connexions`,
-      prependIcon: 'mdi-cog',
-    },
-  })
-
-  list.push({
-    title: 'Connexions',
-    props: {
-      prependIcon: 'mdi-link',
-      to: `${baseURL.value}/settings/connexions`,
-    },
-  })
-  */
-
-  return list
+  return devices
 })
 </script>
 
 <template>
-  <v-list :items="items" />
+  <v-toolbar height="48">
+    <v-toolbar-title v-if="gateway.state">
+      {{ gateway.state.context.credentials.name }}
+      <chip-gateway-state :gateway="gateway" class="ml-2" />
+    </v-toolbar-title>
+  </v-toolbar>
 
-  <!--
-  <v-list-item v-for="(item, index) in items" :key="index" v-bind="item">
-    <template v-if="item.icon" #prepend>
-      <v-icon :icon="item.icon" />
-    </template>
-  </v-list-item>
--->
+  <v-list>
+    <v-list-item prepend-icon="mdi-home" title="Home" :to="`${baseURL}/`" />
+    <v-divider />
+    <v-list-subheader>Devices</v-list-subheader>
+    <v-list-item
+      v-for="device in devices" :key="device.id"
+      :title="device.name"
+      :subtitle="device.type"
+      :to="`${baseURL}/device/${device.id}`"
+    />
+  </v-list>
 </template>
