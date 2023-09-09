@@ -51,6 +51,11 @@ const devices = computed(() => {
   <v-list>
     <v-list-item prepend-icon="mdi-home" title="Home" :to="`${baseURL}/`" />
     <v-divider />
+    <v-list-subheader>Config</v-list-subheader>
+    <v-list-item
+      title="API Keys"
+      :to="`${baseURL}/config/whitelist`"
+    />
     <v-list-subheader>Devices</v-list-subheader>
     <v-list-item
       v-for="device in devices" :key="device.id"
