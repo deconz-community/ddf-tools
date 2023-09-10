@@ -104,8 +104,7 @@ module.exports = defineConfig({
   ssr: {
     // TODO: workaround until they support native ESM
     noExternal: [
-      'vuetify',
-      '@vorms/core'
+      'vuetify'
     ],
   },
 
