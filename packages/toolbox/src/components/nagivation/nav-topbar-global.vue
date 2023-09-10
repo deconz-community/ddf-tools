@@ -15,10 +15,6 @@
 
     <v-app-bar-title>Deconz Toolbox</v-app-bar-title>
 
-    <v-btn href="https://deconz-community.github.io/ddf-tools/" target="_blank">
-      Toolbox
-    </v-btn>
-
     <template #append>
       <btn-login />
     </template>

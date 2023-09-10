@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const app = useAppMachine('app')
+const store = useStore()
 
 type Link = ({ icon: string ; title: string ;to: string } | 'divider' | { gateway: string })
 
@@ -7,8 +8,14 @@ const links = computed(() => {
   const list: Link[] = []
 
   list.push({ icon: 'mdi-home', title: 'Home', to: '/' })
-  list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
-  list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
+  list.push({ icon: 'mdi-folder-zip', title: 'Bundler', to: '/bundler' })
+  list.push({ icon: 'mdi-api', title: 'REST Client', to: '/rest-client' })
+  if (store.state?.matches('online')) {
+    list.push({ icon: 'mdi-view-list', title: 'Bundle list', to: '/bundle-list' })
+    list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
+    list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
+  }
+
   list.push('divider')
 
   if (app.state) {
