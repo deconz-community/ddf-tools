@@ -130,33 +130,41 @@ export function createAppMachine() {
     install(app: App) {
       const scope = getCurrentScope() ?? effectScope()
       scope.run(() => {
-        const enableInspect = true
-        if (enableInspect) {
-          inspect({
-            iframe: false,
-          })
+        const toDispose: (() => void)[] = []
+        const debug = import.meta.env.VITE_DEBUG ?? false
+
+        if (debug) {
+          const enableInspect = true
+          if (enableInspect) {
+            inspect({
+              iframe: false,
+            })
+          }
         }
 
         // console.log('Interpreting machine')
 
         const service = interpret(appMachine, {
-          devTools: true,
+          devTools: debug,
         })
 
         // console.log('Starting service')
 
         service.start()
+        toDispose.push(() => service.stop())
 
         // console.log('App machine started')
 
-        // Handle Ninja registration
-        const ninja = createXStateNinjaSingleton()
-        // ninja.register(service)
+        if (debug) {
+          // Handle Ninja registration
+          const ninja = createXStateNinjaSingleton()
+          // ninja.register(service)
+          // toDispose.push(() => ninja.unregister(service))
+        }
 
         // Cleanup
         onScopeDispose(() => {
-          ninja.unregister(service)
-          service.stop()
+          toDispose.forEach(fn => fn())
         })
 
         app.provide(appMachineSymbol, service)
