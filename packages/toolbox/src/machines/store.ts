@@ -157,6 +157,7 @@ export const storeMachine = createMachine({
         // Clear old auth cookie
         if (!token || !client.authStore.isValid) {
           cookies.remove('pocketbase_auth', cookieBaseParams)
+          sendBack({ type: 'Logout' })
           return
         }
 
