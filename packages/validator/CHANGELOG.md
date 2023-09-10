@@ -1,5 +1,16 @@
 # @deconz-community/ddf-validator
 
+## 2.14.0
+
+### Minor Changes
+
+- cee8426: Add more rules for items of light devices
+
+### Patch Changes
+
+- 614fe94: Cleanup old rule
+- 657e77f: Fix rules being ignored when there were no bindings
+
 ## 2.13.0
 
 ### Minor Changes
