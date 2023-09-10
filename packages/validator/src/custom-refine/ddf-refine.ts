@@ -98,14 +98,19 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
 function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   // If property is used to check if the device should check for the needed values.
   // An empty if object mean it's always checked.
+  // If both item and type are present in "if", any condition should be true.
+
+  // By default the condition is of type "and"
+  type Condition = string | Condition[] | { or: Condition[] } | { and: Condition[] }
+
   interface Rule {
     description: string
     if: {
-      item?: string[]
-      type?: string[]
+      item?: Condition
+      type?: Condition
     }
     need: {
-      item: string[]
+      item: Condition
     }
   }
   // If the subdevice have one of the item in the array we need the items with the names.
@@ -124,26 +129,9 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _gene
     },
     */
     {
-      description: 'a color light should always have "state/ct" item.',
-      if: {
-        type: [
-          // TODO Use the constants file to resolve the types too
-          '$TYPE_COLOR_TEMPERATURE_LIGHT',
-          'Color Temperature Light',
-          '$TYPE_EXTENDED_COLOR_LIGHT',
-          'Extended Color Light',
-        ],
-      },
-      need: {
-        item: [
-          'state/ct',
-        ],
-      },
-    },
-    {
       description: 'a device with "state/ct" need the "min" and "max" values for capability.',
       if: {
-        item: ['state/ct'],
+        item: 'state/ct',
       },
       need: {
         item: [
@@ -154,12 +142,14 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _gene
       },
     },
     {
-      description: 'a device with "state/x" or "state/y" need the corresponding red, green and blue x and y values.',
+      description: 'a device with "state/x" or "state/y" need the corresponding red, green and blue x and y cap values.',
       if: {
-        item: [
-          'state/x',
-          'state/y',
-        ],
+        item: {
+          or: [
+            'state/x',
+            'state/y',
+          ],
+        },
       },
       need: {
         item: [
@@ -171,36 +161,76 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _gene
           'cap/color/xy/red_y',
           'cap/color/xy/green_y',
           'cap/color/xy/blue_y',
-          // 'cap/color/ct/computes_xy',
+          'cap/color/ct/computes_xy',
         ],
       },
     },
+    {
+      description: 'a "(Extended) Color light" need ("state/x" and "state/y") or/and ("state/hue" and "state/sat") .',
+      if: {
+        type: {
+          or: [
+            '$TYPE_EXTENDED_COLOR_LIGHT',
+            'Extended color light',
+            '$TYPE_COLOR_LIGHT',
+            'Color light',
+          ],
+        },
+      },
+      need: {
+        item: {
+          or: [
+            [
+              'state/x',
+              'state/y',
+            ],
+            [
+              'state/hue',
+              'state/sat',
+            ],
+          ],
+        },
+      },
+    },
   ]
+
+  const processCondition = (condition: Condition, check: (value: string) => boolean): boolean => {
+    if (typeof condition === 'string')
+      return check(condition)
+
+    if (Array.isArray(condition))
+      return condition.every(value => processCondition(value, check))
+
+    if ('and' in condition)
+      return condition.and.every(value => processCondition(value, check))
+
+    if ('or' in condition)
+      return condition.or.some(value => processCondition(value, check))
+    return false
+  }
 
   data.subdevices.forEach((device, device_index) => {
     const attributes = device.items.map(item => item.name)
 
     rules.forEach((rule) => {
       // Check if the rule match the device
-      if (Object.keys(rule.if).length === 0 || Object.keys(rule.if).some((kind) => {
+      if (Object.keys(rule.if).length === 0 || Object.entries(rule.if).some(([kind, condition]) => {
         switch (kind) {
           case 'type':
-            return rule.if[kind]?.includes(device.type)
+            return processCondition(condition, value => value === device.type)
           case 'item':
-            return attributes.some(attr => rule.if[kind]?.includes(attr))
+            return processCondition(condition, value => attributes.includes(value))
           default:
             return false
         }
       })) {
-        rule.need.item.forEach((item) => {
-          if (!attributes.includes(item)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `The device should have the item "${item}" because ${rule.description}`,
-              path: ['subdevices', device_index, 'items'],
-            })
-          }
-        })
+        if (!processCondition(rule.need.item, value => attributes.includes(value))) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `The device is missing some items because ${rule.description}`,
+            path: ['subdevices', device_index, 'items'],
+          })
+        }
       }
     })
   })
