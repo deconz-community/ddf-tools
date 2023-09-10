@@ -14,7 +14,7 @@ const links = computed(() => {
     list.push({ icon: 'mdi-view-list', title: 'Bundle list', to: '/bundle-list' })
     list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
   }
-  if (import.meta.env.VITE_DEBUG)
+  if (import.meta.env.VITE_DEBUG === 'true')
     list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
 
   list.push('divider')

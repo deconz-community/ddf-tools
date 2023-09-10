@@ -131,7 +131,9 @@ export function createAppMachine() {
       const scope = getCurrentScope() ?? effectScope()
       scope.run(() => {
         const toDispose: (() => void)[] = []
-        const debug = import.meta.env.VITE_DEBUG ?? false
+        const debug = import.meta.env.VITE_DEBUG === 'true'
+
+        console.log('Debug mode', debug)
 
         if (debug) {
           const enableInspect = true
