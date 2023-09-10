@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computedAsync } from '@vueuse/core'
-import { usePocketBase } from '~/composables/usePocketbase'
 
-const { client } = usePocketBase()
+const { client } = useStore()
 
 const App = useAppStore()
 

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { type Bundle, decode } from '@deconz-community/ddf-bundler'
-import { usePocketBase } from '~/composables/usePocketbase'
 
 const error = ref('')
 const sha = ref('')
 const bundles = ref<ReturnType<typeof Bundle>[]>([])
 
-const pb = usePocketBase()
+const pb = useStore()
 
 const files = ref<File[]>([])
 

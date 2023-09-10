@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { usePocketBase } from '~/composables/usePocketbase'
-
 const props = withDefaults(defineProps<{
   collection: string
   filter?: string
@@ -16,7 +14,7 @@ defineSlots<{
   default: { item: any }
 }>()
 
-const { client } = usePocketBase()
+const { client } = useStore()
 
 const itemsPerPage = ref(1)
 const totalItems = ref(0)
@@ -48,7 +46,7 @@ const headers = [
 
 const serverItems = ref<any[]>([])
 
-const loadItems = async (options) => {
+async function loadItems(options) {
   console.log(options)
   loading.value = true
   const result = await client.collection(props.collection)

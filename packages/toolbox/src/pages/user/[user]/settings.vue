@@ -2,7 +2,6 @@
 import { useConfirm, useSnackbar } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { usePocketBase } from '~/composables/usePocketbase'
 import { useGithubAvatar } from '~/composables/useGithubAvatar'
 
 const props = defineProps<{
@@ -11,11 +10,11 @@ const props = defineProps<{
 
 const createConfirm = useConfirm()
 const createSnackbar = useSnackbar()
-const pb = usePocketBase()
+const store = useStore()
 
 const settings = reactive({
-  private_key: pb.profile.value?.private_key,
-  public_key: pb.client.authStore.model?.public_key,
+  private_key: store.profile?.private_key,
+  public_key: store.client?.authStore.model?.public_key,
 })
 
 const errorMessage = ref('')
@@ -47,17 +46,17 @@ async function saveKeys() {
     return
 
   try {
-    if (pb.client.authStore.model?.id === undefined)
+    if (store.client?.authStore.model?.id === undefined)
       throw new Error('User is not logged in.')
 
-    await pb.client.collection(pb.client.authStore.model?.collectionId).update(pb.client.authStore.model?.id, {
+    await store.client.collection(store.client.authStore.model?.collectionId).update(store.client.authStore.model?.id, {
       private_key: settings.private_key,
       public_key: settings.public_key,
     })
 
-    if (pb.profile.value) {
-      console.log('Updating profile', pb.profile.value.id)
-      pb.client.collection('user_profile').update(pb.profile.value.id, {
+    if (store.profile) {
+      console.log('Updating profile', store.profile.id)
+      store.client.collection('user_profile').update(store.profile.id, {
         private_key: settings.private_key,
       })
     }
@@ -73,8 +72,8 @@ async function saveKeys() {
   createSnackbar({ text: 'New keys has been saved.', snackbarProps: { color: 'success' } })
 }
 
-const avatar = useGithubAvatar(computed(() => pb.client.authStore.model?.github_id), 125)
-const userProfilLink = computed(() => `https://github.com/${pb.client.authStore.model?.username}`)
+const avatar = useGithubAvatar(computed(() => store.client?.authStore.model?.github_id), 125)
+const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)
 </script>
 
 <template>
@@ -84,8 +83,8 @@ const userProfilLink = computed(() => `https://github.com/${pb.client.authStore.
         <v-avatar class="ma-2" :image="avatar" size="125" />
         <v-card
           class="ma-2 flex-grow-1"
-          :title="pb.client.authStore.model?.username"
-          :subtitle="pb.client.authStore.model?.email"
+          :title="store.client?.authStore.model?.username"
+          :subtitle="store.client?.authStore.model?.email"
         >
           <v-card-text>
             <v-btn :href="userProfilLink" target="_blank">

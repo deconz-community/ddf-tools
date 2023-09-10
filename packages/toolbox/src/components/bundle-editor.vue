@@ -1,14 +1,9 @@
 <script setup lang="ts">
-/*
-import { usePocketBase } from '~/composables/usePocketbase'
-
-*/
 import type { Bundle } from '@deconz-community/ddf-bundler'
 import { computedAsync, useVModel } from '@vueuse/core'
 import { UseTimeAgo } from '@vueuse/components'
 import { bytesToHex } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { usePocketBase } from '~/composables/usePocketbase'
 
 const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>
@@ -18,7 +13,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 
-const pb = usePocketBase()
+const store = useStore()
 
 const hash = computed(() => {
   if (!bundle.value || !bundle.value.data.hash)
@@ -56,7 +51,7 @@ const signatures = computedAsync(async () => {
     return acc
   }, []).filter((item, index, self) => self.indexOf(item) === index)
 
-  const users = await pb.client.collection('user').getList(undefined, undefined, {
+  const users = await store.client.collection('user').getList(undefined, undefined, {
     public_key: publicKeys,
   })
 

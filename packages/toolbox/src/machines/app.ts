@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { enableMapSet, produce } from 'immer'
 import { discoveryMachine } from './discovery'
 import { gatewayMachine } from './gateway'
+import { storeMachine } from './store'
 
 enableMapSet()
 
@@ -26,12 +27,13 @@ export type GatewayCredentials = StorageSchema['credentials'][string]
 export interface AppContext {
   machine: {
     discovery: ActorRefFrom<typeof discoveryMachine>
+    store: ActorRefFrom<typeof storeMachine>
     gateways: Map<string, ActorRefFrom<typeof gatewayMachine>>
   }
 }
 
 export const appMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBBCEAEUyALmAO7ICeA2gAwC6ioqA9rAJZFvMB2jIFiAMwBWYQDoRggGwAOACw0A7FICcwgIwyANCAAeidXKkAmMauMa5gweuHGZKgL6OdaTAFVUEYmAI-y1PR8LOycPHz6CIb2YqIqspqCcioqioo6Agii4orqUoo0FjJSgjRqzq7oGABKYAC2zABuvoQkAbQMSCAhHFy8XZGGwoJiKsaq6uPFxslSGYi56mJykzI0UobqIpoVIG5isGBEnNxQsGJsEAA2YBgAysjNeIfHbKewHcGsveEDiDLCKSxGg0ORgxTSEzGdTzBCqcRbEE0GxSUGFYy7fYvE5nC7XW4AGWYyHw2LeZ0+XR6YX6oEiRhUYhmwlSMlyCjkwnS-EQ8LEiJBKLRxgxLj26AORxx5yuxIg5IwEB4YAu3EazAA1iqsVLyTK5eSEG91QBjYh9DqUpjfGkRRCcoFcmjqFSg4TO2QzWGo0ySKRSTmKBTjYSYiVk94HR4KpXcFXGzXa8O6yOwaOnI1q5hmmmWoJUm19O0IeSmFQuxTGUo2GjDOTewoSYayQoB-JyUVi7jMCBwPhuL6hIt-BAAWkEplsGiSUJkAJZsJE4j9uREIM0osqqDxN0HP1pegM4nkcmKwzS6kMK1hyRooxMNDZIKkwjnojD24jZz3tpH6kUMj8mkMjWBWnJTjeDhiAC0iKK6tY2DYH6Sq8kaXLuBZDr8dK8gBEj2KUagaABuQNneIH5MM9ggTMcjIV++okuSP7DjhCAikC-4AaBqTgaIsJcooTbSPISjwi69EpriaaNMxmH7sW6jrHIYhpOsggqKBdgOAJaTCbICjKGoOzOI4QA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBBCEAEUyALmAO7ICeA2gAwC6ioqA9rAJZFvMB2jIFiAMwBWYQDoRggGwAOACw0A7FICcwgIwyANCAAeidXKkAmMauMa5gweuHGZKgL6OdaTAFVUEYmAI-y1PR8LOycPHz6CIb2YqIqspqCcioqioo6Agii4orqUoo0FjJSgjRqzq7oGABKYAC2zABuvoQkAbQMSCAhHFy8XZGGwoJiKsaq6uPFxslSGYi56mJykzI0UobqIpoVIG5isGBEnNxQsGJsEAA2YBgAysjNeIfHbKewHcGsveEDiDLCKSxGg0ORgxTSEzGdTzBCqcRbEE0GxSUGFYy7fYvE5nC7XW4AGWYyHw2LeZ0+XR6YX6oEiRhUYhmwlSMlyCjkwnS-EQ8LEiJBKLRxgxLj26AORxx5yuxIg5IwEB4YAu3EazAA1iqsVLyTK5eSEG91QBjYh9DqUpjfGkRRCcoFcmjqFSg4TO2QzWGo0ySKRSTmKBTjYSYiVk94HR4KpXcFXGzXa8O6yOwaOnI1q5hmmmWoJUm19O0IeSmFQuxTGUo2GjDOTewoSYayQoB-JyUVi7jMCBwPhuL6hIt-KKlflpGTWCuc2zCWEicR+4qT4aiEph1CS17vQc-Wl6AyKGTjo9T1Iz0SwuQOMQA6TyFQrWRqUNinXb3GXG6720j-LHwR7FKF91CPXIGxoW9pEUYZ7EnGY5A3LdpTEWUSXJH9hzpRARSBUDTxsc8NEvHksjSJt7wUZQ1BdJCI1xNNGgwgsh1+bConWOQxDSdZBBUKc7AcWEuUUCjZCo+EdmcRwgA */
   id: 'app',
 
   predictableActionArguments: true,
@@ -77,10 +79,6 @@ export const appMachine = createMachine({
   },
 
   states: {
-    idle: {
-      type: 'parallel',
-    },
-
     settings: {
       states: {
         idle: {
@@ -115,6 +113,7 @@ export const appMachine = createMachine({
       machine: () => {
         return {
           discovery: spawn(discoveryMachine, 'discovery'),
+          store: spawn(storeMachine, 'store'),
           gateways: new Map(),
         }
       },

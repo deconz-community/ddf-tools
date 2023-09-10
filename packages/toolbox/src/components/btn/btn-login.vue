@@ -1,30 +1,19 @@
 <script setup lang="ts">
-import { getCurrentInstance } from 'vue'
 import { useSnackbar } from 'vuetify-use-dialog'
 import { useGithubAvatar } from '~/composables/useGithubAvatar'
-import { usePocketBase } from '~/composables/usePocketbase'
 
-const instance = getCurrentInstance()
-const { client } = usePocketBase()
-
-const router = useRouter()
-const route = useRoute()
+const store = useStore()
 const createSnackbar = useSnackbar()
 
-client.authStore.onChange(() => {
-  instance?.proxy?.$forceUpdate()
-
-  // If the user is not logged in on a page that require auth, redirect him to the home page
-  if (!client.authStore.isValid && route.meta.requiresAuth === true)
-    router.push({ path: '/' })
-})
-
 const avatarSize = 50
-const avatarUrl = useGithubAvatar(computed(() => client.authStore.model?.github_id), avatarSize - 2)
+const avatarUrl = useGithubAvatar(computed(() => store.client?.authStore.model?.github_id), avatarSize - 2)
 
 async function login() {
   try {
-    const result = await client.collection('user').authWithOAuth2({ provider: 'github' })
+    if (!store.client)
+      return
+
+    const result = await store.client.collection('user').authWithOAuth2({ provider: 'github' })
     createSnackbar({ text: `Logged in as ${result.record.username}.` })
   }
   catch (e) {
@@ -34,13 +23,13 @@ async function login() {
 }
 
 async function logout() {
-  client.authStore.clear()
+  store.client?.authStore.clear()
   createSnackbar({ text: 'Logged out.' })
 }
 </script>
 
 <template>
-  <template v-if="client.authStore.isValid && client.authStore.model">
+  <template v-if="store.state?.matches('online.connected')">
     <v-menu
       width="200"
     >
@@ -56,18 +45,18 @@ async function logout() {
       <v-list>
         <v-list-item
           prepend-icon="mdi-account"
-          :title="client.authStore.model.name ?? client.authStore.model.username"
+          :title="store.client?.authStore.model?.name ?? store.client?.authStore.model?.username"
         />
         <v-divider />
         <v-list-item
           prepend-icon="mdi-account"
           title="Profile"
-          :to="`/user/${client.authStore.model.id}`"
+          :to="`/user/${store.client?.authStore.model?.id}`"
         />
         <v-list-item
           prepend-icon="mdi-cog"
           title="Account"
-          :to="`/user/${client.authStore.model.id}/settings`"
+          :to="`/user/${store.client?.authStore.model?.id}/settings`"
         />
         <v-list-item
           prepend-icon="mdi-logout"
@@ -77,7 +66,7 @@ async function logout() {
       </v-list>
     </v-menu>
   </template>
-  <template v-else>
+  <template v-else-if="store.state?.matches('online.anonymous')">
     <v-btn
       prepend-icon="mdi-login"
       @click="login()"

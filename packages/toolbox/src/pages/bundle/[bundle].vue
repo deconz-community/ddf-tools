@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computedAsync, useTimeAgo } from '@vueuse/core'
-import { usePocketBase } from '~/composables/usePocketbase'
 
 const props = defineProps<{
   bundle: string
 }>()
 
-const { client } = usePocketBase()
+const { client } = useStore()
 
 const bundle = computedAsync(
   async () => {

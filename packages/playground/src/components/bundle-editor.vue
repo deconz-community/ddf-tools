@@ -1,8 +1,4 @@
 <script setup lang="ts">
-/*
-import { usePocketBase } from '~/composables/usePocketbase'
-
-*/
 import type { Bundle } from '@deconz-community/ddf-bundler'
 import { useVModel } from '@vueuse/core'
 import { UseTimeAgo } from '@vueuse/components'

@@ -20,7 +20,7 @@
     </v-btn>
 
     <template #append>
-      <login-button />
+      <btn-login />
     </template>
   </v-app-bar>
 </template>

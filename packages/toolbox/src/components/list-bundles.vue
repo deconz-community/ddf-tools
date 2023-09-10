@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { usePocketBase } from '~/composables/usePocketbase'
-
 const props = withDefaults(defineProps<{
   filter?: string
 }>(), {
@@ -11,7 +9,7 @@ const emits = defineEmits<{
   (e: 'updateTotalCount', value: number): void
 }>()
 
-const { client } = usePocketBase()
+const store = useStore()
 
 const page = ref(1)
 const itemsPerPage = ref(1)
@@ -22,17 +20,18 @@ watch(totalItems, (value) => {
 const loading = ref(false)
 
 const serverItems = ref<any[]>([])
-const loadItems = async (options: { page: number; itemsPerPage: number }) => {
-  console.log(options)
+async function loadItems(options: { page: number; itemsPerPage: number }) {
+  // console.log(options)
 
   loading.value = true
-  const result = await client.collection('bundle_version')
+  const result = await store.client?.collection('bundle')
     .getList(options.page, options.itemsPerPage, {
       filter: props.filter && '',
       expand: 'contributors',
     })
-  serverItems.value = result.items
-  totalItems.value = result.totalItems
+
+  serverItems.value = result?.items ?? []
+  totalItems.value = result?.totalItems ?? 0
   loading.value = false
 }
 </script>
@@ -52,7 +51,7 @@ const loadItems = async (options: { page: number; itemsPerPage: number }) => {
           <v-card-title>{{ item.raw.name }}</v-card-title>
           <v-card-subtitle>{{ item.raw.description }}</v-card-subtitle>
         </v-card>
-        <json-viewer v-if="item.raw" :value="item.raw" />
+        <pre>{{ item.raw }}</pre>
 
         <br>
       </template>

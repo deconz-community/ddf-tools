@@ -9,6 +9,7 @@ import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
 import type { deviceMachine } from '~/machines/device'
+import type { storeMachine } from '~/machines/store'
 
 export interface AppMachinePart<Type extends AnyStateMachine> {
   interpreter: InterpreterFrom<Type>
@@ -19,6 +20,7 @@ export interface AppMachinePart<Type extends AnyStateMachine> {
 export type AppMachine =
 | { type: 'app' } & AppMachinePart<typeof appMachine>
 | { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
+| { type: 'store' } & AppMachinePart<typeof storeMachine>
 | { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
 | { type: 'device' } & AppMachinePart<typeof deviceMachine> & { query: { gateway: string ; id: string } }
 
@@ -59,6 +61,11 @@ function getMachine<Type extends AppMachine['type']>(
       case 'discovery':
         if (state.children.discovery)
           return state.children.discovery
+        break
+
+      case 'store':
+        if (state.children.store)
+          return state.children.store
         break
 
       case 'gateway':{
@@ -123,7 +130,8 @@ export function createAppMachine() {
     install(app: App) {
       const scope = getCurrentScope() ?? effectScope()
       scope.run(() => {
-        if (false) {
+        const enableInspect = true
+        if (enableInspect) {
           inspect({
             iframe: false,
           })
@@ -143,7 +151,7 @@ export function createAppMachine() {
 
         // Handle Ninja registration
         const ninja = createXStateNinjaSingleton()
-        ninja.register(service)
+        // ninja.register(service)
 
         // Cleanup
         onScopeDispose(() => {
