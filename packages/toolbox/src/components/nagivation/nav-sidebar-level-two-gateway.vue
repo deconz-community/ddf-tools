@@ -53,6 +53,7 @@ const devices = computed(() => {
     <v-divider />
     <v-list-subheader>Config</v-list-subheader>
     <v-list-item
+      prepend-icon="mdi-key-chain"
       title="API Keys"
       :to="`${baseURL}/config/whitelist`"
     />

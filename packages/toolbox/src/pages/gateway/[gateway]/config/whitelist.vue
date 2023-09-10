@@ -8,6 +8,27 @@ const props = defineProps<{
 }>()
 
 const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
+const search = ref('')
+const sortBy = ref([{
+  key: 'created',
+  order: 'desc',
+}])
+const headers = ref([{
+  title: 'Key',
+  key: 'key',
+}, {
+  title: 'Name',
+  key: 'name',
+}, {
+  title: 'Created',
+  key: 'created',
+}, {
+  title: 'Last Used',
+  key: 'lastUsed',
+}, {
+  title: 'Actions',
+  key: 'actions',
+}])
 
 const { state, isLoading, execute } = useAsyncState(async () => {
   if (!gateway.state?.matches('online'))
@@ -60,33 +81,29 @@ async function deleteKey(key: string) {
   <v-card class="ma-3">
     <v-card-title>
       Manage API Keys
+
       <v-btn @click="execute()">
         Refresh
       </v-btn>
+      <v-spacer />
+      <v-text-field
+        v-model="search"
+        placeholder="Search"
+        append-inner-icon="mdi-close"
+        label="Search"
+        single-line
+        hide-details
+        @click:append-inner="search = ''"
+      />
     </v-card-title>
     <v-card-text>
-      <!-- TODO Add search field -->
-      <!-- TODO Sort by default on created from new to old -->
       <v-data-table
+        :sort-by="sortBy"
         :loading="isLoading"
-        :headers="[{
-          title: 'Key',
-          key: 'key',
-        }, {
-          title: 'Name',
-          key: 'name',
-        }, {
-          title: 'Created',
-          key: 'created',
-        }, {
-          title: 'Last Used',
-          key: 'lastUsed',
-        }, {
-          title: 'Actions',
-          key: 'actions',
-        }]"
+        :search="search"
+        :headers="headers"
         :items="state"
-        item-value="name"
+        item-value="key"
       >
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.created="{ item }">
