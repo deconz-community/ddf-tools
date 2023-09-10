@@ -39,6 +39,7 @@ export function readFunction() {
       mf: z.optional(cf.hexa(4)).describe('Manufacturer code, must be set to 0x0000 for non manufacturer specific commands.'),
       cmd: z.optional(cf.hexa(2)).describe('Zigbee command.'),
       eval: z.optional(cf.javascript()).describe('Javascript expression to transform the attribute value to the Item value.'),
+      fc: z.optional(cf.hexa(2).or(z.number())).describe('Zigbee command frame control.'),
       script: z.optional(cf.filePath()).describe('Relative path of a Javascript .js file.'),
     }),
     z.strictObject({
@@ -169,7 +170,6 @@ export function writeFunction() {
     z.strictObject({
       fn: z.literal('zcl:cmd').describe('Generic function to parse ZCL values from read/report commands.'),
       cl: cf.hexa(4).describe('Cluster ID.'),
-      dt: cf.hexa(2).describe('Data type.'),
       ep: z.optional(cf.endpoint()).describe('Endpoint, 255 means any endpoint, 0 means auto selected from subdevice.'),
       mf: z.optional(cf.hexa(4)).describe('Manufacturer code, must be set to 0x0000 for non manufacturer specific commands.'),
       cmd: z.optional(cf.hexa(2)).describe('Zigbee command.'),
