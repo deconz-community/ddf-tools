@@ -65,12 +65,12 @@
     "packageManager": "pnpm@8.7.4",
     "devDependencies": {
         "@types/jsdom": "^21.1.2",
-        "@types/node": "^20.5.9",
+        "@types/node": "^20.6.0",
         "@types/pako": "^2.0.0",
         "@typescript-eslint/eslint-plugin": "^6.6.0",
         "@typescript-eslint/parser": "^6.6.0",
         "degit": "^2.8.4",
-        "eslint": "^8.48.0",
+        "eslint": "^8.49.0",
         "glob": "^10.3.4",
         "lint-staged": "^14.0.1",
         "rimraf": "^5.0.1",
@@ -80,7 +80,7 @@
         "taze": "^0.11.2",
         "typescript": "^5.2.2",
         "vite": "^4.4.9",
-        "vitest": "^0.34.3",
+        "vitest": "^0.34.4",
         "zod-to-json-schema": "^3.21.4",
         "zod-to-ts": "^1.2.0",
         "zod-validation-error": "^1.5.0"

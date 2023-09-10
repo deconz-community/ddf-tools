@@ -60,12 +60,12 @@
     "packageManager": "pnpm@8.7.4",
     "devDependencies": {
         "@types/jsdom": "^21.1.2",
-        "@types/node": "^20.5.9",
+        "@types/node": "^20.6.0",
         "@types/pako": "^2.0.0",
         "@typescript-eslint/eslint-plugin": "^6.6.0",
         "@typescript-eslint/parser": "^6.6.0",
         "dts-bundle-generator": "^8.0.1",
-        "eslint": "^8.48.0",
+        "eslint": "^8.49.0",
         "lint-staged": "^14.0.1",
         "stylelint": "^15.10.3",
         "stylelint-config-recommended": "^13.0.0",
@@ -73,7 +73,7 @@
         "taze": "^0.11.2",
         "typescript": "^5.2.2",
         "vite": "^4.4.9",
-        "vitest": "^0.34.3"
+        "vitest": "^0.34.4"
     },
     "dependencies": {
         "@noble/curves": "^1.2.0",
