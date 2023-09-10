@@ -53,9 +53,6 @@
         "4000": {
             "label": "Toolbox - Vitesse"
         },
-        "4001": {
-            "label": "Playground - Vitesse"
-        },
 		"8090": {
 			"label": "Store - Pocketbase"
 		}

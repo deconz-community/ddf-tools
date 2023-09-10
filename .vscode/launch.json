@@ -10,12 +10,6 @@
             "name": "Launch Chrome for Toolbox",
             "url": "http://localhost:4000/",
             "webRoot": "${workspaceFolder}"
-        },{
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome for Playground",
-            "url": "http://localhost:4001/",
-            "webRoot": "${workspaceFolder}"
         }
     ]
 }
