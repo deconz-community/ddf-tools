@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.15.0
+
+### Minor Changes
+
+- 787e62c: Update zcl:cmd schema
+
 ## 2.14.0
 
 ### Minor Changes
