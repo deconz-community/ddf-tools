@@ -7,7 +7,7 @@ import { zodResolver } from '@vorms/resolvers/zod'
 import init from 'zod-empty'
 import { z } from 'zod'
 
-type Client = ReturnType<typeof Gateway>['client']
+type Client = ReturnType<typeof Gateway>
 
 const props = defineProps<{
   client: Client
