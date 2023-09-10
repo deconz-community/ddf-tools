@@ -142,6 +142,19 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _gene
       },
     },
     {
+      description: 'a device with "cap/color/ct/computes_xy" need the corresponding state/{x,y} items',
+      if: {
+        item: 'cap/color/ct/computes_xy',
+      },
+      need: {
+        item: [
+          'state/x',
+          'state/y',
+          'state/ct',
+        ],
+      },
+    },
+    {
       description: 'a device with "state/x" or "state/y" need the corresponding cap/color/xy/{red,green,blue}/{x,y} items',
       if: {
         item: {
