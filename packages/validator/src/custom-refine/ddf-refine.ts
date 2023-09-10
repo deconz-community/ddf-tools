@@ -161,7 +161,6 @@ function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _gene
           'cap/color/xy/red_y',
           'cap/color/xy/green_y',
           'cap/color/xy/blue_y',
-          'cap/color/ct/computes_xy',
         ],
       },
     },
