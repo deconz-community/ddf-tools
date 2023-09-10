@@ -115,7 +115,13 @@ export const storeMachine = createMachine({
     connectToPocketBase: async (context) => {
       // console.log(context.pocketBaseUrl)
       const client = new PocketBase(context.pocketBaseUrl)
-      const health = await client.health.check()
+      const requestKey = 'xstate.connectToPocketBase.health'
+      const timeout = setTimeout(() => {
+        client.cancelRequest(requestKey)
+      }, 1000)
+      const health = await client.health.check({ requestKey })
+      clearTimeout(timeout)
+
       if (health.code === 200)
         return client
       else
