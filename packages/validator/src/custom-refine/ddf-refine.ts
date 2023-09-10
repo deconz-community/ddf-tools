@@ -96,10 +96,6 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
 }
 
 function validateMandatoryItemsAttributes(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
-  // If there no bindings there is nothing to check
-  if (!data.bindings)
-    return
-
   // If property is used to check if the device should check for the needed values.
   // An empty if object mean it's always checked.
   interface Rule {
@@ -271,10 +267,6 @@ function validateConstants2(data: Constants2, ctx: z.RefinementCtx, _generics: G
 }
 
 function validateMandatoryItemsForDevices(data: DDF, ctx: z.RefinementCtx, generics: GenericsData) {
-  // If there no bindings there is nothing to check
-  if (!data.bindings)
-    return
-
   data.subdevices.forEach((device, device_index) => {
     const generic = generics.subDevices[device.type]
     if (!generic) {
