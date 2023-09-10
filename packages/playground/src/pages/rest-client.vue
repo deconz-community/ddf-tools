@@ -44,8 +44,8 @@ test()
 
     <template #text>
       <zodios-api
-        v-for="api in discovery.client.api" :key="api.path"
-        :api="api" :client="discovery.client" :api-key="apiKey"
+        v-for="api in discovery.api" :key="api.path"
+        :api="api" :client="discovery" :api-key="apiKey"
       />
     </template>
   </v-card>
@@ -70,8 +70,8 @@ test()
       </v-expansion-panels>
 
       <zodios-api
-        v-for="api in gateway.client.api" :key="api.path"
-        :api="api" :client="gateway.client" :api-key="apiKey"
+        v-for="api in gateway.api" :key="api.path"
+        :api="api" :client="gateway" :api-key="apiKey"
       />
     </template>
   </v-card>
