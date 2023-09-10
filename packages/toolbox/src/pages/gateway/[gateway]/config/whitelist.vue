@@ -9,26 +9,6 @@ const props = defineProps<{
 
 const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
 const search = ref('')
-const sortBy = ref([{
-  key: 'created',
-  order: 'desc',
-}])
-const headers = ref([{
-  title: 'Key',
-  key: 'key',
-}, {
-  title: 'Name',
-  key: 'name',
-}, {
-  title: 'Created',
-  key: 'created',
-}, {
-  title: 'Last Used',
-  key: 'lastUsed',
-}, {
-  title: 'Actions',
-  key: 'actions',
-}])
 
 const { state, isLoading, execute } = useAsyncState(async () => {
   if (!gateway.state?.matches('online'))
@@ -98,10 +78,28 @@ async function deleteKey(key: string) {
     </v-card-title>
     <v-card-text>
       <v-data-table
-        :sort-by="sortBy"
         :loading="isLoading"
         :search="search"
-        :headers="headers"
+        :headers="[{
+          title: 'Key',
+          key: 'key',
+        }, {
+          title: 'Name',
+          key: 'name',
+        }, {
+          title: 'Created',
+          key: 'created',
+        }, {
+          title: 'Last Used',
+          key: 'lastUsed',
+        }, {
+          title: 'Actions',
+          key: 'actions',
+        }]"
+        :sort-by="[{
+          key: 'created',
+          order: 'desc',
+        }]"
         :items="state"
         item-value="key"
       >
