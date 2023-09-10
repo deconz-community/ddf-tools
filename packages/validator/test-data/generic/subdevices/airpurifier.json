@@ -9,7 +9,6 @@
         "config/mode",
         "config/on",
         "config/reachable",
-        "state/airquality",
         "state/lastupdated",
         "state/speed"
     ],

@@ -6,22 +6,16 @@
     "order": 20,
     "uuid": ["$address.ext", "0x01", "0x0201"],
     "items": [
-        "config/heatsetpoint",
-        "config/mode",
-        "config/offset",
         "config/on",
         "config/reachable",
-        "state/on",
-        "state/temperature",
-        "state/valve",
-        "state/lastupdated"
+        "config/heatsetpoint",
+        "state/lastupdated",
+        "state/temperature"
     ],
     "items_optional": [
-        "config/heatsetpoint",
         "config/mode",
         "config/offset",
         "state/on",
-        "state/temperature",
         "state/valve"
     ]
 }

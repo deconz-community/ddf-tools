@@ -8,10 +8,8 @@
     "items": [
         "config/on",
         "config/reachable",
-        "state/current",
         "state/lastupdated",
-        "state/power",
-        "state/voltage"
+        "state/power"
     ],
     "items_optional": [
         "state/current",

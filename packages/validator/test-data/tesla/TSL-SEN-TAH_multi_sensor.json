@@ -69,7 +69,7 @@
           "name": "state/lastupdated"
         },
         {
-          "name": "state/temperature"
+          "name": "config/temperature"
         }
       ]
     },
