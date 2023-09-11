@@ -13,50 +13,78 @@ export function validator() {
     .requiredOption('-d, --directory <path>', 'Di')
     .action(async (options) => {
       const { directory } = options
-      let spinner
       const validator = createValidator()
 
-      spinner = ora(chalk.blue('Finding files to validate')).start()
+      const spinner = ora(chalk.blue('Finding files to validate')).start()
       const files = await glob(`${directory}/**/*.json`)
       spinner.text = chalk.blue(`Found ${files.length} files to validate`)
       spinner.succeed()
 
-      spinner = ora(chalk.blue(`Loading ${files.length} files from disk`)).start()
+      spinner.start(chalk.blue(`Loading ${files.length} files from disk`))
 
       const genericFiles = []
-      const ddffiles = []
+      const ddfFiles = []
 
       await Promise.all(files.map(
         async (filePath) => {
           const data = await readFile(filePath, 'utf-8')
           const decoded = JSON.parse(data)
           const file = { path: filePath, data: decoded }
-
-          switch (decoded.schema) {
-            case 'constants1.schema.json':
-              genericFiles.push(file)
-              break
-
-            case 'devcap1.schema.json':
-              ddffiles.push(file)
-              break
-
-            default:
-              throw new Error(`Unknown schema ${decoded.schema}`)
-          }
+          if (validator.isGeneric(decoded.schema))
+            genericFiles.push(file)
+          else
+            ddfFiles.push(file)
         },
       ))
+      spinner.text = chalk.blue(`Loaded ${genericFiles.length} generic files and ${ddfFiles.length} DDF files from disk`)
       spinner.succeed()
 
-      const schemas = []
-      filesData.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
+      genericFiles.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
 
-      filesData.forEach((file) => {
-        if (!schemas.includes(file.data.schema))
-          schemas.push(file.data.schema)
-      })
+      const plural = (singular, plural, count) => count > 1 ? plural : singular
 
-      console.log(schemas)
+      const processFiles = (files, type) => {
+        let count = 0
+        const errorsMessages = []
+        const typeFilesText = `${type} ${plural('file', 'files', files.length)}`
+
+        spinner.start(chalk.blue(`Parsing ${typeFilesText} (1/${files.length})`))
+
+        files.forEach((file) => {
+          spinner.text = chalk.blue(`Parsing ${typeFilesText} (${count++}/${files.length})`)
+          spinner.render()
+
+          try {
+            if (type === 'generic')
+              validator.loadGeneric(file.data)
+            else if (type === 'ddf')
+              validator.validate(file.data)
+          }
+          catch (error) {
+            errorsMessages.push({
+              path: file.path,
+              message: fromZodError(error).message,
+            })
+          }
+        })
+
+        spinner.start()
+        if (errorsMessages.length > 0) {
+          spinner.fail(chalk.red(`Found ${errorsMessages.length} ${plural('error', 'errors', errorsMessages.length)} in ${files.length} ${typeFilesText}`))
+          errorsMessages.forEach((message) => {
+            console.log(`  ${chalk.cyan('File:')}`, message.path)
+            console.log(`    ${chalk.red(message.message)}`)
+          })
+        }
+        else {
+          spinner.succeed(chalk.green(`No errors found in ${files.length} ${typeFilesText}`))
+        }
+      }
+
+      processFiles(genericFiles, 'generic')
+      processFiles(ddfFiles, 'ddf')
+
+      /*
 
       filesData.filter((file) => {
         try {
@@ -75,5 +103,6 @@ export function validator() {
           console.log(fromZodError(error).message)
         }
       })
+      */
     })
 }

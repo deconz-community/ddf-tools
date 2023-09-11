@@ -1,7 +1,7 @@
 {
   "schema": "devcap1.schema.json",
   "manufacturername": [
-    "$MF_IKEA_FOO"
+    "$MF_IKEA"
   ],
   "modelid": [
     "TRADFRI bulb E27 CWS 806lm"
