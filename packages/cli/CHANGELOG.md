@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.0.4
+
+### Patch Changes
+
+- 579b24f: Update display of the validator version
+
 ## 1.0.3
 
 ### Patch Changes
