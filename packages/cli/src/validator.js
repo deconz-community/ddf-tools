@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { readFile } from 'node:fs/promises'
-import { program } from '@commander-js/extra-typings'
+import { program } from 'commander'
 import { glob } from 'glob'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { fromZodError } from 'zod-validation-error'

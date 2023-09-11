@@ -2,7 +2,7 @@
 
 import process from 'node:process'
 import { createRequire } from 'node:module'
-import { program } from '@commander-js/extra-typings'
+import { program } from 'commander'
 
 import { validator } from './src/validator.js'
 
