@@ -64,7 +64,10 @@ export function validator() {
           catch (error) {
             errorsMessages.push({
               path: file.path,
-              message: fromZodError(error).message,
+              message: fromZodError(error, {
+                issueSeparator: '\n    ',
+                prefix: null,
+              }).message,
             })
           }
         })
