@@ -1,5 +1,12 @@
 # @deconz-community/cli
 
+## 1.0.1
+
+### Patch Changes
+
+- 4d4a11b: Update Readme
+- 4d4a11b: Update command help
+
 ## 1.0.0
 
 ### Major Changes
