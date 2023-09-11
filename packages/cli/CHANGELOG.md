@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.0.3
+
+### Patch Changes
+
+- eabec09: Display validator version
+
 ## 1.0.2
 
 ### Patch Changes
