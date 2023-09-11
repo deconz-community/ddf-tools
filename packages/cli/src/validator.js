@@ -16,7 +16,8 @@ export function validator() {
       const { directory } = options
       const validator = createValidator()
 
-      const spinner = ora(chalk.blue(`Finding files to validate with validator v${validator.version}`)).start()
+      console.log(chalk.green(`- Using validator version ${validator.version}`))
+      const spinner = ora(chalk.blue('Finding files to validate')).start()
       const files = await glob(`${directory}/**/*.json`)
       spinner.text = chalk.blue(`Found ${files.length} files to validate`)
       spinner.succeed()
