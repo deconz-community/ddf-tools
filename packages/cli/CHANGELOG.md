@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.0.2
+
+### Patch Changes
+
+- e0f4899: Update errors message display to have one error per line
+
 ## 1.0.1
 
 ### Patch Changes
