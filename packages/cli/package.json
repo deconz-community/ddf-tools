@@ -1,0 +1,64 @@
+{
+    "name": "@deconz-community/cli",
+    "version": "0.0.1",
+    "type": "module",
+    "private": true,
+    "description": "",
+    "keywords": [
+        "deconz",
+        "drezden",
+        "conbee",
+        "cli"
+    ],
+    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/cli",
+    "bugs": {
+        "url": "https://github.com/deconz-community/ddf-tools/issues/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deconz-community/ddf-tools.git"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "Zehir",
+        "email": "zehir@zorim.fr",
+        "url": "https://github.com/Zehir"
+    },
+    "maintainers": [
+        {
+            "name": "Zehir",
+            "email": "zehir@zorim.fr",
+            "url": "https://github.com/Zehir"
+        }
+    ],
+    "funding": {
+        "type": "individual",
+        "url": "https://github.com/sponsors/Zehir"
+    },
+    "bin": {
+        "ddf-tools": "./ddf-tools.js"
+    },
+    "scripts": {
+        "ddf-tools": "node ./ddf-tools.js"
+    },
+    "engines": {
+        "pnpm": ">=8.6.8",
+        "node": ">=16.0.0"
+    },
+    "packageManager": "pnpm@8.7.4",
+    "dependencies": {
+        "@commander-js/extra-typings": "^11.0.0",
+        "@deconz-community/ddf-validator": "workspace:^",
+        "chalk": "^5.3.0",
+        "commander": "^11.0.0",
+        "glob": "^10.3.4",
+        "ora": "^7.0.1",
+        "zod-validation-error": "^1.5.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.6.0",
+        "taze": "^0.11.2",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+    }
+}
