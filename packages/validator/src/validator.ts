@@ -15,6 +15,15 @@ export function createValidator(generics: GenericsData = {
     schema = mainSchema(generics)
   }
 
+  const isGeneric = (schema: string) => {
+    return [
+      'constants1.schema.json',
+      'constants2.schema.json',
+      'resourceitem1.schema.json',
+      'subdevice1.schema.json',
+    ].includes(schema)
+  }
+
   const loadGeneric = (data: unknown) => {
     const parsed = schema.parse(data)
 
@@ -60,8 +69,8 @@ export function createValidator(generics: GenericsData = {
         generics.subDevices[parsed.name] = parsed
         break
 
-      case 'devcap1.schema.json':
-        throw new Error('Got invalid generic file, got data with schema \'devcap1.schema.json\'.')
+      default:
+        throw new Error(`Got invalid generic file, got data with schema '${parsed.schema}'.`)
     }
 
     updateSchema()
@@ -73,5 +82,5 @@ export function createValidator(generics: GenericsData = {
     return schema.parse(data)
   }
 
-  return { generics, loadGeneric, validate, getSchema: () => schema, version }
+  return { generics, loadGeneric, validate, getSchema: () => schema, version, isGeneric }
 }
