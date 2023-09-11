@@ -2,8 +2,7 @@
     "name": "@deconz-community/cli",
     "version": "0.0.1",
     "type": "module",
-    "private": true,
-    "description": "",
+    "description": "A command line tool for working with DDFs.",
     "keywords": [
         "deconz",
         "drezden",
