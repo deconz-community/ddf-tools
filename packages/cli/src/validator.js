@@ -10,6 +10,7 @@ import ora from 'ora'
 export function validator() {
   program
     .command('validator')
+    .description('Validate DDF files')
     .requiredOption('-d, --directory <path>', 'Di')
     .action(async (options) => {
       const { directory } = options

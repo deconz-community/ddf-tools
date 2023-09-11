@@ -8,6 +8,11 @@ A command line tool for working with DDFs.
 npm install -g @deconz-community/cli
 ```
 
+## Without install
+```bash
+npx @deconz-community/cli --help
+```
+
 ## Usage
 
 ### Help

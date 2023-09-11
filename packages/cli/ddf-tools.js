@@ -11,7 +11,7 @@ const packageDefinition = createRequire(import.meta.url)('./package.json')
 program
   .name('ddf-tools')
   .version(packageDefinition.version)
-  .description('Un exemple de commande CLI')
+  .description('A command line tool for working with DDFs.')
 
 validator()
 
