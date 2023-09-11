@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.16.0
+
+### Minor Changes
+
+- fdb6713: Add isGeneric method to check if a schema is a generic file
+
 ## 2.15.0
 
 ### Minor Changes
