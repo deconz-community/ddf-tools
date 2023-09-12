@@ -43,7 +43,7 @@ const newList = computed(() => {
     <v-card-actions>
       <v-btn
         :disabled="discovery.state?.matches('scanning')"
-        @click="discovery.send({ type: 'Start scan', uri: discoveryUri.split(',') })"
+        @click="discovery.send({ type: 'START_SCAN', uri: discoveryUri.split(',') })"
       >
         Scan
       </v-btn>

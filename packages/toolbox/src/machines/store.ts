@@ -27,10 +27,10 @@ export const storeMachine = createMachine({
   schema: {
     context: {} as StoreContext,
     events: {} as {
-      type: 'Login' | 'Update Profile'
+      type: 'LOGIN' | 'UPDATE_PROFILE'
       profile: UserProfile
     } | {
-      type: 'Logout'
+      type: 'LOGOUT'
     },
     services: {} as {
       connectToPocketBase: {
@@ -68,7 +68,7 @@ export const storeMachine = createMachine({
       states: {
         anonymous: {
           on: {
-            Login: {
+            LOGIN: {
               target: 'connected',
               actions: 'updateProfile',
             },
@@ -77,12 +77,12 @@ export const storeMachine = createMachine({
 
         connected: {
           on: {
-            'Logout': {
+            LOGOUT: {
               target: 'anonymous',
               actions: 'updateProfile',
             },
 
-            'Update Profile': {
+            UPDATE_PROFILE: {
               target: 'connected',
               internal: true,
             },
@@ -163,7 +163,7 @@ export const storeMachine = createMachine({
         // Clear old auth cookie
         if (!token || !client.authStore.isValid) {
           cookies.remove('pocketbase_auth', cookieBaseParams)
-          sendBack({ type: 'Logout' })
+          sendBack({ type: 'LOGOUT' })
           return
         }
 
@@ -179,11 +179,11 @@ export const storeMachine = createMachine({
 
         if (client.authStore.model) {
           client.collection('user_profile').getOne(client.authStore.model.profile).then((record) => {
-            sendBack({ type: 'Login', profile: record })
+            sendBack({ type: 'LOGIN', profile: record })
           })
 
           client.collection('user_profile').subscribe(client.authStore.model.profile, ({ record }) => {
-            sendBack({ type: 'Update Profile', profile: record })
+            sendBack({ type: 'UPDATE_PROFILE', profile: record })
           })
         }
 

@@ -32,7 +32,7 @@ function addGateway() {
   const credentials = discovery.state?.context.results.get(props.id)
   if (credentials) {
     app.send({
-      type: 'Add gateway',
+      type: 'ADD_GATEWAY',
       credentials: {
         id: credentials.id,
         name: credentials.name,
@@ -47,7 +47,7 @@ function addGateway() {
 }
 
 function removeGateway() {
-  app.send({ type: 'Remove gateway', id: props.id })
+  app.send({ type: 'REMOVE_GATEWAY', id: props.id })
 }
 </script>
 
@@ -88,7 +88,7 @@ function removeGateway() {
               <template v-if="gateway.state!.matches('offline.error.unreachable')">
                 The gateway is unreachable.
               </template>
-              <template v-else-if="gateway.state!.matches('offline.error.invalid API key')">
+              <template v-else-if="gateway.state!.matches('offline.error.invalidApiKey')">
                 The API key is invalid.
               </template>
               <template v-else>
@@ -100,7 +100,7 @@ function removeGateway() {
           <template v-else-if="gateway.state!.matches('offline.disabled')">
             <v-alert type="info" title="Info">
               The gateway is disabled.
-              <v-btn v-if="gateway.state!.can('Connect')" @click="gateway.send('Connect')">
+              <v-btn v-if="gateway.state!.can('CONNECT')" @click="gateway.send('CONNECT')">
                 Connect
               </v-btn>
             </v-alert>
@@ -121,7 +121,7 @@ function removeGateway() {
         <v-btn elevation="2" @click="removeGateway()">
           Remove
         </v-btn>
-        <btn-event elevation="2" :machine="gateway" event="Edit credentials" />
+        <btn-event elevation="2" :machine="gateway" event="EDIT_CREDENTIALS" />
       </v-card-actions>
     </v-card-item>
   </v-card>

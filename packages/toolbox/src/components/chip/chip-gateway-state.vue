@@ -23,11 +23,11 @@ const state = computed<{
     return { color: 'green', text: 'Online', tooltip: `${Object.keys(state.context.devices).length} devices` }
 
   if (['connecting', 'init'].some(state.matches))
-    return { color: 'blue', text: 'Connecting' }
+    return { color: 'blue', text: 'CONNECTing' }
   if (state.matches('offline.disabled'))
     return { color: 'gray', text: 'Disabled' }
 
-  if (state.matches('offline.error.invalid API key'))
+  if (state.matches('offline.error.invalidApiKey'))
     return { color: 'red', text: 'Offline', tooltip: 'Invalid API key' }
   if (state.matches('offline.error.unreachable'))
     return { color: 'red', text: 'Offline', tooltip: 'Unreachable' }

@@ -20,7 +20,7 @@ if (!gateway)
   throw new Error('no gateway')
 const { state, machine } = gateway
 
-const canFixIssue = useSelector(machine, state => state.can('Edit credentials'))
+const canFixIssue = useSelector(machine, state => state.can('EDIT_CREDENTIALS'))
 
 const gateway = gateways.gateways[props.gateway]
 

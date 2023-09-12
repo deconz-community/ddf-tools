@@ -131,11 +131,11 @@ export function createAppMachine() {
       const scope = getCurrentScope() ?? effectScope()
       scope.run(() => {
         const toDispose: (() => void)[] = []
-        const debug = import.meta.env.VITE_DEBUG === 'true'
+        const devTools = import.meta.env.VITE_DEBUG === 'true'
 
-        console.log('Debug mode', debug)
+        console.log('Debug mode', devTools)
 
-        if (debug) {
+        if (devTools) {
           const enableInspect = true
           if (enableInspect) {
             inspect({
@@ -147,7 +147,7 @@ export function createAppMachine() {
         // console.log('Interpreting machine')
 
         const service = interpret(appMachine, {
-          devTools: debug,
+          devTools,
         })
 
         // console.log('Starting service')
@@ -157,9 +157,10 @@ export function createAppMachine() {
 
         // console.log('App machine started')
 
-        if (debug) {
+        if (devTools) {
           // Handle Ninja registration
           const ninja = createXStateNinjaSingleton()
+          // Disabled for now : https://github.com/rlaffers/xstate-ninja/issues/10
           // ninja.register(service)
           // toDispose.push(() => ninja.unregister(service))
         }

@@ -21,13 +21,10 @@ export const gatewayMachine = createMachine({
   schema: {
     context: {} as gatewayContext,
     events: {} as | {
-      type: 'Edit credentials' | 'Done' | 'Next' | 'Previous' | 'Save' | 'Connect' | 'Refresh devices'
+      type: 'EDIT_CREDENTIALS' | 'DONE' | 'NEXT' | 'PREVIOUS' | 'SAVE' | 'CONNECT' | 'REFRESH_DEVICES'
     } | {
-      type: 'Update credentials'
+      type: 'UPDATE_CREDENTIALS'
       data: GatewayCredentials
-    } | {
-      type: 'Generate API Key'
-      installcode?: string
     },
     services: {} as {
       connectToGateway: {
@@ -69,14 +66,14 @@ export const gatewayMachine = createMachine({
         src: 'connectToGateway',
 
         onDone: [{
-          target: 'online.Pooling devices',
+          target: 'online.poolingDevices',
           cond: 'isOk',
           actions: 'useClient',
         }, {
           target: 'offline.error.unreachable',
           cond: 'isUnreachable',
         }, {
-          target: 'offline.error.invalid API key',
+          target: 'offline.error.invalidApiKey',
           cond: 'isInvalidAPIKey',
         }, 'offline.error'],
       }],
@@ -84,17 +81,17 @@ export const gatewayMachine = createMachine({
 
     online: {
       states: {
-        'idle': {
+        idle: {
           on: {
-            'Refresh devices': 'Pooling devices',
+            REFRESH_DEVICES: 'poolingDevices',
           },
 
           after: {
-            10000000: 'Pooling devices',
+            10000000: 'poolingDevices',
           },
         },
 
-        'Pooling devices': {
+        poolingDevices: {
           invoke: {
             src: 'fetchDevices',
 
@@ -118,19 +115,19 @@ export const gatewayMachine = createMachine({
 
         error: {
           states: {
-            'unreachable': {
+            unreachable: {
               on: {
-                'Edit credentials': '#gateway.offline.editing.Address',
+                EDIT_CREDENTIALS: '#gateway.offline.editing.address',
               },
             },
-            'invalid API key': {
+            invalidApiKey: {
               on: {
-                'Edit credentials': '#gateway.offline.editing.API key',
+                EDIT_CREDENTIALS: '#gateway.offline.editing.apiKey',
               },
             },
-            'unknown': {
+            unknown: {
               on: {
-                'Edit credentials': '#gateway.offline.editing',
+                EDIT_CREDENTIALS: '#gateway.offline.editing',
               },
             },
           },
@@ -140,28 +137,28 @@ export const gatewayMachine = createMachine({
 
         editing: {
           states: {
-            'API key': {
+            apiKey: {
               on: {
-                Previous: 'Address',
+                PREVIOUS: 'address',
               },
 
             },
 
-            'Address': {
+            address: {
               on: {
-                Next: 'API key',
+                NEXT: 'apiKey',
               },
             },
           },
 
-          initial: 'Address',
+          initial: 'address',
         },
       },
 
       initial: 'disabled',
 
       on: {
-        Connect: 'connecting',
+        CONNECT: 'connecting',
       },
     },
   },
@@ -169,12 +166,12 @@ export const gatewayMachine = createMachine({
   initial: 'init',
 
   on: {
-    'Update credentials': {
+    UPDATE_CREDENTIALS: {
       target: '.init',
       actions: ['updateCredentials', 'saveSettings'],
     },
 
-    'Edit credentials': '.offline.editing',
+    EDIT_CREDENTIALS: '.offline.editing',
   },
 
 }, {
@@ -197,7 +194,7 @@ export const gatewayMachine = createMachine({
       credentials: (context, event) => event.data,
     }),
 
-    saveSettings: sendParent({ type: 'Save settings' }),
+    saveSettings: sendParent({ type: 'SAVE_SETTINGS' }),
 
     updateDevices: assign({
       devices: (context, event) => {
@@ -222,6 +219,7 @@ export const gatewayMachine = createMachine({
         oldList
           .filter(uuid => !newList.includes(uuid))
           .forEach((uuid) => {
+            // TODO Fix this
             devices[uuid].stop?.()
             delete devices[uuid]
           })

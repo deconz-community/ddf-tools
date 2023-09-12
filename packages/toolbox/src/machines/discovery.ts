@@ -24,12 +24,12 @@ export const discoveryMachine = createMachine({
   schema: {
     context: {} as DiscoveryContext,
     events: {} as {
-      type: 'Start scan'
+      type: 'START_SCAN'
       uri?: string | string[]
     } | {
-      type: 'Stop scan'
+      type: 'STOP_SCAN'
     } | {
-      type: 'Found gateway'
+      type: 'GATEWAY_FOUND'
       uri: string
       id: string
       name: string
@@ -44,7 +44,7 @@ export const discoveryMachine = createMachine({
   states: {
     idle: {
       on: {
-        'Start scan': {
+        START_SCAN: {
           target: 'scanning',
           actions: 'cleanupResults',
         },
@@ -58,9 +58,9 @@ export const discoveryMachine = createMachine({
       },
 
       on: {
-        'Stop scan': 'idle',
+        STOP_SCAN: 'idle',
 
-        'Found gateway': {
+        GATEWAY_FOUND: {
           target: 'scanning',
           internal: true,
           actions: 'saveGatewayResult',
@@ -142,7 +142,7 @@ export const discoveryMachine = createMachine({
         const config = await client.getConfig()
         if (config.success) {
           callback({
-            type: 'Found gateway',
+            type: 'GATEWAY_FOUND',
             id: config.success.bridgeid,
             name: config.success.name,
             version: config.success.swversion,

@@ -42,38 +42,41 @@ export const appMachine = createMachine({
   schema: {
     context: {} as AppContext,
     events: {} as {
-      type: 'Add gateway'
+      type: 'ADD_GATEWAY'
       credentials: GatewayCredentials
     } | {
-      type: 'Update gateway'
+      type: 'UPDATE_GATEWAY'
       credentials: GatewayCredentials
     } | {
-      type: 'Remove gateway'
+      type: 'REMOVE_GATEWAY'
       id: string
     } | {
-      type: 'Save settings' | 'Load settings'
+      type: 'SAVE_SETTINGS' | 'LOAD_SETTINGS'
     },
   },
 
   context: {} as AppContext,
 
   on: {
-    'Add gateway': {
+    ADD_GATEWAY: {
       actions: [
         'spawnGateway',
-        raise('Save settings'),
+        // eslint-disable-next-line xstate/no-inline-implementation
+        raise('SAVE_SETTINGS'),
       ],
     },
-    'Update gateway': {
+    UPDATE_GATEWAY: {
       actions: [
         'updateGatewayCredentials',
-        raise('Save settings'),
+        // eslint-disable-next-line xstate/no-inline-implementation
+        raise('SAVE_SETTINGS'),
       ],
     },
-    'Remove gateway': {
+    REMOVE_GATEWAY: {
       actions: [
         'stopGateway',
-        raise('Save settings'),
+        // eslint-disable-next-line xstate/no-inline-implementation
+        raise('SAVE_SETTINGS'),
       ],
     },
   },
@@ -83,8 +86,8 @@ export const appMachine = createMachine({
       states: {
         idle: {
           on: {
-            'Save settings': 'saving',
-            'Load settings': 'loading',
+            SAVE_SETTINGS: 'saving',
+            LOAD_SETTINGS: 'loading',
           },
         },
         loading: {
@@ -132,7 +135,7 @@ export const appMachine = createMachine({
     updateGatewayCredentials: pure((context, { credentials }) => {
       if (context.machine.gateways.has(credentials.id)) {
         return sendTo(credentials.id, {
-          type: 'Update credentials',
+          type: 'UPDATE_CREDENTIALS',
           data: credentials,
         })
       }
@@ -173,7 +176,7 @@ export const appMachine = createMachine({
         const parsed = JSON.parse(saved)
         const data = storageSchema.parse(parsed)
         Object.values(data.credentials).forEach((credentials: GatewayCredentials) => callback({
-          type: 'Add gateway',
+          type: 'ADD_GATEWAY',
           credentials,
         }))
       }

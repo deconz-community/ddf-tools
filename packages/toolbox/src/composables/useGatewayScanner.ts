@@ -106,7 +106,7 @@ export function useGatewayScanner() {
     try {
       const request = await axiosClient().get<Config>(`${address}/api/config`)
       if (request.data) {
-        logs.value = `Found gateway ${request.data.name} at '${address}'.`
+        logs.value = `GATEWAY_FOUND ${request.data.name} at '${address}'.`
         return request.data
       }
     }
