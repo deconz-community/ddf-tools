@@ -52,12 +52,12 @@ const signatures = computedAsync(async () => {
     return acc
   }, []).filter((item, index, self) => self.indexOf(item) === index)
 
-  const users = await store.client.collection('user').getList(undefined, undefined, {
+  const users = await store.client?.collection('user').getList(undefined, undefined, {
     public_key: publicKeys,
   })
 
   return signatures.map((item) => {
-    const user = users.items.find(user => user.public_key === item.key)
+    const user = users?.items.find(user => user.public_key === item.key)
     return {
       ...item,
       user,
@@ -71,7 +71,7 @@ const signatures = computedAsync(async () => {
     <template #title>
       {{ bundle.data.desc.product }}
       <template v-for="signature in signatures" :key="signature.signature">
-        <chip-user :user="signature.user" class="ma-2" />
+        <chip-user v-if="signature.user" :user="signature.user" class="ma-2" />
       </template>
     </template>
 
