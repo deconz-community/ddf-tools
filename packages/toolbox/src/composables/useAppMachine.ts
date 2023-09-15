@@ -1,5 +1,5 @@
 import type { App, MaybeRef } from 'vue'
-import createXStateNinjaSingleton from 'xstate-ninja'
+import createXStateNinjaSingleton, { LogLevels } from 'xstate-ninja'
 import { interpret } from 'xstate'
 import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
 import { inspect } from '@xstate/inspect'
@@ -159,10 +159,10 @@ export function createAppMachine() {
 
         if (devTools) {
           // Handle Ninja registration
-          const ninja = createXStateNinjaSingleton()
+          const ninja = createXStateNinjaSingleton({ logLevel: LogLevels.debug })
           // Disabled for now : https://github.com/rlaffers/xstate-ninja/issues/10
-          // ninja.register(service)
-          // toDispose.push(() => ninja.unregister(service))
+          ninja.register(service)
+          toDispose.push(() => ninja.unregister(service))
         }
 
         // Cleanup

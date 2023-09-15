@@ -25,33 +25,34 @@ describe('parse', async () => {
     // Sort to load consts first
     genericFilesData.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
 
-    genericFilesData.forEach((file) => {
-      test(`should load generic file ${file.path}`, () => {
-        try {
-          const result = validator.loadGeneric(file.data)
-          expect(result).toBeTruthy()
-        }
-        catch (error) {
-          throw new Error(fromZodError(error).message)
-        }
-      })
+    test.each(genericFilesData)('should load generic file $path', (file) => {
+      try {
+        const result = validator.loadGeneric(file.data)
+        expect(result).toBeTruthy()
+      }
+      catch (error) {
+        expect.unreachable(`${fromZodError(error, {
+            prefixSeparator: '\n    ',
+            issueSeparator: '\n    ',
+          }).message}`)
+      }
     })
   })
 
   describe('should validate DDF', async () => {
-    ddfFiles.forEach((filePath) => {
-      test(`validating ${filePath}`, async () => {
+    test.each(ddfFiles)('validating \'%s\'', async (filePath) => {
+      try {
         const data = await readFile(filePath, 'utf-8')
         const decoded = JSON.parse(data)
-
-        try {
-          const result = validator.validate(decoded)
-          expect(result).toBeDefined()
-        }
-        catch (error) {
-          throw new Error(fromZodError(error).message)
-        }
-      })
+        const result = validator.validate(decoded)
+        expect(result).toBeDefined()
+      }
+      catch (error) {
+        expect.unreachable(`${fromZodError(error, {
+          prefixSeparator: '\n    ',
+          issueSeparator: '\n    ',
+        }).message}`)
+      }
     })
   })
 })

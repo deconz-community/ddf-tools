@@ -1,13 +1,13 @@
 {
   "schema": "devcap1.schema.json",
   "manufacturername": "$MF_IKEA",
-  "modelid": "TRADFRI bulb E27 W opal 1000lm",
-  "product": "TRADFRI bulb E27 W opal 1000lm",
+  "modelid": "TRADFRIbulbE27WSglobeopal1055lm",
+  "product": "Tradfri LED bulb E27 1055 lumen",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
-      "type": "$TYPE_DIMMABLE_LIGHT",
+      "type": "$TYPE_COLOR_TEMPERATURE_LIGHT",
       "restapi": "/lights",
       "uuid": [
         "$address.ext",
@@ -42,61 +42,46 @@
           "name": "attr/uniqueid"
         },
         {
-          "name": "cap/alert/trigger_effect"
+          "name": "cap/bri/move_with_onoff",
+          "static": true
         },
         {
-          "name": "cap/bri/move_with_onoff"
+          "name": "cap/color/capabilities",
+          "static": 16
         },
         {
-          "name": "cap/on/off_with_effect"
+          "name": "cap/color/ct/max",
+          "refresh.interval": 84000,
+          "default": "0xfeff"
         },
         {
-          "name": "config/bri/execute_if_off",
-          "read": {
-            "fn": "zcl",
-            "ep": "0x01",
-            "cl": "0x0008",
-            "at": [
-              "0x000f",
-              "0x0010",
-              "0x0011",
-              "0x4000"
-            ]
-          },
-          "refresh.interval": 3600
+          "name": "cap/color/ct/min",
+          "refresh.interval": 84000,
+          "default": 0
         },
         {
-          "name": "config/bri/on_level",
-          "read": {
-            "fn": "none"
-          }
-        },
-        {
-          "name": "config/bri/onoff_transitiontime",
-          "read": {
-            "fn": "none"
-          }
-        },
-        {
-          "name": "config/bri/startup",
-          "read": {
-            "fn": "none"
-          }
-        },
-        {
-          "name": "config/on/startup"
+          "name": "cap/on/off_with_effect",
+          "static": true
         },
         {
           "name": "state/alert",
           "default": "none"
         },
         {
-          "name": "state/on",
-          "refresh.interval": 360
+          "name": "state/bri",
+          "refresh.interval": 5
         },
         {
-          "name": "state/bri",
-          "refresh.interval": 360
+          "name": "state/colormode",
+          "refresh.interval": 300
+        },
+        {
+          "name": "state/ct",
+          "refresh.interval": 5
+        },
+        {
+          "name": "state/on",
+          "refresh.interval": 5
         },
         {
           "name": "state/reachable"
@@ -108,7 +93,6 @@
     {
       "bind": "unicast",
       "src.ep": 1,
-      "dst.ep": 1,
       "cl": "0x0006",
       "report": [
         {
@@ -122,7 +106,6 @@
     {
       "bind": "unicast",
       "src.ep": 1,
-      "dst.ep": 1,
       "cl": "0x0008",
       "report": [
         {
@@ -130,7 +113,21 @@
           "dt": "0x20",
           "min": 1,
           "max": 300,
-          "change": "0x01"
+          "change": "0x00000001"
+        }
+      ]
+    },
+    {
+      "bind": "unicast",
+      "src.ep": 1,
+      "cl": "0x0300",
+      "report": [
+        {
+          "at": "0x0007",
+          "dt": "0x21",
+          "min": 1,
+          "max": 300,
+          "change": "0x00000005"
         }
       ]
     }

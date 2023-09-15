@@ -1,22 +1,23 @@
 {
   "schema": "devcap1.schema.json",
-  "manufacturername": "$MF_IKEA",
-  "modelid": "TRADFRI bulb E27 CWS opal 600lm",
-  "product": "TRÅDFRI bulb E27 CWS opal 600lm",
+  "manufacturername": "sengled",
+  "modelid": "E12-N1E",
+  "vendor": "sengled",
+  "product": "E12-N1E",
+  "sleeper": false,
   "status": "Bronze",
-  "md:known_issues": [
-    "ikea_known_issues_radio_silence.md"
-  ],
-  "supportsMgmtBind": true,
   "subdevices": [
     {
-      "type": "$TYPE_COLOR_LIGHT",
+      "type": "$TYPE_EXTENDED_COLOR_LIGHT",
       "restapi": "/lights",
       "uuid": [
         "$address.ext",
         "0x01"
       ],
       "items": [
+        {
+          "name": "attr/id"
+        },
         {
           "name": "attr/lastannounced"
         },
@@ -42,13 +43,14 @@
           "name": "attr/uniqueid"
         },
         {
-          "name": "cap/color/capabilities"
-        },
-        {
-          "name": "cap/color/ct/min"
+          "name": "cap/color/capabilities",
+          "static": 31
         },
         {
           "name": "cap/color/ct/max"
+        },
+        {
+          "name": "cap/color/ct/min"
         },
         {
           "name": "cap/color/xy/blue_x",
@@ -75,37 +77,44 @@
           "static": 0
         },
         {
-          "name": "state/on",
-          "refresh.interval": 1900
+          "name": "state/alert",
+          "default": "none"
         },
         {
           "name": "state/bri",
-          "refresh.interval": 1900
+          "refresh.interval": 5
         },
         {
-          "name": "state/x",
-          "refresh.interval": 1900
+          "name": "state/colormode"
         },
         {
-          "name": "state/y",
-          "refresh.interval": 1900
+          "name": "state/ct",
+          "refresh.interval": 5
+        },
+        {
+          "name": "state/effect",
+          "default": "none"
+        },
+        {
+          "name": "state/hue"
+        },
+        {
+          "name": "state/on",
+          "refresh.interval": 5
         },
         {
           "name": "state/reachable"
         },
         {
-          "name": "state/colormode",
-          "values": [
-            [
-              "\"xy\"",
-              "CIE xy color space coordinates"
-            ]
-          ],
-          "default": "xy"
+          "name": "state/sat",
+          "refresh.interval": 5
         },
         {
-          "name": "state/alert",
-          "default": "none"
+          "name": "state/x",
+          "refresh.interval": 5
+        },
+        {
+          "name": "state/y"
         }
       ]
     }
@@ -114,54 +123,64 @@
     {
       "bind": "unicast",
       "src.ep": 1,
+      "dst.ep": 1,
       "cl": "0x0006",
       "report": [
         {
           "at": "0x0000",
           "dt": "0x10",
-          "min": 5,
-          "max": 1800
+          "min": 1,
+          "max": 300
         }
       ]
     },
     {
       "bind": "unicast",
       "src.ep": 1,
+      "dst.ep": 1,
       "cl": "0x0008",
       "report": [
         {
           "at": "0x0000",
           "dt": "0x20",
-          "min": 5,
-          "max": 1800,
-          "change": "0x01"
+          "min": 1,
+          "max": 300,
+          "change": "0x00000001"
         }
       ]
     },
     {
       "bind": "unicast",
       "src.ep": 1,
+      "dst.ep": 1,
       "cl": "0x0300",
       "report": [
         {
-          "at": "0x0008",
-          "dt": "0x30",
-          "min": 1,
-          "max": 1800
+          "at": "0x0007",
+          "dt": "0x21",
+          "min": 154,
+          "max": 500,
+          "change": "0x00000001"
         },
         {
           "at": "0x0003",
           "dt": "0x21",
-          "min": 5,
-          "max": 1795,
-          "change": "0x0a"
+          "min": 1,
+          "max": 300,
+          "change": "0x0000000A"
         },
         {
           "at": "0x0004",
           "dt": "0x21",
-          "min": 5,
-          "max": 1795,
-          "change": "0x0a"
+          "min": 1,
+          "max": 300,
+          "change": "0x0000000A"
+        },
+        {
+          "at": "0x0008",
+          "dt": "0x30",
+          "min": 1,
+          "max": 300
         }
       ]
     }
