@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { json } from '@codemirror/lang-json'
+import VueMonacoEditor from '@guolao/vue-monaco-editor'
 
 const props = defineProps<{
   modelValue: Record<string, any>
@@ -23,8 +23,6 @@ const errorMessages = computed(() => {
 })
 
 const attrs = useAttrs()
-
-const extensions = [json()]
 
 const data = computed({
   // getter
@@ -63,11 +61,21 @@ const data = computed({
     variant="tonal"
     :text="errorMessages"
   />
-  <codemirror
-    v-model="data"
-    placeholder="Code goes here..."
-    :tab-size="4"
-    :extensions="extensions"
+  <VueMonacoEditor
+    v-model:value="data"
+    theme="vs-dark"
+    language="json"
+    :options="{
+      minimap: {
+        enabled: false,
+      },
+      scrollbar: {
+        vertical: 'hidden',
+        horizontal: 'hidden',
+      },
+    }"
+
     v-bind="attrs"
+    height="200px"
   />
 </template>

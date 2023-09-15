@@ -4,6 +4,7 @@ import { computedAsync, useVModel } from '@vueuse/core'
 import { UseTimeAgo } from '@vueuse/components'
 import { bytesToHex } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
+import VueMonacoEditor from '@guolao/vue-monaco-editor'
 
 const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>
@@ -130,27 +131,12 @@ const signatures = computedAsync(async () => {
         </v-window-item>
 
         <v-window-item value="ddf">
-          <vue-monaco-editor
+          <VueMonacoEditor
             v-model:value="bundle.data.ddfc"
             theme="vs-dark"
             language="json"
-            :options="{
-              // automaticLayout: true,
-              // enableSchemaRequest: true,
-
-            }"
             height="500px"
           />
-
-          <!--
-          <codemirror
-            v-model="bundle.data.ddfc"
-            placeholder="Code goes here..."
-            :autofocus="false"
-            :indent-with-tab="false"
-            :tab-size="2"
-          />
-          -->
         </v-window-item>
 
         <v-window-item value="files">

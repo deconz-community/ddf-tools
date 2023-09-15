@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Codemirror } from 'vue-codemirror'
 import { visit } from 'jsonc-parser'
 
 const data = ref(atob('ewogICAgInNjaGVtYSI6ICJzdWJkZXZpY2UxLnNjaGVtYS5qc29uIiwKICAgICJ0eXBlIjogIiRUWVBFX0NBUkJPTkRJT1hJREVfU0VOU09SIiwKICAgICJuYW1lIjogIlpIQUNhcmJvbkRpb3hpZGUiLAogICAgInJlc3RhcGkiOiAiL3NlbnNvcnMiLAogICAgIm9yZGVyIjogMjAsCiAgICAidXVpZCI6IFsiJGFkZHJlc3MuZXh0IiwgIjB4MDEiLCAiMHgwNDBEIl0sCiAgICAiaXRlbXMiOiBbCiAgICAgICAgImNvbmZpZy9vbiIsCiAgICAgICAgImNvbmZpZy9yZWFjaGFibGUiLAogICAgICAgICJzdGF0ZS9tZWFzdXJlZF92YWx1ZSIsCiAgICAgICAgImNhcC9tZWFzdXJlZF92YWx1ZS9taW4iLAogICAgICAgICJjYXAvbWVhc3VyZWRfdmFsdWUvbWF4IiwKICAgICAgICAiY2FwL21lYXN1cmVkX3ZhbHVlL3VuaXQiLAogICAgICAgICJjYXAvbWVhc3VyZWRfdmFsdWUvZGltZW5zaW9uIiwKICAgICAgICAic3RhdGUvbGFzdHVwZGF0ZWQiCiAgICBdCn0K'))
@@ -36,12 +35,11 @@ const result = computed(() => {
     </template>
 
     <template #text>
-      <Codemirror
-        v-model="data"
-        placeholder="Code goes here..."
-        :autofocus="false"
-        :indent-with-tab="false"
-        :tab-size="2"
+      <VueMonacoEditor
+        v-model:value="data"
+        theme="vs-dark"
+        language="json"
+        height="500px"
       />
       {{ result }}
     </template>
@@ -50,8 +48,8 @@ const result = computed(() => {
 
 <route lang="json">
 {
-    "meta": {
-        "hideLevelTwoSidebar": true
-    }
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
 }
 </route>

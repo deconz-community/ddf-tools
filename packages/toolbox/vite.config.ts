@@ -10,7 +10,6 @@ import Vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
-
 module.exports = defineConfig({
   base: '/ddf-tools/',
   resolve: {
@@ -21,6 +20,12 @@ module.exports = defineConfig({
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
+  optimizeDeps: {
+    exclude: [
+      'vuetify'
+    ],
+  },
+
   plugins: [
     VueMacros({
       plugins: {

@@ -24,6 +24,7 @@
       "vue/ref-macros",
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client",
+      "vite-plugin-pwa/client",
       "unplugin-vue-macros/macros-global"
     ],
     "paths": {
@@ -39,8 +40,9 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
     "src/components.d.ts",
+    "src/auto-imports.d.ts",
+    "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"

@@ -187,12 +187,11 @@ function selectDirectory(index: number) {
           label="File path"
         />
         <template v-if="typeof editedItem.data === 'string'">
-          <codemirror
-            v-model="editedItem.data"
-            placeholder="Code goes here..."
-            :autofocus="false"
-            :indent-with-tab="false"
-            :tab-size="2"
+          <VueMonacoEditor
+            v-model:value="editedItem.data"
+            theme="vs-dark"
+            :language="editedItem.type === 'SCJS' ? 'javascript' : 'json'"
+            height="300px"
           />
         </template>
       </v-card-text>
