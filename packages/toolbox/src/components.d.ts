@@ -11,6 +11,7 @@ declare module 'vue' {
     BtnLogin: typeof import('./components/btn/btn-login.vue')['default']
     BtnRoundedCircle: typeof import('./components/btn/btn-rounded-circle.vue')['default']
     BundleEditor: typeof import('./components/bundle-editor.vue')['default']
+    BundleEditorV2: typeof import('./components/bundle-editor-v2.vue')['default']
     BundleFilesEditor: typeof import('./components/bundle-files-editor.vue')['default']
     BundleSignaturesEditor: typeof import('./components/bundle-signatures-editor.vue')['default']
     CardGateway: typeof import('./components/card/card-gateway.vue')['default']

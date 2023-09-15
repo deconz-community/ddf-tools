@@ -55,8 +55,6 @@ const signatures = computedAsync(async () => {
     public_key: publicKeys,
   })
 
-  console.log(users)
-
   return signatures.map((item) => {
     const user = users.items.find(user => user.public_key === item.key)
     return {

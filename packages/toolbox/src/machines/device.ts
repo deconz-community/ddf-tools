@@ -49,11 +49,17 @@ export const deviceMachine = createMachine({
   initial: 'fetching',
 }, {
   services: {
-    fetchData: context => context.gateway.getDevice({
-      params: {
-        deviceUniqueID: context.id,
-      },
-    }),
+    fetchData: (context) => {
+      /*
+      console.log('fetchData', typeof context.gateway.getDevice)
+      console.log('fetchData', context.gateway.getDevice)
+      */
+      return context.gateway.getDevice({
+        params: {
+          deviceUniqueID: context.id,
+        },
+      })
+    },
   },
   actions: {
     saveData: assign({

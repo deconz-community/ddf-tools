@@ -1,6 +1,6 @@
 <script setup   lang="ts">
 import type { BundleFile } from '@deconz-community/ddf-bundler'
-import { syncRef, useVModel } from '@vueuse/core'
+import { useVModel } from '@vueuse/core'
 import { UseTimeAgo } from '@vueuse/components'
 import { useConfirm } from 'vuetify-use-dialog'
 import { filePathsToUniqueTree } from '~/lib/filePathsToTree'
@@ -13,8 +13,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const createConfirm = useConfirm()
 
-const files = ref<BundleFile[]>([])
-syncRef(files, useVModel(props, 'modelValue', emit))
+const files = useVModel(props, 'modelValue', emit)
 
 const currentPath = ref('')
 const breadcrumbs = computed(() => {
@@ -100,19 +99,19 @@ const editedItemPath = ref('')
 const editedItem = ref<BundleFile>({ ...defaultFile })
 const dialog = ref(false)
 
-const newFile = () => {
+function newFile() {
   editedItemPath.value = `${currentPath.value === '' ? '' : `${currentPath.value}/`}new_file.js`
   editedItem.value = Object.assign({}, defaultFile)
   dialog.value = true
 }
 
-const loadFile = (path: string) => {
+function loadFile(path: string) {
   editedItemPath.value = path
   editedItem.value = Object.assign({}, files.value.find(file => file.path === path))
   dialog.value = true
 }
 
-const deleteFile = async (path: string) => {
+async function deleteFile(path: string) {
   const isConfirmed = await createConfirm({
     content: `Delete file '${path}'`,
   })
@@ -126,11 +125,11 @@ const deleteFile = async (path: string) => {
   files.value.splice(index, 1)
 }
 
-const openDirectory = (path: string) => {
+function openDirectory(path: string) {
   currentPath.value = path
 }
 
-const deleteDirectory = async (path: string) => {
+async function deleteDirectory(path: string) {
   const isConfirmed = await createConfirm({
     content: `Delete folder '${path}' and all its content`,
   })
@@ -141,7 +140,7 @@ const deleteDirectory = async (path: string) => {
   files.value = files.value.filter(file => !file.path.startsWith(path))
 }
 
-const save = () => {
+function save() {
   dialog.value = false
   deleteFile(editedItemPath.value)
 
@@ -152,13 +151,13 @@ const save = () => {
     files.value[index] = editedItem.value
 }
 
-const close = () => {
+function close() {
   dialog.value = false
   editedItem.value = { ...defaultFile }
   editedItemPath.value = ''
 }
 
-const selectDirectory = (index: number) => {
+function selectDirectory(index: number) {
   if (index <= 0)
     currentPath.value = ''
   else

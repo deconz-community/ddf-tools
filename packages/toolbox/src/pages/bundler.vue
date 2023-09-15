@@ -296,8 +296,8 @@ watch(bundle, () => {
 
 <route lang="json">
 {
-    "meta": {
-        "hideLevelTwoSidebar": true
-    }
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
 }
 </route>
