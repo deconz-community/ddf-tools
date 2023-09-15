@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.1",
-    "esbuild": "^0.19.2",
+    "esbuild": "^0.19.3",
     "rimraf": "^5.0.1",
     "rollup": "^3.29.1",
     "rollup-plugin-esbuild": "^5.0.0",
