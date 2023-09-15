@@ -29,13 +29,13 @@ const tableItems = computed(() => {
   return data
 })
 
-const newSignature = () => {
+function newSignature() {
   console.log('New signature')
 }
 
-const deleteSignature = async (path: string) => {
+async function deleteSignature(path: string) {
   const isConfirmed = await createConfirm({
-    content: `Delete folder '${path}' and all its content`,
+    content: `Delete signature '${path}'`,
   })
 
   if (!isConfirmed)
@@ -61,7 +61,7 @@ const deleteSignature = async (path: string) => {
           prepend-icon="mdi-plus"
           @click="newSignature()"
         >
-          New file
+          New signature
         </v-btn>
       </v-toolbar>
     </template>
@@ -73,9 +73,4 @@ const deleteSignature = async (path: string) => {
       <v-btn class="ma-2" icon="mdi-delete" @click="deleteSignature(item.raw.path)" />
     </template>
   </v-data-table>
-  <!--
-  <json-viewer :value="fileTree" :expand-level="1" />
-  <json-viewer :value="currentTreePosition" :expand-level="1" />
-  <json-viewer :value="files" :expand-level="1" />
-  -->
 </template>
