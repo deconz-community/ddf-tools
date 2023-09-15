@@ -136,6 +136,9 @@ const signatures = computedAsync(async () => {
             theme="vs-dark"
             language="json"
             height="500px"
+            :options="{
+              automaticLayout: true,
+            }"
           />
         </v-window-item>
 
