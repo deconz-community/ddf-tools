@@ -21,7 +21,7 @@ const hash = computed(() => {
   return bytesToHex(bundle.value.data.hash)
 })
 
-const tab = ref('signatures')
+const tab = ref('ddf')
 
 const supportedDevices = computed(() => {
   if (!bundle.value)
@@ -130,6 +130,19 @@ const signatures = computedAsync(async () => {
         </v-window-item>
 
         <v-window-item value="ddf">
+          <vue-monaco-editor
+            v-model:value="bundle.data.ddfc"
+            theme="vs-dark"
+            language="json"
+            :options="{
+              // automaticLayout: true,
+              // enableSchemaRequest: true,
+
+            }"
+            height="500px"
+          />
+
+          <!--
           <codemirror
             v-model="bundle.data.ddfc"
             placeholder="Code goes here..."
@@ -137,14 +150,15 @@ const signatures = computedAsync(async () => {
             :indent-with-tab="false"
             :tab-size="2"
           />
+          -->
         </v-window-item>
 
         <v-window-item value="files">
-          <bundle-files-editor v-model="bundle.data.files" />
+          <bundle-editor-files v-model="bundle.data.files" />
         </v-window-item>
 
         <v-window-item value="signatures">
-          <bundle-signatures-editor v-model="bundle.data.files" />
+          <bundle-editor-signatures v-model="bundle.data.files" />
         </v-window-item>
       </v-window>
     </v-card-text>

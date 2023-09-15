@@ -223,6 +223,9 @@ importers:
       '@deconz-community/rest-client':
         specifier: workspace:^
         version: link:../rest-client
+      '@guolao/vue-monaco-editor':
+        specifier: ^1.3.0
+        version: 1.3.0(monaco-editor@0.43.0)(vue@3.3.4)
       '@noble/hashes':
         specifier: ^1.3.2
         version: 1.3.2
@@ -262,9 +265,6 @@ importers:
       immer:
         specifier: ^10.0.2
         version: 10.0.2
-      markhu-file-tree:
-        specifier: ^0.1.4
-        version: 0.1.4
       monaco-editor:
         specifier: ^0.43.0
         version: 0.43.0
@@ -289,6 +289,9 @@ importers:
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
+      vite-plugin-monaco-editor:
+        specifier: ^1.1.0
+        version: 1.1.0(monaco-editor@0.43.0)
       vite-plugin-pwa:
         specifier: ^0.16.5
         version: 0.16.5(vite@4.4.9)(workbox-build@7.0.0)(workbox-window@7.0.0)
@@ -2590,6 +2593,22 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
+  /@guolao/vue-monaco-editor@1.3.0(monaco-editor@0.43.0)(vue@3.3.4):
+    resolution: {integrity: sha512-gMrPZUlwwA0AKE7/q2UYKTrdZBYoJ1In0i4bNSAgyFLlSDqzrHi4Stjfi+RIprJrNWJ/j4STifPNKcldr8EaJw==}
+    peerDependencies:
+      '@vue/composition-api': ^1.7.1
+      monaco-editor: ^0.38.0
+      vue: ^2.6.14 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      '@monaco-editor/loader': 1.3.3(monaco-editor@0.43.0)
+      monaco-editor: 0.43.0
+      vue: 3.3.4
+      vue-demi: 0.14.6(vue@3.3.4)
+    dev: false
+
   /@humanwhocodes/config-array@0.11.11:
     resolution: {integrity: sha512-N2brEuAadi0CcdeMXUkhbZB84eskAc8MEX1By6qEchoVywSgXPIjou4rYsl0V3Hj0ZnuGycGCjdNgockbzeWNA==}
     engines: {node: '>=10.10.0'}
@@ -2742,6 +2761,15 @@ packages:
   /@mdi/font@7.2.96:
     resolution: {integrity: sha512-e//lmkmpFUMZKhmCY9zdjRe4zNXfbOIJnn6xveHbaV2kSw5aJ5dLXUxcRt1Gxfi7ZYpFLUWlkG2MGSFAiqAu7w==}
     dev: true
+
+  /@monaco-editor/loader@1.3.3(monaco-editor@0.43.0):
+    resolution: {integrity: sha512-6KKF4CTzcJiS8BJwtxtfyYt9shBiEv32ateQ9T4UVogwn4HM/uPo9iJd2Dmbkpz8CM6Y0PDUpjnZzCwC+eYo2Q==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      monaco-editor: 0.43.0
+      state-local: 1.0.7
+    dev: false
 
   /@noble/curves@1.2.0:
     resolution: {integrity: sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==}
@@ -7278,12 +7306,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /markhu-file-tree@0.1.4:
-    resolution: {integrity: sha512-6c8prpO1sDOoUT+BAmBlAjcjGD44tIPV6nt3szqO7az2JwP3/LQmdCQ62lgh2Umz9jAEaMxcvQKaKqpdLqDhtA==}
-    dependencies:
-      vue: 3.3.4
-    dev: false
-
   /mathml-tag-names@2.1.3:
     resolution: {integrity: sha512-APMBEanjybaPzUrfqU0IMU5I0AswKMH7k8OTLs0vvV4KZpExkTkY87nR/zpbuTPj+gARop7aGUbl11pnDfW6xg==}
     dev: true
@@ -9159,6 +9181,10 @@ packages:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
     dev: true
 
+  /state-local@1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
+    dev: false
+
   /std-env@3.3.3:
     resolution: {integrity: sha512-Rz6yejtVyWnVjC1RFvNmYL10kgjC49EOghxWn0RFqlCHGFpQx+Xe7yW3I4ceK1SGrWIGMjD5Kbue8W/udkbMJg==}
     dev: true
@@ -10187,6 +10213,14 @@ packages:
       - terser
     dev: true
 
+  /vite-plugin-monaco-editor@1.1.0(monaco-editor@0.43.0):
+    resolution: {integrity: sha512-IvtUqZotrRoVqwT0PBBDIZPNraya3BxN/bfcNfnxZ5rkJiGcNtO5eAOWWSgT7zullIAEqQwxMU83yL9J5k7gww==}
+    peerDependencies:
+      monaco-editor: '>=0.33.0'
+    dependencies:
+      monaco-editor: 0.43.0
+    dev: false
+
   /vite-plugin-pages@0.31.0(vite@4.4.9):
     resolution: {integrity: sha512-fw3onBfVTXQI7rOzAbSZhmfwvk50+3qNnGZpERjmD93c8nEjrGLyd53eFXYMxcJV4KA1vzi4qIHt2+6tS4dEMw==}
     peerDependencies:
@@ -10404,6 +10438,21 @@ packages:
         optional: true
     dependencies:
       vue: 3.3.4
+
+  /vue-demi@0.14.6(vue@3.3.4):
+    resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.3.4
+    dev: false
 
   /vue-eslint-parser@9.3.1(eslint@8.49.0):
     resolution: {integrity: sha512-Clr85iD2XFZ3lJ52/ppmUDG/spxQu6+MAeHXjjyI4I1NUYZ9xmenQp4N0oaHJhrA8OOxltCVxMRfANGa70vU0g==}

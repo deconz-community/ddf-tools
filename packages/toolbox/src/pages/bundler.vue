@@ -123,9 +123,15 @@ watch(bundle, () => {
     console.log(e)
   }
 })
+
+onMounted(() => {
+  download()
+})
 </script>
 
 <template>
+  <bundle-editor v-model="bundle" />
+
   <v-card width="100%" class="ma-2">
     <template #title>
       DDF Bundle
@@ -288,8 +294,6 @@ watch(bundle, () => {
           </v-card>
         </template>
       </v-card>
-
-      <bundle-editor v-model="bundle" />
     </template>
   </v-card>
 </template>
