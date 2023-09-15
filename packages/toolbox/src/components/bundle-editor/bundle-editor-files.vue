@@ -142,7 +142,6 @@ async function deleteDirectory(path: string) {
 
 function save() {
   dialog.value = false
-  deleteFile(editedItemPath.value)
 
   const index = files.value.findIndex(file => file.path === editedItem.value.path)
   if (index === -1)
@@ -190,7 +189,7 @@ function selectDirectory(index: number) {
           <VueMonacoEditor
             v-model:value="editedItem.data"
             theme="vs-dark"
-            :language="editedItem.type === 'SCJS' ? 'javascript' : 'json'"
+            :language="filesTypes.find((type) => type.type === editedItem.type)?.format ?? 'plaintext'"
             height="300px"
           />
         </template>
