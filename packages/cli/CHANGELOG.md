@@ -1,5 +1,15 @@
 # @deconz-community/cli
 
+## 1.0.5
+
+### Patch Changes
+
+- d838cc7: [validator] Filter input file by known schema
+- Updated dependencies [d838cc7]
+- Updated dependencies [61fbd9c]
+- Updated dependencies [fde89a1]
+  - @deconz-community/ddf-validator@2.17.0
+
 ## 1.0.4
 
 ### Patch Changes

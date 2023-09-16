@@ -1,5 +1,16 @@
 # @deconz-community/ddf-validator
 
+## 2.17.0
+
+### Minor Changes
+
+- d838cc7: Add isDDF method to check if a schema is a DDF file
+- fde89a1: Update deps
+
+### Patch Changes
+
+- 61fbd9c: Update test files
+
 ## 2.16.0
 
 ### Minor Changes
