@@ -1,5 +1,12 @@
 # @deconz-community/ddf-bundler
 
+## 0.11.0
+
+### Minor Changes
+
+- fce576f: Split hash and signature methods
+- fde89a1: Update deps
+
 ## 0.10.0
 
 ### Minor Changes
