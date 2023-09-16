@@ -47,7 +47,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
   await Promise.all(privKeys.map(async (privKey) => {
     const key = secp256k1.getPublicKey(privKey.key)
 
-    const signature = secp256k1.sign(bundleHash, privKey.key).toCompactRawBytes()
+    const signature = createSignature(bundleHash, privKey.key)
 
     let replaced = false
     for (let index = 0; index < signatures.length; index++) {
@@ -94,7 +94,11 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
   return new Blob(newData)
 }
 
-export async function verify(hash: Uint8Array, publicKey: Uint8Array, signature: Uint8Array): Promise<boolean> {
+export function createSignature(hash: Uint8Array, privateKey: Uint8Array): Uint8Array {
+  return secp256k1.sign(hash, privateKey).toCompactRawBytes()
+}
+
+export async function verifySignature(hash: Uint8Array, publicKey: Uint8Array, signature: Uint8Array): Promise<boolean> {
   try {
     return secp256k1.verify(signature, hash, publicKey)
   }

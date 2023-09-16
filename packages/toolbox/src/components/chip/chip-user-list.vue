@@ -1,15 +1,10 @@
 <script setup lang="ts">
-interface User {
-  id: string
-  name: string
-  created: string
-  github_id: number | null
-}
+import type { UserResponse } from '~/store'
 
 const props = defineProps<{
   title: string
   icon?: string
-  users: User[] | User
+  users: UserResponse[] | UserResponse
 }>()
 
 const users = computed(() => {

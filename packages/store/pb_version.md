@@ -1,1 +1,1 @@
-pocketbase version 0.18.3
+pocketbase version 0.18.6

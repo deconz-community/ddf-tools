@@ -84,33 +84,31 @@ export function dataEncoder(chunks: BufferData[] = []) {
   }
 }
 
-export function encode(bundle: ReturnType<typeof Bundle>): Blob {
+export function encodeDDFB(encoder: ReturnType<typeof dataEncoder>, data: ReturnType<typeof Bundle>['data']) {
+  return encoder.chunk(DDF_BUNDLE_MAGIC, [
+    encoder.chunk('DESC', encoder.text(JSON.stringify(data.desc))),
+    // TODO : check if it's compressed
+    encoder.chunk('DDFC', encoder.text(data.ddfc, false)),
+    data.files.map(file => encoder.chunk('EXTF', [
+      encoder.text(file.type),
+      encoder.withLength(encoder.text(file.path), encoder.Uint16),
+      encoder.withLength(encoder.text(file.last_modified.toISOString()), encoder.Uint16),
+      // TODO : check if it's compressed
+      encoder.withLength(typeof file.data === 'string' ? encoder.text(file.data, false) : file.data),
+    ])),
+  ])
+}
+
+export function encode(bundle: ReturnType<typeof Bundle>, preEncodedDDFB?: BufferDataR): Blob {
   const data = bundle.data
   const chunks: BufferData[] = []
 
-  const {
-    addData,
-    text,
-    Uint16,
-    // Uint32,
-    withLength,
-    chunk,
-  } = dataEncoder(chunks)
+  const encoder = dataEncoder(chunks)
 
+  const { addData, Uint16, withLength, chunk } = encoder
   addData(
     chunk('RIFF', [
-      chunk(DDF_BUNDLE_MAGIC, [
-        chunk('DESC', text(JSON.stringify(data.desc))),
-        // TODO : check if it's compressed
-        chunk('DDFC', text(data.ddfc, false)),
-        data.files.map(file => chunk('EXTF', [
-          text(file.type),
-          withLength(text(file.path), Uint16),
-          withLength(text(file.last_modified.toISOString()), Uint16),
-          // TODO : check if it's compressed
-          withLength(typeof file.data === 'string' ? text(file.data, false) : file.data),
-        ])),
-      ]),
+      preEncodedDDFB ?? encodeDDFB(encoder, data),
       data.signatures.map(signature =>
         chunk('SIGN',
           [

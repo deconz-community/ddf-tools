@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { useTimeAgo } from '@vueuse/core'
+import type { UserResponse } from '~/store'
 
 const props = defineProps<{
-  user: {
-    id: string
-    name: string
-    created: string
-    github_id: number | null
-  }
+  user: UserResponse
 }>()
 
 const menu = ref(false)

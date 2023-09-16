@@ -5,7 +5,8 @@
     "dev": "vite --port 4000",
     "build": "vite build",
     "up": "taze major -I",
-    "postinstall": "xstate typegen \"./src/**/*.ts?(x)\""
+    "postinstall": "xstate typegen \"./src/**/*.ts?(x)\"",
+    "typegen:pocketbase": "pocketbase-typegen --db ../store/pb_data/data.db --out ./src/store.d.ts && eslint --no-ignore --fix ./src/store.d.ts"
   },
   "packageManager": "pnpm@8.7.5",
   "dependencies": {
@@ -66,6 +67,7 @@
     "lint-staged": "^14.0.1",
     "md5": "^2.3.0",
     "pocketbase": "^0.18.0",
+    "pocketbase-typegen": "^1.1.13",
     "sass": "^1.67.0",
     "stylelint": "^15.10.3",
     "stylelint-config-recommended": "^13.0.0",

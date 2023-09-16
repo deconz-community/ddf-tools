@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { Bundle } from '@deconz-community/ddf-bundler'
-import { computedAsync, useVModel } from '@vueuse/core'
+import { useVModel } from '@vueuse/core'
 import { UseTimeAgo } from '@vueuse/components'
 import { bytesToHex } from '@noble/hashes/utils'
-import { secp256k1 } from '@noble/curves/secp256k1'
 import VueMonacoEditor from '@guolao/vue-monaco-editor'
+import { encode, generateHash } from '@deconz-community/ddf-bundler'
+import { saveAs } from 'file-saver'
 
 const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>
@@ -13,16 +14,21 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
-
 const store = useStore()
+const tab = ref('signatures')
+
+watch(bundle, async () => {
+  bundle.value.generateDESC()
+  bundle.value.data.hash = await generateHash(bundle.value.data)
+}, {
+  immediate: true,
+})
 
 const hash = computed(() => {
   if (!bundle.value || !bundle.value.data.hash)
     return
   return bytesToHex(bundle.value.data.hash)
 })
-
-const tab = ref('ddf')
 
 const supportedDevices = computed(() => {
   if (!bundle.value)
@@ -35,6 +41,7 @@ const supportedDevices = computed(() => {
   }, {})
 })
 
+/*
 const signatures = computedAsync(async () => {
   if (!bundle.value)
     return []
@@ -64,15 +71,22 @@ const signatures = computedAsync(async () => {
     }
   })
 }, [])
+*/
+
+async function download() {
+  saveAs(encode(bundle.value), bundle.value.data.name)
+}
 </script>
 
 <template>
   <v-card v-if="bundle" class="ma-2">
     <template #title>
       {{ bundle.data.desc.product }}
+      <!--
       <template v-for="signature in signatures" :key="signature.signature">
-        <chip-user v-if="signature.user" :user="signature.user" class="ma-2" />
+        <chip-user v-if="signature.user" :user="signature.user as any" class="ma-2" />
       </template>
+      -->
     </template>
 
     <template #subtitle>
@@ -95,10 +109,21 @@ const signatures = computedAsync(async () => {
         <v-icon size="x-large" icon="mdi-file" start />
         {{ `${bundle.data.files.length} ${bundle.data.files.length > 1 ? 'Files' : 'File'}` }}
       </v-tab>
-      <v-tab v-if="signatures" value="signatures">
+      <v-tab value="signatures">
         <v-icon size="x-large" icon="mdi-file" start />
-        {{ `${signatures.length} ${signatures.length > 1 ? 'Signatures' : 'Signature'}` }}
+        {{ `${bundle.data.signatures.length} ${bundle.data.signatures.length > 1 ? 'Signatures' : 'Signature'}` }}
       </v-tab>
+
+      <v-spacer />
+
+      <v-btn
+        prepend-icon="mdi-download"
+        color="blue-grey"
+        class="ma-1"
+        @click="download()"
+      >
+        Download
+      </v-btn>
     </v-tabs>
 
     <v-card-text>
@@ -147,7 +172,7 @@ const signatures = computedAsync(async () => {
         </v-window-item>
 
         <v-window-item value="signatures">
-          <bundle-editor-signatures v-model="bundle.data.files" />
+          <bundle-editor-signatures v-model="bundle.data.signatures" :hash="bundle.data.hash" />
         </v-window-item>
       </v-window>
     </v-card-text>
