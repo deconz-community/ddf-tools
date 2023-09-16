@@ -58,7 +58,7 @@ async function buildFromGithub() {
 }
 
 watch(bundle, () => {
-  console.log('Watch bundle')
+  console.log('Watch bundle from page')
   try {
     // const data = JSON.parse(bundle.value.data.ddfc)
     /*

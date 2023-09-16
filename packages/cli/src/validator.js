@@ -32,10 +32,18 @@ export function validator() {
           const data = await readFile(filePath, 'utf-8')
           const decoded = JSON.parse(data)
           const file = { path: filePath, data: decoded }
-          if (validator.isGeneric(decoded.schema))
+
+          if (validator.isGeneric(decoded.schema)) {
             genericFiles.push(file)
-          else
+          }
+          else if (validator.isDDF(decoded.schema)) {
             ddfFiles.push(file)
+          }
+          else {
+            spinner.stop()
+            console.log(chalk.yellow(`Unknown schema for file ${filePath}${decoded.schema ? `, got '${decoded.schema}'` : ''}`))
+            spinner.start()
+          }
         },
       ))
       spinner.text = chalk.blue(`Loaded ${genericFiles.length} generic files and ${ddfFiles.length} DDF files from disk`)

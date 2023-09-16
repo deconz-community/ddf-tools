@@ -17,18 +17,20 @@ const bundle = useVModel(props, 'modelValue', emit)
 const store = useStore()
 const tab = ref('signatures')
 
-watch([
-  bundle,
-  () => bundle.value.data.ddfc,
-  () => bundle.value.data.files,
-], async () => {
-  bundle.value.generateDESC()
-  const newHash = await generateHash(bundle.value.data)
-  bundle.value.data.hash = newHash
-  console.log('newHash', newHash)
+function triggerRefBundle() {
   triggerRef(bundle)
-}, {
-  immediate: true,
+}
+
+async function updateMeta() {
+  console.log(bundle.value)
+  bundle.value.generateDESC()
+  bundle.value.data.hash = await generateHash(bundle.value.data)
+  triggerRefBundle()
+}
+
+watch(bundle, () => {
+  console.log('watched bundle')
+  updateMeta()
 })
 
 const hash = computed(() => {
@@ -100,7 +102,7 @@ async function download() {
         • Last modified {{ timeAgo }}
       </UseTimeAgo>
       <br>
-      {{ bundle.data.hash }}
+      Hash : {{ hash }}
     </template>
 
     <v-tabs v-model="tab" bg-color="primary">
@@ -141,11 +143,6 @@ async function download() {
             readonly
             label="UUID"
           />
-          <v-text-field
-            v-model="hash"
-            readonly
-            label="Hash"
-          />
 
           <h2 class="text-h6 mb-2">
             Supported devices
@@ -171,15 +168,23 @@ async function download() {
             :options="{
               automaticLayout: true,
             }"
+            @change="updateMeta()"
           />
         </v-window-item>
 
         <v-window-item value="files">
-          <bundle-editor-files v-model="bundle.data.files" />
+          <bundle-editor-files
+            v-model="bundle.data.files"
+            @changed="updateMeta()"
+          />
         </v-window-item>
 
         <v-window-item value="signatures">
-          <bundle-editor-signatures v-model="bundle.data.signatures" :hash="bundle.data.hash" />
+          <bundle-editor-signatures
+            v-model="bundle.data.signatures"
+            :hash="bundle.data.hash"
+            @changed="triggerRefBundle()"
+          />
         </v-window-item>
       </v-window>
     </v-card-text>

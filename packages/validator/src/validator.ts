@@ -24,6 +24,10 @@ export function createValidator(generics: GenericsData = {
     ].includes(schema)
   }
 
+  const isDDF = (schema: string) => {
+    return schema === 'devcap1.schema.json'
+  }
+
   const loadGeneric = (data: unknown) => {
     const parsed = schema.parse(data)
 
@@ -82,5 +86,5 @@ export function createValidator(generics: GenericsData = {
     return schema.parse(data)
   }
 
-  return { generics, loadGeneric, validate, getSchema: () => schema, version, isGeneric }
+  return { generics, loadGeneric, validate, getSchema: () => schema, version, isGeneric, isDDF }
 }

@@ -10,7 +10,7 @@ const props = defineProps<{
   hash?: Uint8Array
 }>()
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'changed'])
 
 const signatures = useVModel(props, 'modelValue', emit)
 const hash = useVModel(props, 'hash')
@@ -81,6 +81,7 @@ async function newSignature() {
     key: publicKey,
     signature,
   })
+  emit('changed')
 }
 
 async function deleteSignature(index: number) {
@@ -93,6 +94,7 @@ async function deleteSignature(index: number) {
     return
 
   signatures.value.splice(index, 1)
+  emit('changed')
 }
 </script>
 
