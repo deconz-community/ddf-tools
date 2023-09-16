@@ -28,20 +28,29 @@ export function validator() {
       const ddfFiles = []
 
       await Promise.all(files.map(
-        async (filePath) => {
-          const data = await readFile(filePath, 'utf-8')
-          const decoded = JSON.parse(data)
-          const file = { path: filePath, data: decoded }
+        async (path) => {
+          const file = { path, data: undefined }
 
-          if (validator.isGeneric(decoded.schema)) {
+          try {
+            const data = await readFile(path, 'utf-8')
+            file.data = JSON.parse(data)
+          }
+          catch (e) {
+            spinner.stop()
+            console.log(chalk.red(`Error parsing file ${file.path}, it's not a valid JSON file; ${e.toString()}`))
+            spinner.start()
+            return
+          }
+
+          if (validator.isGeneric(file.data.schema)) {
             genericFiles.push(file)
           }
-          else if (validator.isDDF(decoded.schema)) {
+          else if (validator.isDDF(file.data.schema)) {
             ddfFiles.push(file)
           }
           else {
             spinner.stop()
-            console.log(chalk.yellow(`Unknown schema for file ${filePath}${decoded.schema ? `, got '${decoded.schema}'` : ''}`))
+            console.log(chalk.yellow(`Unknown schema for file ${file.path}${file.data.schema ? `, got '${file.data.schema}'` : ''}`))
             spinner.start()
           }
         },
