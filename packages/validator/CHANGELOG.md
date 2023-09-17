@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.18.0
+
+### Minor Changes
+
+- ccf18af: Add validation for srcitem of numtostr parse function
+
 ## 2.17.0
 
 ### Minor Changes
