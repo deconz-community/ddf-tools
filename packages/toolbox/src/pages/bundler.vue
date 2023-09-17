@@ -73,12 +73,6 @@ if (import.meta.env.VITE_DEBUG === 'true') {
     <v-card-text>
       <v-alert class="ma-2">
         <p>This is a small HTML/JS to test reading and writing the RIFF based DDF bundle.</p>
-        <p>
-          Following shows the bundle chunks content.
-          The UI can currently display and edit chunks but can't create a new one.
-          For chunk with binary data a download button is displayed.
-          Click on the icons on the left side to triggers actions.
-        </p>
       </v-alert>
 
       <v-alert
