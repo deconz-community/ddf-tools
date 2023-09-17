@@ -96,11 +96,18 @@ const userName = computed(() => user.value?.name ?? 'Unknown user')
         </v-list-item>
       </v-list>
 
-      <v-list v-if="user">
+      <v-list>
         <v-list-item
+          v-if="user"
           :title="`${userName}'s profile`"
           prepend-icon="mdi-account"
           :to="`/user/${user.id}`"
+        />
+        <v-list-item
+          v-if="userKey"
+          title="Public key"
+          :subtitle="userKey"
+          prepend-icon="mdi-file-sign"
         />
       </v-list>
     </v-card>

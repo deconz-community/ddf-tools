@@ -24,13 +24,14 @@ const canUseStore = computed(() => {
   return store.state?.matches('online.connected')
 })
 
-const tableHeaders = computed<VDataTable['headers']>(() => [
+const tableHeaders: VDataTable['headers'] = [
   {
-    title: canUseStore.value ? 'User' : 'User\'s key',
+    title: 'User',
     align: 'start',
     order: 'asc',
     sortable: true,
     key: 'key',
+    width: '180px',
   },
   {
     title: 'Signature',
@@ -45,11 +46,15 @@ const tableHeaders = computed<VDataTable['headers']>(() => [
     order: 'asc',
     sortable: true,
     key: 'valid',
+    width: '45px',
   },
-
-  { title: 'Actions', key: 'actions', sortable: false },
-
-])
+  {
+    title: 'Actions',
+    key: 'actions',
+    sortable: false,
+    width: '45px',
+  },
+]
 
 const tableItems = computedAsync(async () => {
   return await Promise.all(signatures.value.map(async (signature: { key: Uint8Array; signature: Uint8Array }) => {
@@ -182,7 +187,7 @@ if (import.meta.env.VITE_DEBUG === 'true') {
       <chip-user :public-key="item.columns.key" />
     </template>
     <template #item.signature="{ item }">
-      ...{{ item.columns.signature.slice(-10) }}
+      ...{{ item.columns.signature.slice(-30) }}
     </template>
     <template #item.valid="{ item }">
       <v-chip v-if="item.columns.valid" color="green">
