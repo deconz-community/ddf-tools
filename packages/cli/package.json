@@ -1,6 +1,6 @@
 {
     "name": "@deconz-community/cli",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "type": "module",
     "description": "A command line tool for working with DDFs.",
     "keywords": [
