@@ -66,7 +66,7 @@ const upload = async () => {
     </template>
   </v-card>
   <template v-for="_, index in bundles" :key="index">
-    <bundle-editor v-model="bundles[index]" />
+    <bundle-editor v-model="bundles[index]" class="ma-2" />
   </template>
 </template>
 

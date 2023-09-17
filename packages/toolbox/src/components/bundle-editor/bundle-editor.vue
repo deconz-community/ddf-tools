@@ -18,6 +18,7 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
+
 const tab = ref('info')
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
@@ -27,9 +28,12 @@ const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.fil
   },
 })
 
-async function updateMeta() {
+async function save() {
+  bundle.value.data.ddfc = ddfc.value
+  bundle.value.data.files = files.value
   bundle.value.generateDESC()
   bundle.value.data.hash = await generateHash(bundle.value.data)
+  dirty.value = false
 }
 
 watch(bundle, () => {
@@ -62,6 +66,10 @@ async function download() {
 }
 
 const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
+
+function setDirty() {
+  dirty.value = true
+}
 </script>
 
 <template>
@@ -101,12 +109,12 @@ const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
       <v-spacer />
 
       <v-btn
-        prepend-icon="mdi-download"
+        :prepend-icon="dirty ? 'mdi-content-save' : 'mdi-download'"
         color="blue-grey"
         class="ma-1"
-        @click="download()"
+        @click="() => dirty ? save() : download()"
       >
-        Download
+        {{ dirty ? 'Save changes' : 'Download' }}
       </v-btn>
     </v-tabs>
 
@@ -143,14 +151,14 @@ const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
             :options="{
               automaticLayout: true,
             }"
-            @change="updateMeta()"
+            @change="setDirty()"
           />
         </v-window-item>
 
         <v-window-item value="files">
           <bundle-editor-files
             v-model="files"
-            @change="updateMeta()"
+            @change="setDirty()"
           />
         </v-window-item>
 
@@ -158,7 +166,7 @@ const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
           <bundle-editor-signatures
             v-model="bundle.data.signatures"
             :hash="bundle.data.hash"
-            @change="dirty = true"
+            @change="setDirty()"
           />
         </v-window-item>
       </v-window>
