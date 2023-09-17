@@ -5,21 +5,28 @@ import { useConfirm } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
 
+import { VDataTable } from 'vuetify/labs/components'
+
 const props = defineProps<{
   modelValue: ChunkSignature[]
   hash?: Uint8Array
 }>()
 
-const emit = defineEmits(['update:modelValue', 'changed'])
+const emit = defineEmits(['update:modelValue', 'change'])
 
 const signatures = useVModel(props, 'modelValue', emit)
 const hash = useVModel(props, 'hash')
-
+const store = useStore()
+const createSnackbar = useSnackbar()
 const createConfirm = useConfirm()
 
-const tableHeaders = [
+const canUseStore = computed(() => {
+  return store.state?.matches('online.connected')
+})
+
+const tableHeaders = computed<VDataTable['headers']>(() => [
   {
-    title: 'User',
+    title: canUseStore.value ? 'User' : 'User\'s key',
     align: 'start',
     order: 'asc',
     sortable: true,
@@ -42,7 +49,7 @@ const tableHeaders = [
 
   { title: 'Actions', key: 'actions', sortable: false },
 
-] as const
+])
 
 const tableItems = computedAsync(async () => {
   return await Promise.all(signatures.value.map(async (signature: { key: Uint8Array; signature: Uint8Array }) => {
@@ -55,6 +62,10 @@ const tableItems = computedAsync(async () => {
     }
   }))
 }, [])
+
+const storeKey = computed(() => {
+  return canUseStore.value ? store.profile?.private_key : undefined
+})
 
 const privateKey = ref(secp256k1.utils.randomPrivateKey())
 const privateKeyHex = computed({
@@ -70,18 +81,35 @@ function generatePrivateKey() {
   privateKey.value = secp256k1.utils.randomPrivateKey()
 }
 
-async function newSignature() {
+async function signBundle() {
+  let key: Uint8Array | undefined
   if (!hash.value)
-    return
+    return createSnackbar({ text: 'Error: Bundle don\'t have a hash', snackbarProps: { color: 'error' } })
 
-  const key = privateKey.value
+  if (canUseStore.value === true) {
+    key = storeKey.value ? hexToBytes(storeKey.value) : undefined
+    if (!key)
+      return createSnackbar({ text: 'Error: You don\'t have a private key. Please check your user profile.', snackbarProps: { color: 'error' } })
+  }
+  else {
+    key = privateKey.value
+  }
+
   const signature = createSignature(hash.value, key)
   const publicKey = secp256k1.getPublicKey(key)
+
+  const publicKeyHex = bytesToHex(publicKey)
+  if (signatures.value.some(signature => bytesToHex(signature.key) === publicKeyHex)) {
+    createSnackbar({ text: 'Error: You already signed this bundle', snackbarProps: { color: 'error' } })
+    return true
+  }
+
   signatures.value.push({
     key: publicKey,
     signature,
   })
-  emit('changed')
+  emit('change')
+  createSnackbar({ text: 'Signature added', snackbarProps: { color: 'success' } })
 }
 
 async function deleteSignature(index: number) {
@@ -94,14 +122,22 @@ async function deleteSignature(index: number) {
     return
 
   signatures.value.splice(index, 1)
-  emit('changed')
+  emit('change')
+  createSnackbar({ text: 'Signature removed', snackbarProps: { color: 'success' } })
+}
+
+if (import.meta.env.VITE_DEBUG === 'true') {
+  onMounted(() => {
+    signBundle()
+  })
 }
 </script>
 
 <template>
   <v-text-field
+    v-if="canUseStore === false || storeKey === undefined"
     v-model="privateKeyHex"
-    label="Private key"
+    label="Custom private key"
   >
     <template #prepend>
       <v-tooltip location="bottom">
@@ -116,7 +152,7 @@ async function deleteSignature(index: number) {
     </template>
   </v-text-field>
 
-  <v-data-table
+  <VDataTable
     :headers="tableHeaders"
     :items="tableItems"
     item-value="name"
@@ -125,19 +161,25 @@ async function deleteSignature(index: number) {
     <!-- eslint-disable vue/valid-v-slot -->
     <template #top>
       <v-toolbar>
+        <v-toolbar-title v-if="canUseStore">
+          Using {{ store.client?.authStore.model?.name }}'s key
+        </v-toolbar-title>
+        <v-toolbar-title v-else>
+          Using custom key
+        </v-toolbar-title>
         <v-spacer />
         <v-btn
           variant="tonal"
           prepend-icon="mdi-file-sign"
           :disabled="hash === undefined"
-          @click="newSignature()"
+          @click="signBundle()"
         >
           Sign
         </v-btn>
       </v-toolbar>
     </template>
     <template #item.key="{ item }">
-      ...{{ item.columns.key.slice(-10) }}
+      <chip-user :public-key="item.columns.key" />
     </template>
     <template #item.signature="{ item }">
       ...{{ item.columns.signature.slice(-10) }}
@@ -153,5 +195,5 @@ async function deleteSignature(index: number) {
     <template #item.actions="{ item }">
       <v-btn class="ma-2" icon="mdi-delete" @click="deleteSignature(item.index)" />
     </template>
-  </v-data-table>
+  </VDataTable>
 </template>

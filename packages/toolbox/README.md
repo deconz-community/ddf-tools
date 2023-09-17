@@ -17,21 +17,45 @@ https://github.com/rlaffers/xstate-ninja/issues/9
 https://github.com/rlaffers/xstate-ninja/issues/10
 
 ### Docs
-https://github.com/antfu/vitesse
+
+#### Deconz
+https://dresden-elektronik.github.io/deconz-rest-doc/
+
+#### Typescript
+https://zod.dev/?id=basic-usage
+https://www.npmjs.com/package/@vee-validate/zod
 https://millsp.github.io/ts-toolbelt/index.html
-https://stately.ai/docs
+https://immerjs.github.io/immer/produce
+
+#### Vue
+https://vuejs.org/api/application.html
+https://github.com/antfu/vitesse
+https://vueuse.org/functions.html#category=Reactivity
+https://portal-vue.linusb.org/guide/getting-started.html#usage
+https://github.com/wobsoriano/vuetify-use-dialog#readme
+https://github.com/imguolao/monaco-vue
+https://github.com/microsoft/monaco-editor
+
+#### Graphics
 https://vuetifyjs.com/en/components/all/
 https://pictogrammers.com/library/mdi/
-https://dresden-elektronik.github.io/deconz-rest-doc/
-https://vuejs.org/api/application.html
-https://vueuse.org/functions.html#category=Reactivity
-https://www.npmjs.com/package/@vee-validate/zod
-https://immerjs.github.io/immer/produce
-https://zod.dev/?id=basic-usage
-https://pocketbase.io/docs/
-https://portal-vue.linusb.org/guide/getting-started.html#usage
+
+#### Xstate
+https://stately.ai/docs
+
+#### Misc
 https://zenbit-tech.medium.com/command-palette-monaco-editor-cb4d4b81dce0
-https://github.com/microsoft/monaco-editor
-https://github.com/imguolao/monaco-vue
+
+#### Database
+https://pocketbase.io/docs/
+https://github.com/pocketbase/js-sdk?tab=readme-ov-file#usage
+https://github.com/patmood/pocketbase-typegen?tab=readme-ov-file#example-usage
+
+
+
+
+
+
+
 
 

@@ -287,6 +287,9 @@ importers:
       vue-json-viewer:
         specifier: ^3.0.4
         version: 3.0.4(vue@3.3.4)
+      vue-toggles:
+        specifier: ^2.1.0
+        version: 2.1.0(vue@3.3.4)
       vuetify:
         specifier: ^3.3.16
         version: 3.3.16(typescript@5.2.2)(vite-plugin-vuetify@1.0.2)(vue@3.3.4)
@@ -318,6 +321,9 @@ importers:
       '@types/color':
         specifier: ^3.0.4
         version: 3.0.4
+      '@types/crypto-js':
+        specifier: ^4.1.2
+        version: 4.1.2
       '@types/file-saver':
         specifier: ^2.0.5
         version: 2.0.5
@@ -2956,6 +2962,10 @@ packages:
   /@types/cookie@0.5.1:
     resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
     dev: false
+
+  /@types/crypto-js@4.1.2:
+    resolution: {integrity: sha512-t33RNmTu5ufG/sorROIafiCVJMx3jz95bXUMoPAZcUD14fxMXnuTzqzXZoxpR0tNx2xpw11Dlmem9vGCsrSOfA==}
+    dev: true
 
   /@types/debug@4.1.8:
     resolution: {integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==}
@@ -10479,6 +10489,14 @@ packages:
       '@vue/devtools-api': 6.5.0
       vue: 3.3.4
     dev: true
+
+  /vue-toggles@2.1.0(vue@3.3.4):
+    resolution: {integrity: sha512-pvn/0YxRyP+BR/7nfm7t20RX6G5bv2BuC4so+bZn5bs4846Ar/Gv90mJxMsxBsVVZZzuXZblShpfs/i3uS1QJA==}
+    peerDependencies:
+      vue: ^3.3.4
+    dependencies:
+      vue: 3.3.4
+    dev: false
 
   /vue3-perfect-scrollbar@1.6.1(postcss@8.4.27):
     resolution: {integrity: sha512-r9wfxlFwVyHXMPKG0PnR7fDfJPQ20KEVzKQfSU5by2WKYz2PwV0bTfyfejmEyZXsXL0O8VtSWtgxfPuFR2AGOg==}

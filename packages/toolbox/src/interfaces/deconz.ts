@@ -19,7 +19,8 @@ export interface GatewayURI {
 export interface WebSocketEvent {
   /** The type of the message */
   t: 'event'
-  /** The event type of the message:
+  /**
+   * The event type of the message:
    *    added - resource has been added;
    *    changed - resource attributes have changed;
    *    deleted - resource has been deleted.
@@ -34,7 +35,8 @@ export interface WebSocketEvent {
    *   sensors - message relates to a sensor resource.
    */
   r: 'groups' | 'lights' | 'scenes' | 'sensors'
-  /** The id of the resource to which the message relates, e.g. 5 for /sensors/5.
+  /**
+   * The id of the resource to which the message relates, e.g. 5 for /sensors/5.
    * Not for scene-called events.
    */
   id?: string

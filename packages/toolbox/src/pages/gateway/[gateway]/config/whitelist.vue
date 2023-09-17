@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { objectEntries } from 'ts-extras'
 
-import { UseTimeAgo } from '@vueuse/components'
-
 const props = defineProps<{
   gateway: string
 }>()

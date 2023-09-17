@@ -7,6 +7,10 @@ import { encode, generateHash } from '@deconz-community/ddf-bundler'
 import { saveAs } from 'file-saver'
 import { produce } from 'immer'
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>
 }>()
@@ -14,8 +18,7 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
-const store = useStore()
-const tab = ref('ddf')
+const tab = ref('info')
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
@@ -24,23 +27,12 @@ const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.fil
   },
 })
 
-function triggerRefBundle() {
-  triggerRef(bundle)
-}
-
 async function updateMeta() {
   bundle.value.generateDESC()
-
-  const a = bytesToHex(await generateHash(bundle.value.data))
-  const b = bytesToHex(await generateHash(bundle.value.data))
-
   bundle.value.data.hash = await generateHash(bundle.value.data)
-  console.log(a === b, a)
-  triggerRefBundle()
 }
 
 watch(bundle, () => {
-  console.log('watched bundle')
   syncDDF()
   syncFiles()
   dirty.value = false
@@ -65,54 +57,20 @@ const supportedDevices = computed(() => {
   }, {})
 })
 
-/*
-const signatures = computedAsync(async () => {
-  if (!bundle.value)
-    return []
-
-  const signatures = bundle.value.data.signatures.map((item) => {
-    return {
-      key: bytesToHex(item.key),
-      signature: bytesToHex(item.signature),
-      isValid: secp256k1.verify(item.signature, hash.value ?? '', item.key),
-    }
-  })
-
-  const publicKeys = signatures.reduce((acc: string[], item) => {
-    acc.push(item.key)
-    return acc
-  }, []).filter((item, index, self) => self.indexOf(item) === index)
-
-  const users = await store.client?.collection('user').getList(undefined, undefined, {
-    public_key: publicKeys,
-  })
-
-  return signatures.map((item) => {
-    const user = users?.items.find(user => user.public_key === item.key)
-    return {
-      ...item,
-      user,
-    }
-  })
-}, [])
-*/
-
 async function download() {
   saveAs(encode(bundle.value), bundle.value.data.name)
 }
 
-const timeAgo = 'FOO' // useTimeAgo(() => bundle.value.data.desc.last_modified)
+const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
 </script>
 
 <template>
-  <v-card v-if="bundle" class="ma-2">
+  <v-card v-bind="$attrs">
     <template #title>
       {{ bundle.data.desc.product }} {{ dirty ? '• Modified' : '' }}
-      <!--
-      <template v-for="signature in signatures" :key="signature.signature">
-        <chip-user v-if="signature.user" :user="signature.user as any" class="ma-2" />
+      <template v-for="signature in bundle.data.signatures" :key="signature.signature">
+        <chip-user :public-key="signature.key" class="ma-2" />
       </template>
-      -->
     </template>
 
     <template #subtitle>
@@ -120,12 +78,6 @@ const timeAgo = 'FOO' // useTimeAgo(() => bundle.value.data.desc.last_modified)
       • Last modified {{ timeAgo }}
       <br>
       Hash : {{ hash }}
-      <br>
-      Hash : 20886e09b07e890b0149471b9e59dd659c674d0d41b0d998c9306ca4cf4c0ea9
-      <br>
-      <v-btn @click="updateMeta()">
-        Update Meta
-      </v-btn>
     </template>
 
     <v-tabs v-model="tab" bg-color="primary">
@@ -191,12 +143,14 @@ const timeAgo = 'FOO' // useTimeAgo(() => bundle.value.data.desc.last_modified)
             :options="{
               automaticLayout: true,
             }"
+            @change="updateMeta()"
           />
         </v-window-item>
 
         <v-window-item value="files">
           <bundle-editor-files
             v-model="files"
+            @change="updateMeta()"
           />
         </v-window-item>
 
@@ -204,6 +158,7 @@ const timeAgo = 'FOO' // useTimeAgo(() => bundle.value.data.desc.last_modified)
           <bundle-editor-signatures
             v-model="bundle.data.signatures"
             :hash="bundle.data.hash"
+            @change="dirty = true"
           />
         </v-window-item>
       </v-window>

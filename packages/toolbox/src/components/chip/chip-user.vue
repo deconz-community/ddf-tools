@@ -1,26 +1,50 @@
 <script setup lang="ts">
+import { bytesToHex } from '@noble/hashes/utils'
 import { useTimeAgo } from '@vueuse/core'
-import type { UserResponse } from '~/store'
+import { MD5 } from 'crypto-js'
+import { type UserResponse } from '~/interfaces/store'
 
 const props = defineProps<{
-  user: UserResponse
+  user?: UserResponse
+  publicKey?: string | Uint8Array
 }>()
 
 const menu = ref(false)
 
+const store = useStore()
+
+const userKey = computed(() => {
+  switch (typeof props.publicKey) {
+    case 'string':
+      return props.publicKey
+    case 'undefined':
+      return undefined
+    default:
+      return bytesToHex(props.publicKey)
+  }
+})
+
+const user = computedAsync<UserResponse | undefined>(async () => {
+  if (props.user)
+    return props.user
+
+  if (userKey.value && store.state?.matches('online.connected'))
+    return await store.getUserByKey(userKey.value)
+}, props.user)
+
 const userAvatar = computed(() => {
-  if (props.user.github_id) {
-    return `https://avatars.githubusercontent.com/u/${props.user.github_id}?v=4`
+  if (user.value?.github_id) {
+    return `https://avatars.githubusercontent.com/u/${user.value.github_id}?v=4`
   }
   else {
-    const hash = '00000000000000000000000000000000'
+    const hash = userKey.value ? MD5(userKey.value) : '00000000000000000000000000000000'
     const url = new URL(`https://www.gravatar.com/avatar/${hash}`)
     url.searchParams.append('d', 'retro')
     return url.href
   }
-},
+})
 
-)
+const userName = computed(() => user.value?.name ?? 'Unknown user')
 </script>
 
 <template>
@@ -39,7 +63,7 @@ const userAvatar = computed(() => {
         <v-avatar start>
           <v-img :src="userAvatar" />
         </v-avatar>
-        {{ props.user.name }}
+        {{ user?.name ?? 'Unknown user' }}
       </v-chip>
     </template>
 
@@ -51,11 +75,11 @@ const userAvatar = computed(() => {
           </template>
 
           <v-list-item-title>
-            {{ props.user.name }}
+            {{ userName }}
           </v-list-item-title>
 
-          <v-list-item-subtitle>
-            Member since {{ useTimeAgo(props.user.created).value }}
+          <v-list-item-subtitle v-if="user">
+            Member since {{ useTimeAgo(user.created).value }}
           </v-list-item-subtitle>
 
           <template #append>
@@ -72,11 +96,11 @@ const userAvatar = computed(() => {
         </v-list-item>
       </v-list>
 
-      <v-list>
+      <v-list v-if="user">
         <v-list-item
-          :title="`${props.user.name}'s profile`"
+          :title="`${userName}'s profile`"
           prepend-icon="mdi-account"
-          :to="`/user/${props.user.id}`"
+          :to="`/user/${user.id}`"
         />
       </v-list>
     </v-card>

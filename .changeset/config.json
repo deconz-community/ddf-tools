@@ -8,7 +8,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@deconz-community/ddf-store-app",
+    "@deconz-community/toolbox",
     "@deconz-community/rest-client"
   ]
 }

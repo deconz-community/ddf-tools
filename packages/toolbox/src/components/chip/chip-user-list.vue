@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserResponse } from '~/store'
+import type { UserResponse } from '~/interfaces/store'
 
 const props = defineProps<{
   title: string

@@ -1,12 +1,12 @@
 {
-  "name": "@deconz-community/ddf-store-app",
+  "name": "@deconz-community/toolbox",
   "private": true,
   "scripts": {
     "dev": "vite --port 4000",
     "build": "vite build",
     "up": "taze major -I",
     "postinstall": "xstate typegen \"./src/**/*.ts?(x)\"",
-    "typegen:pocketbase": "pocketbase-typegen --db ../store/pb_data/data.db --out ./src/store.d.ts && eslint --no-ignore --fix ./src/store.d.ts"
+    "typegen:pocketbase": "pocketbase-typegen --db ../store/pb_data/data.db --out ./src/interfaces/store.ts && eslint --no-ignore --fix ./src/interfaces/store.ts"
   },
   "packageManager": "pnpm@8.7.5",
   "dependencies": {
@@ -37,6 +37,7 @@
     "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-pwa": "^0.16.5",
     "vue-json-viewer": "^3.0.4",
+    "vue-toggles": "^2.1.0",
     "vuetify": "^3.3.16",
     "vuetify-use-dialog": "^0.6.2",
     "xstate": "^4.38.2",
@@ -49,6 +50,7 @@
     "@mdi/font": "^7.2.96",
     "@noble/curves": "^1.2.0",
     "@types/color": "^3.0.4",
+    "@types/crypto-js": "^4.1.2",
     "@types/file-saver": "^2.0.5",
     "@types/jsdom": "^21.1.3",
     "@types/md5": "^2.3.2",

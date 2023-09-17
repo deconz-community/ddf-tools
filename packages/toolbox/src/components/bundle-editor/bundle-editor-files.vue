@@ -1,15 +1,12 @@
 <script setup   lang="ts">
 import type { BundleFile } from '@deconz-community/ddf-bundler'
-import { useVModel } from '@vueuse/core'
-import { UseTimeAgo } from '@vueuse/components'
-import { useConfirm } from 'vuetify-use-dialog'
 import { filePathsToUniqueTree } from '~/lib/filePathsToTree'
 
 const props = defineProps<{
   modelValue: BundleFile[]
 }>()
 
-const emit = defineEmits(['update:modelValue', 'changed'])
+const emit = defineEmits(['update:modelValue', 'change'])
 
 const createConfirm = useConfirm()
 
@@ -123,7 +120,7 @@ async function deleteFile(path: string) {
   if (index === -1)
     return
   files.value.splice(index, 1)
-  emit('changed')
+  emit('change')
 }
 
 function openDirectory(path: string) {
@@ -139,7 +136,7 @@ async function deleteDirectory(path: string) {
     return
 
   files.value = files.value.filter(file => !file.path.startsWith(path))
-  emit('changed')
+  emit('change')
 }
 
 function save() {

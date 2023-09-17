@@ -30,6 +30,7 @@ export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type>
 export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['interpreter']> = Symbol('AppMachine')
 
 export interface UseAppMachine<Type extends AppMachine['type']> {
+client: any
   state: ExtractMachine<Type>['state'] | undefined
   send: ExtractMachine<Type>['interpreter']['send']
 }

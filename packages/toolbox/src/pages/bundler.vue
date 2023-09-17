@@ -1,88 +1,71 @@
 <script setup lang="ts">
-import { v4 as uuidv4 } from 'uuid'
-
-import { Bundle, decode } from '@deconz-community/ddf-bundler'
+import { Bundle, decode, generateHash } from '@deconz-community/ddf-bundler'
 
 import { buildFromFile } from '~/composables/builder'
-
-const error = ref('')
 
 const baseUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main/devices'
 const genericDirectoryUrl = ref(`${baseUrl}/generic`)
 const fileUrl = ref(`${baseUrl}/ikea/starkvind_air_purifier.json`)
 const files = ref<File[]>([])
-const sha = ref('')
+const error = ref('')
+const bundle = ref<ReturnType<typeof Bundle> | undefined>()
 
-// const bundle = shallowRef(Bundle())
-const bundle = ref(Bundle())
-
-async function parseFile() {
+watch(files, async () => {
   error.value = ''
-  sha.value = ''
 
   if (files.value.length === 0)
     return
-  bundle.value = await decode(files.value[0])
-}
 
-function generateUUID() {
-  uniqueID.value = uuidv4()
-}
-
-function reset() {
-  bundle.value = Bundle()
-}
-
-watch(files, parseFile)
-
-const desc = computed(() => {
-  return JSON.stringify(bundle.value.data.desc, null, 4)
+  const firstBundle = await decode(files.value[0])
+  firstBundle.data.hash = await generateHash(firstBundle.data)
+  bundle.value = firstBundle
 })
 
 async function buildFromGithub() {
   error.value = ''
 
   try {
-    bundle.value = await buildFromFile(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
+    const newBundle = await buildFromFile(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
       const result = await fetch(url)
       if (result.status !== 200)
         throw new Error(result.statusText)
-
       return await result.blob()
     })
+    newBundle.data.hash = await generateHash(newBundle.data)
+    bundle.value = newBundle
   }
   catch (e) {
-    error.value = 'Erreur'
+    error.value = 'Something went wrong while loading the bundle.'
     console.warn(e)
   }
 }
 
-watch(bundle, () => {
-  console.log('Watch bundle from page')
-  try {
-    // const data = JSON.parse(bundle.value.data.ddfc)
-    /*
-    const result = validate(data)
-    console.log(result)
-    */
-  }
-  catch (e) {
-    console.log(e)
-  }
-})
+async function createNew() {
+  const newBundle = Bundle()
+  newBundle.data.hash = await generateHash(newBundle.data)
+  bundle.value = newBundle
+}
 
-onMounted(() => {
-  buildFromGithub()
-})
+if (import.meta.env.VITE_DEBUG === 'true') {
+  onMounted(() => {
+    buildFromGithub()
+  })
+}
 </script>
 
 <template>
-  <v-card width="100%" class="ma-2">
-    <template #title>
-      DDF Bundle
-    </template>
-
-    <template #text>
+  <v-card class="full-card">
+    <v-card-title>
+      DDF Bundler
+      <v-btn
+        :disabled="!bundle"
+        class="float-right"
+        @click="bundle = undefined"
+      >
+        Reset
+      </v-btn>
+    </v-card-title>
+    <v-card-text>
       <v-alert class="ma-2">
         <p>This is a small HTML/JS to test reading and writing the RIFF based DDF bundle.</p>
         <p>
@@ -101,39 +84,69 @@ onMounted(() => {
         :text="error"
       />
 
-      <v-text-field
-        v-model="genericDirectoryUrl"
-        label="Generic directory url"
-        prepend-icon="mdi-download-network"
+      <bundle-editor
+        v-if="bundle" v-model="bundle" variant="outlined" class="ma-2"
       />
+      <template v-else>
+        <v-card variant="outlined" class="ma-2">
+          <v-card-title>
+            Create new
+            <v-btn
+              color="primary"
+              class="float-right"
+              @click="createNew()"
+            >
+              Create
+            </v-btn>
+          </v-card-title>
+        </v-card>
 
-      <v-text-field
-        v-model="fileUrl"
-        label="Load DDF From URL"
-      >
-        <template #prepend>
-          <v-tooltip location="bottom">
-            <template #activator="{ props }">
-              <v-icon
-                v-bind="props" icon="mdi-download-network"
-                @click="buildFromGithub()"
-              />
-            </template>
-            Load
-          </v-tooltip>
-        </template>
-      </v-text-field>
+        <v-card variant="outlined" class="ma-2">
+          <v-card-title>
+            Open file
+          </v-card-title>
+          <v-card-text>
+            <v-file-input
+              v-model="files"
+              label="Open .ddf bundle from disk"
+              accept=".ddf"
+            />
+          </v-card-text>
+        </v-card>
 
-      <v-file-input
-        v-model="files"
-        label="Open .ddf bundle from disk"
-        accept=".ddf"
-      />
-    </template>
+        <v-card variant="outlined" class="ma-2">
+          <v-card-title>
+            Build from GitHub source
+            <v-btn
+              color="primary"
+              class="float-right"
+              @click="buildFromGithub()"
+            >
+              Build
+            </v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="genericDirectoryUrl"
+              label="Generic directory url"
+            />
+            <v-text-field
+              v-model="fileUrl"
+              label="Load DDF From URL"
+            />
+          </v-card-text>
+        </v-card>
+      </template>
+    </v-card-text>
   </v-card>
-
-  <bundle-editor v-model="bundle" />
 </template>
+
+<style scoped>
+.full-card {
+  margin: 8px !important;
+  height: calc(100% - 16px); /* 16px est la somme des marges verticales de la carte */
+}
+</style>
 
 <route lang="json">
 {

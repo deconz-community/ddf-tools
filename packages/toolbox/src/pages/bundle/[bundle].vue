@@ -79,7 +79,7 @@ const downloadURL = computed(() => {
         />
         <chip-user
           v-for="user of bundle.expand.contributors"
-          :key="user.id"
+          :public-key="user.id"
           :user="user"
           class="ma-2"
         />

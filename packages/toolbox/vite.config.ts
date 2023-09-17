@@ -1,15 +1,17 @@
-import path from "path";
-import { defineConfig } from "vite";
-import Vue from '@vitejs/plugin-vue';
-import Pages from 'vite-plugin-pages';
-import Layouts from 'vite-plugin-vue-layouts';
+import path from 'node:path'
+import { defineConfig } from 'vite'
+import Vue from '@vitejs/plugin-vue'
+import Pages from 'vite-plugin-pages'
+import Layouts from 'vite-plugin-vue-layouts'
 import VueMacros from 'unplugin-vue-macros/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
+import monacoEditorPlugin from 'vite-plugin-monaco-editor'
+import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
 
+// eslint-disable-next-line antfu/no-cjs-exports
 module.exports = defineConfig({
   base: '/ddf-tools/',
   resolve: {
@@ -36,7 +38,7 @@ module.exports = defineConfig({
     }),
 
     Layouts(),
-    
+
     // https://github.com/antfu/unplugin-auto-import
     AutoImport({
       imports: [
@@ -49,6 +51,12 @@ module.exports = defineConfig({
           // https://github.com/sindresorhus/ts-extras
           'ts-extras': [
             'objectKeys',
+          ],
+        },
+        {
+          'vuetify-use-dialog': [
+            'useConfirm',
+            'useSnackbar',
           ],
         },
       ],
@@ -67,12 +75,27 @@ module.exports = defineConfig({
       // allow auto import and register components
       include: [/\.vue$/, /\.vue\?vue/],
       dts: 'src/components.d.ts',
+
+      resolvers: [
+        VueUseComponentsResolver(),
+        {
+          type: 'component',
+          resolve: (name) => {
+            const components = {
+              VueToggles: 'vue-toggles',
+            }
+
+            if (name in components)
+              return { name, as: name, from: components[name as keyof typeof components] }
+          },
+        },
+      ],
     }),
 
     Vuetify({
       autoImport: true,
     }),
-    
+
     // https://github.com/antfu/vite-plugin-pwa
     VitePWA({
       registerType: 'autoUpdate',
@@ -102,16 +125,14 @@ module.exports = defineConfig({
       },
     }),
 
-    monacoEditorPlugin({
-      
-    })
+    monacoEditorPlugin({}),
 
   ],
 
   ssr: {
     // TODO: workaround until they support native ESM
     noExternal: [
-      'vuetify'
+      'vuetify',
     ],
   },
 
@@ -119,8 +140,8 @@ module.exports = defineConfig({
     fs: {
       allow: [
         '..',
-        '../../node_modules'
+        '../../node_modules',
       ],
     },
   },
-});
+})

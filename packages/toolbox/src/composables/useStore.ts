@@ -1,7 +1,21 @@
+import { Collections, type UserResponse } from '~/interfaces/store'
+
 export function useStore() {
   const store = useAppMachine('store')
   const client = computed(() => store.state?.context.pocketBase)
   const profile = computed(() => store.state?.context.profile)
+
+  // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
+  const getUserByKey = useMemoize(
+    async (userKey: string) => {
+      return await client.value?.collection(Collections.User)
+        .getFirstListItem<UserResponse>(`public_key = "${userKey}"`, { requestKey: null })
+    },
+    {
+      // Use only userId to get/set cache and ignore headers
+      getKey: userId => userId,
+    },
+  )
 
   const findOrCreate = async (
     collection: string,
@@ -47,5 +61,6 @@ export function useStore() {
     client,
     profile,
     findOrCreate,
+    getUserByKey,
   })
 }
