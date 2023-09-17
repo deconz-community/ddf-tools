@@ -89,7 +89,15 @@ export async function buildFromFile(
     },
   })
 
-  await Promise.all(filesToAdd.map(async (fileToAdd) => {
+  const paths: string[] = []
+  const uniquesFilesToAdd = filesToAdd.filter((file) => {
+    if (paths.includes(file.path))
+      return false
+    paths.push(file.path)
+    return true
+  })
+
+  await Promise.all(uniquesFilesToAdd.map(async (fileToAdd) => {
     let data = await (await getFile(fileToAdd.url)).text()
     if (fileToAdd.patch !== undefined)
       data = fileToAdd.patch(data)

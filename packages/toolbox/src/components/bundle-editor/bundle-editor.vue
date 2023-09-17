@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Bundle } from '@deconz-community/ddf-bundler'
 import { useVModel } from '@vueuse/core'
-import { UseTimeAgo } from '@vueuse/components'
 import { bytesToHex } from '@noble/hashes/utils'
 import VueMonacoEditor from '@guolao/vue-monaco-editor'
 import { encode, generateHash } from '@deconz-community/ddf-bundler'
 import { saveAs } from 'file-saver'
+import { produce } from 'immer'
 
 const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>
@@ -15,22 +15,39 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 const store = useStore()
-const tab = ref('signatures')
+const tab = ref('ddf')
+const dirty = ref(false)
+const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
+const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
+  clone: (data: typeof bundle.value.data.files) => {
+    return [...data.map(item => produce(item, () => {}))]
+  },
+})
 
 function triggerRefBundle() {
   triggerRef(bundle)
 }
 
 async function updateMeta() {
-  console.log(bundle.value)
   bundle.value.generateDESC()
+
+  const a = bytesToHex(await generateHash(bundle.value.data))
+  const b = bytesToHex(await generateHash(bundle.value.data))
+
   bundle.value.data.hash = await generateHash(bundle.value.data)
+  console.log(a === b, a)
   triggerRefBundle()
 }
 
 watch(bundle, () => {
   console.log('watched bundle')
-  updateMeta()
+  syncDDF()
+  syncFiles()
+  dirty.value = false
+})
+6TGGN
+watch([ddfc, files], () => {
+  dirty.value = true
 })
 
 const hash = computed(() => {
@@ -83,12 +100,14 @@ const signatures = computedAsync(async () => {
 async function download() {
   saveAs(encode(bundle.value), bundle.value.data.name)
 }
+
+const timeAgo = 'FOO' // useTimeAgo(() => bundle.value.data.desc.last_modified)
 </script>
 
 <template>
   <v-card v-if="bundle" class="ma-2">
     <template #title>
-      {{ bundle.data.desc.product }}
+      {{ bundle.data.desc.product }} {{ dirty ? '• Modified' : '' }}
       <!--
       <template v-for="signature in signatures" :key="signature.signature">
         <chip-user v-if="signature.user" :user="signature.user as any" class="ma-2" />
@@ -98,11 +117,15 @@ async function download() {
 
     <template #subtitle>
       Version {{ bundle.data.desc.version }} for deconz {{ bundle.data.desc.version_deconz }}
-      <UseTimeAgo v-slot="{ timeAgo }" :time="bundle.data.desc.last_modified">
-        • Last modified {{ timeAgo }}
-      </UseTimeAgo>
+      • Last modified {{ timeAgo }}
       <br>
       Hash : {{ hash }}
+      <br>
+      Hash : 20886e09b07e890b0149471b9e59dd659c674d0d41b0d998c9306ca4cf4c0ea9
+      <br>
+      <v-btn @click="updateMeta()">
+        Update Meta
+      </v-btn>
     </template>
 
     <v-tabs v-model="tab" bg-color="primary">
@@ -116,7 +139,7 @@ async function download() {
       </v-tab>
       <v-tab value="files">
         <v-icon size="x-large" icon="mdi-file" start />
-        {{ `${bundle.data.files.length} ${bundle.data.files.length > 1 ? 'Files' : 'File'}` }}
+        {{ `${files.length} ${files.length > 1 ? 'Files' : 'File'}` }}
       </v-tab>
       <v-tab value="signatures">
         <v-icon size="x-large" icon="mdi-file" start />
@@ -161,21 +184,19 @@ async function download() {
 
         <v-window-item value="ddf">
           <VueMonacoEditor
-            v-model:value="bundle.data.ddfc"
+            v-model:value="ddfc"
             theme="vs-dark"
             language="json"
             height="500px"
             :options="{
               automaticLayout: true,
             }"
-            @change="updateMeta()"
           />
         </v-window-item>
 
         <v-window-item value="files">
           <bundle-editor-files
-            v-model="bundle.data.files"
-            @changed="updateMeta()"
+            v-model="files"
           />
         </v-window-item>
 
@@ -183,7 +204,6 @@ async function download() {
           <bundle-editor-signatures
             v-model="bundle.data.signatures"
             :hash="bundle.data.hash"
-            @changed="triggerRefBundle()"
           />
         </v-window-item>
       </v-window>

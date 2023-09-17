@@ -3,7 +3,7 @@ import * as cf from '../custom-formats'
 import type { GenericsData } from '../types'
 import { parseFunction, readFunction, writeFunction } from './function'
 
-export function resourceSchema(_generics: GenericsData) {
+export function resourceSchema(generics: GenericsData) {
   return z.strictObject({
     '$schema': z.optional(z.string()),
     'schema': z.literal('resourceitem1.schema.json'),
@@ -49,7 +49,7 @@ export function resourceSchema(_generics: GenericsData) {
       .describe('TODO: What is this ?'),
     'read': z.optional(readFunction())
       .describe('Fonction used to read value.'),
-    'parse': z.optional(parseFunction())
+    'parse': z.optional(parseFunction(generics))
       .describe('Fonction used to parse incoming values.'),
     'write': z.optional(writeFunction())
       .describe('Fonction used to write value.'),

@@ -1,5 +1,7 @@
+import type { ZodIssueOptionalMessage } from 'zod'
 import { z } from 'zod'
 import * as cf from '../custom-formats'
+import type { GenericsData } from '../types'
 
 export function readFunction() {
   return z.discriminatedUnion('fn', [
@@ -50,7 +52,7 @@ export function readFunction() {
   })
 }
 
-export function parseFunction() {
+export function parseFunction(generics: GenericsData) {
   return z.discriminatedUnion('fn', [
     z.strictObject({
       fn: z.undefined().describe('Generic function to parse ZCL attributes and commands.'),
@@ -98,8 +100,13 @@ export function parseFunction() {
     }),
     z.strictObject({
       fn: z.literal('numtostr').describe('Generic function to to convert number to string.'),
-      // TODO use generic
-      srcitem: z.enum(['state/airqualityppb', 'state/pm2_5']).describe('The source item holding the number.'),
+      srcitem: z.enum(generics.attributes as [string, ...string[]], {
+        errorMap: (issue: ZodIssueOptionalMessage, ctx: { defaultError: string }) => {
+          if (issue.code === 'invalid_enum_value')
+            return { message: `Invalid enum value. Expected item from generic attributes definition, received '${issue.received}'` }
+          return { message: ctx.defaultError }
+        },
+      }).describe('The source item holding the number.'),
       op: z.enum(['lt', 'le', 'eq', 'gt', 'ge']).describe('Comparison operator (lt | le | eq | gt | ge)'),
       to: cf.flatNumberStringTupleInArray().describe('Array of (num, string) mappings'),
     }),

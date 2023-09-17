@@ -20,11 +20,6 @@ module.exports = defineConfig({
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
-  optimizeDeps: {
-    exclude: [
-      'vuetify'
-    ],
-  },
 
   plugins: [
     VueMacros({

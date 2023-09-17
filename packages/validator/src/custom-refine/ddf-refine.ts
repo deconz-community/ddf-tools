@@ -13,6 +13,7 @@ export const ddfRefines = {
     validateMandatoryItemsAttributes,
     validateScriptEvalFunctions,
     validateMandatoryItemsForDevices,
+    validateNumToStrParseSrcItem,
   ],
   'constants2.schema.json': [
     validateConstants2,
@@ -332,6 +333,23 @@ function validateMandatoryItemsForDevices(data: DDF, ctx: z.RefinementCtx, gener
           message: `The device should have the item "${item}" because it is mandatory for devices of type "${device.type}"`,
           path: ['subdevices', device_index, 'items'],
         })
+      }
+    })
+  })
+}
+
+function validateNumToStrParseSrcItem(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
+  data.subdevices.forEach((device, device_index) => {
+    const list = device.items.map(item => item.name)
+    device.items.forEach((item, item_index) => {
+      if (item.parse && item.parse.fn === 'numtostr') {
+        if (!list.includes(item.parse.srcitem)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `The device should have the item "${item.parse.srcitem}" because it is used in the 'numtostr' function`,
+            path: ['subdevices', device_index, 'items', item_index, 'parse', 'srcitem'],
+          })
+        }
       }
     })
   })
