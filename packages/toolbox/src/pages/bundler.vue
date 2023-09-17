@@ -3,9 +3,22 @@ import { Bundle, decode, generateHash } from '@deconz-community/ddf-bundler'
 
 import { buildFromFile } from '~/composables/builder'
 
-const baseUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main/devices'
-const genericDirectoryUrl = ref(`${baseUrl}/generic`)
-const fileUrl = ref(`${baseUrl}/ikea/starkvind_air_purifier.json`)
+const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
+const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main/devices'
+
+const genericDE = `${baseDEUrl}/generic`
+
+const sampleList = {
+  'STARKVIND Air purifier': [`${baseDCUrl}/generic`, `${baseDCUrl}/ikea/starkvind_air_purifier.json`],
+  'FYRTUR block-out roller blind': [genericDE, `${baseDEUrl}/ikea/fyrtur_block-out_roller_blind.json`],
+  'SYMFONISK sound remote gen2': [genericDE, `${baseDEUrl}/ikea/symfonisk_sound_remote_gen2.json`],
+  'Lutron Aurora': [genericDE, `${baseDEUrl}/lutron/lutron_aurora_foh.json`],
+  'Mijia open/close sensor MCCGQ01LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
+  'Mijia smart plug ZNCZ04LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
+}
+
+const genericDirectoryUrl = ref<string>('')
+const fileUrl = ref<string>('')
 const files = ref<File[]>([])
 const error = ref('')
 const bundle = ref<ReturnType<typeof Bundle> | undefined>()
@@ -46,8 +59,18 @@ async function createNew() {
   bundle.value = newBundle
 }
 
+function loadSample(sample: typeof sampleList[keyof typeof sampleList]) {
+  const [generic, ddf] = sample
+  if (!generic || !ddf)
+    return
+
+  genericDirectoryUrl.value = generic
+  fileUrl.value = ddf
+}
+
 if (import.meta.env.VITE_DEBUG === 'true') {
   onMounted(() => {
+    loadSample(sampleList['STARKVIND Air purifier'])
     buildFromGithub()
   })
 }
@@ -133,6 +156,13 @@ if (import.meta.env.VITE_DEBUG === 'true') {
               v-model="fileUrl"
               label="Load DDF From URL"
             />
+            <v-btn
+              v-for="(sample, name) in sampleList" :key="name"
+              class="ma-2"
+              @click="loadSample(sample)"
+            >
+              {{ name }}
+            </v-btn>
           </v-card-text>
         </v-card>
       </template>

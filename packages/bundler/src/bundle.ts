@@ -6,10 +6,10 @@ export function Bundle() {
     name: 'bundle.ddf',
     hash: undefined,
     desc: {
-      uuid: '00000000-0000-0000-0000-000000000000',
+      uuid: '',
       product: 'Unknown device',
-      version: '1.0.0',
-      version_deconz: '>2.21.0',
+      version: '0.0.1',
+      version_deconz: '>2.23.1',
       last_modified: new Date(),
       device_identifiers: [],
     },

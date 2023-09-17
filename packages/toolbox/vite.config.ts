@@ -83,6 +83,7 @@ module.exports = defineConfig({
           resolve: (name) => {
             const components = {
               VueToggles: 'vue-toggles',
+              VueMonacoEditor: '@guolao/vue-monaco-editor',
             }
 
             if (name in components)

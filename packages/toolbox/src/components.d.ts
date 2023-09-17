@@ -11,6 +11,7 @@ declare module 'vue' {
     BtnLogin: typeof import('./components/btn/btn-login.vue')['default']
     BtnRoundedCircle: typeof import('./components/btn/btn-rounded-circle.vue')['default']
     BundleEditor: typeof import('./components/bundle-editor/bundle-editor.vue')['default']
+    BundleEditorDdfc: typeof import('./components/bundle-editor/bundle-editor-ddfc.vue')['default']
     BundleEditorFiles: typeof import('./components/bundle-editor/bundle-editor-files.vue')['default']
     BundleEditorSignatures: typeof import('./components/bundle-editor/bundle-editor-signatures.vue')['default']
     CardGateway: typeof import('./components/card/card-gateway.vue')['default']
@@ -35,6 +36,7 @@ declare module 'vue' {
     SpotGatewayState: typeof import('./components/spot/spot-gateway-state.vue')['default']
     TableCollection: typeof import('./components/table-collection.vue')['default']
     UseTimeAgo: typeof import('@vueuse/components')['UseTimeAgo']
+    VueMonacoEditor: typeof import('@guolao/vue-monaco-editor')['VueMonacoEditor']
     VueToggles: typeof import('vue-toggles')['VueToggles']
     ZodiosApi: typeof import('./components/zodios-api.vue')['default']
   }

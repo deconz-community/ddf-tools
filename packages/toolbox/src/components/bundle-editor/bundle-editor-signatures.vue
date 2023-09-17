@@ -10,11 +10,13 @@ import { VDataTable } from 'vuetify/labs/components'
 const props = defineProps<{
   modelValue: ChunkSignature[]
   hash?: Uint8Array
+  disabled?: boolean
 }>()
 
 const emit = defineEmits(['update:modelValue', 'change'])
 
 const signatures = useVModel(props, 'modelValue', emit)
+const disabled = useVModel(props, 'disabled')
 const hash = useVModel(props, 'hash')
 const store = useStore()
 const createSnackbar = useSnackbar()
@@ -102,11 +104,13 @@ async function signBundle() {
 
   const signature = createSignature(hash.value, key)
   const publicKey = secp256k1.getPublicKey(key)
-
   const publicKeyHex = bytesToHex(publicKey)
-  if (signatures.value.some(signature => bytesToHex(signature.key) === publicKeyHex)) {
-    createSnackbar({ text: 'Error: You already signed this bundle', snackbarProps: { color: 'error' } })
-    return true
+
+  const existingSignature = signatures.value.find(signature => bytesToHex(signature.key) === publicKeyHex)
+  if (existingSignature) {
+    if (await verifySignature(hash.value, existingSignature.key, existingSignature.signature))
+      return createSnackbar({ text: 'Error: You already signed this bundle', snackbarProps: { color: 'error' } })
+    signatures.value.splice(signatures.value.indexOf(existingSignature), 1)
   }
 
   signatures.value.push({
@@ -114,7 +118,7 @@ async function signBundle() {
     signature,
   })
   emit('change')
-  createSnackbar({ text: 'Signature added', snackbarProps: { color: 'success' } })
+  createSnackbar({ text: `Signature ${existingSignature ? 'updated' : 'added'}`, snackbarProps: { color: 'success' } })
 }
 
 async function deleteSignature(index: number) {
@@ -173,10 +177,16 @@ if (import.meta.env.VITE_DEBUG === 'true') {
           Using custom key
         </v-toolbar-title>
         <v-spacer />
+
+        <v-fade-transition>
+          <span v-show="disabled" class="ma-3">
+            Save changes before signing
+          </span>
+        </v-fade-transition>
         <v-btn
           variant="tonal"
           prepend-icon="mdi-file-sign"
-          :disabled="hash === undefined"
+          :disabled="hash === undefined || disabled"
           @click="signBundle()"
         >
           Sign

@@ -2,7 +2,6 @@
 import type { Bundle } from '@deconz-community/ddf-bundler'
 import { useVModel } from '@vueuse/core'
 import { bytesToHex } from '@noble/hashes/utils'
-import VueMonacoEditor from '@guolao/vue-monaco-editor'
 import { encode, generateHash } from '@deconz-community/ddf-bundler'
 import { saveAs } from 'file-saver'
 import { produce } from 'immer'
@@ -19,7 +18,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 
-const tab = ref('info')
+const tab = ref('ddf')
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
@@ -143,14 +142,8 @@ function setDirty() {
         </v-window-item>
 
         <v-window-item value="ddf">
-          <VueMonacoEditor
-            v-model:value="ddfc"
-            theme="vs-dark"
-            language="json"
-            height="500px"
-            :options="{
-              automaticLayout: true,
-            }"
+          <bundle-editor-ddfc
+            v-model="ddfc"
             @change="setDirty()"
           />
         </v-window-item>
@@ -166,7 +159,7 @@ function setDirty() {
           <bundle-editor-signatures
             v-model="bundle.data.signatures"
             :hash="bundle.data.hash"
-            @change="setDirty()"
+            :disabled="dirty"
           />
         </v-window-item>
       </v-window>
