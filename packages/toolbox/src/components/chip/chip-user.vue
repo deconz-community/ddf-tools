@@ -12,6 +12,7 @@ const props = defineProps<{
 const menu = ref(false)
 
 const store = useStore()
+const createSnackbar = useSnackbar()
 
 const userKey = computed(() => {
   switch (typeof props.publicKey) {
@@ -45,6 +46,18 @@ const userAvatar = computed(() => {
 })
 
 const userName = computed(() => user.value?.name ?? 'Unknown user')
+
+function copyUserKeyToClipboard() {
+  if (!userKey.value)
+    return createSnackbar({ text: 'No key to copy', snackbarProps: { color: 'error' } })
+  try {
+    navigator.clipboard.writeText(userKey.value)
+    createSnackbar({ text: 'Key copied to clipboard', snackbarProps: { color: 'success' } })
+  }
+  catch (e) {
+    createSnackbar({ text: 'Error: Can\'t copy key to clipboard', snackbarProps: { color: 'error' } })
+  }
+}
 </script>
 
 <template>
@@ -103,12 +116,19 @@ const userName = computed(() => user.value?.name ?? 'Unknown user')
           prepend-icon="mdi-account"
           :to="`/user/${user.id}`"
         />
-        <v-list-item
-          v-if="userKey"
-          title="Public key"
-          :subtitle="userKey"
-          prepend-icon="mdi-file-sign"
-        />
+
+        <v-tooltip text="Copy signature key to clipboard" location="top">
+          <template #activator="{ props: localProps }">
+            <v-list-item
+              v-if="userKey"
+              title="Public signature key"
+              :subtitle="userKey"
+              prepend-icon="mdi-file-sign"
+              v-bind="localProps"
+              @click="copyUserKeyToClipboard()"
+            />
+          </template>
+        </v-tooltip>
       </v-list>
     </v-card>
   </v-menu>

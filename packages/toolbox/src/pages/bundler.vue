@@ -57,13 +57,18 @@ if (import.meta.env.VITE_DEBUG === 'true') {
   <v-card class="full-card">
     <v-card-title>
       DDF Bundler
-      <v-btn
-        :disabled="!bundle"
-        class="float-right"
-        @click="bundle = undefined"
-      >
-        Reset
-      </v-btn>
+      <v-expand-transition>
+        <v-btn
+          v-show="bundle"
+          :disabled="!bundle"
+          class="float-right"
+          color="red"
+          size="small"
+          @click="bundle = undefined"
+        >
+          Reset
+        </v-btn>
+      </v-expand-transition>
     </v-card-title>
     <v-card-text>
       <v-alert class="ma-2">

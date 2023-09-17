@@ -187,7 +187,13 @@ if (import.meta.env.VITE_DEBUG === 'true') {
       <chip-user :public-key="item.columns.key" />
     </template>
     <template #item.signature="{ item }">
-      ...{{ item.columns.signature.slice(-30) }}
+      <v-text-field
+        v-model="item.columns.signature"
+        readonly
+        class="ma-2"
+        variant="solo"
+        hide-details="auto"
+      />
     </template>
     <template #item.valid="{ item }">
       <v-chip v-if="item.columns.valid" color="green">
