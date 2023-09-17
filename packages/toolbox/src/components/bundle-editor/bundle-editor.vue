@@ -45,7 +45,7 @@ watch(bundle, () => {
   syncFiles()
   dirty.value = false
 })
-6TGGN
+
 watch([ddfc, files], () => {
   dirty.value = true
 })
