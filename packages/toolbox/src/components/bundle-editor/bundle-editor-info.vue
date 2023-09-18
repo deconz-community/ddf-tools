@@ -22,7 +22,7 @@ const markdownFilesTypes = {
   CHLG: 'Changelog',
   NOTI: 'Notice',
   NOTW: 'Warning',
-  KWIS: 'Known issues',
+  KWIS: 'Known issue',
 }
 
 const markdownFiles = computed(() => {
