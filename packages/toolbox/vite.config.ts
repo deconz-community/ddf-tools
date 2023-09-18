@@ -84,10 +84,15 @@ module.exports = defineConfig({
             const components = {
               VueToggles: 'vue-toggles',
               VueMonacoEditor: '@guolao/vue-monaco-editor',
+              VueMarkdown: ['markdown-vue', 'default'],
             }
-
-            if (name in components)
-              return { name, as: name, from: components[name as keyof typeof components] }
+            if (name in components) {
+              const data = components[name as keyof typeof components]
+              if (Array.isArray(data))
+                return { name: data[1], as: name, from: data[0] }
+              else
+                return { name, as: name, from: data }
+            }
           },
         },
       ],

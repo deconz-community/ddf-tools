@@ -18,7 +18,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 
-const tab = ref('ddf')
+const tab = ref('info')
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
@@ -47,17 +47,6 @@ watch([ddfc, files], () => {
 
 const hash = computed(() => {
   return bytesToHex(bundle.value.data.hash ?? new Uint8Array())
-})
-
-const supportedDevices = computed(() => {
-  if (!bundle.value)
-    return []
-  return bundle.value.data.desc.device_identifiers.reduce((acc: Record<string, string[]>, item: [string, string]) => {
-    if (!acc[item[0]])
-      acc[item[0]] = []
-    acc[item[0]].push(item[1])
-    return acc
-  }, {})
 })
 
 async function download() {
@@ -120,25 +109,7 @@ function setDirty() {
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="info">
-          <v-text-field
-            v-model="bundle.data.desc.uuid"
-            readonly
-            label="UUID"
-          />
-
-          <h2 class="text-h6 mb-2">
-            Supported devices
-          </h2>
-          <v-divider />
-          <template v-for="devices, manufacturer in supportedDevices" :key="manufacturer">
-            <h3 class="ma-1 ml-4">
-              {{ manufacturer }}
-              <v-chip v-for="device, index in devices" :key="index" class="ma-1">
-                {{ device }}
-              </v-chip>
-            </h3>
-            <v-divider />
-          </template>
+          <bundle-editor-info :bundle="bundle" />
         </v-window-item>
 
         <v-window-item value="ddf">
