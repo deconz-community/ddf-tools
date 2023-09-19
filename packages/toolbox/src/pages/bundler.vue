@@ -70,8 +70,8 @@ function loadSample(sample: typeof sampleList[keyof typeof sampleList]) {
 
 if (import.meta.env.VITE_DEBUG === 'true') {
   onMounted(() => {
-    loadSample(sampleList['Mijia smart plug ZNCZ04LM'])
-    buildFromGithub()
+    loadSample(sampleList['STARKVIND Air purifier'])
+    // buildFromGithub()
   })
 }
 </script>

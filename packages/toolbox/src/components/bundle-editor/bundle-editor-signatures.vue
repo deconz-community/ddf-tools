@@ -137,7 +137,7 @@ async function deleteSignature(index: number) {
 
 if (import.meta.env.VITE_DEBUG === 'true') {
   onMounted(() => {
-    signBundle()
+    // signBundle()
   })
 }
 </script>

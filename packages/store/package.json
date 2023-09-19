@@ -9,7 +9,8 @@
     "dev:db": "./scripts/start.sh",
     "dev:hooks": "rollup -cw",
     "install:pocketbase": "./scripts/install.sh",
-    "update:pocketbase": "./scripts/update.sh"
+    "update:pocketbase": "./scripts/update.sh",
+    "typegen:pocketbase": "pocketbase-typegen --db ./pb_data/data.db --out ./src/store.ts && eslint --no-ignore --fix ./src/store.ts && cp ./src/store.ts ../toolbox/src/interfaces/store.ts"
   },
   "keywords": [],
   "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
@@ -38,14 +39,16 @@
     "url": "https://github.com/sponsors/Zehir"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-multi-entry": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
     "concurrently": "^8.2.1",
     "esbuild": "^0.19.3",
+    "pocketbase-typegen": "^1.1.13",
     "rimraf": "^5.0.1",
     "rollup": "^3.29.2",
     "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-polyfill-node": "^0.12.0",
     "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "pocketbase-typegen": "^1.1.13"
   }
 }

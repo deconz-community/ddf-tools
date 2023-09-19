@@ -1,19 +1,24 @@
 // rollup.config.js
-import _esbuild from 'rollup-plugin-esbuild'
-
-let esbuild = _esbuild // This in case esbuild is a function
-if (_esbuild.default) { // This if it is an object
-  esbuild = _esbuild.default
-}
+import esbuild from 'rollup-plugin-esbuild'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import multi from '@rollup/plugin-multi-entry'
+import nodePolyfills from 'rollup-plugin-polyfill-node'
+import commonjs from '@rollup/plugin-commonjs'
 
 export default {
-  input: 'src/hooks.ts',
+  input: {
+    include: ['src/**/*.ts'],
+    exclude: ['**/store.ts'],
+  },
   output: {
     format: 'es',
     file: 'pb_hooks/index.pb.js',
   },
 
   plugins: [
+    nodeResolve(),
+    commonjs(),
+    nodePolyfills(),
     esbuild({
       // All options are optional
       include: /\.[jt]sx?$/, // default, inferred from `loaders` option
@@ -23,5 +28,7 @@ export default {
       target: 'esnext',
       tsconfig: 'tsconfig.json', // default
     }),
+    multi(),
   ],
+
 }
