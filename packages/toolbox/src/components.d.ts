@@ -18,7 +18,6 @@ declare module 'vue' {
     CardGateway: typeof import('./components/card/card-gateway.vue')['default']
     ChipGatewayState: typeof import('./components/chip/chip-gateway-state.vue')['default']
     ChipUser: typeof import('./components/chip/chip-user.vue')['default']
-    ChipUserFromKey: typeof import('./components/chip/chip-user-from-key.vue')['default']
     ChipUserList: typeof import('./components/chip/chip-user-list.vue')['default']
     Drafter: typeof import('./components/drafter.vue')['default']
     FormGatewayCredentials: typeof import('./components/form/form-gateway-credentials.vue')['default']
@@ -39,7 +38,6 @@ declare module 'vue' {
     UseTimeAgo: typeof import('@vueuse/components')['UseTimeAgo']
     VueMarkdown: typeof import('markdown-vue')['default']
     VueMonacoEditor: typeof import('@guolao/vue-monaco-editor')['VueMonacoEditor']
-    VueToggles: typeof import('vue-toggles')['VueToggles']
     ZodiosApi: typeof import('./components/zodios-api.vue')['default']
   }
 }

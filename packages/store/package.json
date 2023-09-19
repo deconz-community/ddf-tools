@@ -39,6 +39,9 @@
     "url": "https://github.com/sponsors/Zehir"
   },
   "devDependencies": {
+    "@deconz-community/ddf-bundler": "workspace:^",
+    "@rollup/plugin-alias": "^5.0.0",
+    "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-multi-entry": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.2.1",
@@ -49,6 +52,7 @@
     "rollup": "^3.29.2",
     "rollup-plugin-esbuild": "^5.0.0",
     "rollup-plugin-polyfill-node": "^0.12.0",
+    "rollup-plugin-watch": "^1.0.3",
     "typescript": "^5.2.2"
   }
 }

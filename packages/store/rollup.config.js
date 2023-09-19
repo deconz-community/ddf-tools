@@ -1,9 +1,11 @@
 // rollup.config.js
+
 import esbuild from 'rollup-plugin-esbuild'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import multi from '@rollup/plugin-multi-entry'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import commonjs from '@rollup/plugin-commonjs'
+import watch from 'rollup-plugin-watch'
 
 export default {
   input: {
@@ -25,10 +27,11 @@ export default {
       exclude: /node_modules/, // default
       sourceMap: true, // default
       minify: false,
-      target: 'esnext',
+      target: '',
       tsconfig: 'tsconfig.json', // default
     }),
     multi(),
+    watch({ dir: 'src' }),
   ],
 
 }

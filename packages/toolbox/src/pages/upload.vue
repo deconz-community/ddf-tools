@@ -5,7 +5,7 @@ const error = ref('')
 const sha = ref('')
 const bundles = ref<ReturnType<typeof Bundle>[]>([])
 
-const pb = useStore()
+const store = useStore()
 
 const files = ref<File[]>([])
 
@@ -16,38 +16,33 @@ watch(files, async () => {
   })
 })
 
-/*
-const upload = async () => {
+async function upload() {
   // Check if logged in
-  if (pb.profile.value?.id === undefined)
+  if (store.state?.matches('online.connected') !== true)
     throw new Error('You must be logged in to upload a bundle')
 
   // TODO Check if bundle already exists
 
   // TODO Check if bundle is part of a tree
 
-  // Find devices identifier in database for each device identifier in bundle
-  const device_identifiers = await Promise.all(bundles.value.data.desc.device_identifiers.map(async (item: any) => {
-    const record = await pb.findOrCreate('device_identifier', {
-      manufacturername: item[0],
-      modelid: item[1],
-    }, {
-      contributor: pb.profile.value!.id,
-    })
-    return record.id
-  }))
-
-  console.log(device_identifiers)
-
   console.log('upload')
 
   const formData = new FormData()
 
-  formData.append('file', files.value[0])
+  files.value.forEach((file) => {
+    formData.append('bundle', file)
+  })
 
-  console.log(formData)
+  const result = await store.client?.send('/bundle/upload', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      // 'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  console.log(result)
 }
-*/
 </script>
 
 <template>
@@ -63,8 +58,12 @@ const upload = async () => {
         label="Open .ddf bundle from disk"
         accept=".ddf"
       />
+      <v-btn @click="upload()">
+        Upload
+      </v-btn>
     </template>
   </v-card>
+
   <template v-for="_, index in bundles" :key="index">
     <bundle-editor v-model="bundles[index]" class="ma-2" />
   </template>
