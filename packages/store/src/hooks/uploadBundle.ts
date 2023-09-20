@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { Collections } from '../store'
 
 routerAdd('POST', '/bundle/upload', async (ctx) => {
   console.log('------------------ Upload bundle --------------------')
+
+  const { fromByteArray } = require('base64-js')
 
   try {
     // console.log(ctx.formFile('bundle'))
@@ -29,7 +33,26 @@ routerAdd('POST', '/bundle/upload', async (ctx) => {
 
     const firstBundle = bundles[0]
 
-    console.log('BigInt', typeof BigInt)
+    const encoded = fromByteArray(firstBundle)
+
+    console.log(`encoded=${encoded.length}`)
+
+    // console.log(encoded)
+    const result = $os.exec('./ddf-tools.sh', 'bundler', '-i', encoded)
+    // const result = $os.exec('pwd', '')
+
+    if (result === undefined)
+      return
+
+    const resultData = String.fromCharCode.apply(null, result.output() as any)
+
+    console.log('resultData=', resultData)
+
+    const parsed = JSON.parse(resultData)
+
+    // console.log(firstBundle.toString())
+    // console.log(firstBundle)
+    console.log(parsed.product)
 
     if (firstBundle === undefined)
       throw new Error('No bundle found')

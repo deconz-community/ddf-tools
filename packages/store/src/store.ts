@@ -46,19 +46,19 @@ export enum BundleSourceOptions {
   'upload' = 'upload',
 }
 export interface BundleRecord {
-  contributors?: RecordIdString[]
+  contributors: RecordIdString[]
   deprecated?: boolean
   deprecated_description?: string
   file: string
-  hash?: string
+  hash: string
   name: string
   pre_release?: boolean
   source?: BundleSourceOptions
   uuid: string
-  version?: string
+  version: string
   version_deconz?: string
   version_numeric: number
-  version_tag?: BundleVersionTagOptions
+  version_tag: BundleVersionTagOptions
 }
 
 export interface BundleIdentifiersRecord {
@@ -77,33 +77,33 @@ export enum BundleLastestSourceOptions {
 }
 export interface BundleLastestRecord {
   bundle_id?: RecordIdString
-  contributors?: RecordIdString[]
+  contributors: RecordIdString[]
   deprecated?: boolean
   deprecated_description?: string
   file: string
-  hash?: string
+  hash: string
   name: string
   pre_release?: boolean
   source?: BundleLastestSourceOptions
   uuid: string
-  version?: string
+  version: string
   version_deconz?: string
   version_numeric: number
-  version_tag?: BundleLastestVersionTagOptions
+  version_tag: BundleLastestVersionTagOptions
 }
 
 export interface CollectionRecord {
-  bundle_lastest?: string
+  bundle_lastest: string
   contributors?: RecordIdString[]
-  description?: string
-  name?: string
+  description: string
+  name: string
 }
 
 export interface EvaluationRecord {
-  bundle?: RecordIdString
+  bundle: RecordIdString
   comment?: string
-  contributor?: RecordIdString
-  rating?: number
+  contributor: RecordIdString
+  rating: number
 }
 
 export interface UserRecord {
@@ -115,8 +115,8 @@ export interface UserRecord {
 }
 
 export interface UserBadgeRecord {
-  owner?: RecordIdString
-  title?: string
+  owner: RecordIdString
+  title: string
 }
 
 export interface UserProfileRecord {

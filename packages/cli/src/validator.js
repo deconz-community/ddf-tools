@@ -11,7 +11,7 @@ export function validator() {
   program
     .command('validator')
     .description('Validate DDF files')
-    .requiredOption('-d, --directory <path>', 'Di')
+    .requiredOption('-d, --directory <path>', 'Directory to validate')
     .action(async (options) => {
       const { directory } = options
       const validator = createValidator()

@@ -10,7 +10,8 @@
     "dev:hooks": "rollup -cw",
     "install:pocketbase": "./scripts/install.sh",
     "update:pocketbase": "./scripts/update.sh",
-    "typegen:pocketbase": "pocketbase-typegen --db ./pb_data/data.db --out ./src/store.ts && eslint --no-ignore --fix ./src/store.ts && cp ./src/store.ts ../toolbox/src/interfaces/store.ts"
+    "typegen:pocketbase": "pocketbase-typegen --db ./pb_data/data.db --out ./src/store.ts && eslint --no-ignore --fix ./src/store.ts && cp ./src/store.ts ../toolbox/src/interfaces/store.ts",
+    "typegen:pocketbase:delayed": "sleep 1 && pnpm run typegen:pocketbase >>/dev/null &"
   },
   "keywords": [],
   "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
@@ -54,5 +55,8 @@
     "rollup-plugin-polyfill-node": "^0.12.0",
     "rollup-plugin-watch": "^1.0.3",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "base64-js": "^1.5.1"
   }
 }
