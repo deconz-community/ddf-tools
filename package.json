@@ -9,7 +9,8 @@
     "publish": "changeset publish",
     "build": "turbo run build",
     "build:toolbox": "pnpm --dir packages/toolbox run build",
-    "dev:store": "pnpm --dir packages/store run dev",
+    "dev:oldstore": "pnpm --dir packages/store run dev",
+    "dev:store": "pnpm --dir packages/ddf-bundle-store run start",
     "dev:toolbox": "pnpm --dir packages/toolbox run dev"
   },
   "packageManager": "pnpm@8.7.5",
