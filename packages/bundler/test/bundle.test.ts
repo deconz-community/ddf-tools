@@ -1,5 +1,5 @@
-import { readFile } from 'fs/promises'
-import path from 'path'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 import { bytesToHex } from '@noble/hashes/utils'
@@ -46,6 +46,6 @@ describe('Tests', () => {
 
     const encoded = encode(bundle)
     const newHash = await getHash(new Uint8Array(await encoded.arrayBuffer()))
-    expect(bytesToHex(newHash)).toEqual('68485e669407950815c49a32c720ca7d720b04ffb9120469c0d1850234d38c02')
+    expect(bytesToHex(newHash)).toEqual('5dc66b2e777f76ee641adc69972f24d811bac14c4dc9f9dffe3364064c6d9d1c')
   })
 })

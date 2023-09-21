@@ -46,7 +46,11 @@ routerAdd('POST', '/bundle/upload', async (ctx) => {
 
     const resultData = String.fromCharCode.apply(null, result.output() as any)
 
+    const result2 = readerToString(result.stdout)
+
     console.log('resultData=', resultData)
+
+    console.log('resultData=', result2)
 
     const parsed = JSON.parse(resultData)
 
