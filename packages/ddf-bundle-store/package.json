@@ -1,0 +1,48 @@
+{
+    "name": "@deconz-community/ddf-bundle-store",
+    "version": "0.0.1",
+    "description": "",
+    "private": true,
+    "keywords": [
+        "deconz",
+        "drezden",
+        "conbee"
+    ],
+    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/ddf-bundle-store",
+    "bugs": {
+        "url": "https://github.com/deconz-community/ddf-tools/issues/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deconz-community/ddf-tools.git"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "Zehir",
+        "email": "zehir@zorim.fr",
+        "url": "https://github.com/Zehir"
+    },
+    "maintainers": [
+        {
+            "name": "Zehir",
+            "email": "zehir@zorim.fr",
+            "url": "https://github.com/Zehir"
+        }
+    ],
+    "funding": {
+        "type": "individual",
+        "url": "https://github.com/sponsors/Zehir"
+    },
+    "scripts": {
+        "start": "npx directus start"
+    },
+    "engines": {
+        "pnpm": ">=8.6.8",
+        "node": ">=16.0.0"
+    },
+    "packageManager": "pnpm@8.7.5",
+    "dependencies": {
+        "directus": "^10.6.2",
+        "sqlite3": "^5.1.6"
+    }
+}

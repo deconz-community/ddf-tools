@@ -55,6 +55,9 @@
         },
 		"8090": {
 			"label": "Store - Pocketbase"
-		}
+		},
+        "8055": {
+            "label": "Store - Directus"
+        }
     }
 }

@@ -9,6 +9,7 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@deconz-community/toolbox",
-    "@deconz-community/rest-client"
+    "@deconz-community/rest-client",
+    "@deconz-community/ddf-bundle-store"
   ]
 }
