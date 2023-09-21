@@ -2,6 +2,7 @@
     "name": "@deconz-community/ddf-bundle-store",
     "version": "0.0.1",
     "description": "",
+    "type": "module",
     "private": true,
     "keywords": [
         "deconz",
@@ -34,6 +35,7 @@
         "url": "https://github.com/sponsors/Zehir"
     },
     "scripts": {
+        "dev": "pnpm nodemon --exec NODE_OPTIONS=--inspect directus start",
         "start": "npx directus start"
     },
     "engines": {
@@ -42,7 +44,13 @@
     },
     "packageManager": "pnpm@8.7.5",
     "dependencies": {
-        "directus": "^10.6.2",
         "sqlite3": "^5.1.6"
+    },
+    "devDependencies": {
+        "@directus/extensions-sdk": "^10.1.10",
+        "@types/node": "^20.6.2",
+        "directus": "^10.6.2",
+        "nodemon": "^3.0.1",
+        "typescript": "^5.2.2"
     }
 }
