@@ -41,6 +41,5 @@
     },
     "peacock.remoteColor": "#215732",
     "testing.automaticallyOpenPeekView": "never",
-    "debug.javascript.autoAttachFilter": "onlyWithFlag",
     "debug.toolBarLocation": "docked"
 }

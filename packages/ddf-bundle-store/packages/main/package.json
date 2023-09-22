@@ -12,8 +12,13 @@
 		"entries": [
 			{
 				"type": "hook",
-				"name": "github-profile",
-				"source": "src/github-profile/index.ts"
+				"name": "auth",
+				"source": "src/auth/index.ts"
+			},
+			{
+				"type": "hook",
+				"name": "load-env",
+				"source": "src/load-env/index.ts"
 			}
 		]
 	},
@@ -31,7 +36,11 @@
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "10.1.10",
+		"@directus/types": "^10.1.6",
 		"@types/node": "^20.6.3",
 		"typescript": "^5.2.2"
+	},
+	"dependencies": {
+		"@octokit/core": "^5.0.0"
 	}
 }

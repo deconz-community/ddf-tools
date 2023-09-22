@@ -36,7 +36,7 @@
         "url": "https://github.com/sponsors/Zehir"
     },
     "scripts": {
-        "dev": "concurrently -k -p \"[{name}]\" -n \"directus,extensions\" -c \"yellow.bold,cyan.bold\" \"nodemon --exec NODE_OPTIONS=--inspect directus start\" \"pnpm --dir packages/main run dev\"",
+        "dev": "node ./scripts/directus_dev.cjs",
         "start": "npx directus start"
     },
     "engines": {
