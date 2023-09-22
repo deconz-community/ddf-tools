@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "description": "",
     "type": "module",
+    "icon": "extension",
     "private": true,
     "keywords": [
         "deconz",
@@ -44,13 +45,12 @@
     },
     "packageManager": "pnpm@8.7.5",
     "dependencies": {
+        "@deconz-community/directus-extension-ddf-bundle-store-main": "workspace:^",
+        "directus": "^10.6.2",
         "sqlite3": "^5.1.6"
     },
     "devDependencies": {
-        "@directus/extensions-sdk": "^10.1.10",
-        "@types/node": "^20.6.2",
-        "directus": "^10.6.2",
-        "nodemon": "^3.0.1",
-        "typescript": "^5.2.2"
+        "concurrently": "^8.2.1",
+        "nodemon": "^3.0.1"
     }
 }
