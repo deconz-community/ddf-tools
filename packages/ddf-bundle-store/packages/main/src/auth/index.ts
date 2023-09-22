@@ -7,7 +7,10 @@ export default defineHook(({ filter }) => {
     last_name: string
     email: string
     role: string
-    auth_data: string | undefined
+    auth_data: string
+    avatar_url: string
+    public_key: string
+    private_key: string
   }
 
   interface Meta {
@@ -15,7 +18,11 @@ export default defineHook(({ filter }) => {
     provider: string
     providerPayload: {
       accessToken: string
-      userInfo: Record<string, string | number | null | boolean>
+      userInfo: {
+        avatar_url: string
+        email: string
+        [key: string]: string | number | boolean | null
+      }
     }
   }
 
@@ -23,7 +30,7 @@ export default defineHook(({ filter }) => {
     if (meta.provider !== 'github')
       return user
 
-    if (!meta.providerPayload.userInfo.email) {
+    if (user.email === undefined && !meta.providerPayload.userInfo.email) {
       const octokit = new Octokit({ auth: meta.providerPayload.accessToken })
 
       const result = await octokit.request('GET /user/emails', {
@@ -38,9 +45,11 @@ export default defineHook(({ filter }) => {
         user.email = emailMeta.email
     }
 
+    user.avatar_url = meta.providerPayload.userInfo.avatar_url
+
     return user
   }
 
   filter('auth.create', (user, meta) => syncUser('auth.create', user as any, meta as any))
-  // filter('auth.update', (user, meta) => syncUser('auth.update', user as any, meta as any))
+  filter('auth.update', (user, meta) => syncUser('auth.update', user as any, meta as any))
 })
