@@ -37,6 +37,8 @@
     },
     "scripts": {
         "dev": "node ./scripts/directus_dev.cjs",
+        "import:schema": "npx directus schema apply ./schema.yaml",
+        "export:schema": "npx directus schema snapshot --yes ./schema.yaml",
         "start": "npx directus start"
     },
     "engines": {
