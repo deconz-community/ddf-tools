@@ -1,24 +1,19 @@
 import { assign, createMachine } from 'xstate'
-import PocketBase, { getTokenPayload } from 'pocketbase'
 import { produce } from 'immer'
-import { useCookies } from '@vueuse/integrations/useCookies'
-import type { CookieSetOptions } from 'universal-cookie'
+import type { AuthenticationClient, DirectusClient, RestClient } from '@directus/sdk'
+import { authentication, createDirectus, readMe, rest, serverPing } from '@directus/sdk'
+import type { Collections, Schema } from '~/interfaces/store.d.ts'
+
+export type Directus = DirectusClient<Schema> & AuthenticationClient<Schema> & RestClient<Schema>
 
 export interface StoreContext {
-  pocketBaseUrl: string
-  pocketBase?: PocketBase
-  profile?: UserProfile
-}
-
-export interface UserProfile {
-  id: string
-  created: string
-  updated: string
-  private_key?: string
+  directusUrl: string
+  directus?: Directus
+  profile?: Collections.DirectusUser
 }
 
 export const storeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUomYAmAJzZVAVgDsANgAcAFkP7Wy3dta6ANCACeiALSaAzNl2tDzbzs2t9qoEAvkG23FjYAMay+GCRKARQxBCyvPgAbmgA1jjhONH4sfGJCASZkVQy+IJCNfISUgmy8ooIjsz6zBqqhsrKrNqahjpahrYOCMyW2Npempp9+qasrKraIWHoEQVFCfhJYBgYmNhiADZUtJgAtth5UTFxe1ClGWgVTdXCdUggDdLNX6tFzeGbaFzaZTafS6VSLIbjJSqNyGAzeQzQ5ardahED3WRnAg0fCyOzXNAAV1gxAAMmgoAQfuJJAC5ECnP1dNhmIYXMoXKoVJY+RjEQghlzdBYXCYeS55qp9Bs8VscASiQ9Ck9ILT6ZSUEy-izPi0OVZubz+YKoawRdoxcNWDMeX0QbyFUrcfj8ITYprdjqAKpiCBUMAAAgACsdaLgzmBDf8TezJqsZrp+dpmIqzBZ-A7Fdh+S5WMwIWtkR0QriSRA4PI8vVjVVTW0TOodAEXEYAr1dMxNGLHH0usZ9ArtKpYatVMr7nwUE3Gi2U2WnYrvMps6ZzJYbPYnGW3D1xy5dCWYQPmLo56r-U9EkvWa3NFzrzCtznd7axgeEMNsFMDxX2zWYpX0Fxbx4bB1ViJ9k1AVpHGMLpO2RHsenMAcxRBLkt16VYrBUF0oIiWDiVJckqXgldEKcAU3DQ7t2z7bC-1fdQGMFKx3U0RVSLVH0NR2bUIBowE6IQZRsCGUsT0CSdlBMZQxQ47AuLYXReP4r07zQWhaF9MBxLZSSIWkwwrFks84WUcccKmQCjD0TlAmzWdqyAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEYBgYmNhiADZUtJgAttjBOOH4kdGxCAQAbmihVDL4gkJ18hJSMbLyigherIbYxl6mhrpq+iZmala2CCoOal6aJprDM52dagFB6CGyqQT5EVHUEMQAMgDyAOInAKoAKg1IIE3SrfftALTMptiuOqx6rEoqXQfcaIJysHqGJSmTojAxdNYgPLYLY7MJ7aKQYiXAAKABEAILXACiAH1sQAlE4AMQAkkciXdxJInnIXohXppDGpsLovF4TDpNAtTEpLDZEJDdDylELWMwRu53CYEUiCkUYvg4hBZLx8BUANY4VXojVQUp6yrVWR1RkPZktVmgN4A1TMcxGLw6NS+XRdEGTeXqWYjEww-R6GYqja7Qr7WLEbWRPAWw25aNo2PFTXmipVB025gie6PB1tdm6ByipyzeX6ZgfUX+qZBuYjMMRrxRnjI-DbJMUfCyaxZNAAV1gx3ONIAcraSzUywh3p9vr8-i6gYZ-VyHCZw05PJy9AYAoEQIOIHB5HlGvaF2yl2pPrz+YLhQKxRNXoYvNgAc4zH0WY1E0Vh9F0LsQj4FBb2ae8nWUaYNCMXkjFMcx-VcbBWBcNwfDrLxdFFJRIJjdVYlgllF1eExVD5UDaLUVgRkMetwMw-QlD-dx6yhcw1yMUiez7MBKNLB9Xl8LiXwFHD30bcVJiA7ATEhQwuj3TQmLrISUX7Qd8GHMd4GLO9ngQhBmE0FSNA+X5DyAjR-SGcEBS5J8G05eVdN7VE1X2SAxPghR2SUPlsDBLx9G8bQwMI5yPgi31OR-ToK2YTszyRNBaFoESgvMkKOk5CLOL0JRoqMTixkUirwSrOVIVDBY4tPPwgA */
   id: 'store',
 
   predictableActionArguments: true,
@@ -28,22 +23,25 @@ export const storeMachine = createMachine({
     context: {} as StoreContext,
     events: {} as {
       type: 'LOGIN' | 'UPDATE_PROFILE'
-      profile: UserProfile
+      profile: Collections.DirectusUser
     } | {
       type: 'LOGOUT'
     },
     services: {} as {
-      connectToPocketBase: {
-        data: PocketBase
+      connectToDirectus: {
+        data: {
+          directus: Directus
+          isAuthenticated: boolean
+        }
       }
-      watchAuth: {
+      watchProfile: {
         data: void
       }
     },
   },
 
   context: {
-    pocketBaseUrl: import.meta.env.VITE_POCKETBASE_URL,
+    directusUrl: import.meta.env.VITE_DIRECTUS_URL,
   },
 
   states: {
@@ -55,13 +53,16 @@ export const storeMachine = createMachine({
 
     connecting: {
       invoke: {
-        src: 'connectToPocketBase',
-        onDone: {
-          target: 'online',
-          actions: 'usePocketBase',
-        },
+        src: 'connectToDirectus',
         onError: 'offline',
+
+        onDone: [{
+          target: 'online.connected',
+          cond: 'isAuthenticated',
+        }, 'online.anonymous'],
       },
+
+      exit: 'useDirectus',
     },
 
     online: {
@@ -85,16 +86,17 @@ export const storeMachine = createMachine({
             UPDATE_PROFILE: {
               target: 'connected',
               internal: true,
+              actions: 'updateProfile',
             },
+          },
+
+          invoke: {
+            src: 'watchProfile',
           },
         },
       },
 
       initial: 'anonymous',
-
-      invoke: {
-        src: 'watchAuth',
-      },
     },
 
     offline: {},
@@ -104,101 +106,73 @@ export const storeMachine = createMachine({
 },
 {
   actions: {
-    usePocketBase: assign((context, event) => produce(context, (draft) => {
-      draft.pocketBase = event.data
+    useDirectus: assign((context, event) => produce(context, (draft) => {
+      draft.directus = event.type === 'done.invoke.store.connecting:invocation[0]'
+        ? event.data.directus as any // TODO fix this
+        : undefined
     })),
     updateProfile: assign((context, event) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
   },
+  guards: {
+    isAuthenticated: (context, event) => event.data.isAuthenticated === true,
+  },
   services: {
-    connectToPocketBase: async (context) => {
-      // console.log(context.pocketBaseUrl)
-      const client = new PocketBase(context.pocketBaseUrl)
-      const requestKey = 'xstate.connectToPocketBase.health'
-      const timeout = setTimeout(() => {
-        client.cancelRequest(requestKey)
-      }, 1000)
-      const health = await client.health.check({ requestKey })
-      clearTimeout(timeout)
+    connectToDirectus: async (context) => {
+      const client = createDirectus<Schema>(context.directusUrl)
+        .with(authentication('cookie', {
+          credentials: 'include', // TODO What do this does ?
+        }))
+        .with(rest({
+          onRequest: (fetchOptions) => {
+            let timeout = 3000
+            if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
+              const timeoutHeader = fetchOptions.headers['X-Timeout']
+              if (typeof timeoutHeader === 'string') {
+                const converted = Number.parseInt(timeoutHeader)
+                if (!Number.isNaN(converted))
+                  timeout = converted
+              }
+            }
+            const abortController = new AbortController()
+            const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
+            fetchOptions.signal = abortController.signal
+            fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
+            return fetchOptions
+          },
+          onResponse: (_result, fetchOptions) => {
+            if (fetchOptions.signal?.aborted === false)
+              fetchOptions.signal.dispatchEvent(new Event('abort'))
+            return _result
+          },
+        }))
 
-      if (health.code === 200)
-        return client
-      else
-        throw new Error('Could not connect to PocketBase')
-    },
+      // https://github.com/directus/directus/issues/19775
+      const ping = await client.request(serverPing()) as unknown as string
 
-    watchAuth: context => async (sendBack) => {
-      const client = context.pocketBase
-      if (!client)
-        throw new Error('PocketBase is not initialized')
+      // https://github.com/directus/directus/issues/19776
+      // const health = await client.request(serverHealth())
 
-      const cookieAuthKey = 'pocketbase_auth'
-      const cookieBaseParams: CookieSetOptions = {
-        sameSite: 'strict',
-        secure: true,
-        httpOnly: false,
-        path: '/',
+      const auth = await client.refresh()
+
+      if (ping === 'pong') {
+        return {
+          directus: client,
+          isAuthenticated: auth.access_token !== null,
+        }
       }
-      const cookies = useCookies()
-
-      // Restore auth cookie
-      const authCookie = cookies.get(cookieAuthKey)
-      if (authCookie) {
-        client.authStore.save(authCookie.token, authCookie.model)
-        if (client.authStore.isValid) {
-          client.collection('user').authRefresh().catch((error) => {
-            console.error(error)
-            client.authStore.clear()
-            cookies.remove('pocketbase_auth', cookieBaseParams)
-          })
-        }
-        else { client.authStore.clear() }
-      }
-
-      // Update cookie on auth change
-      const stopAuthWatcher = client.authStore.onChange((token) => {
-        client.collection('user_profile').unsubscribe()
-
-        // Clear old auth cookie
-        if (!token || !client.authStore.isValid) {
-          cookies.remove('pocketbase_auth', cookieBaseParams)
-          sendBack({ type: 'LOGOUT' })
-          return
-        }
-
-        // Save auth cookie
-        const tokenPayload = getTokenPayload(token)
-        cookies.set(cookieAuthKey, {
-          token: client.authStore.token,
-          model: client.authStore.model,
-        }, {
-          ...cookieBaseParams,
-          expires: new Date(tokenPayload.exp * 1000),
-        })
-
-        if (client.authStore.model) {
-          client.collection('user_profile').getOne(client.authStore.model.profile).then((record) => {
-            sendBack({ type: 'LOGIN', profile: record })
-          })
-
-          client.collection('user_profile').subscribe(client.authStore.model.profile, ({ record }) => {
-            sendBack({ type: 'UPDATE_PROFILE', profile: record })
-          })
-        }
-
-        /* TODO Fix this still needed since there is a route guard module ?
-        const router = useRouter()
-        const route = useRoute()
-        if (!client.authStore.isValid && route.meta.requiresAuth === true)
-          router.push({ path: '/' })
-        */
-      })
-
-      return () => {
-        client.collection('user_profile').unsubscribe()
-        stopAuthWatcher()
+      else {
+        throw new Error('Could not connect to Directus')
       }
     },
+
+    watchProfile: context => async (sendBack) => {
+      const profile = await context.directus?.request(readMe())
+      if (profile)
+        sendBack({ type: 'UPDATE_PROFILE', profile })
+      // TODO get updated profile with websocket
+    },
+
   },
 })

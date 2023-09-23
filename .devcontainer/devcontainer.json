@@ -45,7 +45,7 @@
     // "forwardPorts": [],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "pnpm install && cd packages/store/ && pnpm run install:pocketbase && echo alias ll=\\'ls -al\\' >> /home/node/.bashrc",
+    "postCreateCommand": "pnpm install && echo alias ll=\\'ls -al\\' >> /home/node/.bashrc",
 
     // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
     "remoteUser": "node",
@@ -53,9 +53,6 @@
         "4000": {
             "label": "Toolbox - Vitesse"
         },
-		"8090": {
-			"label": "Store - Pocketbase"
-		},
         "8055": {
             "label": "Store - Directus"
         }

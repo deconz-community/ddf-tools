@@ -1,62 +1,59 @@
 {
-  "name": "@deconz-community/ddf-store",
-  "private": true,
-  "description": "",
-  "type": "module",
-  "scripts": {
-    "build:hooks": "rollup -c",
-    "dev": "concurrently -k -p \"[{name}]\" -n \"db,hooks\" -c \"yellow.bold,cyan.bold\" \"pnpm:dev:db\" \"pnpm:dev:hooks\"",
-    "dev:db": "./scripts/start.sh",
-    "dev:hooks": "rollup -cw",
-    "install:pocketbase": "./scripts/install.sh",
-    "update:pocketbase": "./scripts/update.sh",
-    "typegen:pocketbase": "pocketbase-typegen --db ./pb_data/data.db --out ./src/store.ts && eslint --no-ignore --fix ./src/store.ts && cp ./src/store.ts ../toolbox/src/interfaces/store.ts",
-    "typegen:pocketbase:delayed": "sleep 1 && pnpm run typegen:pocketbase >>/dev/null &"
-  },
-  "keywords": [],
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deconz-community/ddf-tools.git"
-  },
-  "license": "MIT",
-  "author": {
-    "name": "Zehir",
-    "email": "zehir@zorim.fr",
-    "url": "https://github.com/Zehir"
-  },
-  "maintainers": [
-    {
-      "name": "Zehir",
-      "email": "zehir@zorim.fr",
-      "url": "https://github.com/Zehir"
+    "name": "@deconz-community/store",
+    "version": "0.0.1",
+    "description": "",
+    "type": "module",
+    "icon": "extension",
+    "private": true,
+    "keywords": [
+        "deconz",
+        "drezden",
+        "conbee"
+    ],
+    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
+    "bugs": {
+        "url": "https://github.com/deconz-community/ddf-tools/issues/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deconz-community/ddf-tools.git"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "Zehir",
+        "email": "zehir@zorim.fr",
+        "url": "https://github.com/Zehir"
+    },
+    "maintainers": [
+        {
+            "name": "Zehir",
+            "email": "zehir@zorim.fr",
+            "url": "https://github.com/Zehir"
+        }
+    ],
+    "funding": {
+        "type": "individual",
+        "url": "https://github.com/sponsors/Zehir"
+    },
+    "scripts": {
+        "dev": "node ./scripts/directus_dev.cjs",
+        "import:schema": "npx directus schema apply ./schema.yaml",
+        "export:schema": "npx directus schema snapshot --yes ./schema.yaml && npx indirectus sdk generate --url http://localhost:8055 --token LOCALHOST_TOKEN --fetch && cp ./.directus/generated/client.ts ./packages/main/src/client.d.ts && cp ./.directus/generated/client.ts ../toolbox/src/interfaces/store.d.ts && rm -rf ./.directus",
+        "start": "npx directus start"
+    },
+    "engines": {
+        "pnpm": ">=8.6.8",
+        "node": ">=16.0.0"
+    },
+    "packageManager": "pnpm@8.7.5",
+    "dependencies": {
+        "@deconz-community/directus-extension-store-main": "workspace:^",
+        "directus": "^10.6.2",
+        "sqlite3": "^5.1.6"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.1",
+        "nodemon": "^3.0.1",
+        "spawn-command": "0.0.2-1"
     }
-  ],
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "devDependencies": {
-    "@deconz-community/ddf-bundler": "workspace:^",
-    "@rollup/plugin-alias": "^5.0.0",
-    "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-multi-entry": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.2.1",
-    "concurrently": "^8.2.1",
-    "esbuild": "^0.19.3",
-    "pocketbase-typegen": "^1.1.13",
-    "rimraf": "^5.0.1",
-    "rollup": "^3.29.2",
-    "rollup-plugin-esbuild": "^5.0.0",
-    "rollup-plugin-polyfill-node": "^0.12.0",
-    "rollup-plugin-watch": "^1.0.3",
-    "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "base64-js": "^1.5.1"
-  }
 }

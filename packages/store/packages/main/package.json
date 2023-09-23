@@ -1,5 +1,5 @@
 {
-	"name": "@deconz-community/directus-extension-ddf-bundle-store-main",
+	"name": "@deconz-community/directus-extension-store-main",
 	"version": "0.0.1",
 	"type": "module",
 	"directus:extension": {

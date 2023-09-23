@@ -10,6 +10,7 @@
   "ignore": [
     "@deconz-community/toolbox",
     "@deconz-community/rest-client",
-    "@deconz-community/ddf-bundle-store"
+    "@deconz-community/store",
+    "@deconz-community/directus-extension-store-main"
   ]
 }

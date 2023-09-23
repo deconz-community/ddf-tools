@@ -47,14 +47,4 @@ https://stately.ai/docs
 https://zenbit-tech.medium.com/command-palette-monaco-editor-cb4d4b81dce0
 
 #### Database
-https://pocketbase.io/docs/
-https://pocketbase.io/docs/js-overview
-https://github.com/pocketbase/js-sdk?tab=readme-ov-file#usage
-https://github.com/patmood/pocketbase-typegen?tab=readme-ov-file#example-usage
-
-
-
-
-
-
-
+https://docs.directus.io/reference/system/collections.html

@@ -23,5 +23,3 @@ Object.values(import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eage
   .forEach(i => i.install?.({ app, router }))
 
 app.mount('#app')
-
-// TODO : https://github.com/pocketbase/js-sdk#security

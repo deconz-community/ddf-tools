@@ -1,11 +1,10 @@
-import { Collections, type UserResponse } from '~/interfaces/store'
-
 export function useStore() {
   const store = useAppMachine('store')
-  const client = computed(() => store.state?.context.pocketBase)
+  const client = computed(() => store.state?.context.directus)
   const profile = computed(() => store.state?.context.profile)
 
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
+  /*
   const getUserByKey = useMemoize(
     async (userKey: string) => {
       return await client.value?.collection(Collections.User)
@@ -16,7 +15,9 @@ export function useStore() {
       getKey: userId => userId,
     },
   )
+  */
 
+  /*
   const findOrCreate = async (
     collection: string,
     searchFields: { [key: string]: string },
@@ -24,7 +25,7 @@ export function useStore() {
   ) => {
     const _client = client.value
     if (!_client)
-      throw new Error('PocketBase client is not ready')
+      throw new Error('Directus client is not ready')
 
     try {
       const result = await _client
@@ -55,12 +56,13 @@ export function useStore() {
       }
     }
   }
+  */
 
   return toReactive({
     ...toRefs(store),
     client,
     profile,
-    findOrCreate,
-    getUserByKey,
+    findOrCreate: () => undefined,
+    getUserByKey: () => undefined,
   })
 }
