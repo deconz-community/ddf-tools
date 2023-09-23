@@ -154,12 +154,21 @@ export const storeMachine = createMachine({
       // https://github.com/directus/directus/issues/19776
       // const health = await client.request(serverHealth())
 
-      const auth = await client.refresh()
+      let isAuthenticated = false
+
+      try {
+        const auth = await client.refresh()
+        if (auth.access_token !== null)
+          isAuthenticated = true
+      }
+      catch (e) {
+
+      }
 
       if (ping === 'pong') {
         return {
           directus: client,
-          isAuthenticated: auth.access_token !== null,
+          isAuthenticated,
         }
       }
       else {
