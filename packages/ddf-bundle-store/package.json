@@ -38,7 +38,7 @@
     "scripts": {
         "dev": "node ./scripts/directus_dev.cjs",
         "import:schema": "npx directus schema apply ./schema.yaml",
-        "export:schema": "npx directus schema snapshot --yes ./schema.yaml",
+        "export:schema": "npx directus schema snapshot --yes ./schema.yaml && npx indirectus sdk generate --url http://localhost:8055 --token LOCALHOST_TOKEN --fetch && cp ./.directus/generated/client.ts ./packages/main/src/client.d.ts && rm -rf ./.directus",
         "start": "npx directus start"
     },
     "engines": {
@@ -53,6 +53,7 @@
     },
     "devDependencies": {
         "concurrently": "^8.2.1",
-        "nodemon": "^3.0.1"
+        "nodemon": "^3.0.1",
+        "spawn-command": "0.0.2-1"
     }
 }

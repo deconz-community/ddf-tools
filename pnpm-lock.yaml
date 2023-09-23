@@ -127,6 +127,9 @@ importers:
       nodemon:
         specifier: ^3.0.1
         version: 3.0.1
+      spawn-command:
+        specifier: 0.0.2-1
+        version: 0.0.2-1
 
   packages/ddf-bundle-store/packages/github-oauth:
     devDependencies:
@@ -149,6 +152,9 @@ importers:
       '@directus/extensions-sdk':
         specifier: 10.1.10
         version: 10.1.10(@types/node@20.6.3)
+      '@directus/sdk':
+        specifier: ^12.0.0
+        version: 12.0.0
       '@directus/types':
         specifier: ^10.1.6
         version: 10.1.6(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0)
@@ -3695,6 +3701,11 @@ packages:
       - sqlite3
       - supports-color
       - tedious
+
+  /@directus/sdk@12.0.0:
+    resolution: {integrity: sha512-LDOsfjP0YmPgpnZXDIBzy8H9qiE9AeORZbzPkV+r/w1pWR3QBaz1xQDR1SrnX9BZ+q6HykjS3OJ2MTnXoQlW1Q==}
+    engines: {node: '>=18.0.0'}
+    dev: true
 
   /@directus/specs@10.2.0:
     resolution: {integrity: sha512-NbaL2LpMKlplTkxuEk4xhGd2v+ThkN4peJaUjP2UuVCyvDds5un20pppKxqJfEFrkrBaRm2o/2qUW1itiOg15w==}
@@ -15410,6 +15421,10 @@ packages:
 
   /spawn-command@0.0.2:
     resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
+    dev: true
+
+  /spawn-command@0.0.2-1:
+    resolution: {integrity: sha512-n98l9E2RMSJ9ON1AKisHzz7V42VDiBQGY6PB1BwRglz99wpVsSuGzQ+jOi6lFXBGVTCrRpltvjm+/XA+tpeJrg==}
     dev: true
 
   /spawndamnit@2.0.0:

@@ -1,18 +1,8 @@
 import { defineHook } from '@directus/extensions-sdk'
 import { Octokit } from '@octokit/core'
+import type { Collections } from '../client'
 
 export default defineHook(({ filter }) => {
-  interface User {
-    first_name: string
-    last_name: string
-    email: string
-    role: string
-    auth_data: string
-    avatar_url: string
-    public_key: string
-    private_key: string
-  }
-
   interface Meta {
     identifier: string
     provider: string
@@ -26,7 +16,7 @@ export default defineHook(({ filter }) => {
     }
   }
 
-  const syncUser = async (_event: string, user: Partial<User>, meta: Meta): Promise<Partial<User>> => {
+  const syncUser = async (_event: string, user: Partial<Collections.DirectusUser>, meta: Meta): Promise<Partial<Collections.DirectusUser>> => {
     if (meta.provider !== 'github')
       return user
 
