@@ -12,7 +12,7 @@ import VuetifyUseDialog from 'vuetify-use-dialog'
 
 import BundleEditorFiles from '../components/bundle-editor/bundle-editor-files.vue'
 
-import { type UserModule } from '../types'
+import { type UserModule } from '~/types'
 
 // Import Vuetify
 export const install: UserModule = ({ app }) => {

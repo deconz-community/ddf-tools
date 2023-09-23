@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.42.0",
+    "@directus/sdk": "^12.0.0",
     "@mdi/font": "^7.2.96",
     "@noble/curves": "^1.2.0",
     "@types/color": "^3.0.4",

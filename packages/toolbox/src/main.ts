@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { createApp } from 'vue'
 
 import App from './App.vue'
-import type { UserModule } from './types'
+import type { UserModule } from '~/types'
 
 import generatedRoutes from '~pages'
 

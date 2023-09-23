@@ -5,6 +5,7 @@ import { enableMapSet, produce } from 'immer'
 import { discoveryMachine } from './discovery'
 import { gatewayMachine } from './gateway'
 import { storeMachine } from './store'
+import { ddfBundleStoreMachine } from './ddf-bundle-store'
 
 enableMapSet()
 
@@ -28,6 +29,7 @@ export interface AppContext {
   machine: {
     discovery: ActorRefFrom<typeof discoveryMachine>
     store: ActorRefFrom<typeof storeMachine>
+    ddfBundleStore: ActorRefFrom<typeof ddfBundleStoreMachine>
     gateways: Map<string, ActorRefFrom<typeof gatewayMachine>>
   }
 }
@@ -117,6 +119,7 @@ export const appMachine = createMachine({
         return {
           discovery: spawn(discoveryMachine, 'discovery'),
           store: spawn(storeMachine, 'store'),
+          ddfBundleStore: spawn(ddfBundleStoreMachine, 'store'),
           gateways: new Map(),
         }
       },
