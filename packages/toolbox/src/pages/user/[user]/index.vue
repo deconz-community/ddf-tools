@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computedAsync } from '@vueuse/core'
-import { useGithubAvatar } from '~/composables/useGithubAvatar'
+import { readUser } from '@directus/sdk'
+import type { Collections } from '~/interfaces/store'
 
 const props = defineProps<{
   user: string
@@ -10,36 +11,40 @@ const store = useStore()
 
 const userProfile = computedAsync(
   async () => {
-    // If I look my own profile, I can get it from the profile store
-    if (store.client?.authStore.model?.id && store.client?.authStore.model.id === props.user)
-      return store.client?.authStore.model
+    if (store.profile?.id === undefined)
+      return undefined
 
-    return (await store.client?.collection('user').getOne(props.user))
+    // If I look my own profile, I can get it from the profile store
+    if (store.profile.id === props.user)
+      return store.profile
+
+    return (await store.client?.request<Collections.DirectusUser>(readUser(props.user)))
   },
-  null, // initial state
+  undefined, // initial state
 )
 
 const avatarSize = 150
-const avatarUrl = useGithubAvatar(computed(() => userProfile.value?.github_id), avatarSize)
-const userProfilLink = computed(() => `https://github.com/${userProfile.value?.name}`)
+// const userProfilLink = computed(() => `https://github.com/${userProfile.value?.name}`)
 const tab = ref('bundles')
 const bundlesCount = ref(0)
 const collectionsCount = ref(0)
 </script>
 
 <template>
-  <v-card class="ma-2">
+  <v-card v-if="userProfile" class="ma-2">
     <div class="d-flex">
-      <v-avatar class="ma-2" :image="avatarUrl" size="125" />
+      <v-avatar class="ma-2" :image="userProfile.avatar_url" size="125" />
       <v-card
         class="ma-2 flex-grow-1"
-        :title="userProfile?.name"
+        :title="`${userProfile?.first_name ?? ''} ${userProfile?.last_name ?? ''}`"
       >
+      <!--
         <v-card-text>
           <v-btn :href="userProfilLink" target="_blank">
             Github profile
           </v-btn>
         </v-card-text>
+        -->
       </v-card>
     </div>
   </v-card>

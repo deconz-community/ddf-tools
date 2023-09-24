@@ -627,8 +627,13 @@ export namespace Collections {
             readonly: false;
             hidden: false;
             sort: 6;
-            width: "full";
-            translations: null;
+            width: "half";
+            translations: [
+              {
+                language: "en-US";
+                translation: "DDF UUID";
+              },
+            ];
             note: null;
             conditions: null;
             required: true;
@@ -651,8 +656,13 @@ export namespace Collections {
         readonly: false;
         hidden: false;
         sort: 6;
-        width: "full";
-        translations: null;
+        width: "half";
+        translations: [
+          {
+            language: "en-US";
+            translation: "DDF UUID";
+          },
+        ];
         note: null;
         conditions: null;
         required: true;
@@ -661,6 +671,7 @@ export namespace Collections {
         validation_message: null;
       };
     }>;
+    asset: Collections.DirectusFile;
     product: UnknownType<{
       schema: {
         raw: {
@@ -695,7 +706,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 7;
+            sort: 8;
             width: "full";
             translations: null;
             note: null;
@@ -719,7 +730,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 7;
+        sort: 8;
         width: "full";
         translations: null;
         note: null;
@@ -765,7 +776,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 9;
+            sort: 10;
             width: "half";
             translations: null;
             note: null;
@@ -789,7 +800,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 9;
+        sort: 10;
         width: "half";
         translations: null;
         note: null;
@@ -834,7 +845,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 10;
+            sort: 11;
             width: "half";
             translations: null;
             note: null;
@@ -858,7 +869,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 10;
+        sort: 11;
         width: "half";
         translations: null;
         note: null;
@@ -870,8 +881,9 @@ export namespace Collections {
       };
     }>;
     downloads_count: Optional<number>;
-    asset: Collections.DirectusFile;
     device_identifiers: BundlesDeviceIdentifiers;
+    sub_devices: BundlesSubDevices;
+    signatures: Signatures;
   }
 
   /**
@@ -881,6 +893,15 @@ export namespace Collections {
     id: number;
     bundles_id: Optional<Bundles>;
     device_identifiers_id: Optional<DeviceIdentifiers>;
+  }
+
+  /**
+   * The bundles sub devices collection.
+   */
+  export interface BundlesSubDevices {
+    id: number;
+    bundles_id: Optional<Bundles>;
+    sub_devices_type: Optional<SubDevices>;
   }
 
   /**
@@ -1557,6 +1578,366 @@ export namespace Collections {
       }>
     >;
   }
+
+  /**
+   * The signatures collection.
+   */
+  export interface Signatures {
+    id: UnknownType<{
+      schema: {
+        raw: {
+          collection: "signatures";
+          field: "id";
+          type: "uuid";
+          schema: {
+            name: "id";
+            table: "signatures";
+            data_type: "char";
+            default_value: null;
+            max_length: 36;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: true;
+            is_primary_key: true;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 100;
+            collection: "signatures";
+            field: "id";
+            special: ["uuid"];
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: true;
+            hidden: true;
+            sort: 1;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: false;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 100;
+        collection: "signatures";
+        field: "id";
+        special: ["uuid"];
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: true;
+        hidden: true;
+        sort: 1;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: false;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    bundle: Bundles;
+    signature: UnknownType<{
+      schema: {
+        raw: {
+          collection: "signatures";
+          field: "signature";
+          type: "string";
+          schema: {
+            name: "signature";
+            table: "signatures";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 101;
+            collection: "signatures";
+            field: "signature";
+            special: null;
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 3;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 101;
+        collection: "signatures";
+        field: "signature";
+        special: null;
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 3;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    key: UnknownType<{
+      schema: {
+        raw: {
+          collection: "signatures";
+          field: "key";
+          type: "string";
+          schema: {
+            name: "key";
+            table: "signatures";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 102;
+            collection: "signatures";
+            field: "key";
+            special: null;
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 4;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 102;
+        collection: "signatures";
+        field: "key";
+        special: null;
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 4;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+  }
+
+  /**
+   * The sub devices collection.
+   */
+  export interface SubDevices {
+    type: UnknownType<{
+      schema: {
+        raw: {
+          collection: "sub_devices";
+          field: "type";
+          type: "string";
+          schema: {
+            name: "type";
+            table: "sub_devices";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: true;
+            is_primary_key: true;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 104;
+            collection: "sub_devices";
+            field: "type";
+            special: null;
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 1;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: false;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 104;
+        collection: "sub_devices";
+        field: "type";
+        special: null;
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 1;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: false;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    name: UnknownType<{
+      schema: {
+        raw: {
+          collection: "sub_devices";
+          field: "name";
+          type: "string";
+          schema: {
+            name: "name";
+            table: "sub_devices";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 105;
+            collection: "sub_devices";
+            field: "name";
+            special: null;
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 2;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 105;
+        collection: "sub_devices";
+        field: "name";
+        special: null;
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 2;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    endpoint: Optional<"/lights" | "/sensors">;
+    bundles: BundlesSubDevices;
+  }
 }
 
 /**
@@ -1584,6 +1965,11 @@ export interface Schema {
   bundles_device_identifiers: Collections.BundlesDeviceIdentifiers[];
 
   /**
+   * The bundles sub devices collection.
+   */
+  bundles_sub_devices: Collections.BundlesSubDevices[];
+
+  /**
    * The device identifiers collection.
    */
   device_identifiers: Collections.DeviceIdentifiers[];
@@ -1592,6 +1978,16 @@ export interface Schema {
    * The environment collection.
    */
   environment: Collections.Environment;
+
+  /**
+   * The signatures collection.
+   */
+  signatures: Collections.Signatures[];
+
+  /**
+   * The sub devices collection.
+   */
+  sub_devices: Collections.SubDevices[];
 }
 
 /**
@@ -1642,6 +2038,31 @@ export function readBundlesDeviceIdentifiers<
 }
 
 /**
+ * List bundles sub devices items.
+ */
+export function listBundlesSubDevices<
+  const Query extends Query$<Schema, Collections.BundlesSubDevices>,
+>(query?: Query) {
+  return readItems$<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    query,
+  );
+}
+
+/**
+ * Gets a single known bundles sub devices item by id.
+ */
+export function readBundlesSubDevices<
+  const Query extends Query$<Schema, Collections.BundlesSubDevices>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    key,
+    query,
+  );
+}
+
+/**
  * List device identifiers items.
  */
 export function listDeviceIdentifiers<
@@ -1673,4 +2094,40 @@ export function getEnvironment<
   const Query extends Query$<Schema, Collections.Environment>,
 >(query?: Query) {
   return readSingleton$<Schema, "environment", Query>("environment", query);
+}
+
+/**
+ * List signatures items.
+ */
+export function listSignatures<
+  const Query extends Query$<Schema, Collections.Signatures>,
+>(query?: Query) {
+  return readItems$<Schema, "signatures", Query>("signatures", query);
+}
+
+/**
+ * Gets a single known signatures item by id.
+ */
+export function readSignatures<
+  const Query extends Query$<Schema, Collections.Signatures>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "signatures", Query>("signatures", key, query);
+}
+
+/**
+ * List sub devices items.
+ */
+export function listSubDevices<
+  const Query extends Query$<Schema, Collections.SubDevices>,
+>(query?: Query) {
+  return readItems$<Schema, "sub_devices", Query>("sub_devices", query);
+}
+
+/**
+ * Gets a single known sub devices item by id.
+ */
+export function readSubDevices<
+  const Query extends Query$<Schema, Collections.SubDevices>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "sub_devices", Query>("sub_devices", key, query);
 }
