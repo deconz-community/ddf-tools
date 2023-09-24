@@ -25,7 +25,7 @@ collections:
       unarchive_value: null
   - collection: bundles
     meta:
-      accountability: all
+      accountability: null
       archive_app_filter: true
       archive_field: null
       archive_value: null
@@ -48,14 +48,16 @@ collections:
       name: bundles
   - collection: bundles_device_identifiers
     meta:
-      accountability: all
+      accountability: null
       archive_app_filter: true
       archive_field: null
       archive_value: null
       collapse: open
       collection: bundles_device_identifiers
       color: null
-      display_template: null
+      display_template: >-
+        {{bundles_id.product}} - {{device_identifiers_id.manufacturer}} -
+        {{device_identifiers_id.model}}
       group: null
       hidden: true
       icon: import_export
@@ -117,14 +119,14 @@ collections:
       name: environment
 fields:
   - collection: bundles
-    field: bundle
+    field: asset
     type: uuid
     meta:
       collection: bundles
       conditions: null
-      display: related-values
+      display: null
       display_options: null
-      field: bundle
+      field: asset
       group: null
       hidden: false
       interface: file
@@ -132,8 +134,8 @@ fields:
       options:
         folder: 4ac7951a-773b-4aaa-ac0e-5dcc9f06eeab
       readonly: false
-      required: false
-      sort: 13
+      required: true
+      sort: 12
       special:
         - file
       translations: null
@@ -141,14 +143,14 @@ fields:
       validation_message: null
       width: full
     schema:
-      name: bundle
+      name: asset
       table: bundles
       data_type: char
       default_value: null
       max_length: 36
       numeric_precision: null
       numeric_scale: null
-      is_nullable: true
+      is_nullable: false
       is_unique: false
       is_primary_key: false
       is_generated: false
@@ -317,7 +319,7 @@ fields:
         min: 0
       readonly: false
       required: false
-      sort: 9
+      sort: 11
       special: null
       translations: null
       validation: null
@@ -554,7 +556,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 10
+      sort: 9
       special: null
       translations: null
       validation: null
@@ -592,7 +594,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 11
+      sort: 10
       special: null
       translations: null
       validation: null
@@ -1346,12 +1348,12 @@ fields:
       foreign_key_column: id
 relations:
   - collection: bundles
-    field: bundle
+    field: asset
     related_collection: directus_files
     meta:
       junction_field: null
       many_collection: bundles
-      many_field: bundle
+      many_field: asset
       one_allowed_collections: null
       one_collection: directus_files
       one_collection_field: null
@@ -1360,7 +1362,7 @@ relations:
       sort_field: null
     schema:
       table: bundles
-      column: bundle
+      column: asset
       foreign_key_table: directus_files
       foreign_key_column: id
       constraint_name: null
@@ -1428,7 +1430,7 @@ relations:
       foreign_key_column: id
       constraint_name: null
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: CASCADE
   - collection: bundles_device_identifiers
     field: device_identifiers_id
     related_collection: device_identifiers
@@ -1449,7 +1451,7 @@ relations:
       foreign_key_column: id
       constraint_name: null
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: CASCADE
   - collection: environment
     field: auth_github_default_role_id
     related_collection: directus_roles

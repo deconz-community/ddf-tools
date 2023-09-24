@@ -731,7 +731,6 @@ export namespace Collections {
       };
     }>;
     tag: Optional<"latest">;
-    downloads_count: Optional<number>;
     version: UnknownType<{
       schema: {
         raw: {
@@ -766,7 +765,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 10;
+            sort: 9;
             width: "half";
             translations: null;
             note: null;
@@ -790,7 +789,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 10;
+        sort: 9;
         width: "half";
         translations: null;
         note: null;
@@ -835,7 +834,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 11;
+            sort: 10;
             width: "half";
             translations: null;
             note: null;
@@ -859,7 +858,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 11;
+        sort: 10;
         width: "half";
         translations: null;
         note: null;
@@ -870,7 +869,8 @@ export namespace Collections {
         validation_message: null;
       };
     }>;
-    bundle: Optional<Collections.DirectusFile>;
+    downloads_count: Optional<number>;
+    asset: Collections.DirectusFile;
     device_identifiers: BundlesDeviceIdentifiers;
   }
 

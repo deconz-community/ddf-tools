@@ -4,7 +4,11 @@ import type { AuthenticationClient, DirectusClient, RestClient } from '@directus
 import { authentication, createDirectus, readMe, rest, serverPing } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store.d.ts'
 
-export type Directus = DirectusClient<Schema> & AuthenticationClient<Schema> & RestClient<Schema>
+export type Directus
+= DirectusClient<Schema>
+& AuthenticationClient<Schema>
+& RestClient<Schema>
+// & GraphqlClient<Schema>
 
 export interface StoreContext {
   directusUrl: string
@@ -147,6 +151,7 @@ export const storeMachine = createMachine({
             return _result
           },
         }))
+        // .with(graphql())
 
       // https://github.com/directus/directus/issues/19775
       const ping = await client.request(serverPing()) as unknown as string
