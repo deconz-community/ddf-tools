@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type Bundle, decode } from '@deconz-community/ddf-bundler'
+import { uploadFiles } from '@directus/sdk'
 
 const error = ref('')
 const sha = ref('')
@@ -30,16 +31,30 @@ async function upload() {
   const formData = new FormData()
 
   files.value.forEach((file) => {
+    // formData.append('folder', '4ae5d60d-cb46-41a1-93e4-a54bfc01a2a1')
     formData.append('bundle', file)
   })
 
-  const result = await store.client?.send('/bundle/upload', {
+  const result = await store.client?.request(uploadFiles(formData))
+  /*
+  const result = await store.client?.request(() => {
+    return {
+      path: '/upload',
+      method: 'POST',
+      body: formData,
+    }
+  })
+  */
+
+  /*
+  const result = await store.client?.request('/upload', {
     method: 'POST',
     body: formData,
     headers: {
       // 'Content-Type': 'multipart/form-data',
     },
   })
+  */
 
   console.log(result)
 }

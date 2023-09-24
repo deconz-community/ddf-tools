@@ -2,9 +2,6 @@
 	"name": "@deconz-community/directus-extension-store",
 	"version": "0.0.1",
 	"type": "module",
-	"dependencies": {
-		"@octokit/core": "^5.0.0"
-	},
 	"directus:extension": {
 		"host": "^10.1.10",
 		"type": "bundle",
@@ -24,7 +21,7 @@
 				"source": "src/load-env/index.ts"
 			},
 			{
-				"type": "endpoint",
+				"type": "hook",
 				"name": "upload",
 				"source": "src/upload/index.ts"
 			}
@@ -42,6 +39,12 @@
 		"build": "directus-extension build",
 		"dev": "directus-extension build -w --no-minify",
 		"add": "directus-extension add"
+	},
+	"dependencies": {
+		"@deconz-community/ddf-bundler": "workspace:^",
+		"@directus/api": "^13.1.0",
+		"@directus/errors": "^0.0.2",
+		"@octokit/core": "^5.0.0"
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "10.1.10",
