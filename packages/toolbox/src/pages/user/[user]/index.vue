@@ -37,6 +37,7 @@ const collectionsCount = ref(0)
       <v-card
         class="ma-2 flex-grow-1"
         :title="`${userProfile?.first_name ?? ''} ${userProfile?.last_name ?? ''}`"
+        :subtitle="store.profile?.email ?? undefined"
       >
       <!--
         <v-card-text>
@@ -56,12 +57,14 @@ const collectionsCount = ref(0)
           ({{ bundlesCount }})
         </template>
       </v-tab>
+      <!--
       <v-tab value="collections">
         Collections
         <template v-if="collectionsCount > 0">
           ({{ collectionsCount }})
         </template>
       </v-tab>
+      -->
     </v-tabs>
 
     <v-card-text>
@@ -73,6 +76,7 @@ const collectionsCount = ref(0)
           />
         </v-window-item>
 
+        <!--
         <v-window-item value="collections">
           <table-collection
             collection="bundle_collection"
@@ -80,6 +84,7 @@ const collectionsCount = ref(0)
             @update-total-count="(v) => collectionsCount = v"
           />
         </v-window-item>
+        -->
       </v-window>
     </v-card-text>
   </v-card>

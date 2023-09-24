@@ -24,11 +24,19 @@ async function loadItems(options: { page: number; itemsPerPage: number }) {
   // console.log(options)
 
   loading.value = true
+
+  const result = {
+    items: [],
+    totalItems: 0,
+  }
+
+  /*
   const result = await store.client?.collection('bundle')
     .getList(options.page, options.itemsPerPage, {
       filter: props.filter && '',
       expand: 'contributors',
     })
+    */
 
   serverItems.value = result?.items ?? []
   totalItems.value = result?.totalItems ?? 0

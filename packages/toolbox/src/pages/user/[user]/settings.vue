@@ -2,7 +2,7 @@
 import { useConfirm, useSnackbar } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { useGithubAvatar } from '~/composables/useGithubAvatar'
+import { updateMe } from '@directus/sdk'
 
 const props = defineProps<{
   user: string
@@ -13,8 +13,8 @@ const createSnackbar = useSnackbar()
 const store = useStore()
 
 const settings = reactive({
-  private_key: store.profile?.private_key,
-  public_key: store.client?.authStore.model?.public_key,
+  private_key: store.profile?.private_key as string,
+  public_key: store.profile?.public_key as string,
 })
 
 const errorMessage = ref('')
@@ -46,23 +46,13 @@ async function saveKeys() {
     return
 
   try {
-    if (store.client?.authStore.model?.id === undefined)
+    if (store.profile === undefined)
       throw new Error('User is not logged in.')
 
-    await store.client.collection(store.client.authStore.model?.collectionId).update(store.client.authStore.model?.id, {
+    await store.client?.request(updateMe({
       private_key: settings.private_key,
       public_key: settings.public_key,
-    })
-
-    if (store.profile) {
-      console.log('Updating profile', store.profile.id)
-      store.client.collection('user_profile').update(store.profile.id, {
-        private_key: settings.private_key,
-      })
-    }
-    else {
-      throw new Error('User don\'t have a profile.')
-    }
+    }))
   }
   catch (e) {
     console.error(e)
@@ -72,24 +62,25 @@ async function saveKeys() {
   createSnackbar({ text: 'New keys has been saved.', snackbarProps: { color: 'success' } })
 }
 
-const avatar = useGithubAvatar(computed(() => store.client?.authStore.model?.github_id), 125)
-const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)
+// const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)
 </script>
 
 <template>
   <v-card class="ma-2" title="Account Details">
     <v-card-text>
       <div class="d-flex">
-        <v-avatar class="ma-2" :image="avatar" size="125" />
+        <v-avatar class="ma-2" :image="store.profile?.avatar_url" size="125" />
         <v-card
           class="ma-2 flex-grow-1"
-          :title="store.client?.authStore.model?.username"
-          :subtitle="store.client?.authStore.model?.email"
+          :title="`${store.profile?.first_name ?? ''} ${store.profile?.last_name ?? ''}`"
+          :subtitle="store.profile?.email ?? undefined"
         >
           <v-card-text>
+            <!--
             <v-btn :href="userProfilLink" target="_blank">
               Github profile
             </v-btn>
+          -->
           </v-card-text>
         </v-card>
       </div>
