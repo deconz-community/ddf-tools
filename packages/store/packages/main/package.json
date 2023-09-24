@@ -1,5 +1,5 @@
 {
-	"name": "@deconz-community/directus-extension-store-main",
+	"name": "@deconz-community/directus-extension-store",
 	"version": "0.0.1",
 	"type": "module",
 	"private": true,

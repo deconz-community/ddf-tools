@@ -11,6 +11,6 @@
     "@deconz-community/toolbox",
     "@deconz-community/rest-client",
     "@deconz-community/store",
-    "@deconz-community/directus-extension-store-main"
+    "@deconz-community/directus-extension-store"
   ]
 }

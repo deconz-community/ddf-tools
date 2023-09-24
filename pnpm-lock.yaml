@@ -187,7 +187,7 @@ importers:
 
   packages/store:
     dependencies:
-      '@deconz-community/directus-extension-store-main':
+      '@deconz-community/directus-extension-store':
         specifier: workspace:^
         version: link:packages/main
       directus:
@@ -3593,7 +3593,7 @@ packages:
       rollup: 3.22.0
       rollup-plugin-esbuild: 5.0.0(esbuild@0.17.19)(rollup@3.22.0)
       rollup-plugin-styles: 4.0.0(rollup@3.22.0)
-      vite: 4.3.7
+      vite: 4.3.7(@types/node@20.6.3)
       vue: 3.3.4
     transitivePeerDependencies:
       - '@types/node'
@@ -5913,7 +5913,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.3.7
+      vite: 4.3.7(@types/node@20.6.3)
       vue: 3.3.4
 
   /@vitejs/plugin-vue@4.3.4(vite@4.4.9)(vue@3.3.4):
@@ -16691,37 +16691,6 @@ packages:
       - supports-color
       - vue
 
-  /vite@4.3.7:
-    resolution: {integrity: sha512-MTIFpbIm9v7Hh5b0wSBgkcWzSBz7SAa6K/cBTwS4kUiQJfQLFlZZRJRQgqunCVzhTPCk674tW+0Qaqh3Q00dBg==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.17.19
-      postcss: 8.4.27
-      rollup: 3.29.2
-    optionalDependencies:
-      fsevents: 2.3.2
-
   /vite@4.3.7(@types/node@20.6.3):
     resolution: {integrity: sha512-MTIFpbIm9v7Hh5b0wSBgkcWzSBz7SAa6K/cBTwS4kUiQJfQLFlZZRJRQgqunCVzhTPCk674tW+0Qaqh3Q00dBg==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -16753,7 +16722,6 @@ packages:
       rollup: 3.29.2
     optionalDependencies:
       fsevents: 2.3.2
-    dev: true
 
   /vite@4.4.9(@types/node@20.6.2)(sass@1.67.0):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
