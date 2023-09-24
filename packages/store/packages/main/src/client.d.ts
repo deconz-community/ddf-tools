@@ -368,6 +368,744 @@ export namespace Collections {
  */
 export namespace Collections {
   /**
+   * The bundles collection.
+   */
+  export interface Bundles {
+    id: UnknownType<{
+      schema: {
+        raw: {
+          collection: "bundles";
+          field: "id";
+          type: "uuid";
+          schema: {
+            name: "id";
+            table: "bundles";
+            data_type: "char";
+            default_value: null;
+            max_length: 36;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: true;
+            is_primary_key: true;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 67;
+            collection: "bundles";
+            field: "id";
+            special: ["uuid"];
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: true;
+            hidden: true;
+            sort: 1;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: false;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 67;
+        collection: "bundles";
+        field: "id";
+        special: ["uuid"];
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: true;
+        hidden: true;
+        sort: 1;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: false;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    user_created: Optional<Collections.DirectusUser>;
+    date_created: Optional<
+      UnknownType<{
+        schema: {
+          raw: {
+            collection: "bundles";
+            field: "date_created";
+            type: "timestamp";
+            schema: {
+              name: "date_created";
+              table: "bundles";
+              data_type: "datetime";
+              default_value: null;
+              max_length: null;
+              numeric_precision: null;
+              numeric_scale: null;
+              is_generated: false;
+              generation_expression: null;
+              is_nullable: true;
+              is_unique: false;
+              is_primary_key: false;
+              has_auto_increment: false;
+              foreign_key_column: null;
+              foreign_key_table: null;
+            };
+            meta: {
+              id: 69;
+              collection: "bundles";
+              field: "date_created";
+              special: ["date-created", "cast-timestamp"];
+              interface: "datetime";
+              options: null;
+              display: "datetime";
+              display_options: {
+                relative: true;
+              };
+              readonly: true;
+              hidden: true;
+              sort: 3;
+              width: "half";
+              translations: null;
+              note: null;
+              conditions: null;
+              required: false;
+              group: null;
+              validation: null;
+              validation_message: null;
+            };
+          };
+          raw_relation: null;
+        };
+        meta: {
+          id: 69;
+          collection: "bundles";
+          field: "date_created";
+          special: ["date-created", "cast-timestamp"];
+          interface: "datetime";
+          options: null;
+          display: "datetime";
+          display_options: {
+            relative: true;
+          };
+          readonly: true;
+          hidden: true;
+          sort: 3;
+          width: "half";
+          translations: null;
+          note: null;
+          conditions: null;
+          required: false;
+          group: null;
+          validation: null;
+          validation_message: null;
+        };
+      }>
+    >;
+    user_updated: Optional<Collections.DirectusUser>;
+    date_updated: Optional<
+      UnknownType<{
+        schema: {
+          raw: {
+            collection: "bundles";
+            field: "date_updated";
+            type: "timestamp";
+            schema: {
+              name: "date_updated";
+              table: "bundles";
+              data_type: "datetime";
+              default_value: null;
+              max_length: null;
+              numeric_precision: null;
+              numeric_scale: null;
+              is_generated: false;
+              generation_expression: null;
+              is_nullable: true;
+              is_unique: false;
+              is_primary_key: false;
+              has_auto_increment: false;
+              foreign_key_column: null;
+              foreign_key_table: null;
+            };
+            meta: {
+              id: 71;
+              collection: "bundles";
+              field: "date_updated";
+              special: ["date-updated", "cast-timestamp"];
+              interface: "datetime";
+              options: null;
+              display: "datetime";
+              display_options: {
+                relative: true;
+              };
+              readonly: true;
+              hidden: true;
+              sort: 5;
+              width: "half";
+              translations: null;
+              note: null;
+              conditions: null;
+              required: false;
+              group: null;
+              validation: null;
+              validation_message: null;
+            };
+          };
+          raw_relation: null;
+        };
+        meta: {
+          id: 71;
+          collection: "bundles";
+          field: "date_updated";
+          special: ["date-updated", "cast-timestamp"];
+          interface: "datetime";
+          options: null;
+          display: "datetime";
+          display_options: {
+            relative: true;
+          };
+          readonly: true;
+          hidden: true;
+          sort: 5;
+          width: "half";
+          translations: null;
+          note: null;
+          conditions: null;
+          required: false;
+          group: null;
+          validation: null;
+          validation_message: null;
+        };
+      }>
+    >;
+    ddf_uuid: UnknownType<{
+      schema: {
+        raw: {
+          collection: "bundles";
+          field: "ddf_uuid";
+          type: "string";
+          schema: {
+            name: "ddf_uuid";
+            table: "bundles";
+            data_type: "char";
+            default_value: null;
+            max_length: 36;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 72;
+            collection: "bundles";
+            field: "ddf_uuid";
+            special: null;
+            interface: "input";
+            options: null;
+            display: "raw";
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 6;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 72;
+        collection: "bundles";
+        field: "ddf_uuid";
+        special: null;
+        interface: "input";
+        options: null;
+        display: "raw";
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 6;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    product: UnknownType<{
+      schema: {
+        raw: {
+          collection: "bundles";
+          field: "product";
+          type: "string";
+          schema: {
+            name: "product";
+            table: "bundles";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 73;
+            collection: "bundles";
+            field: "product";
+            special: null;
+            interface: "input";
+            options: null;
+            display: "raw";
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 7;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 73;
+        collection: "bundles";
+        field: "product";
+        special: null;
+        interface: "input";
+        options: null;
+        display: "raw";
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 7;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    tag: Optional<"latest">;
+    downloads_count: Optional<number>;
+    version: UnknownType<{
+      schema: {
+        raw: {
+          collection: "bundles";
+          field: "version";
+          type: "string";
+          schema: {
+            name: "version";
+            table: "bundles";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 74;
+            collection: "bundles";
+            field: "version";
+            special: null;
+            interface: "input";
+            options: null;
+            display: "raw";
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 10;
+            width: "half";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 74;
+        collection: "bundles";
+        field: "version";
+        special: null;
+        interface: "input";
+        options: null;
+        display: "raw";
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 10;
+        width: "half";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    version_deconz: UnknownType<{
+      schema: {
+        raw: {
+          collection: "bundles";
+          field: "version_deconz";
+          type: "string";
+          schema: {
+            name: "version_deconz";
+            table: "bundles";
+            data_type: "varchar";
+            default_value: null;
+            max_length: 255;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 75;
+            collection: "bundles";
+            field: "version_deconz";
+            special: null;
+            interface: "input";
+            options: null;
+            display: "raw";
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 11;
+            width: "half";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 75;
+        collection: "bundles";
+        field: "version_deconz";
+        special: null;
+        interface: "input";
+        options: null;
+        display: "raw";
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 11;
+        width: "half";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    bundle: Optional<Collections.DirectusFile>;
+    device_identifiers: BundlesDeviceIdentifiers;
+  }
+
+  /**
+   * The bundles device identifiers collection.
+   */
+  export interface BundlesDeviceIdentifiers {
+    id: number;
+    bundles_id: Optional<Bundles>;
+    device_identifiers_id: Optional<DeviceIdentifiers>;
+  }
+
+  /**
+   * The device identifiers collection.
+   */
+  export interface DeviceIdentifiers {
+    id: UnknownType<{
+      schema: {
+        raw: {
+          collection: "device_identifiers";
+          field: "id";
+          type: "uuid";
+          schema: {
+            name: "id";
+            table: "device_identifiers";
+            data_type: "char";
+            default_value: null;
+            max_length: 36;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: true;
+            is_primary_key: true;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 63;
+            collection: "device_identifiers";
+            field: "id";
+            special: ["uuid"];
+            interface: "input";
+            options: null;
+            display: null;
+            display_options: null;
+            readonly: true;
+            hidden: true;
+            sort: 1;
+            width: "full";
+            translations: null;
+            note: null;
+            conditions: null;
+            required: false;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 63;
+        collection: "device_identifiers";
+        field: "id";
+        special: ["uuid"];
+        interface: "input";
+        options: null;
+        display: null;
+        display_options: null;
+        readonly: true;
+        hidden: true;
+        sort: 1;
+        width: "full";
+        translations: null;
+        note: null;
+        conditions: null;
+        required: false;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    manufacturer: Optional<
+      UnknownType<{
+        schema: {
+          raw: {
+            collection: "device_identifiers";
+            field: "manufacturer";
+            type: "string";
+            schema: {
+              name: "manufacturer";
+              table: "device_identifiers";
+              data_type: "varchar";
+              default_value: null;
+              max_length: 255;
+              numeric_precision: null;
+              numeric_scale: null;
+              is_generated: false;
+              generation_expression: null;
+              is_nullable: true;
+              is_unique: false;
+              is_primary_key: false;
+              has_auto_increment: false;
+              foreign_key_column: null;
+              foreign_key_table: null;
+            };
+            meta: {
+              id: 64;
+              collection: "device_identifiers";
+              field: "manufacturer";
+              special: null;
+              interface: "input";
+              options: {
+                iconLeft: null;
+              };
+              display: null;
+              display_options: null;
+              readonly: false;
+              hidden: false;
+              sort: 2;
+              width: "full";
+              translations: null;
+              note: null;
+              conditions: null;
+              required: true;
+              group: null;
+              validation: null;
+              validation_message: null;
+            };
+          };
+          raw_relation: null;
+        };
+        meta: {
+          id: 64;
+          collection: "device_identifiers";
+          field: "manufacturer";
+          special: null;
+          interface: "input";
+          options: {
+            iconLeft: null;
+          };
+          display: null;
+          display_options: null;
+          readonly: false;
+          hidden: false;
+          sort: 2;
+          width: "full";
+          translations: null;
+          note: null;
+          conditions: null;
+          required: true;
+          group: null;
+          validation: null;
+          validation_message: null;
+        };
+      }>
+    >;
+    model: Optional<
+      UnknownType<{
+        schema: {
+          raw: {
+            collection: "device_identifiers";
+            field: "model";
+            type: "string";
+            schema: {
+              name: "model";
+              table: "device_identifiers";
+              data_type: "varchar";
+              default_value: null;
+              max_length: 255;
+              numeric_precision: null;
+              numeric_scale: null;
+              is_generated: false;
+              generation_expression: null;
+              is_nullable: true;
+              is_unique: false;
+              is_primary_key: false;
+              has_auto_increment: false;
+              foreign_key_column: null;
+              foreign_key_table: null;
+            };
+            meta: {
+              id: 65;
+              collection: "device_identifiers";
+              field: "model";
+              special: null;
+              interface: "input";
+              options: null;
+              display: null;
+              display_options: null;
+              readonly: false;
+              hidden: false;
+              sort: 3;
+              width: "full";
+              translations: null;
+              note: null;
+              conditions: null;
+              required: true;
+              group: null;
+              validation: null;
+              validation_message: null;
+            };
+          };
+          raw_relation: null;
+        };
+        meta: {
+          id: 65;
+          collection: "device_identifiers";
+          field: "model";
+          special: null;
+          interface: "input";
+          options: null;
+          display: null;
+          display_options: null;
+          readonly: false;
+          hidden: false;
+          sort: 3;
+          width: "full";
+          translations: null;
+          note: null;
+          conditions: null;
+          required: true;
+          group: null;
+          validation: null;
+          validation_message: null;
+        };
+      }>
+    >;
+    bundles: BundlesDeviceIdentifiers;
+  }
+
+  /**
    * The environment collection.
    */
   export interface Environment {
@@ -836,6 +1574,21 @@ export interface Schema {
  */
 export interface Schema {
   /**
+   * The bundles collection.
+   */
+  bundles: Collections.Bundles[];
+
+  /**
+   * The bundles device identifiers collection.
+   */
+  bundles_device_identifiers: Collections.BundlesDeviceIdentifiers[];
+
+  /**
+   * The device identifiers collection.
+   */
+  device_identifiers: Collections.DeviceIdentifiers[];
+
+  /**
    * The environment collection.
    */
   environment: Collections.Environment;
@@ -844,6 +1597,74 @@ export interface Schema {
 /**
  * Helper functions
  */
+
+/**
+ * List bundles items.
+ */
+export function listBundles<
+  const Query extends Query$<Schema, Collections.Bundles>,
+>(query?: Query) {
+  return readItems$<Schema, "bundles", Query>("bundles", query);
+}
+
+/**
+ * Gets a single known bundles item by id.
+ */
+export function readBundles<
+  const Query extends Query$<Schema, Collections.Bundles>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "bundles", Query>("bundles", key, query);
+}
+
+/**
+ * List bundles device identifiers items.
+ */
+export function listBundlesDeviceIdentifiers<
+  const Query extends Query$<Schema, Collections.BundlesDeviceIdentifiers>,
+>(query?: Query) {
+  return readItems$<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    query,
+  );
+}
+
+/**
+ * Gets a single known bundles device identifiers item by id.
+ */
+export function readBundlesDeviceIdentifiers<
+  const Query extends Query$<Schema, Collections.BundlesDeviceIdentifiers>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    key,
+    query,
+  );
+}
+
+/**
+ * List device identifiers items.
+ */
+export function listDeviceIdentifiers<
+  const Query extends Query$<Schema, Collections.DeviceIdentifiers>,
+>(query?: Query) {
+  return readItems$<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    query,
+  );
+}
+
+/**
+ * Gets a single known device identifiers item by id.
+ */
+export function readDeviceIdentifiers<
+  const Query extends Query$<Schema, Collections.DeviceIdentifiers>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    key,
+    query,
+  );
+}
 
 /**
  * Reads the environment singleton.

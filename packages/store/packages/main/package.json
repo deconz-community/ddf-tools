@@ -2,6 +2,7 @@
 	"name": "@deconz-community/directus-extension-store-main",
 	"version": "0.0.1",
 	"type": "module",
+	"private": true,
 	"directus:extension": {
 		"host": "^10.1.10",
 		"type": "bundle",
