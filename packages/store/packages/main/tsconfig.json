@@ -24,5 +24,8 @@
 		"isolatedModules": true,
 		"rootDir": "./src"
 	},
-	"include": ["./src/**/*.ts"]
+	"include": [
+		"./src/**/*.ts",
+		"@directus/api/dist/services/index.d.ts"
+	]
 }
