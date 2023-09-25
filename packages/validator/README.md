@@ -19,7 +19,7 @@ Example :
 
 ```js
 import { readFile } from 'node:fs/promises'
-import glob from 'glob'
+import glob from 'fast-glob'
 import { fromZodError } from 'zod-validation-error'
 import { validator } from '@deconz-community/ddf-validator'
 

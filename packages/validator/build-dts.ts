@@ -3,13 +3,12 @@
 import fs from 'node:fs'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
-import { glob } from 'glob'
-
+import { globSync } from 'fast-glob'
 import { createValidator } from './src/validator'
 
 // Generate zod Schema
 const validator = createValidator()
-const genericFiles = glob.globSync('test-data/generic/**/*.json')
+const genericFiles = globSync('test-data/generic/**/*.json') as string[]
 
 const genericFilesData = genericFiles.map((filePath) => {
   const data = fs.readFileSync(filePath, { encoding: 'utf-8' })

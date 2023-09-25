@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { describe, expect, test } from 'vitest'
-import { glob } from 'glob'
+import glob from 'fast-glob'
 import { fromZodError } from 'zod-validation-error'
 
 import { createValidator } from '../index'
@@ -8,7 +8,7 @@ import { createValidator } from '../index'
 describe('parse', async () => {
   const genericFiles = await glob('test-data/generic/**/*.json')
   const ddfFiles = await glob('test-data/**/*.json', {
-    ignore: '**/generic/**',
+    ignore: ['**/generic/**'],
   })
 
   const validator = createValidator()
