@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { bytesToHex } from '@noble/hashes/utils'
-import { useTimeAgo } from '@vueuse/core'
 import type { Collections } from '~/interfaces/store.d.ts'
 
 const props = defineProps<{
@@ -24,14 +23,20 @@ const userKey = computed(() => {
   }
 })
 
+const user = ref(undefined)
+/*
 const user = computedAsync<Collections.DirectusUser | undefined>(async () => {
   if (props.user)
     return props.user
 
+    return undefined
+
   if (userKey.value && store.state?.matches('online.connected'))
     return undefined
-    // return await store.getUserByKey(userKey.value)
+    return await store.getUserByKey(userKey.value)
+
 }, props.user)
+*/
 
 /*
 const userAvatar = computed(() => {
@@ -47,7 +52,7 @@ const userAvatar = computed(() => {
 })
 */
 
-const userName = computed(() => user.value?.name ?? 'Unknown user')
+const userName = computed(() => /* user.value?.name?? */ 'Unknown user')
 
 function copyUserKeyToClipboard() {
   if (!userKey.value)
@@ -79,8 +84,9 @@ function copyUserKeyToClipboard() {
         <v-avatar start>
           <v-img :src="userAvatar" />
         </v-avatar>
+        {{ user?.first_name ?? 'Unknown user' }}
         -->
-        {{ user?.name ?? 'Unknown user' }}
+        Unknown user
       </v-chip>
     </template>
 
@@ -98,7 +104,7 @@ function copyUserKeyToClipboard() {
           </v-list-item-title>
 
           <v-list-item-subtitle v-if="user">
-            Member since {{ useTimeAgo(user.).value }}
+            Member since <!-- {{ useTimeAgo(user.).value }} -->
           </v-list-item-subtitle>
 
           <template #append>

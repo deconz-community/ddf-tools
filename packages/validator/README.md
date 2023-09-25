@@ -24,7 +24,6 @@ import { fromZodError } from 'zod-validation-error'
 import { validator } from '@deconz-community/ddf-validator'
 
 (async () => {
-
   const validator = createValidator()
 
   const genericFiles = await glob('test-data/generic/**/*.json')
