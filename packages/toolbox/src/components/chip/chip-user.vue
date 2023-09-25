@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { bytesToHex } from '@noble/hashes/utils'
 import { useTimeAgo } from '@vueuse/core'
-import { MD5 } from 'crypto-js'
-import { type UserResponse } from '~/interfaces/store'
+import type { Collections } from '~/interfaces/store.d.ts'
 
 const props = defineProps<{
-  user?: UserResponse
+  user?: Collections.DirectusUser
   publicKey?: string | Uint8Array
 }>()
 
@@ -25,14 +24,16 @@ const userKey = computed(() => {
   }
 })
 
-const user = computedAsync<UserResponse | undefined>(async () => {
+const user = computedAsync<Collections.DirectusUser | undefined>(async () => {
   if (props.user)
     return props.user
 
   if (userKey.value && store.state?.matches('online.connected'))
-    return await store.getUserByKey(userKey.value)
+    return undefined
+    // return await store.getUserByKey(userKey.value)
 }, props.user)
 
+/*
 const userAvatar = computed(() => {
   if (user.value?.github_id) {
     return `https://avatars.githubusercontent.com/u/${user.value.github_id}?v=4`
@@ -44,6 +45,7 @@ const userAvatar = computed(() => {
     return url.href
   }
 })
+*/
 
 const userName = computed(() => user.value?.name ?? 'Unknown user')
 
@@ -73,9 +75,11 @@ function copyUserKeyToClipboard() {
         v-bind="{ ...menu_props, ...$attrs }"
         link
       >
+        <!--
         <v-avatar start>
           <v-img :src="userAvatar" />
         </v-avatar>
+        -->
         {{ user?.name ?? 'Unknown user' }}
       </v-chip>
     </template>
@@ -83,16 +87,18 @@ function copyUserKeyToClipboard() {
     <v-card width="300">
       <v-list bg-color="black">
         <v-list-item>
+          <!--
           <template #prepend>
             <v-avatar :image="userAvatar" />
           </template>
+          -->
 
           <v-list-item-title>
             {{ userName }}
           </v-list-item-title>
 
           <v-list-item-subtitle v-if="user">
-            Member since {{ useTimeAgo(user.created).value }}
+            Member since {{ useTimeAgo(user.).value }}
           </v-list-item-subtitle>
 
           <template #append>

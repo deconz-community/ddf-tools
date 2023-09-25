@@ -44,7 +44,7 @@
 		"@deconz-community/ddf-bundler": "workspace:^",
 		"@directus/api": "^13.1.0",
 		"@directus/errors": "^0.0.2",
-		"@octokit/core": "^5.0.0"
+		"@octokit/core": "^5.0.1"
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "10.1.10",

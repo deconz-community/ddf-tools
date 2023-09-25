@@ -30,7 +30,7 @@ export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type>
 export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['interpreter']> = Symbol('AppMachine')
 
 export interface UseAppMachine<Type extends AppMachine['type']> {
-client: any
+  client: any
   state: ExtractMachine<Type>['state'] | undefined
   send: ExtractMachine<Type>['interpreter']['send']
 }
@@ -164,7 +164,8 @@ export function createAppMachine() {
             // logLevel: LogLevels.debug,
           })
           // Disabled for now see https://github.com/rlaffers/xstate-ninja/issues/10
-          // ninja.register(service)
+
+          ninja.register(service)
           toDispose.push(() => ninja.unregister(service))
         }
 
