@@ -1,9 +1,8 @@
 import { defineHook } from '@directus/extensions-sdk'
 import { decode } from '@deconz-community/ddf-bundler'
 
+// https://github.com/directus/directus/issues/19806
 // import type * as Services from '@directus/api/dist/services/index'
-
-// import { getStorage } from '@directus/api/storage/index'
 
 export default defineHook(async ({ action }, context) => {
   const services = context.services // as typeof Services
