@@ -16,7 +16,14 @@ const genericFilesData = genericFiles.map((filePath) => {
   return { path: filePath, data: decoded }
 })
 
-genericFilesData.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
+genericFilesData.sort((a, b) => {
+  if (a.data.schema !== b.data.schema)
+    return a.data.schema.localeCompare(b.data.schema)
+
+  // Reverse the order to load state/airqualityppb before state/airquality
+  return b.path.localeCompare(a.path)
+})
+
 genericFilesData.forEach((file) => {
   validator.loadGeneric(file.data)
 })
