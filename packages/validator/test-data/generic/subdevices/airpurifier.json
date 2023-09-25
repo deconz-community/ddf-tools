@@ -17,6 +17,6 @@
     "state/speed"
   ],
   "items_optional": [
-    "state/airquality"
+    "state/airqualityppb"
   ]
 }

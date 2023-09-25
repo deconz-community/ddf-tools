@@ -23,7 +23,13 @@ describe('parse', async () => {
     ))
 
     // Sort to load consts first
-    genericFilesData.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
+    genericFilesData.sort((a, b) => {
+      if (a.data.schema !== b.data.schema)
+        return a.data.schema.localeCompare(b.data.schema)
+
+      // Reverse the order to load state/airqualityppb before state/airquality
+      return b.path.localeCompare(a.path)
+    })
 
     test.each(genericFilesData)('should load generic file $path', (file) => {
       try {
