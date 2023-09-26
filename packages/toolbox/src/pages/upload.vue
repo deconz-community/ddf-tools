@@ -31,28 +31,23 @@ async function upload() {
   const formData = new FormData()
 
   files.value.forEach((file) => {
-    // formData.append('folder', '4ae5d60d-cb46-41a1-93e4-a54bfc01a2a1')
-    formData.append('bundle', file)
+    formData.append('folder', '4ae5d60d-cb46-41a1-93e4-a54bfc01a2a1')
+    formData.append('file', file)
   })
 
   const result = await store.client?.request(uploadFiles(formData))
+
+  // const result = await store.client?.request(updateFile('3b5f28ba-f4b3-4078-9a6b-9e4c51071e93', formData))
+
   /*
   const result = await store.client?.request(() => {
     return {
-      path: '/upload',
-      method: 'POST',
+      method: 'PATCH',
       body: formData,
+      path: '/files/3b5f28ba-f4b3-4078-9a6b-9e4c51071e93',
+      params: { },
+      headers: { 'Content-Type': 'multipart/form-data' },
     }
-  })
-  */
-
-  /*
-  const result = await store.client?.request('/upload', {
-    method: 'POST',
-    body: formData,
-    headers: {
-      // 'Content-Type': 'multipart/form-data',
-    },
   })
   */
 
