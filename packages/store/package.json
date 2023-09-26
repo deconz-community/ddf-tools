@@ -39,16 +39,19 @@
         "dev": "node ./scripts/directus_dev.cjs",
         "import:schema": "npx directus schema apply ./schema.yaml",
         "export:schema": "npx directus schema snapshot --yes ./schema.yaml && npx indirectus sdk generate --url http://localhost:8055 --token LOCALHOST_TOKEN --fetch && cp ./.directus/generated/client.ts ./packages/main/src/client.d.ts && cp ./.directus/generated/client.ts ../toolbox/src/interfaces/store.d.ts && rm -rf ./.directus",
-        "start": "npx directus start"
+        "directus": "CONFIG_PATH='./scripts/load_env.cjs' npx directus",
+        "start": "pnpm directus start"
     },
     "engines": {
         "pnpm": ">=8.6.8",
         "node": ">=16.0.0"
     },
-    "packageManager": "pnpm@8.7.6",
+    "packageManager": "pnpm@8.8.0",
     "dependencies": {
         "@deconz-community/directus-extension-store": "workspace:^",
-        "directus": "^10.6.2",
+        "directus": "^10.6.3",
+        "dotenv": "^16.3.1",
+        "dotenv-cli": "^7.3.0",
         "sqlite3": "^5.1.6"
     },
     "devDependencies": {

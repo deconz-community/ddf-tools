@@ -1,54 +1,49 @@
 {
-	"name": "@deconz-community/directus-extension-store",
-	"version": "0.0.1",
-	"type": "module",
-	"directus:extension": {
-		"host": "^10.1.10",
-		"type": "bundle",
-		"path": {
-			"app": "dist/app.js",
-			"api": "dist/api.js"
-		},
-		"entries": [
-			{
-				"type": "hook",
-				"name": "auth",
-				"source": "src/auth/index.ts"
-			},
-			{
-				"type": "hook",
-				"name": "load-env",
-				"source": "src/load-env/index.ts"
-			},
-			{
-				"type": "hook",
-				"name": "upload",
-				"source": "src/upload/index.ts"
-			}
-		]
-	},
-	"private": true,
-	"description": "Please enter a description for your extension",
-	"icon": "extension",
-	"keywords": [
-		"directus",
-		"directus-extension",
-		"directus-custom-bundle"
-	],
-	"scripts": {
-		"build": "directus-extension build",
-		"dev": "directus-extension build -w --no-minify",
-		"add": "directus-extension add"
-	},
-	"dependencies": {
-		"@deconz-community/ddf-bundler": "workspace:^",
-		"@directus/api": "^13.1.0",
-		"@directus/errors": "^0.0.2",
-		"@octokit/core": "^5.0.1"
-	},
-	"devDependencies": {
-		"@directus/extensions-sdk": "10.1.10",
-		"@types/node": "^20.6.5",
-		"typescript": "^5.2.2"
-	}
+    "name": "@deconz-community/directus-extension-store",
+    "version": "0.0.1",
+    "type": "module",
+    "directus:extension": {
+        "host": "^10.1.10",
+        "type": "bundle",
+        "path": {
+            "app": "dist/app.js",
+            "api": "dist/api.js"
+        },
+        "entries": [
+            {
+                "type": "hook",
+                "name": "auth",
+                "source": "src/auth/index.ts"
+            },
+            {
+                "type": "hook",
+                "name": "upload",
+                "source": "src/upload/index.ts"
+            }
+        ]
+    },
+    "private": true,
+    "description": "Please enter a description for your extension",
+    "icon": "extension",
+    "keywords": [
+        "directus",
+        "directus-extension",
+        "directus-custom-bundle"
+    ],
+    "scripts": {
+        "build": "directus-extension build",
+        "dev": "directus-extension build -w --no-minify",
+        "add": "directus-extension add"
+    },
+    "dependencies": {
+        "@deconz-community/ddf-bundler": "workspace:^",
+        "@directus/api": "^13.1.0",
+        "@directus/errors": "^0.0.2",
+        "@octokit/core": "^5.0.1"
+    },
+    "devDependencies": {
+        "@directus/extensions-sdk": "10.1.10",
+        "@types/node": "^20.6.5",
+        "typescript": "^5.2.2"
+    }
 }

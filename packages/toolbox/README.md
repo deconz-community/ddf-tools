@@ -49,3 +49,4 @@ https://zenbit-tech.medium.com/command-palette-monaco-editor-cb4d4b81dce0
 #### Database
 https://docs.directus.io/reference/system/collections.html
 https://components.directus.io/
+https://github.com/br41nslug/directus-extension-reference/blob/main/reference/API.md

@@ -4,7 +4,7 @@ const concurrently = require('concurrently')
 
 concurrently([
   {
-    command: 'npx --node-options=--inspect directus start',
+    command: 'pnpm start',
     name: 'directus',
     prefixColor: 'yellow.bold',
   },
