@@ -16,24 +16,24 @@
         "vscode": {
             // Add the IDs of extensions you want installed when the container is created.
             "extensions": [
-				"antfu.iconify",
-				"antfu.vite",
-				"antfu.goto-alias",
-				"csstools.postcss",
-				"dbaeumer.vscode-eslint",
-				"Vue.volar",
-				"streetsidesoftware.code-spell-checker",
-				"yy0931.vscode-sqlite3-editor",
-				"Tobermory.es6-string-html",
-				"mhutchie.git-graph",
-				"eamodio.gitlens",
-				"GitHub.copilot-chat",
-				"statelyai.stately-vscode",
-				"yoavbls.pretty-ts-errors",
-				"ZixuanChen.vitest-explorer",
-				"christian-kohler.npm-intellisense",
-				"Vue.vscode-typescript-vue-plugin"
-			]
+                "antfu.iconify",
+                "antfu.vite",
+                "antfu.goto-alias",
+                "csstools.postcss",
+                "dbaeumer.vscode-eslint",
+                "Vue.volar",
+                "streetsidesoftware.code-spell-checker",
+                "yy0931.vscode-sqlite3-editor",
+                "Tobermory.es6-string-html",
+                "mhutchie.git-graph",
+                "eamodio.gitlens",
+                "GitHub.copilot-chat",
+                "statelyai.stately-vscode",
+                "yoavbls.pretty-ts-errors",
+                "ZixuanChen.vitest-explorer",
+                "christian-kohler.npm-intellisense",
+                "Vue.vscode-typescript-vue-plugin"
+            ]
         }
     },
 
