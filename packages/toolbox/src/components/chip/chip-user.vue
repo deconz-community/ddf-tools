@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { bytesToHex } from '@noble/hashes/utils'
+import { MD5 } from 'crypto-js'
 import type { Collections } from '~/interfaces/store.d.ts'
 
 const props = defineProps<{
@@ -23,25 +24,16 @@ const userKey = computed(() => {
   }
 })
 
-const user = ref(undefined)
-/*
 const user = computedAsync<Collections.DirectusUser | undefined>(async () => {
   if (props.user)
     return props.user
-
-    return undefined
-
   if (userKey.value && store.state?.matches('online.connected'))
-    return undefined
     return await store.getUserByKey(userKey.value)
-
 }, props.user)
-*/
 
-/*
 const userAvatar = computed(() => {
-  if (user.value?.github_id) {
-    return `https://avatars.githubusercontent.com/u/${user.value.github_id}?v=4`
+  if (typeof user.value?.avatar_url === 'string') {
+    return user.value.avatar_url
   }
   else {
     const hash = userKey.value ? MD5(userKey.value) : '00000000000000000000000000000000'
@@ -50,9 +42,11 @@ const userAvatar = computed(() => {
     return url.href
   }
 })
-*/
 
-const userName = computed(() => /* user.value?.name?? */ 'Unknown user')
+const userName = computed(() => user.value
+  ? (`${user.value.first_name ?? ''} ${user.value.last_name ?? ''}`.trim())
+  : 'Unknown user',
+)
 
 function copyUserKeyToClipboard() {
   if (!userKey.value)
@@ -80,13 +74,10 @@ function copyUserKeyToClipboard() {
         v-bind="{ ...menu_props, ...$attrs }"
         link
       >
-        <!--
         <v-avatar start>
           <v-img :src="userAvatar" />
         </v-avatar>
         {{ user?.first_name ?? 'Unknown user' }}
-        -->
-        Unknown user
       </v-chip>
     </template>
 

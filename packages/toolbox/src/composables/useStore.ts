@@ -1,21 +1,11 @@
+import { readUsers } from '@directus/sdk'
+
 export function useStore() {
   const store = useAppMachine('store')
   const client = computed(() => store.state?.context.directus)
   const profile = computed(() => store.state?.context.profile)
 
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
-  /*
-  const getUserByKey = useMemoize(
-    async (userKey: string) => {
-      return await client.value?.collection(Collections.User)
-        .getFirstListItem<UserResponse>(`public_key = "${userKey}"`, { requestKey: null })
-    },
-    {
-      // Use only userId to get/set cache and ignore headers
-      getKey: userId => userId,
-    },
-  )
-  */
 
   /*
   const findOrCreate = async (
@@ -58,11 +48,26 @@ export function useStore() {
   }
   */
 
+  const getUserByKey = async (userKey: string) => {
+    const data = await client.value?.request(readUsers({
+      fields: ['*'],
+      filter: {
+        public_key: {
+          _eq: userKey,
+        },
+      },
+    }))
+
+    if (!data || data.length === 0)
+      return undefined
+    return data[0]
+  }
+
   return toReactive({
     ...toRefs(store),
     client,
     profile,
     findOrCreate: () => undefined,
-    getUserByKey: () => undefined,
+    getUserByKey,
   })
 }

@@ -23,8 +23,7 @@ const createSnackbar = useSnackbar()
 const createConfirm = useConfirm()
 
 const canUseStore = computed(() => {
-  return false
-  // return store.state?.matches('online.connected')
+  return store.state?.matches('online.connected')
 })
 
 const tableHeaders: VDataTable['headers'] = [
@@ -72,7 +71,8 @@ const tableItems = computedAsync(async () => {
 }, [])
 
 const storeKey = computed(() => {
-  return canUseStore.value ? store.profile?.private_key : undefined
+  // TODO remove as string
+  return canUseStore.value ? store.profile?.private_key as string : undefined
 })
 
 const privateKey = ref(secp256k1.utils.randomPrivateKey())
@@ -172,7 +172,7 @@ if (import.meta.env.VITE_DEBUG === 'true') {
     <template #top>
       <v-toolbar>
         <v-toolbar-title v-if="canUseStore">
-          Using {{ store.client?.authStore.model?.name }}'s key
+          Using {{ store.profile?.first_name }}'s key
         </v-toolbar-title>
         <v-toolbar-title v-else>
           Using custom key

@@ -37,13 +37,13 @@
     },
     "dependencies": {
         "@deconz-community/ddf-bundler": "workspace:^",
-        "@directus/api": "^13.1.0",
+        "@directus/api": "^13.1.1",
         "@directus/errors": "^0.0.2",
         "@octokit/core": "^5.0.1"
     },
     "devDependencies": {
-        "@directus/extensions-sdk": "10.1.10",
-        "@types/node": "^20.6.5",
+        "@directus/extensions-sdk": "10.1.11",
+        "@types/node": "^20.7.0",
         "typescript": "^5.2.2"
     }
 }

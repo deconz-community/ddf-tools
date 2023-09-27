@@ -7,19 +7,22 @@ import type { Collections } from '../client'
 
 export default defineHook(async ({ action }, context) => {
   const services = context.services as typeof Services
+  const database = context.database
 
   action('files.upload', async ({ payload, key }, eventContext) => {
     console.log(payload.title)
     console.log(`File=${key}`)
     console.log(`User=${eventContext.accountability?.user}`)
 
-    // const storage = await getStorage()
-
-    const assetsService = new services.AssetsService({
+    const serviceOptions = {
       accountability: eventContext.accountability,
       schema: eventContext.schema!,
       knex: context.database,
-    })
+    }
+
+    // const storage = await getStorage()
+
+    const assetsService = new services.AssetsService(serviceOptions)
 
     const asset = await assetsService.getAsset(key, { transformationParams: { } })
     const stream = asset.stream
@@ -30,6 +33,8 @@ export default defineHook(async ({ action }, context) => {
       chunks.push(chunk)
 
     const bundle = await decode(new Blob(chunks))
+
+    const itemService = new services.ItemsService('device_identifiers', serviceOptions)
 
     console.log({ stat: asset.stat })
 

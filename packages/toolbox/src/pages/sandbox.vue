@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { readBundles } from '~/interfaces/store.d'
-
 const store = useStore()
 
+/*
 const dataRest = computedAsync(async () => {
   const client = store.client
   if (client === undefined)
@@ -30,6 +29,7 @@ const dataRest = computedAsync(async () => {
 
   return result
 }, undefined)
+*/
 </script>
 
 <template>
@@ -39,11 +39,11 @@ const dataRest = computedAsync(async () => {
     </template>
 
     <template #text>
-      <!--
       <pre>{{ store.state?.value }}</pre>
+      <!--
       <pre>{{ store.state?.context.profile }}</pre>
-      -->
       <pre>{{ dataRest }}</pre>
+      -->
     </template>
   </v-card>
 </template>
