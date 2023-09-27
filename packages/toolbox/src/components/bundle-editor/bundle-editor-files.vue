@@ -244,28 +244,28 @@ function selectDirectory(index: number) {
       </v-toolbar>
     </template>
     <template #item.name="{ item }">
-      <v-icon :icon="item.raw.isDirectory ? 'mdi-folder' : 'mdi-file'" />
-      {{ item.columns.name }}
+      <v-icon :icon="item.isDirectory ? 'mdi-folder' : 'mdi-file'" />
+      {{ item.name }}
     </template>
     <template #item.last_modified="{ item }">
-      <UseTimeAgo v-if="item.columns.last_modified" v-slot="{ timeAgo }" :time="item.columns.last_modified">
+      <UseTimeAgo v-if="item.last_modified" v-slot="{ timeAgo }" :time="item.last_modified">
         <v-chip>
           {{ timeAgo }}
           <v-tooltip activator="parent" location="top">
-            ({{ item.columns.last_modified.toLocaleDateString() }}
-            {{ item.columns.last_modified.toLocaleTimeString() }})
+            ({{ item.last_modified.toLocaleDateString() }}
+            {{ item.last_modified.toLocaleTimeString() }})
           </v-tooltip>
         </v-chip>
       </UseTimeAgo>
     </template>
     <template #item.actions="{ item }">
-      <template v-if="item.raw.isDirectory">
-        <v-btn class="ma-2" icon="mdi-folder-open" @click="openDirectory(item.raw.path)" />
-        <v-btn class="ma-2" icon="mdi-delete" @click="deleteDirectory(item.raw.path)" />
+      <template v-if="item.isDirectory">
+        <v-btn class="ma-2" icon="mdi-folder-open" @click="openDirectory(item.path)" />
+        <v-btn class="ma-2" icon="mdi-delete" @click="deleteDirectory(item.path)" />
       </template>
       <template v-else>
-        <v-btn class="ma-2" icon="mdi-pencil" @click="loadFile(item.raw.path)" />
-        <v-btn class="ma-2" icon="mdi-delete" @click="deleteFile(item.raw.path)" />
+        <v-btn class="ma-2" icon="mdi-pencil" @click="loadFile(item.path)" />
+        <v-btn class="ma-2" icon="mdi-delete" @click="deleteFile(item.path)" />
       </template>
     </template>
   </v-data-table>

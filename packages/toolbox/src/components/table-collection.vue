@@ -77,7 +77,7 @@ const list = ['name', 'description']
     @update:options="loadItems"
   >
     <template #item.name="{ item }">
-      Foo {{ item.columns.name }}
+      Foo {{ item.name }}
     </template>
   </v-data-table-server>
 </template>

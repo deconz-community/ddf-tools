@@ -103,10 +103,10 @@ async function deleteKey(key: string) {
       >
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.created="{ item }">
-          <v-tooltip :text="`${item.columns.created.toLocaleDateString()} ${item.columns.created.toLocaleTimeString()}`">
+          <v-tooltip :text="`${item.created.toLocaleDateString()} ${item.created.toLocaleTimeString()}`">
             <template #activator="{ props: localProps }">
               <p v-bind="localProps">
-                <UseTimeAgo v-slot="{ timeAgo }" :time="item.columns.created">
+                <UseTimeAgo v-slot="{ timeAgo }" :time="item.created">
                   {{ timeAgo }}
                 </UseTimeAgo>
               </p>
@@ -115,10 +115,10 @@ async function deleteKey(key: string) {
         </template>
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.lastUsed="{ item }">
-          <v-tooltip :text="`${item.columns.lastUsed.toLocaleDateString()} ${item.columns.lastUsed.toLocaleTimeString()}`">
+          <v-tooltip :text="`${item.lastUsed.toLocaleDateString()} ${item.lastUsed.toLocaleTimeString()}`">
             <template #activator="{ props: localProps }">
               <p v-bind="localProps">
-                <UseTimeAgo v-slot="{ timeAgo }" :time="item.columns.lastUsed">
+                <UseTimeAgo v-slot="{ timeAgo }" :time="item.lastUsed">
                   {{ timeAgo }}
                 </UseTimeAgo>
               </p>
@@ -127,7 +127,7 @@ async function deleteKey(key: string) {
         </template>
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.actions="{ item }">
-          <v-btn icon="mdi-delete" size="small" color="error" @click="deleteKey(item.columns.key)" />
+          <v-btn icon="mdi-delete" size="small" color="error" @click="deleteKey(item.key)" />
         </template>
       </v-data-table>
     </v-card-text>
