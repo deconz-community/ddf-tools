@@ -1,13 +1,14 @@
 import { assign, createMachine } from 'xstate'
 import { produce } from 'immer'
-import type { AuthenticationClient, DirectusClient, RestClient } from '@directus/sdk'
-import { authentication, createDirectus, readMe, rest, serverPing } from '@directus/sdk'
+import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
+import { authentication, createDirectus, readMe, realtime, rest, serverPing } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store.d.ts'
 
 export type Directus
 = DirectusClient<Schema>
 & AuthenticationClient<Schema>
 & RestClient<Schema>
+& WebSocketClient<Schema>
 // & GraphqlClient<Schema>
 
 export interface StoreContext {
@@ -151,10 +152,26 @@ export const storeMachine = createMachine({
             return _result
           },
         }))
+        .with(realtime({
+          authMode: 'handshake',
+          reconnect: {
+            delay: 1000,
+            retries: 10,
+          },
+          heartbeat: true,
+        }))
         // .with(graphql())
 
       // https://github.com/directus/directus/issues/19775
       const ping = await client.request(serverPing()) as unknown as string
+
+      client.connect()
+
+      client.onWebSocket('message', (message) => {
+        if (message.type !== 'notification')
+          return
+        console.log(message)
+      })
 
       // https://github.com/directus/directus/issues/19776
       // const health = await client.request(serverHealth())

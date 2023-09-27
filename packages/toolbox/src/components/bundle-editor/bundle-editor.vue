@@ -18,7 +18,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 
-const tab = ref<'info' | 'ddf' | 'files' | 'signatures'>('files')
+const tab = ref<'info' | 'ddf' | 'files' | 'signatures'>('info')
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {

@@ -93,6 +93,77 @@ export namespace Collections {
    *
    */
   export interface ExtraDirectusUser {
+    avatar_url: Optional<
+      UnknownType<{
+        schema: {
+          raw: {
+            collection: "directus_users";
+            field: "avatar_url";
+            type: "string";
+            schema: {
+              name: "avatar_url";
+              table: "directus_users";
+              data_type: "varchar";
+              default_value: null;
+              max_length: 255;
+              numeric_precision: null;
+              numeric_scale: null;
+              is_generated: false;
+              generation_expression: null;
+              is_nullable: true;
+              is_unique: false;
+              is_primary_key: false;
+              has_auto_increment: false;
+              foreign_key_column: null;
+              foreign_key_table: null;
+            };
+            meta: {
+              id: 38;
+              collection: "directus_users";
+              field: "avatar_url";
+              special: null;
+              interface: "input";
+              options: null;
+              display: null;
+              display_options: null;
+              readonly: false;
+              hidden: false;
+              sort: 2;
+              width: "full";
+              translations: null;
+              note: null;
+              conditions: null;
+              required: false;
+              group: null;
+              validation: null;
+              validation_message: null;
+            };
+          };
+          raw_relation: null;
+        };
+        meta: {
+          id: 38;
+          collection: "directus_users";
+          field: "avatar_url";
+          special: null;
+          interface: "input";
+          options: null;
+          display: null;
+          display_options: null;
+          readonly: false;
+          hidden: false;
+          sort: 2;
+          width: "full";
+          translations: null;
+          note: null;
+          conditions: null;
+          required: false;
+          group: null;
+          validation: null;
+          validation_message: null;
+        };
+      }>
+    >;
     private_key: Optional<
       UnknownType<{
         schema: {
@@ -128,7 +199,7 @@ export namespace Collections {
               display_options: null;
               readonly: false;
               hidden: false;
-              sort: 1;
+              sort: 3;
               width: "half";
               translations: null;
               note: null;
@@ -152,7 +223,7 @@ export namespace Collections {
           display_options: null;
           readonly: false;
           hidden: false;
-          sort: 1;
+          sort: 3;
           width: "half";
           translations: null;
           note: null;
@@ -199,7 +270,7 @@ export namespace Collections {
               display_options: null;
               readonly: false;
               hidden: false;
-              sort: 2;
+              sort: 4;
               width: "half";
               translations: null;
               note: null;
@@ -223,79 +294,8 @@ export namespace Collections {
           display_options: null;
           readonly: false;
           hidden: false;
-          sort: 2;
+          sort: 4;
           width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    avatar_url: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "directus_users";
-            field: "avatar_url";
-            type: "string";
-            schema: {
-              name: "avatar_url";
-              table: "directus_users";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 38;
-              collection: "directus_users";
-              field: "avatar_url";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 3;
-              width: "full";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 38;
-          collection: "directus_users";
-          field: "avatar_url";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 3;
-          width: "full";
           translations: null;
           note: null;
           conditions: null;
@@ -672,6 +672,77 @@ export namespace Collections {
       };
     }>;
     asset: Collections.DirectusFile;
+    hash: Optional<
+      UnknownType<{
+        schema: {
+          raw: {
+            collection: "bundles";
+            field: "hash";
+            type: "string";
+            schema: {
+              name: "hash";
+              table: "bundles";
+              data_type: "varchar";
+              default_value: null;
+              max_length: 255;
+              numeric_precision: null;
+              numeric_scale: null;
+              is_generated: false;
+              generation_expression: null;
+              is_nullable: true;
+              is_unique: false;
+              is_primary_key: false;
+              has_auto_increment: false;
+              foreign_key_column: null;
+              foreign_key_table: null;
+            };
+            meta: {
+              id: 115;
+              collection: "bundles";
+              field: "hash";
+              special: null;
+              interface: "input";
+              options: null;
+              display: null;
+              display_options: null;
+              readonly: false;
+              hidden: false;
+              sort: 8;
+              width: "full";
+              translations: null;
+              note: null;
+              conditions: null;
+              required: true;
+              group: null;
+              validation: null;
+              validation_message: null;
+            };
+          };
+          raw_relation: null;
+        };
+        meta: {
+          id: 115;
+          collection: "bundles";
+          field: "hash";
+          special: null;
+          interface: "input";
+          options: null;
+          display: null;
+          display_options: null;
+          readonly: false;
+          hidden: false;
+          sort: 8;
+          width: "full";
+          translations: null;
+          note: null;
+          conditions: null;
+          required: true;
+          group: null;
+          validation: null;
+          validation_message: null;
+        };
+      }>
+    >;
     product: UnknownType<{
       schema: {
         raw: {
@@ -706,7 +777,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 8;
+            sort: 9;
             width: "full";
             translations: null;
             note: null;
@@ -730,7 +801,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 8;
+        sort: 9;
         width: "full";
         translations: null;
         note: null;
@@ -776,7 +847,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 10;
+            sort: 11;
             width: "half";
             translations: null;
             note: null;
@@ -800,7 +871,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 10;
+        sort: 11;
         width: "half";
         translations: null;
         note: null;
@@ -845,7 +916,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 11;
+            sort: 12;
             width: "half";
             translations: null;
             note: null;
@@ -869,7 +940,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 11;
+        sort: 12;
         width: "half";
         translations: null;
         note: null;
@@ -1124,459 +1195,6 @@ export namespace Collections {
       }>
     >;
     bundles: BundlesDeviceIdentifiers;
-  }
-
-  /**
-   * The environment collection.
-   */
-  export interface Environment {
-    id: UnknownType<{
-      schema: {
-        raw: {
-          collection: "environment";
-          field: "id";
-          type: "uuid";
-          schema: {
-            name: "id";
-            table: "environment";
-            data_type: "char";
-            default_value: null;
-            max_length: 36;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: true;
-            is_primary_key: true;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 28;
-            collection: "environment";
-            field: "id";
-            special: ["uuid"];
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: true;
-            hidden: true;
-            sort: 1;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: false;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 28;
-        collection: "environment";
-        field: "id";
-        special: ["uuid"];
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: true;
-        hidden: true;
-        sort: 1;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: false;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    user_created: Optional<Collections.DirectusUser>;
-    date_created: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "environment";
-            field: "date_created";
-            type: "timestamp";
-            schema: {
-              name: "date_created";
-              table: "environment";
-              data_type: "datetime";
-              default_value: null;
-              max_length: null;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 30;
-              collection: "environment";
-              field: "date_created";
-              special: ["date-created", "cast-timestamp"];
-              interface: "datetime";
-              options: null;
-              display: "datetime";
-              display_options: {
-                relative: true;
-              };
-              readonly: true;
-              hidden: true;
-              sort: 3;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 30;
-          collection: "environment";
-          field: "date_created";
-          special: ["date-created", "cast-timestamp"];
-          interface: "datetime";
-          options: null;
-          display: "datetime";
-          display_options: {
-            relative: true;
-          };
-          readonly: true;
-          hidden: true;
-          sort: 3;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    user_updated: Optional<Collections.DirectusUser>;
-    date_updated: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "environment";
-            field: "date_updated";
-            type: "timestamp";
-            schema: {
-              name: "date_updated";
-              table: "environment";
-              data_type: "datetime";
-              default_value: null;
-              max_length: null;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 32;
-              collection: "environment";
-              field: "date_updated";
-              special: ["date-updated", "cast-timestamp"];
-              interface: "datetime";
-              options: null;
-              display: "datetime";
-              display_options: {
-                relative: true;
-              };
-              readonly: true;
-              hidden: true;
-              sort: 5;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 32;
-          collection: "environment";
-          field: "date_updated";
-          special: ["date-updated", "cast-timestamp"];
-          interface: "datetime";
-          options: null;
-          display: "datetime";
-          display_options: {
-            relative: true;
-          };
-          readonly: true;
-          hidden: true;
-          sort: 5;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    secret: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "environment";
-            field: "secret";
-            type: "string";
-            schema: {
-              name: "secret";
-              table: "environment";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 33;
-              collection: "environment";
-              field: "secret";
-              special: null;
-              interface: "input";
-              options: {
-                iconLeft: "password";
-                masked: true;
-              };
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 6;
-              width: "full";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 33;
-          collection: "environment";
-          field: "secret";
-          special: null;
-          interface: "input";
-          options: {
-            iconLeft: "password";
-            masked: true;
-          };
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 6;
-          width: "full";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    auth_github_default_role_id: Optional<DirectusRole>;
-    auth_github_client_id: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "environment";
-            field: "auth_github_client_id";
-            type: "string";
-            schema: {
-              name: "auth_github_client_id";
-              table: "environment";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 35;
-              collection: "environment";
-              field: "auth_github_client_id";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 9;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 35;
-          collection: "environment";
-          field: "auth_github_client_id";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 9;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    auth_github_client_secret: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "environment";
-            field: "auth_github_client_secret";
-            type: "string";
-            schema: {
-              name: "auth_github_client_secret";
-              table: "environment";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 34;
-              collection: "environment";
-              field: "auth_github_client_secret";
-              special: null;
-              interface: "input";
-              options: {
-                iconLeft: "password";
-                masked: true;
-              };
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 10;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 34;
-          collection: "environment";
-          field: "auth_github_client_secret";
-          special: null;
-          interface: "input";
-          options: {
-            iconLeft: "password";
-            masked: true;
-          };
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 10;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
   }
 
   /**
@@ -1975,11 +1593,6 @@ export interface Schema {
   device_identifiers: Collections.DeviceIdentifiers[];
 
   /**
-   * The environment collection.
-   */
-  environment: Collections.Environment;
-
-  /**
    * The signatures collection.
    */
   signatures: Collections.Signatures[];
@@ -2085,15 +1698,6 @@ export function readDeviceIdentifiers<
     key,
     query,
   );
-}
-
-/**
- * Reads the environment singleton.
- */
-export function getEnvironment<
-  const Query extends Query$<Schema, Collections.Environment>,
->(query?: Query) {
-  return readSingleton$<Schema, "environment", Query>("environment", query);
 }
 
 /**

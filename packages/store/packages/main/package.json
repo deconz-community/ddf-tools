@@ -39,6 +39,7 @@
         "@deconz-community/ddf-bundler": "workspace:^",
         "@directus/api": "^13.1.1",
         "@directus/errors": "^0.0.2",
+        "@noble/hashes": "^1.3.2",
         "@octokit/core": "^5.0.1"
     },
     "devDependencies": {
