@@ -195,11 +195,11 @@ if (import.meta.env.VITE_DEBUG === 'true') {
       </v-toolbar>
     </template>
     <template #item.key="{ item }">
-      <chip-user :public-key="item.columns.key" />
+      <chip-user :public-key="item.key" />
     </template>
     <template #item.signature="{ item }">
       <v-text-field
-        v-model="item.columns.signature"
+        v-model="item.signature"
         readonly
         class="ma-2"
         variant="solo"
@@ -207,7 +207,7 @@ if (import.meta.env.VITE_DEBUG === 'true') {
       />
     </template>
     <template #item.valid="{ item }">
-      <v-chip v-if="item.columns.valid" color="green">
+      <v-chip v-if="item.valid" color="green">
         Yes
       </v-chip>
       <v-chip v-else color="red">

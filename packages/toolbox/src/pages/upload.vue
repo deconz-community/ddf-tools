@@ -29,9 +29,7 @@ async function upload() {
   console.log('upload')
 
   const formData = new FormData()
-
   files.value.forEach((file) => {
-    formData.append('folder', '4ae5d60d-cb46-41a1-93e4-a54bfc01a2a1')
     formData.append('file', file)
   })
 
