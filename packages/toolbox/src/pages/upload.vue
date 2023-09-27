@@ -35,20 +35,6 @@ async function upload() {
 
   const result = await store.client?.request(uploadFiles(formData))
 
-  // const result = await store.client?.request(updateFile('3b5f28ba-f4b3-4078-9a6b-9e4c51071e93', formData))
-
-  /*
-  const result = await store.client?.request(() => {
-    return {
-      method: 'PATCH',
-      body: formData,
-      path: '/files/3b5f28ba-f4b3-4078-9a6b-9e4c51071e93',
-      params: { },
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
-  })
-  */
-
   console.log(result)
 }
 </script>
