@@ -32,7 +32,6 @@ async function upload() {
   files.value.forEach((file) => {
     formData.append('foo', 'bar')
     formData.append(uuidv4(), file)
-    formData.append(uuidv4(), file)
   })
 
   // const result = await store.client?.request(uploadFiles(formData))
@@ -45,7 +44,7 @@ async function upload() {
     }
   })
 
-  console.log(result)
+  console.log(JSON.stringify(result))
 }
 </script>
 

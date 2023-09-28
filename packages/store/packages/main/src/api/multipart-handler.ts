@@ -22,8 +22,6 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
   if (req.is('multipart/form-data') === false)
     return next()
 
-  console.log('multipartHandler A')
-
   let headers
 
   if (req.headers['content-type']) {
@@ -36,7 +34,6 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
     }
   }
 
-  console.log('multipartHandler B')
   const busboy = Busboy({
     headers,
     defParamCharset: 'utf8',
@@ -47,13 +44,12 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
 
   type Files = Record<string, Blob>
   const payload: {
-    files: Blob[]
+    files: Files
   } & Omit<Record<string, string | boolean | null | Files>, 'files'> = {
-    files: [],
+    files: {},
   }
 
   busboy.on('field', (fieldname, val) => {
-    console.log('multipartHandler C')
     let fieldValue: string | null | boolean = val
 
     if (typeof fieldValue === 'string' && fieldValue.trim() === 'null')
@@ -66,7 +62,6 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
   })
 
   busboy.on('file', async (uploadUUID, fileStream, { filename }) => {
-    console.log('multipartHandler D')
     console.log('Got File', uploadUUID, filename)
     if (!filename)
       return busboy.emit('error', InvalidPayloadError('File is missing filename'))
@@ -76,32 +71,27 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
       next(error)
     })
 
-    const chunks = []
-    for await (const chunk of fileStream)
-      chunks.push(chunk)
+    const chunks: BlobPart[] = []
 
-    payload.files.push(new Blob(chunks))
+    fileStream.on('data', (data: BlobPart) => {
+      chunks.push(data)
+    }).on('close', () => {
+      payload.files[uploadUUID] = new Blob(chunks)
+    })
 
     return undefined
   })
 
   busboy.on('error', (error: Error) => {
-    console.log('multipartHandler E')
     console.error(error)
     next(error)
   })
 
   busboy.on('close', () => {
-    console.log('multipartHandler FE')
-
-    console.log(payload.files)
-    console.log(payload.files.length)
-
     if (Object.keys(payload.files).length === 0)
       return next(InvalidPayloadError('No files uploaded'))
 
     req.body = payload
-    console.log('Done multipartHandler')
     return next()
   })
 

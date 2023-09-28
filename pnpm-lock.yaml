@@ -230,6 +230,9 @@ importers:
       busboy:
         specifier: ^1.6.0
         version: 1.6.0
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
     devDependencies:
       '@directus/extensions-sdk':
         specifier: 10.1.11
