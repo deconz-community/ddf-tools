@@ -2,7 +2,7 @@ import { assign, createMachine } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, realtime, rest, serverPing } from '@directus/sdk'
-import type { Collections, Schema } from '~/interfaces/store.d.ts'
+import type { Collections, Schema } from '~/interfaces/store'
 
 export type Directus
 = DirectusClient<Schema>

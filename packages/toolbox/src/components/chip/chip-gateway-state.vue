@@ -44,5 +44,5 @@ const state = computed<{
       <v-chip v-bind="{ ...localProps, ...$attrs }" :color="state.color" :text="state.text" />
     </template>
   </v-tooltip>
-  <v-chip v-else v-bind="$attrs" :color="state.color" :text="state.text" />
+  <v-chip v-bind="$attrs" :color="state.color" :text="state.text" />
 </template>

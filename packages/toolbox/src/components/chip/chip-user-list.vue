@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { UserResponse } from '~/interfaces/store'
+import type { Collections } from '~/interfaces/store'
 
 const props = defineProps<{
   title: string
   icon?: string
-  users: UserResponse[] | UserResponse
+  users: Collections.DirectusUser[] | Collections.DirectusUser
 }>()
 
 const users = computed(() => {

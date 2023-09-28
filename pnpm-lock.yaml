@@ -40,8 +40,8 @@ importers:
         specifier: ^21.1.3
         version: 21.1.3
       '@types/node':
-        specifier: ^20.7.0
-        version: 20.7.0
+        specifier: ^20.7.1
+        version: 20.7.1
       '@types/pako':
         specifier: ^2.0.1
         version: 2.0.1
@@ -77,7 +77,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: ^4.4.9
-        version: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+        version: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vitest:
         specifier: ^0.34.5
         version: 0.34.5(sass@1.68.0)
@@ -128,8 +128,8 @@ importers:
         specifier: ^21.1.3
         version: 21.1.3
       '@types/node':
-        specifier: ^20.7.0
-        version: 20.7.0
+        specifier: ^20.7.1
+        version: 20.7.1
       '@types/pako':
         specifier: ^2.0.1
         version: 2.0.1
@@ -168,7 +168,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: ^4.4.9
-        version: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+        version: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vitest:
         specifier: ^0.34.5
         version: 0.34.5(sass@1.68.0)
@@ -217,7 +217,7 @@ importers:
         version: link:../../../bundler
       '@directus/api':
         specifier: ^13.1.1
-        version: 13.1.1(@types/node@20.7.0)
+        version: 13.1.1(@types/node@20.7.1)
       '@directus/errors':
         specifier: ^0.0.2
         version: 0.0.2
@@ -230,10 +230,10 @@ importers:
     devDependencies:
       '@directus/extensions-sdk':
         specifier: 10.1.11
-        version: 10.1.11(@types/node@20.7.0)(pg@8.11.0)
+        version: 10.1.11(@types/node@20.7.1)(pg@8.11.0)
       '@types/node':
-        specifier: ^20.7.0
-        version: 20.7.0
+        specifier: ^20.7.1
+        version: 20.7.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -377,8 +377,8 @@ importers:
         specifier: ^2.3.3
         version: 2.3.3
       '@types/node':
-        specifier: ^20.7.0
-        version: 20.7.0
+        specifier: ^20.7.1
+        version: 20.7.1
       '@types/uuid':
         specifier: ^9.0.4
         version: 9.0.4
@@ -435,7 +435,7 @@ importers:
         version: 0.11.3
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.7.0)(typescript@5.2.2)
+        version: 10.9.1(@types/node@20.7.1)(typescript@5.2.2)
       ts-toolbelt:
         specifier: ^9.6.0
         version: 9.6.0
@@ -453,7 +453,7 @@ importers:
         version: 2.6.0(@vueuse/core@10.4.1)(rollup@2.79.1)(vite@4.4.9)(vue@3.3.4)
       vite:
         specifier: ^4.4.9
-        version: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+        version: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vite-plugin-pages:
         specifier: ^0.31.0
         version: 0.31.0(vite@4.4.9)
@@ -486,8 +486,8 @@ importers:
         specifier: ^21.1.3
         version: 21.1.3
       '@types/node':
-        specifier: ^20.7.0
-        version: 20.7.0
+        specifier: ^20.7.1
+        version: 20.7.1
       '@types/pako':
         specifier: ^2.0.1
         version: 2.0.1
@@ -526,13 +526,13 @@ importers:
         version: 0.11.3
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.7.0)(typescript@5.2.2)
+        version: 10.9.1(@types/node@20.7.1)(typescript@5.2.2)
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
       vite:
         specifier: ^4.4.9
-        version: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+        version: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vitest:
         specifier: ^0.34.5
         version: 0.34.5(sass@1.68.0)
@@ -3321,7 +3321,7 @@ packages:
       postcss-selector-parser: 6.0.13
     dev: true
 
-  /@directus/api@13.1.1(@types/node@20.7.0):
+  /@directus/api@13.1.1(@types/node@20.7.1):
     resolution: {integrity: sha512-w9gDyOzKplVo9m+bWiSTGYz+qZoYae62EFNlciEMWNhffwfhX1u2S1YXkmxZnqcgk0IEOVC86+Z3wxZ9J9h9/A==}
     engines: {node: '>=18.0.0'}
     dependencies:
@@ -3330,7 +3330,7 @@ packages:
       '@directus/app': 10.9.0
       '@directus/constants': 10.2.3
       '@directus/errors': 0.0.2
-      '@directus/extensions-sdk': 10.1.11(@types/node@20.7.0)(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0)
+      '@directus/extensions-sdk': 10.1.11(@types/node@20.7.1)(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0)
       '@directus/format-title': 10.0.0
       '@directus/pressure': 1.0.10
       '@directus/schema': 10.0.2(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0)
@@ -3532,7 +3532,7 @@ packages:
     resolution: {integrity: sha512-f3F37jQjTdf3QfPOuRibTjV/M2rYjJEWPDIU6dsLdl1iF3p5WRhTaWYuSoJlD4IpQf9YtV8quGwVQcYBGcw/vw==}
     dev: false
 
-  /@directus/extensions-sdk@10.1.11(@types/node@20.7.0)(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0):
+  /@directus/extensions-sdk@10.1.11(@types/node@20.7.1)(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0):
     resolution: {integrity: sha512-94/8m7GC6qi6si7kTWP0v6A/sEquE/cXBMwT/hb28/X05dAKz3EZF8O6TcDCuQvi6rK7VsoxKYdbPSBFrmWfXw==}
     engines: {node: '>=12.20.0'}
     hasBin: true
@@ -3558,7 +3558,7 @@ packages:
       rollup: 3.22.0
       rollup-plugin-esbuild: 5.0.0(esbuild@0.17.19)(rollup@3.22.0)
       rollup-plugin-styles: 4.0.0(rollup@3.22.0)
-      vite: 4.3.7(@types/node@20.7.0)
+      vite: 4.3.7(@types/node@20.7.1)
       vue: 3.3.4
     transitivePeerDependencies:
       - '@types/node'
@@ -3578,7 +3578,7 @@ packages:
       - terser
     dev: false
 
-  /@directus/extensions-sdk@10.1.11(@types/node@20.7.0)(pg@8.11.0):
+  /@directus/extensions-sdk@10.1.11(@types/node@20.7.1)(pg@8.11.0):
     resolution: {integrity: sha512-94/8m7GC6qi6si7kTWP0v6A/sEquE/cXBMwT/hb28/X05dAKz3EZF8O6TcDCuQvi6rK7VsoxKYdbPSBFrmWfXw==}
     engines: {node: '>=12.20.0'}
     hasBin: true
@@ -3604,7 +3604,7 @@ packages:
       rollup: 3.22.0
       rollup-plugin-esbuild: 5.0.0(esbuild@0.17.19)(rollup@3.22.0)
       rollup-plugin-styles: 4.0.0(rollup@3.22.0)
-      vite: 4.3.7(@types/node@20.7.0)
+      vite: 4.3.7(@types/node@20.7.1)
       vue: 3.3.4
     transitivePeerDependencies:
       - '@types/node'
@@ -5502,7 +5502,7 @@ packages:
     resolution: {integrity: sha512-oyl4jvAfTGX9Bt6Or4H9ni1Z447/tQuxnZsytsCaExKlmJiU8sFgnIBRzJUpKwB5eWn9HuBYlUlVA74q/yN0eQ==}
     dependencies:
       '@types/connect': 3.4.36
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
 
   /@types/caseless@0.12.3:
     resolution: {integrity: sha512-ZD/NsIJYq/2RH+hY7lXmstfp/v9djGt9ah+xRQ3pcgR79qiKsG4pLl25AI7IcXxVO8dH9GiBE5rAknC0ePntlw==}
@@ -5539,7 +5539,7 @@ packages:
   /@types/connect@3.4.36:
     resolution: {integrity: sha512-P63Zd/JUGq+PdrM1lv0Wv5SBYeA2+CORvbrXbngriYY0jzLUWfQMQQxOhjONEz/wlHOAxOdY7CY65rgQdTjq2w==}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
 
   /@types/cookie@0.5.1:
     resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
@@ -5572,7 +5572,7 @@ packages:
   /@types/express-serve-static-core@4.17.36:
     resolution: {integrity: sha512-zbivROJ0ZqLAtMzgzIUC4oNqDG9iF0lSsAqpOD9kbs5xcIM3dTiyuHvBc7R8MtWBp3AAWGaovJa+wzWPjLYW7Q==}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       '@types/qs': 6.9.8
       '@types/range-parser': 1.2.4
       '@types/send': 0.17.1
@@ -5614,7 +5614,7 @@ packages:
   /@types/jsdom@21.1.3:
     resolution: {integrity: sha512-1zzqSP+iHJYV4lB3lZhNBa012pubABkj9yG/GuXuf6LZH1cSPIJBqFDrm5JX65HHt6VOnNYdTui/0ySerRbMgA==}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       '@types/tough-cookie': 4.0.2
       parse5: 7.1.2
     dev: true
@@ -5663,7 +5663,7 @@ packages:
   /@types/node-fetch@2.6.5:
     resolution: {integrity: sha512-OZsUlr2nxvkqUFLSaY2ZbA+P1q22q+KrlxWOn/38RX+u5kTkYL2mTujEpzUhGkS+K/QCYp9oagfXG39XOzyySg==}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       form-data: 4.0.0
     dev: false
 
@@ -5671,8 +5671,8 @@ packages:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
-  /@types/node@20.7.0:
-    resolution: {integrity: sha512-zI22/pJW2wUZOVyguFaUL1HABdmSVxpXrzIqkjsHmyUjNhPoWM1CKfvVuXfetHhIok4RY573cqS0mZ1SJEnoTg==}
+  /@types/node@20.7.1:
+    resolution: {integrity: sha512-LT+OIXpp2kj4E2S/p91BMe+VgGX2+lfO+XTpfXhh+bCk2LkQtHZSub8ewFBMGP5ClysPjTDFa4sMI8Q3n4T0wg==}
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -5696,7 +5696,7 @@ packages:
     requiresBuild: true
     dependencies:
       '@types/caseless': 0.12.3
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       '@types/tough-cookie': 4.0.2
       form-data: 2.5.1
     dev: false
@@ -5705,7 +5705,7 @@ packages:
   /@types/resolve@1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
     dev: false
 
   /@types/resolve@1.20.2:
@@ -5719,14 +5719,14 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
 
   /@types/serve-static@1.15.2:
     resolution: {integrity: sha512-J2LqtvFYCzaj8pVYKw8klQXrLLk7TBZmQ4ShlcdkELFKGwGMfevMLneMMRkMgZxotOD9wg497LpC7O8PcvAmfw==}
     dependencies:
       '@types/http-errors': 2.0.2
       '@types/mime': 3.0.1
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
 
   /@types/tough-cookie@4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
@@ -5739,7 +5739,7 @@ packages:
   /@types/tunnel@0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
     dev: false
 
   /@types/unist@2.0.7:
@@ -5991,7 +5991,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.3.7(@types/node@20.7.0)
+      vite: 4.3.7(@types/node@20.7.1)
       vue: 3.3.4
 
   /@vitejs/plugin-vue@4.3.4(vite@4.4.9)(vue@3.3.4):
@@ -6001,7 +6001,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vue: 3.3.4
     dev: true
 
@@ -6264,7 +6264,7 @@ packages:
         optional: true
     dependencies:
       sirv: 2.0.3
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vue: 3.3.4
     dev: true
 
@@ -8551,7 +8551,7 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
     dependencies:
-      '@directus/api': 13.1.1(@types/node@20.7.0)
+      '@directus/api': 13.1.1(@types/node@20.7.1)
       '@directus/update-check': 11.0.3
     transitivePeerDependencies:
       - '@aws-sdk/signature-v4-crt'
@@ -11101,7 +11101,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: false
@@ -15968,7 +15968,7 @@ packages:
       type-fest: 2.19.0
     dev: false
 
-  /ts-node@10.9.1(@types/node@20.7.0)(typescript@5.2.2):
+  /ts-node@10.9.1(@types/node@20.7.1)(typescript@5.2.2):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -15987,7 +15987,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -16514,7 +16514,7 @@ packages:
       '@antfu/utils': 0.7.5
       rollup: 2.79.1
       unplugin: 1.5.0
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
     dev: true
 
   /unplugin-vue-components@0.25.2(rollup@2.79.1)(vue@3.3.4):
@@ -16613,7 +16613,7 @@ packages:
       '@types/markdown-it': 13.0.1
       markdown-it: 13.0.1
       unplugin: 1.4.0
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
     transitivePeerDependencies:
       - rollup
     dev: false
@@ -16799,7 +16799,7 @@ packages:
       vfile-message: 3.1.4
     dev: false
 
-  /vite-node@0.34.5(@types/node@20.7.0)(sass@1.68.0):
+  /vite-node@0.34.5(@types/node@20.7.1)(sass@1.68.0):
     resolution: {integrity: sha512-RNZ+DwbCvDoI5CbCSQSyRyzDTfFvFauvMs6Yq4ObJROKlIKuat1KgSX/Ako5rlDMfVCyMcpMRMTkJBxd6z8YRA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -16809,7 +16809,7 @@ packages:
       mlly: 1.4.2
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -16846,7 +16846,7 @@ packages:
       json5: 2.2.3
       local-pkg: 0.4.3
       picocolors: 1.0.0
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       yaml: 2.3.1
     transitivePeerDependencies:
       - supports-color
@@ -16863,7 +16863,7 @@ packages:
       debug: 4.3.4
       fast-glob: 3.3.1
       pretty-bytes: 6.1.1
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       workbox-build: 7.0.0
       workbox-window: 7.0.0
     transitivePeerDependencies:
@@ -16880,7 +16880,7 @@ packages:
       '@vue/compiler-sfc': 3.3.4
       debug: 4.3.4
       fast-glob: 3.3.1
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vue: 3.3.4
       vue-router: 4.2.5(vue@3.3.4)
     transitivePeerDependencies:
@@ -16897,13 +16897,13 @@ packages:
       '@vuetify/loader-shared': 1.7.1(vue@3.3.4)(vuetify@3.3.19)
       debug: 4.3.4
       upath: 2.0.1
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
       vuetify: 3.3.19(typescript@5.2.2)(vite-plugin-vuetify@1.0.2)(vue@3.3.4)
     transitivePeerDependencies:
       - supports-color
       - vue
 
-  /vite@4.3.7(@types/node@20.7.0):
+  /vite@4.3.7(@types/node@20.7.1):
     resolution: {integrity: sha512-MTIFpbIm9v7Hh5b0wSBgkcWzSBz7SAa6K/cBTwS4kUiQJfQLFlZZRJRQgqunCVzhTPCk674tW+0Qaqh3Q00dBg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -16928,14 +16928,14 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       esbuild: 0.17.19
       postcss: 8.4.27
       rollup: 3.29.2
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vite@4.4.9(@types/node@20.7.0)(sass@1.68.0):
+  /vite@4.4.9(@types/node@20.7.1)(sass@1.68.0):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -16963,7 +16963,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       esbuild: 0.18.17
       postcss: 8.4.27
       rollup: 3.28.1
@@ -17004,7 +17004,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.7.0
+      '@types/node': 20.7.1
       '@vitest/expect': 0.34.5
       '@vitest/runner': 0.34.5
       '@vitest/snapshot': 0.34.5
@@ -17023,8 +17023,8 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.0
       tinypool: 0.7.0
-      vite: 4.4.9(@types/node@20.7.0)(sass@1.68.0)
-      vite-node: 0.34.5(@types/node@20.7.0)(sass@1.68.0)
+      vite: 4.4.9(@types/node@20.7.1)(sass@1.68.0)
+      vite-node: 0.34.5(@types/node@20.7.1)(sass@1.68.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
