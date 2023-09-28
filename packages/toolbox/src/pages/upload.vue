@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { v4 as uuidv4 } from 'uuid'
 import { type Bundle, decode } from '@deconz-community/ddf-bundler'
-import { uploadFiles } from '@directus/sdk'
 
 const error = ref('')
 const sha = ref('')
@@ -30,10 +30,20 @@ async function upload() {
 
   const formData = new FormData()
   files.value.forEach((file) => {
-    formData.append('file', file)
+    formData.append('foo', 'bar')
+    formData.append(uuidv4(), file)
+    formData.append(uuidv4(), file)
   })
 
-  const result = await store.client?.request(uploadFiles(formData))
+  // const result = await store.client?.request(uploadFiles(formData))
+  const result = await store.client?.request(() => {
+    return {
+      method: 'POST',
+      path: '/bundle/upload',
+      body: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  })
 
   console.log(result)
 }

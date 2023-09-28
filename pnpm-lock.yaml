@@ -227,13 +227,25 @@ importers:
       '@octokit/core':
         specifier: ^5.0.1
         version: 5.0.1
+      busboy:
+        specifier: ^1.6.0
+        version: 1.6.0
     devDependencies:
       '@directus/extensions-sdk':
         specifier: 10.1.11
         version: 10.1.11(@types/node@20.7.1)(pg@8.11.0)
+      '@directus/types':
+        specifier: ^10.1.6
+        version: 10.1.6(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0)
+      '@types/busboy':
+        specifier: ^1.5.1
+        version: 1.5.1
       '@types/node':
         specifier: ^20.7.1
         version: 20.7.1
+      express:
+        specifier: ^4.18.2
+        version: 4.18.2
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -5503,6 +5515,12 @@ packages:
     dependencies:
       '@types/connect': 3.4.36
       '@types/node': 20.7.1
+
+  /@types/busboy@1.5.1:
+    resolution: {integrity: sha512-JAymE2skNionWnBUwby3MatzPUw4D/6/7FX1qxBXLzmRnFxmqU0luIof7om0I8R3B/rSr9FKUnFCqxZ/NeGbrw==}
+    dependencies:
+      '@types/node': 20.7.1
+    dev: true
 
   /@types/caseless@0.12.3:
     resolution: {integrity: sha512-ZD/NsIJYq/2RH+hY7lXmstfp/v9djGt9ah+xRQ3pcgR79qiKsG4pLl25AI7IcXxVO8dH9GiBE5rAknC0ePntlw==}
