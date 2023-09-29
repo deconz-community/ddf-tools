@@ -6,7 +6,9 @@ import { bytesToHex } from '@noble/hashes/utils'
 import type * as Services from '@directus/api/dist/services/index'
 import type { Collections } from '../client'
 
-export default defineHook(async ({ action }, context) => {
+export default () => {}
+
+defineHook(async ({ action }, context) => {
   const services = context.services as typeof Services
   const database = context.database
 

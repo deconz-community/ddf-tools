@@ -144,45 +144,43 @@ collections:
       name: sub_devices
 fields:
   - collection: bundles
-    field: asset
-    type: uuid
+    field: content
+    type: text
     meta:
       collection: bundles
       conditions: null
       display: null
       display_options: null
-      field: asset
+      field: content
       group: null
       hidden: false
-      interface: file
+      interface: null
       note: null
-      options:
-        folder: 4ac7951a-773b-4aaa-ac0e-5dcc9f06eeab
+      options: null
       readonly: false
-      required: true
-      sort: 7
-      special:
-        - file
+      required: false
+      sort: 15
+      special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
-      name: asset
+      name: content
       table: bundles
-      data_type: char
+      data_type: text
       default_value: null
-      max_length: 36
+      max_length: null
       numeric_precision: null
       numeric_scale: null
-      is_nullable: false
+      is_nullable: true
       is_unique: false
       is_primary_key: false
       is_generated: false
       generation_expression: null
       has_auto_increment: false
-      foreign_key_table: directus_files
-      foreign_key_column: id
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: bundles
     field: date_created
     type: timestamp
@@ -200,7 +198,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 3
+      sort: 4
       special:
         - cast-timestamp
         - date-created
@@ -241,7 +239,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 5
+      sort: 6
       special:
         - cast-timestamp
         - date-updated
@@ -281,7 +279,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 6
+      sort: 2
       special: null
       translations:
         - language: en-US
@@ -324,7 +322,7 @@ fields:
           {{device_identifiers_id.model}}
       readonly: false
       required: false
-      sort: 14
+      sort: 12
       special:
         - m2m
       translations: null
@@ -349,7 +347,7 @@ fields:
         min: 0
       readonly: false
       required: false
-      sort: 13
+      sort: 11
       special: null
       translations: null
       validation: null
@@ -372,46 +370,8 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: bundles
-    field: hash
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: hash
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 8
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: hash
-      table: bundles
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles
     field: id
-    type: uuid
+    type: string
     meta:
       collection: bundles
       conditions: null
@@ -419,25 +379,24 @@ fields:
       display_options: null
       field: id
       group: null
-      hidden: true
+      hidden: false
       interface: input
       note: null
       options: null
-      readonly: true
-      required: false
+      readonly: false
+      required: true
       sort: 1
-      special:
-        - uuid
+      special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: id
       table: bundles
       data_type: char
       default_value: null
-      max_length: 36
+      max_length: 64
       numeric_precision: null
       numeric_scale: null
       is_nullable: false
@@ -464,7 +423,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 9
+      sort: 7
       special: null
       translations: null
       validation: null
@@ -503,7 +462,7 @@ fields:
         template: '{{signature}}'
       readonly: false
       required: false
-      sort: 16
+      sort: 14
       special:
         - o2m
       translations: null
@@ -526,7 +485,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 15
+      sort: 13
       special:
         - m2m
       translations: null
@@ -553,7 +512,7 @@ fields:
             value: latest
       readonly: false
       required: false
-      sort: 10
+      sort: 8
       special: null
       translations: null
       validation: null
@@ -592,7 +551,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 2
+      sort: 3
       special:
         - user-created
       translations: null
@@ -632,7 +591,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 4
+      sort: 5
       special:
         - user-updated
       translations: null
@@ -671,7 +630,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 11
+      sort: 9
       special: null
       translations: null
       validation: null
@@ -709,7 +668,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 12
+      sort: 10
       special: null
       translations: null
       validation: null
@@ -1513,27 +1472,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
 relations:
-  - collection: bundles
-    field: asset
-    related_collection: directus_files
-    meta:
-      junction_field: null
-      many_collection: bundles
-      many_field: asset
-      one_allowed_collections: null
-      one_collection: directus_files
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    schema:
-      table: bundles
-      column: asset
-      foreign_key_table: directus_files
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: NO ACTION
   - collection: bundles
     field: user_created
     related_collection: directus_users

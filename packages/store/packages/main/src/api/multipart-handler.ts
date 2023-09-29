@@ -61,11 +61,7 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
     payload[fieldname] = fieldValue
   })
 
-  busboy.on('file', async (uploadUUID, fileStream, { filename }) => {
-    console.log('Got File', uploadUUID, filename)
-    if (!filename)
-      return busboy.emit('error', InvalidPayloadError('File is missing filename'))
-
+  busboy.on('file', async (uploadUUID, fileStream) => {
     fileStream.on('limit', () => {
       const error = ContentTooLargeError
       next(error)

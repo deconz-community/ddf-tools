@@ -376,13 +376,13 @@ export namespace Collections {
         raw: {
           collection: "bundles";
           field: "id";
-          type: "uuid";
+          type: "string";
           schema: {
             name: "id";
             table: "bundles";
             data_type: "char";
             default_value: null;
-            max_length: 36;
+            max_length: 64;
             numeric_precision: null;
             numeric_scale: null;
             is_generated: false;
@@ -398,19 +398,19 @@ export namespace Collections {
             id: 67;
             collection: "bundles";
             field: "id";
-            special: ["uuid"];
+            special: null;
             interface: "input";
             options: null;
             display: null;
             display_options: null;
-            readonly: true;
-            hidden: true;
+            readonly: false;
+            hidden: false;
             sort: 1;
-            width: "full";
+            width: "half";
             translations: null;
             note: null;
             conditions: null;
-            required: false;
+            required: true;
             group: null;
             validation: null;
             validation_message: null;
@@ -422,19 +422,98 @@ export namespace Collections {
         id: 67;
         collection: "bundles";
         field: "id";
-        special: ["uuid"];
+        special: null;
         interface: "input";
         options: null;
         display: null;
         display_options: null;
-        readonly: true;
-        hidden: true;
+        readonly: false;
+        hidden: false;
         sort: 1;
-        width: "full";
+        width: "half";
         translations: null;
         note: null;
         conditions: null;
-        required: false;
+        required: true;
+        group: null;
+        validation: null;
+        validation_message: null;
+      };
+    }>;
+    ddf_uuid: UnknownType<{
+      schema: {
+        raw: {
+          collection: "bundles";
+          field: "ddf_uuid";
+          type: "string";
+          schema: {
+            name: "ddf_uuid";
+            table: "bundles";
+            data_type: "char";
+            default_value: null;
+            max_length: 36;
+            numeric_precision: null;
+            numeric_scale: null;
+            is_generated: false;
+            generation_expression: null;
+            is_nullable: false;
+            is_unique: false;
+            is_primary_key: false;
+            has_auto_increment: false;
+            foreign_key_column: null;
+            foreign_key_table: null;
+          };
+          meta: {
+            id: 72;
+            collection: "bundles";
+            field: "ddf_uuid";
+            special: null;
+            interface: "input";
+            options: null;
+            display: "raw";
+            display_options: null;
+            readonly: false;
+            hidden: false;
+            sort: 2;
+            width: "half";
+            translations: [
+              {
+                language: "en-US";
+                translation: "DDF UUID";
+              },
+            ];
+            note: null;
+            conditions: null;
+            required: true;
+            group: null;
+            validation: null;
+            validation_message: null;
+          };
+        };
+        raw_relation: null;
+      };
+      meta: {
+        id: 72;
+        collection: "bundles";
+        field: "ddf_uuid";
+        special: null;
+        interface: "input";
+        options: null;
+        display: "raw";
+        display_options: null;
+        readonly: false;
+        hidden: false;
+        sort: 2;
+        width: "half";
+        translations: [
+          {
+            language: "en-US";
+            translation: "DDF UUID";
+          },
+        ];
+        note: null;
+        conditions: null;
+        required: true;
         group: null;
         validation: null;
         validation_message: null;
@@ -478,7 +557,7 @@ export namespace Collections {
               };
               readonly: true;
               hidden: true;
-              sort: 3;
+              sort: 4;
               width: "half";
               translations: null;
               note: null;
@@ -504,7 +583,7 @@ export namespace Collections {
           };
           readonly: true;
           hidden: true;
-          sort: 3;
+          sort: 4;
           width: "half";
           translations: null;
           note: null;
@@ -554,7 +633,7 @@ export namespace Collections {
               };
               readonly: true;
               hidden: true;
-              sort: 5;
+              sort: 6;
               width: "half";
               translations: null;
               note: null;
@@ -580,163 +659,12 @@ export namespace Collections {
           };
           readonly: true;
           hidden: true;
-          sort: 5;
+          sort: 6;
           width: "half";
           translations: null;
           note: null;
           conditions: null;
           required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    ddf_uuid: UnknownType<{
-      schema: {
-        raw: {
-          collection: "bundles";
-          field: "ddf_uuid";
-          type: "string";
-          schema: {
-            name: "ddf_uuid";
-            table: "bundles";
-            data_type: "char";
-            default_value: null;
-            max_length: 36;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 72;
-            collection: "bundles";
-            field: "ddf_uuid";
-            special: null;
-            interface: "input";
-            options: null;
-            display: "raw";
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 6;
-            width: "half";
-            translations: [
-              {
-                language: "en-US";
-                translation: "DDF UUID";
-              },
-            ];
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 72;
-        collection: "bundles";
-        field: "ddf_uuid";
-        special: null;
-        interface: "input";
-        options: null;
-        display: "raw";
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 6;
-        width: "half";
-        translations: [
-          {
-            language: "en-US";
-            translation: "DDF UUID";
-          },
-        ];
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    asset: Collections.DirectusFile;
-    hash: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "bundles";
-            field: "hash";
-            type: "string";
-            schema: {
-              name: "hash";
-              table: "bundles";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 115;
-              collection: "bundles";
-              field: "hash";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 8;
-              width: "full";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: true;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 115;
-          collection: "bundles";
-          field: "hash";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 8;
-          width: "full";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: true;
           group: null;
           validation: null;
           validation_message: null;
@@ -777,7 +705,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 9;
+            sort: 7;
             width: "full";
             translations: null;
             note: null;
@@ -801,7 +729,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 9;
+        sort: 7;
         width: "full";
         translations: null;
         note: null;
@@ -847,7 +775,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 11;
+            sort: 9;
             width: "half";
             translations: null;
             note: null;
@@ -871,7 +799,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 11;
+        sort: 9;
         width: "half";
         translations: null;
         note: null;
@@ -916,7 +844,7 @@ export namespace Collections {
             display_options: null;
             readonly: false;
             hidden: false;
-            sort: 12;
+            sort: 10;
             width: "half";
             translations: null;
             note: null;
@@ -940,7 +868,7 @@ export namespace Collections {
         display_options: null;
         readonly: false;
         hidden: false;
-        sort: 12;
+        sort: 10;
         width: "half";
         translations: null;
         note: null;
@@ -955,6 +883,7 @@ export namespace Collections {
     device_identifiers: BundlesDeviceIdentifiers;
     sub_devices: BundlesSubDevices;
     signatures: Signatures;
+    content: Optional<string>;
   }
 
   /**
