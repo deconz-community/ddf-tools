@@ -26,6 +26,7 @@
     },
     "include": [
         "./src/**/*.ts",
-        "@directus/api/dist/services/index.d.ts"
+        "@directus/api/dist/services/index.d.ts",
+        "@directus/api/dist/errors/record-not-unique.d.ts"
     ]
 }

@@ -41,6 +41,9 @@ defineHook(async ({ action }, context) => {
 
     const bundle = await decode(new Blob(chunks))
 
+    if (!bundle.data.hash)
+      throw new Error('No hash')
+
     const device_identifier_ids = await Promise.all(bundle.data.desc.device_identifiers.map(async (deviceIdentifier) => {
       const [manufacturer, model] = deviceIdentifier
 
@@ -64,9 +67,6 @@ defineHook(async ({ action }, context) => {
         model,
       })
     }))
-
-    if (!bundle.data.hash)
-      throw new Error('No hash')
 
     const newBundle = await bundleService.createOne({
       ddf_uuid: bundle.data.desc.uuid,
