@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computedAsync } from '@vueuse/core'
+import { listBundles } from '~/interfaces/store'
 
 const { client } = useStore()
 
@@ -11,8 +12,22 @@ const bundleList = computedAsync(
   async () => {
     if (!client)
       return []
-    return (await client.collection('bundle').getFullList({ expand: 'contributors' }))
-      .sort((a, b) => a.name.localeCompare(b.name))
+
+    const results = await client.request(listBundles({
+      fields: [
+        'id',
+        'product',
+        'ddf_uuid',
+        'tag',
+        'version',
+        'version_deconz',
+        'device_identifiers',
+        'signatures',
+      ],
+
+    }))
+
+    return results
   },
   [], // initial state
 )
@@ -38,12 +53,6 @@ const bundleList = computedAsync(
               Name
             </th>
             <th class="text-left">
-              Source
-            </th>
-            <th class="text-left">
-              Contributors
-            </th>
-            <th class="text-left">
               Actions
             </th>
           </tr>
@@ -51,24 +60,17 @@ const bundleList = computedAsync(
         <tbody>
           <tr
             v-for="bundle of bundleList"
-            :key="bundle.name"
+            :key="bundle.id as string"
           >
-            <td>{{ bundle.id }}</td>
-            <td>{{ bundle.name }}</td>
-            <td>{{ bundle.source }}</td>
-            <td>
-              <ul>
-                <li v-for="contributor of bundle.contributors" :key="contributor">
-                  {{ bundle.expand.contributors.find(c => c.id === contributor).username }}
-                </li>
-              </ul>
-            </td>
+            <td>{{ bundle.id.substr(-10) }}</td>
+            <td>{{ bundle.product }}</td>
             <td>
               <v-btn :to="`/bundle/${bundle.id}`">
                 Open
               </v-btn>
-              <v-btn v-if="bundle.source_url" :href="bundle.source_url" target="blank">
-                Open Source
+
+              <v-btn v-if="client" :href="`${client.url}bundle/download/${bundle.id}`">
+                Download
               </v-btn>
             </td>
           </tr>

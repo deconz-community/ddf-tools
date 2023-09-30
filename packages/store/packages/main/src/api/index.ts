@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer'
+import { Stream } from 'node:stream'
 
 import { defineEndpoint } from '@directus/extensions-sdk'
 import type * as Services from '@directus/api/dist/services/index'
@@ -9,6 +10,7 @@ import type { RecordNotUniqueErrorExtensions } from '@directus/api/dist/errors/r
 import { bytesToHex } from '@noble/hashes/utils'
 import pako from 'pako'
 import { compare } from 'compare-versions'
+import slugify from '@sindresorhus/slugify'
 
 import { decode } from '@deconz-community/ddf-bundler'
 
@@ -170,5 +172,39 @@ export default defineEndpoint({
         res.json({ result })
       }),
     )
+
+    router.get('/download/:id', asyncHandler(async (req, res, next) => {
+      const accountability = 'accountability' in req ? req.accountability as Accountability : null
+
+      const serviceOptions = { schema, knex: context.database, accountability }
+
+      const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
+
+      if (typeof req.params.id !== 'string')
+        throw new Error('Invalid bundle id')
+
+      const bundle = await bundleService.readOne(req.params.id, {
+        fields: [
+          'product',
+          'version',
+          'content',
+        ],
+      })
+
+      if (!bundle.content)
+        throw new Error('Bundle not found')
+
+      const fileName = `${slugify(`${bundle.product} v${bundle.version}`)}.ddf`
+
+      const buffer = Buffer.from(bundle.content, 'base64')
+      const decompressed = Buffer.from(pako.inflate(buffer))
+      const readStream = new Stream.PassThrough()
+      readStream.end(decompressed)
+
+      res.set('Content-disposition', `attachment; filename=${fileName}`)
+      res.set('Content-Type', 'text/plain')
+
+      readStream.pipe(res)
+    }))
   },
 })

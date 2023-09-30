@@ -1,30 +1,54 @@
 <script setup lang="ts">
 import { computedAsync, useTimeAgo } from '@vueuse/core'
+import { readBundles } from '~/interfaces/store'
 
 const props = defineProps<{
   bundle: string
 }>()
 
-const { client } = useStore()
+const store = useStore()
 
-const bundle = computedAsync(
-  async () => {
-    return await client.collection('bundle_tree')
-      .getOne(props.bundle, {
-        expand: 'contributors',
-      })
-  },
-  null, // initial state
+const isReady = computed(() => store.state?.matches('online') === true)
+
+const bundle = computedAsync(async () => {
+  if (!isReady.value || !store.client)
+    return null
+
+  return await store.client.request(readBundles(props.bundle, {
+    fields: [
+      'id',
+      'product',
+      'tag',
+      'version',
+      'version_deconz',
+      'date_created',
+      {
+        device_identifiers: [
+          {
+            device_identifiers_id: [
+              'id',
+              'manufacturer',
+              'model',
+            ],
+          },
+        ],
+      },
+    ],
+  }))
+},
+null, // initial state
 )
 
+/*
 const bundleVersions = computedAsync(
   async () => {
-    return await client.collection('bundle_version')
-      .getList(1, 100, {
-        filter: `bundle_tree = "${props.bundle}"`,
-        sort: '-version_numeric',
-        expand: 'device_identifiers',
-      })
+    return {
+      page: 1,
+      perPage: 100,
+      totalItems: 0,
+      totalPages: 0,
+      items: [],
+    }
   },
   {
     page: 1,
@@ -34,76 +58,45 @@ const bundleVersions = computedAsync(
     items: [],
   }, // initial state
 )
-
-const lastestVersion = computed(() => {
-  let candidates = bundleVersions.value.items
-
-  if (candidates.some((item) => {
-    return item.deprecated === false
-  })) {
-    candidates = candidates.filter((item) => {
-      return item.deprecated === false
-    })
-  }
-
-  if (candidates.some((item) => {
-    return item.pre_release === false
-  })) {
-    candidates = candidates.filter((item) => {
-      return item.pre_release === false
-    })
-  }
-
-  return candidates.at(0)
-})
+*/
 
 const downloadURL = computed(() => {
-  if (lastestVersion.value === undefined)
-    return undefined
+  if (!isReady.value || !store.client)
+    return null
 
-  return client.getFileUrl(lastestVersion.value, lastestVersion.value.file)
+  return `${store.client.url}bundle/download/${props.bundle}`
 })
 </script>
 
 <template>
   <v-card v-if="bundle" class="ma-2">
     <template #title>
-      {{ bundle.name }}
-      <template v-if="lastestVersion">
-        <v-chip
-          v-if="lastestVersion.pre_release"
-          class="ma-2"
-          color="orange"
-          text-color="white"
-          text="Pre-release"
-        />
-        <chip-user
-          v-for="user of bundle.expand.contributors"
-          :public-key="user.id"
-          :user="user"
-          class="ma-2"
-        />
+      {{ bundle.product }}
+      <v-chip
+        v-if="bundle.tag"
+        class="ma-2"
+        color="orange"
+        text-color="white"
+        :text="bundle.tag"
+      />
 
-        <v-btn v-if="downloadURL" class="ma-2" :href="downloadURL" prepend-icon="mdi-download">
-          Download
-        </v-btn>
-      </template>
+      <v-btn v-if="downloadURL" class="ma-2" :href="downloadURL" prepend-icon="mdi-download">
+        Download
+      </v-btn>
     </template>
 
-    <template v-if="lastestVersion" #subtitle>
-      {{ lastestVersion.version }} • Published {{ useTimeAgo(lastestVersion.created).value }}
+    <template #subtitle>
+      {{ bundle.version }} • Published {{ useTimeAgo(bundle.date_created).value }}
     </template>
 
     <template #text>
+      <!--
       <v-alert
-        v-if="lastestVersion && lastestVersion.deprecated"
+        v-if="bundle.deprecated_description"
         type="error"
         title="This version has been deprecated"
-        :text="lastestVersion.deprecated_description"
+        :text="bundle.deprecated_description"
       />
-
-      <!--
-      <json-viewer v-if="lastestVersion" :value="lastestVersion" :expand-depth="1" />
       -->
 
       <v-card elevation="2">
@@ -111,7 +104,7 @@ const downloadURL = computed(() => {
           For devices
         </template>
         <template #text>
-          <v-table v-if="lastestVersion">
+          <v-table>
             <thead>
               <tr>
                 <th class="text-left">
@@ -124,17 +117,18 @@ const downloadURL = computed(() => {
             </thead>
             <tbody>
               <tr
-                v-for="item in lastestVersion.expand.device_identifiers"
-                :key="item.id"
+                v-for="item in bundle.device_identifiers"
+                :key="item.device_identifiers_id.id"
               >
-                <td>{{ item.manufacturername }}</td>
-                <td>{{ item.modelid }}</td>
+                <td>{{ item.device_identifiers_id.manufacturer }}</td>
+                <td>{{ item.device_identifiers_id.model }}</td>
               </tr>
             </tbody>
           </v-table>
         </template>
       </v-card>
 
+      <!--
       <v-card v-if="bundleVersions" elevation="1">
         <template #title>
           All versions
@@ -191,6 +185,7 @@ const downloadURL = computed(() => {
           </v-table>
         </template>
       </v-card>
+      -->
       <!--
         <json-viewer v-if="bundle" :value="bundle" :expand-depth="5" />
         <json-viewer v-if="bundleVersions" :value="bundleVersions" :expand-depth="5" />
@@ -198,4 +193,15 @@ const downloadURL = computed(() => {
       -->
     </template>
   </v-card>
+
+  <pre>{{ bundle }}</pre>
 </template>
+
+<route lang="json">
+  {
+    "meta": {
+      "breadcrumbs": "none",
+      "hideLevelTwoSidebar": true
+    }
+  }
+  </route>
