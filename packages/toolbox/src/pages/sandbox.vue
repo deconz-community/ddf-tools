@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { serverInfo } from '@directus/sdk'
+
 const store = useStore()
+
+const info = store.request(serverInfo())
 
 /*
 const dataRest = computedAsync(async () => {
@@ -40,6 +44,7 @@ const dataRest = computedAsync(async () => {
 
     <template #text>
       <pre>{{ store.state?.value }}</pre>
+      <pre>{{ info }}</pre>
       <!--
       <pre>{{ store.state?.context.profile }}</pre>
       <pre>{{ dataRest }}</pre>

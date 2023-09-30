@@ -1,4 +1,6 @@
+import type { RestCommand } from '@directus/sdk'
 import { readUsers } from '@directus/sdk'
+import type { Schema } from '~/interfaces/store'
 
 export function useStore() {
   const store = useAppMachine('store')
@@ -6,6 +8,16 @@ export function useStore() {
   const profile = computed(() => store.state?.context.profile)
 
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
+
+  function request<Output extends object | unknown>(command: RestCommand<Output, Schema>) {
+    console.log(command)
+
+    const result = ''
+
+    return command()
+
+    // return result as unknown as Output
+  }
 
   /*
   const findOrCreate = async (
@@ -67,6 +79,7 @@ export function useStore() {
     ...toRefs(store),
     client,
     profile,
+    request,
     findOrCreate: () => undefined,
     getUserByKey,
   })
