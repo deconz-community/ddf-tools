@@ -12,13 +12,12 @@ function InvalidPayloadError(message: string) {
   )
 }
 
-type Files = Record<string, Blob>
+export type BlobsPayload = Record<string, {
+  blob: Blob
+  meta: Record<string, string | boolean | null>
+}>
 
-type Payload = {
-  files: Files
-} & Omit<Record<string, string | boolean | null | Files>, 'files'>
-
-export const multipartHandler: RequestHandler<object, any, Payload> = (req, res, next) => {
+export const multipartHandler: RequestHandler<object, any, BlobsPayload> = (req, res, next) => {
   if (req.is('multipart/form-data') === false)
     return next()
 
@@ -42,12 +41,9 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
     },
   })
 
-  type Files = Record<string, Blob>
-  const payload: {
-    files: Files
-  } & Omit<Record<string, string | boolean | null | Files>, 'files'> = {
-    files: {},
-  }
+  let currentMeta: BlobsPayload[string]['meta'] = {}
+
+  const payload: BlobsPayload = {}
 
   busboy.on('field', (fieldname, val) => {
     let fieldValue: string | null | boolean = val
@@ -58,7 +54,7 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
       fieldValue = false
     if (typeof fieldValue === 'string' && fieldValue.trim() === 'true')
       fieldValue = true
-    payload[fieldname] = fieldValue
+    currentMeta[fieldname] = fieldValue
   })
 
   busboy.on('file', async (uploadUUID, fileStream) => {
@@ -72,7 +68,11 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
     fileStream.on('data', (data: BlobPart) => {
       chunks.push(data)
     }).on('close', () => {
-      payload.files[uploadUUID] = new Blob(chunks)
+      payload[uploadUUID] = {
+        blob: new Blob(chunks),
+        meta: structuredClone(currentMeta),
+      }
+      currentMeta = {}
     })
 
     return undefined
@@ -84,10 +84,11 @@ export const multipartHandler: RequestHandler<object, any, Payload> = (req, res,
   })
 
   busboy.on('close', () => {
-    if (Object.keys(payload.files).length === 0)
+    if (Object.keys(payload).length === 0)
       return next(InvalidPayloadError('No files uploaded'))
 
     req.body = payload
+
     return next()
   })
 

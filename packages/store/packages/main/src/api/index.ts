@@ -16,6 +16,7 @@ import { decode } from '@deconz-community/ddf-bundler'
 
 import { asyncHandler } from '../utils'
 import type { Collections } from '../client'
+import type { BlobsPayload } from './multipart-handler'
 import { multipartHandler } from './multipart-handler'
 
 const ForbiddenError = createError('FORBIDDEN', 'You need to be authenticated to access this endpoint', 403)
@@ -47,23 +48,23 @@ export default defineEndpoint({
           admin: true,
         })
 
-        if (req.body.tag === undefined)
-          req.body.tag = 'latest'
-
         const result: Record<string, {
           success: boolean
           createdId?: PrimaryKey
           message?: string
         }> = {}
 
-        await Promise.all(Object.entries(req.body.files).map(async ([uuid, _file]) => {
+        await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
           try {
-            const file = _file as Blob
+            const { meta, blob } = item
+            const { tag = 'latest' } = meta
 
-            const bundle = await decode(file)
+            const bundle = await decode(blob)
             if (!bundle.data.hash)
               throw new Error('No hash')
 
+            if (typeof tag !== 'string')
+              throw new Error('Invalid tag, should be a string')
             if (!bundle.data.desc.uuid)
               throw new Error('The bundle is missing a UUID, please add a "uuid" field to the DDF json file.')
             if (!bundle.data.desc.version)
@@ -72,7 +73,7 @@ export default defineEndpoint({
               throw new Error('The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.')
 
             const hash = bytesToHex(bundle.data.hash)
-            const content = Buffer.from(pako.deflate(await file.arrayBuffer())).toString('base64')
+            const content = Buffer.from(pako.deflate(await blob.arrayBuffer())).toString('base64')
 
             await context.database.transaction(async (knex) => {
               const serviceOptions = { schema, knex, accountability: adminAccountability }
@@ -108,7 +109,7 @@ export default defineEndpoint({
                 fields: ['id', 'version'],
                 filter: {
                   _and: [
-                    { tag: { _eq: req.body.tag } },
+                    { tag: { _eq: tag } },
                     { ddf_uuid: { _eq: bundle.data.desc.uuid } },
                   ],
                 },
@@ -126,7 +127,7 @@ export default defineEndpoint({
                 ddf_uuid: bundle.data.desc.uuid,
                 content,
                 product: bundle.data.desc.product,
-                tag: req.body.tag,
+                tag: tag as any,
                 version: bundle.data.desc.version,
                 version_deconz: bundle.data.desc.version_deconz,
                 device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
