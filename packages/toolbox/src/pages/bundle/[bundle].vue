@@ -80,10 +80,10 @@ const downloadURL = computed(() => {
             <thead>
               <tr>
                 <th class="text-left">
-                  Device Name
+                  Manufacturer
                 </th>
                 <th class="text-left">
-                  Model ID
+                  Model
                 </th>
               </tr>
             </thead>
