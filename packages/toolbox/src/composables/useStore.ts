@@ -6,6 +6,8 @@ import type { Schema } from '~/interfaces/store'
 
 export type RequestOptions<Output extends object | unknown> = {
   needAuth?: boolean
+  debounce?: number
+  maxWait?: number
 } & UseAsyncStateOptions<true, Output | null>
 
 export function useStore() {
@@ -17,6 +19,13 @@ export function useStore() {
 
   function request<Output extends object | unknown>(getOptions: MaybeRef<RestCommand<Output, Schema>>, options: RequestOptions<Output> = {}) {
     options.shallow = true
+
+    const {
+      needAuth = true,
+      debounce = 500,
+      maxWait = 5000,
+    } = options
+
     if (options.needAuth === undefined)
       options.needAuth = true
     if (!client.value)
@@ -26,7 +35,7 @@ export function useStore() {
       async () => {
         if (!client.value)
           return null
-        if (options.needAuth === true && !profile.value)
+        if (needAuth === true && !profile.value)
           return null
 
         return await client.value.request(unref(getOptions))
@@ -38,7 +47,7 @@ export function useStore() {
     watch([client, profile], () => shell.execute())
 
     if (isRef(getOptions))
-      watchDebounced(getOptions, () => shell.execute(), { debounce: 500, maxWait: 1000 })
+      watchDebounced(getOptions, () => shell.execute(), { debounce, maxWait })
 
     return shell
 

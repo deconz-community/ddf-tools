@@ -1,7 +1,7 @@
 import { assign, createMachine } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
-import { authentication, createDirectus, readMe, realtime, rest, serverPing } from '@directus/sdk'
+import { authentication, createDirectus, readMe, realtime, rest, serverHealth } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store'
 
 export type Directus
@@ -15,12 +15,13 @@ export interface StoreContext {
   directusUrl: string
   directus?: Directus
   profile?: Collections.DirectusUser
+  websocketEventHandlerRemover?: () => void
 }
 
 export const storeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEYBgYmNhiADZUtJgAttjBOOH4kdGxCAQAbmihVDL4gkJ18hJSMbLyigherIbYxl6mhrpq+iZmala2CCoOal6aJprDM52dagFB6CGyqQT5EVHUEMQAMgDyAOInAKoAKg1IIE3SrfftALTMptiuOqx6rEoqXQfcaIJysHqGJSmTojAxdNYgPLYLY7MJ7aKQYiXAAKABEAILXACiAH1sQAlE4AMQAkkciXdxJInnIXohXppDGpsLovF4TDpNAtTEpLDZEJDdDylELWMwRu53CYEUiCkUYvg4hBZLx8BUANY4VXojVQUp6yrVWR1RkPZktVmgN4A1TMcxGLw6NS+XRdEGTeXqWYjEww-R6GYqja7Qr7WLEbWRPAWw25aNo2PFTXmipVB025gie6PB1tdm6ByipyzeX6ZgfUX+qZBuYjMMRrxRnjI-DbJMUfCyaxZNAAV1gx3ONIAcraSzUywh3p9vr8-i6gYZ-VyHCZw05PJy9AYAoEQIOIHB5HlGvaF2yl2pPrz+YLhQKxRNXoYvNgAc4zH0WY1E0Vh9F0LsQj4FBb2ae8nWUaYNCMXkjFMcx-VcbBWBcNwfDrLxdFFJRIJjdVYlgllF1eExVD5UDaLUVgRkMetwMw-QlD-dx6yhcw1yMUiez7MBKNLB9Xl8LiXwFHD30bcVJiA7ATEhQwuj3TQmLrISUX7Qd8GHMd4GLO9ngQhBmE0FSNA+X5DyAjR-SGcEBS5J8G05eVdN7VE1X2SAxPghR2SUPlsDBLx9G8bQwMI5yPgi31OR-ToK2YTszyRNBaFoESgvMkKOk5CLOL0JRoqMTixkUirwSrOVIVDBY4tPPwgA */
-  id: 'store',
+  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEELK8+ABuaADWOME44fiR0bEIBKmhVDL4gkIV8hJSMbLyiggAtEoq2MzmRl46ar66rIZWtggqDmpemiZTXqwm+nrjAUHoITl5MfhxCZF4KemZK9kRURtQhXsldeXC-MwiSCA10vUPjU26DkrOuhPMc8zMQxfIbKP7qCZTEwzOYLLxLEBZMLHfKbYhgDAYTDYMQAGyotEwAFtsIi1icCkU0JcyhUqg8nlcGogZoZsMYvKZDLo1PoptyQSMweNJppeeMZjM1PDEbIcQQaPhZNZCWgAK6wYgAGQA8gBxACSADk6eJJM85K9EE1AQ5XDpWHpWK0OoCBYZfNgYU5PJpDHoDNLDthZfKkbkTpAtXrtQBVAAqJseZsZluaNvarQdjuduldNkQTlYbKBpmhZnmhkDPGD+DlOzJ0UjMYACgARACCcYAogB9ZsAJW1ADF9Zqu4mGWUmc0NJpsD8vCYdJpRaZgfmEFyvPOlCvWH8TO53CYAoEQIqIHB5Flqsmp6mmkDVAul6wV0Yl5YN4-t61nD4Zm5ZgXClM9ET4FBb1qe9QEaJQxg0IwfiMUxzAFVxsDfVxxh5ZgvF0L4lCrVZkVOKDzWnJoTFULwJlmZg1FmExDABfQv2GZh9CUbA3FzVwuX6B0jGInAQ0iciU1gq0eW3F9l1XT8BSUfRt2YpRSyYgwBhEms6wVJUVXVCSYIUOw50PFQ-QGd8fCUAUeSLJd3TUFigV9P4dLEo5w0bCBjJeKTmlabdCy8fRvG0VgVPYgt9FUQtfUMWi9GouEwKDNBaFoPT-ItQKJlZUUdAI8KjC4tQlPmHjnH3IEoVFKK0oCIA */
 
+  id: 'store',
   predictableActionArguments: true,
   tsTypes: {} as import('./store.typegen').Typegen0,
 
@@ -98,6 +99,9 @@ export const storeMachine = createMachine({
           invoke: {
             src: 'watchProfile',
           },
+
+          entry: 'connectWebsocket',
+          exit: 'disconnectWebsocket',
         },
       },
 
@@ -119,6 +123,22 @@ export const storeMachine = createMachine({
     updateProfile: assign((context, event) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
+
+    connectWebsocket: assign(context => produce(context, (draft) => {
+      context.directus?.connect()
+      draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
+        if (message.type !== 'notification')
+          return
+        console.log(message)
+      })
+    })),
+
+    disconnectWebsocket: assign(context => produce(context, (draft) => {
+      context.directus?.disconnect()
+      context.websocketEventHandlerRemover?.()
+      delete draft.websocketEventHandlerRemover
+    })),
+
   },
   guards: {
     isAuthenticated: (context, event) => event.data.isAuthenticated === true,
@@ -162,39 +182,27 @@ export const storeMachine = createMachine({
         }))
         // .with(graphql())
 
-      // https://github.com/directus/directus/issues/19775
-      const ping = await client.request(serverPing()) as unknown as string
+      const health = await client.request(serverHealth())
 
-      client.connect()
-
-      client.onWebSocket('message', (message) => {
-        if (message.type !== 'notification')
-          return
-        console.log(message)
-      })
-
-      // https://github.com/directus/directus/issues/19776
-      // const health = await client.request(serverHealth())
-
-      let isAuthenticated = false
+      if (health.status !== 'ok')
+        throw new Error('Could not connect to Directus')
 
       try {
         const auth = await client.refresh()
-        if (auth.access_token !== null)
-          isAuthenticated = true
+        if (auth.access_token !== null) {
+          return {
+            directus: client,
+            isAuthenticated: true,
+          }
+        }
       }
       catch (e) {
 
       }
 
-      if (ping === 'pong') {
-        return {
-          directus: client,
-          isAuthenticated,
-        }
-      }
-      else {
-        throw new Error('Could not connect to Directus')
+      return {
+        directus: client,
+        isAuthenticated: false,
       }
     },
 
