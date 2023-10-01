@@ -1,36 +1,24 @@
 <script setup lang="ts">
-import { computedAsync } from '@vueuse/core'
 import { listBundles } from '~/interfaces/store'
 
-const { client } = useStore()
+const store = useStore()
 
 const App = useAppStore()
 
 App.navigationTitle = 'Home'
 
-const bundleList = computedAsync(
-  async () => {
-    if (!client)
-      return []
-
-    const results = await client.request(listBundles({
-      fields: [
-        'id',
-        'product',
-        'ddf_uuid',
-        'tag',
-        'version',
-        'version_deconz',
-        'device_identifiers',
-        'signatures',
-      ],
-
-    }))
-
-    return results
-  },
-  [], // initial state
-)
+const bundleList = store.request(computed(() => listBundles({
+  fields: [
+    'id',
+    'product',
+    'ddf_uuid',
+    'tag',
+    'version',
+    'version_deconz',
+    'device_identifiers',
+    'signatures',
+  ],
+})))
 </script>
 
 <template>
@@ -43,7 +31,7 @@ const bundleList = computedAsync(
     </template>
 
     <template #text>
-      <v-table>
+      <v-table v-if="bundleList.state.value">
         <thead>
           <tr>
             <th class="text-left">
@@ -59,7 +47,7 @@ const bundleList = computedAsync(
         </thead>
         <tbody>
           <tr
-            v-for="bundle of bundleList"
+            v-for="bundle of bundleList.state.value"
             :key="bundle.id as string"
           >
             <td>{{ bundle.id.substr(-10) }}</td>
@@ -69,7 +57,7 @@ const bundleList = computedAsync(
                 Open
               </v-btn>
 
-              <v-btn v-if="client" :href="`${client.url}bundle/download/${bundle.id}`">
+              <v-btn v-if="store.client" :href="`${store.client.url}bundle/download/${bundle.id}`">
                 Download
               </v-btn>
             </td>

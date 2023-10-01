@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computedAsync, useTimeAgo } from '@vueuse/core'
+import { useTimeAgo } from '@vueuse/core'
 import { readBundles } from '~/interfaces/store'
 
 const props = defineProps<{
@@ -10,55 +10,27 @@ const store = useStore()
 
 const isReady = computed(() => store.state?.matches('online') === true)
 
-const bundle = computedAsync(async () => {
-  if (!isReady.value || !store.client)
-    return null
-
-  return await store.client.request(readBundles(props.bundle, {
-    fields: [
-      'id',
-      'product',
-      'tag',
-      'version',
-      'version_deconz',
-      'date_created',
-      {
-        device_identifiers: [
-          {
-            device_identifiers_id: [
-              'id',
-              'manufacturer',
-              'model',
-            ],
-          },
-        ],
-      },
-    ],
-  }))
-},
-null, // initial state
-)
-
-/*
-const bundleVersions = computedAsync(
-  async () => {
-    return {
-      page: 1,
-      perPage: 100,
-      totalItems: 0,
-      totalPages: 0,
-      items: [],
-    }
-  },
-  {
-    page: 1,
-    perPage: 100,
-    totalItems: 0,
-    totalPages: 0,
-    items: [],
-  }, // initial state
-)
-*/
+const bundle = store.request(computed(() => readBundles(props.bundle, {
+  fields: [
+    'id',
+    'product',
+    'tag',
+    'version',
+    'version_deconz',
+    'date_created',
+    {
+      device_identifiers: [
+        {
+          device_identifiers_id: [
+            'id',
+            'manufacturer',
+            'model',
+          ],
+        },
+      ],
+    },
+  ],
+})))
 
 const downloadURL = computed(() => {
   if (!isReady.value || !store.client)
@@ -69,15 +41,15 @@ const downloadURL = computed(() => {
 </script>
 
 <template>
-  <v-card v-if="bundle" class="ma-2">
+  <v-card v-if="bundle.state.value" class="ma-2">
     <template #title>
-      {{ bundle.product }}
+      {{ bundle.state.value.product }}
       <v-chip
-        v-if="bundle.tag"
+        v-if="bundle.state.value.tag"
         class="ma-2"
         color="orange"
         text-color="white"
-        :text="bundle.tag"
+        :text="bundle.state.value.tag"
       />
 
       <v-btn v-if="downloadURL" class="ma-2" :href="downloadURL" prepend-icon="mdi-download">
@@ -86,7 +58,7 @@ const downloadURL = computed(() => {
     </template>
 
     <template #subtitle>
-      {{ bundle.version }} • Published {{ useTimeAgo(bundle.date_created).value }}
+      {{ bundle.state.value.version }} • Published {{ useTimeAgo(bundle.state.value.date_created).value }}
     </template>
 
     <template #text>
@@ -117,7 +89,7 @@ const downloadURL = computed(() => {
             </thead>
             <tbody>
               <tr
-                v-for="item in bundle.device_identifiers"
+                v-for="item in bundle.state.value.device_identifiers"
                 :key="item.device_identifiers_id.id"
               >
                 <td>{{ item.device_identifiers_id.manufacturer }}</td>
@@ -194,7 +166,7 @@ const downloadURL = computed(() => {
     </template>
   </v-card>
 
-  <pre>{{ bundle }}</pre>
+  <pre>{{ bundle.state.value }}</pre>
 </template>
 
 <route lang="json">

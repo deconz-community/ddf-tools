@@ -1,6 +1,12 @@
 import type { RestCommand } from '@directus/sdk'
 import { readUsers } from '@directus/sdk'
+import type { UseAsyncStateOptions } from '@vueuse/core'
+import type { MaybeRef } from 'vue'
 import type { Schema } from '~/interfaces/store'
+
+export type RequestOptions<Output extends object | unknown> = {
+  needAuth?: boolean
+} & UseAsyncStateOptions<true, Output | null>
 
 export function useStore() {
   const store = useAppMachine('store')
@@ -9,12 +15,32 @@ export function useStore() {
 
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
 
-  function request<Output extends object | unknown>(command: RestCommand<Output, Schema>) {
-    console.log(command)
+  function request<Output extends object | unknown>(getOptions: MaybeRef<RestCommand<Output, Schema>>, options: RequestOptions<Output> = {}) {
+    options.shallow = true
+    if (options.needAuth === undefined)
+      options.needAuth = true
+    if (!client.value)
+      options.immediate = false
 
-    const result = ''
+    const shell = useAsyncState(
+      async () => {
+        if (!client.value)
+          return null
+        if (options.needAuth === true && !profile.value)
+          return null
 
-    return command()
+        return await client.value.request(unref(getOptions))
+      },
+      null,
+      options,
+    )
+
+    watch([client, profile], () => shell.execute())
+
+    if (isRef(getOptions))
+      watchDebounced(getOptions, () => shell.execute(), { debounce: 500, maxWait: 1000 })
+
+    return shell
 
     // return result as unknown as Output
   }
