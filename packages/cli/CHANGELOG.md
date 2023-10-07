@@ -1,5 +1,19 @@
 # @deconz-community/cli
 
+## 1.1.0
+
+### Minor Changes
+
+- f5fac8a: Retry parsing files
+
+### Patch Changes
+
+- Updated dependencies [f5fac8a]
+- Updated dependencies [17ee8d9]
+- Updated dependencies [ca2a878]
+- Updated dependencies [17ee8d9]
+  - @deconz-community/ddf-validator@2.19.0
+
 ## 1.0.7
 
 ### Patch Changes

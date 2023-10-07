@@ -1,5 +1,17 @@
 # @deconz-community/ddf-validator
 
+## 2.19.0
+
+### Minor Changes
+
+- f5fac8a: Add bulkValidate method
+- 17ee8d9: Remove deprecated 'zcl' function
+- ca2a878: Refactor read/parse/write functions validation
+
+### Patch Changes
+
+- 17ee8d9: Fix refresh interval check not checking the zcl:attr functions
+
 ## 2.18.0
 
 ### Minor Changes
