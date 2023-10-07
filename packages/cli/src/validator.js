@@ -58,73 +58,43 @@ export function validator() {
       spinner.text = chalk.blue(`Loaded ${genericFiles.length} generic files and ${ddfFiles.length} DDF files from disk`)
       spinner.succeed()
 
-      genericFiles.sort((a, b) => a.data.schema.localeCompare(b.data.schema))
-
       const plural = (singular, plural, count) => count > 1 ? plural : singular
+      const typeFilesText = (type, count) => `${type} ${plural('file', 'files', count)}`
 
-      const processFiles = (files, type) => {
-        let count = 0
-        const errorsMessages = []
-        const typeFilesText = `${type} ${plural('file', 'files', files.length)}`
-
-        spinner.start(chalk.blue(`Parsing ${typeFilesText} (1/${files.length})`))
-
-        files.forEach((file) => {
-          spinner.text = chalk.blue(`Parsing ${typeFilesText} (${count++}/${files.length})`)
+      validator.bulkValidate(genericFiles, ddfFiles, {
+        onSectionStart: (type, total) => {
+          spinner.start(chalk.blue(`Parsing ${typeFilesText(type, total)} 1 of ${total}`))
+        },
+        onSectionProgress: (type, current, total) => {
+          spinner.text = chalk.blue(`Parsing ${typeFilesText(type, total)} ${current} of ${total}`)
           spinner.render()
+        },
+        onSectionEnd(type, total, errorFiles) {
+          if (errorFiles.length === 0)
+            return spinner.succeed(chalk.green(`No errors found in ${total} ${typeFilesText(type, total)}`))
 
-          try {
-            if (type === 'generic')
-              validator.loadGeneric(file.data)
-            else if (type === 'ddf')
-              validator.validate(file.data)
-          }
-          catch (error) {
-            errorsMessages.push({
-              path: file.path,
-              message: fromZodError(error, {
+          spinner.fail(chalk.red(`Found ${errorFiles.length} ${plural('error', 'errors', errorFiles.length)} in ${total} ${typeFilesText(type, total)}`))
+
+          errorFiles.forEach(({ path, error }) => {
+            /*
+            if (path === './test-data/tuya/_TZ3000_4fjiwweb_smart_knob.json')
+              console.log(error.errors)
+            */
+
+            let message = ''
+            try {
+              message = fromZodError(error, {
                 issueSeparator: '\n    ',
                 prefix: null,
-              }).message,
-            })
-          }
-        })
-
-        spinner.start()
-        if (errorsMessages.length > 0) {
-          spinner.fail(chalk.red(`Found ${errorsMessages.length} ${plural('error', 'errors', errorsMessages.length)} in ${files.length} ${typeFilesText}`))
-          errorsMessages.forEach((message) => {
-            console.log(`  ${chalk.cyan('File:')}`, message.path)
-            console.log(`    ${chalk.red(message.message)}`)
+              }).message
+            }
+            catch (e) {
+              message = error.toString()
+            }
+            console.log(`  ${chalk.cyan('File:')}`, path)
+            console.log(`    ${chalk.red(message)}`)
           })
-        }
-        else {
-          spinner.succeed(chalk.green(`No errors found in ${files.length} ${typeFilesText}`))
-        }
-      }
-
-      processFiles(genericFiles, 'generic')
-      processFiles(ddfFiles, 'ddf')
-
-      /*
-
-      filesData.filter((file) => {
-        try {
-          validator.loadGeneric(file.data)
-          return false
-        }
-        catch (error) {
-          return true
-        }
-      }).forEach((file) => {
-        try {
-          validator.validate(file.data)
-        }
-        catch (error) {
-          console.log(file.path)
-          console.log(fromZodError(error).message)
-        }
+        },
       })
-      */
     })
 }

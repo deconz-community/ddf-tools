@@ -8,3 +8,12 @@ export interface GenericsData {
   deviceTypes: Record<string, string>
   subDevices: Record<string, z.infer<ReturnType<typeof subDeviceSchema>>>
 }
+
+export interface FileDefinition {
+  path: string
+  data: unknown
+}
+
+export type FileDefinitionWithError = FileDefinition & {
+  error: z.ZodError | Error
+}

@@ -1,6 +1,6 @@
 import { version } from '../package.json'
 import { mainSchema } from './schema'
-import type { GenericsData } from './types'
+import type { FileDefinition, FileDefinitionWithError, GenericsData } from './types'
 
 export function createValidator(generics: GenericsData = {
   attributes: [],
@@ -86,5 +86,63 @@ export function createValidator(generics: GenericsData = {
     return schema.parse(data)
   }
 
-  return { generics, loadGeneric, validate, getSchema: () => schema, version, isGeneric, isDDF }
+  const bulkValidate = (genericFiles: FileDefinition[], ddfFiles: FileDefinition[], callbacks: {
+    onSectionStart?: (type: 'generic' | 'ddf', total: number) => void
+    onSectionProgress?: (type: 'generic' | 'ddf', current: number, total: number) => void
+    onSectionEnd?: (type: 'generic' | 'ddf', total: number, errors: FileDefinitionWithError[]) => void
+  } = {}): FileDefinitionWithError[] => {
+    const processFiles = (files: FileDefinition[], type: 'generic' | 'ddf') => {
+      let count = 0
+      let previousErrorCount = Number.POSITIVE_INFINITY
+      let filesToProcess = files
+      let errorFiles: FileDefinitionWithError[] = []
+
+      callbacks.onSectionStart?.(type, files.length)
+
+      while (true) {
+        errorFiles = []
+
+        callbacks.onSectionProgress?.(type, 1, files.length)
+
+        filesToProcess.forEach((file) => {
+          callbacks.onSectionProgress?.(type, count++, files.length)
+
+          try {
+            if (type === 'generic')
+              loadGeneric(file.data)
+            else if (type === 'ddf')
+              validate(file.data)
+          }
+          catch (error) {
+            errorFiles.push({
+              ...file,
+              error: error as Error,
+            })
+          }
+        })
+
+        if (errorFiles.length === 0)
+          break
+
+        // We didn't make any progress, so we stop
+        if (errorFiles.length >= previousErrorCount)
+          break
+
+        count -= errorFiles.length
+        filesToProcess = errorFiles
+        previousErrorCount = errorFiles.length
+      }
+
+      callbacks.onSectionEnd?.(type, files.length, errorFiles)
+
+      return errorFiles
+    }
+
+    return [
+      ...processFiles(genericFiles, 'generic'),
+      ...processFiles(ddfFiles, 'ddf'),
+    ]
+  }
+
+  return { generics, loadGeneric, validate, bulkValidate, getSchema: () => schema, version, isGeneric, isDDF }
 }

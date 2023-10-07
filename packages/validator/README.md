@@ -162,6 +162,56 @@ validator.validate({
 
 ```
 
+### validator.bulkValidate()
+
+Validate both generic and DDF data from two arrays
+
+#### Arguments
+- `genericFiles` - : FileDefinition[]; Generic files data.
+- `ddfFiles` - : FileDefinition[]; DDF files data.
+- `callbacks` - : object; Options.
+  - `onSectionStart` - : function; Called when a section start.
+  - `onSectionProgress` - : function; Called when a section progress.
+  - `onSectionEnd` - : function; Called when a section end.
+
+#### Return
+- `errors` - : FileDefinitionWithError[]; File definition with errors.
+
+#### Example
+
+```typescript
+validator.bulkValidate(genericFiles, ddfFiles, {
+  onSectionStart: (type, total) => {
+    spinner.start(chalk.blue(`Parsing ${typeFilesText(type, total)} 1 of ${total}`))
+  },
+  onSectionProgress: (type, current, total) => {
+    spinner.text = chalk.blue(`Parsing ${typeFilesText(type, total)} ${current} of ${total}`)
+    spinner.render()
+  },
+  onSectionEnd(type, total, errorFiles) {
+    if (errorFiles.length === 0)
+      return spinner.succeed(chalk.green(`No errors found in ${files.length} ${typeFilesText(type, total)}`))
+
+    spinner.fail(chalk.red(`Found ${errorFiles.length} ${plural('error', 'errors', errorFiles.length)} in ${files.length} ${typeFilesText(type, total)}`))
+
+    errorFiles.forEach(({ path, error }) => {
+      let message = ''
+      try {
+        message = fromZodError(error, {
+          issueSeparator: '\n    ',
+          prefix: null,
+        }).message
+      }
+      catch (e) {
+        message = error.toString()
+      }
+      console.log(`  ${chalk.cyan('File:')}`, path)
+      console.log(`    ${chalk.red(message)}`)
+    })
+  },
+})
+```
+
 ### validator.getSchema()
 
 Return Zod schema with loaded generic data.
