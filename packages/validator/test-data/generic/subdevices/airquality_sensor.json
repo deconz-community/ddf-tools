@@ -15,6 +15,7 @@
     "state/lastupdated"
   ],
   "items_optional": [
+    "state/airquality",
     "state/airqualityppb"
   ]
 }
