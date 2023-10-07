@@ -73,7 +73,7 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
   // For each item with zcl read method
   data.subdevices.forEach((device, device_index) => {
     device.items.forEach((item, item_index) => {
-      if (item['refresh.interval'] && item.read && item.read.fn === 'zcl:attr') {
+      if (item['refresh.interval'] && item.read && item.read.fn === 'zcl:attr' && item.read.at) {
         const endpoint = hexa(item.read.ep ?? device.fingerprint?.endpoint ?? device.uuid[1])
         const ats = Array.isArray(item.read.at)
           ? item.read.at
