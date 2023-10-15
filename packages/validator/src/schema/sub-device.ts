@@ -17,6 +17,7 @@ export function subDeviceSchema(generics: GenericsData) {
   return z.strictObject({
     $schema: z.optional(z.string()),
     schema: z.literal('subdevice1.schema.json'),
+    ddfvalidate: z.optional(z.boolean()),
     type: z.union([
       z.enum(Object.keys(generics.deviceTypes) as [string, ...string[]], {
         errorMap: (issue: ZodIssueOptionalMessage, ctx: { defaultError: string }) => {

@@ -9,6 +9,7 @@ export function ddfSchema(generics: GenericsData) {
     '$schema': z.optional(z.string()),
     'schema': z.literal('devcap1.schema.json'),
     'uuid': z.optional(z.string()),
+    'ddfvalidate': z.optional(z.boolean()),
     'version': z.optional(z.string()),
     'version_deconz': z.optional(z.string()),
     'doc:path': z.optional(z.string()),

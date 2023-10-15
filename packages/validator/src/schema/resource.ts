@@ -8,6 +8,7 @@ export function resourceSchema(generics: GenericsData) {
     '$schema': z.optional(z.string()),
     'schema': z.literal('resourceitem1.schema.json'),
     'id': z.string(),
+    'ddfvalidate': z.optional(z.boolean()),
     'description': z.optional(z.string())
       .describe('Item description, better to do not use it.'),
     'comment': z.optional(z.string())

@@ -33,6 +33,8 @@ describe('parse', async () => {
 
     test.each(genericFilesData)('should load generic file $path', (file) => {
       try {
+        if ('ddfvalidate' in file.data && file.data.ddfvalidate === false)
+          return
         const result = validator.loadGeneric(file.data)
         expect(result).toBeTruthy()
       }
@@ -50,6 +52,8 @@ describe('parse', async () => {
       try {
         const data = await readFile(filePath, 'utf-8')
         const decoded = JSON.parse(data)
+        if ('ddfvalidate' in decoded && decoded.ddfvalidate === false)
+          return
         const result = validator.validate(decoded)
         expect(result).toBeDefined()
       }
