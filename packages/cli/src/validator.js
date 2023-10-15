@@ -12,8 +12,9 @@ export function validator() {
     .command('validator')
     .description('Validate DDF files')
     .requiredOption('-d, --directory <path>', 'Directory to validate')
+    .option('--no-skip', 'Validate all files even if they have the ddfvalidate option to false')
     .action(async (options) => {
-      const { directory } = options
+      const { directory, skip } = options
       const validator = createValidator()
 
       console.log(chalk.green(`- Using validator version ${validator.version}`))
@@ -34,6 +35,12 @@ export function validator() {
           try {
             const data = await readFile(path, 'utf-8')
             file.data = JSON.parse(data)
+            if ('ddfvalidate' in file.data && file.data.ddfvalidate === false && skip) {
+              spinner.stop()
+              console.log(chalk.yellow(`Skipping file ${file.path} because it has the ddfvalidate option set to false`))
+              spinner.start()
+              return
+            }
           }
           catch (e) {
             spinner.stop()
