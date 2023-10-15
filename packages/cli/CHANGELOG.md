@@ -1,5 +1,17 @@
 # @deconz-community/cli
 
+## 1.2.0
+
+### Minor Changes
+
+- 910f2c4: Add support for ddfvalidate option
+- 910f2c4: Add --no-skip option to not skip files with ddfvalidate option
+
+### Patch Changes
+
+- Updated dependencies [71ba19c]
+  - @deconz-community/ddf-validator@2.20.0
+
 ## 1.1.0
 
 ### Minor Changes
