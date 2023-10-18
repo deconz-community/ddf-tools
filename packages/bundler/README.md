@@ -56,44 +56,72 @@ This is always the first chunk and allows fast indexing and matching without par
   "device_identifiers": [
     ["Philips", "acme 2000"],
     ["Signify", "acme 200"]
-  ]
+  ],
+  "validation": {
+    "result": "error",
+    "version": "2.20.0",
+    "errors": [
+      {
+        "message": "Unrecognized key(s) in object: 'cl'",
+        "path": ["subdevices", 0, "items", 6, "parse"]
+      },
+      {
+        "message": "Unrecognized key(s) in object: 'cl'",
+        "path": ["subdevices", 0, "items", 9, "parse"]
+      }
+    ]
+  }
 }
 ```
 
 #### version (required)
 
 The version of the DDF, increment it if anything change inside the DDF. Once released the content should not change if the version did not change. It's using [Semantic Versioning](https://semver.org/).
-```
-Example : "1.0.0"
+
+##### Example
+
+```json
+"1.0.0"
 ```
 
 #### source (optional)
 
 The URL of the DDF page on the store, could be used to update DDF.
 
-```
-Example : "https://deconz-community.github.io/ddf-store/XXXX/XXXX"
+##### Example
+
+```json
+"https://deconz-community.github.io/ddf-store/XXXX/XXXX"
 ```
 
 #### last_modified (required)
 
 The last modified date of the bundle in a complete date plus hours ISO 8601 format.
-```
-Example : "2023-01-08T17:24:24z"
+
+##### Example
+
+```json
+"2023-01-08T17:24:24z"
 ```
 
 #### version_deconz (required)
 
 The minimum version for Deconz. It's using [Semantic Versioning](https://semver.org/) with version comparaison. See [Semver Calculator](https://semver.npmjs.com/) for example.
-```
-Example : ">2.20.1"
+
+##### Example
+
+```json
+">2.20.1"
 ```
 
 #### product (required)
 
 The english device commercial name of the device.
-```
-Example : "acme 2000"
+
+##### Example
+
+```json
+"acme 2000"
 ```
 
 #### product_localised (optional)
@@ -101,18 +129,24 @@ Example : "acme 2000"
 The device commercial name of the device localised indexed by the [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
 
 Note that the "en" name it's on `product` property.
-```
-Example : {
-    "de": "german product name",
-    "fr": "french product name",
+
+##### Example
+
+```json
+{
+  "de": "german product name",
+  "fr": "french product name"
 }
 ```
 
 #### links (optional)
 
 Any link usefull about this bundle, can be issue link, forum link, device official web page
-```
-Example : [
+
+##### Example
+
+```json
+[
   "url-to-forum-entry",
   "url-to-github-entry"
 ]
@@ -122,11 +156,57 @@ Example : [
 
 The list of device identifier, it's generated from each combinaison of `manufacturername` and `modelid` from the DDF.
 
-```
-Example : [
+##### Example
+
+```json
+[
   ["Philips", "acme 2000"],
   ["Signify", "acme 200"]
 ]
+```
+
+#### validation (optional)
+
+The result of the validation using the ddf-validator. It's a JSON object.
+If there is no errors the `errors` property is omitted.
+
+`result` can be `success`, `error` or `skipped`.
+
+##### Example success
+
+```json
+{
+  "result": "success",
+  "version": "2.20.0"
+}
+```
+
+##### Example error
+
+```json
+{
+  "result": "error",
+  "version": "2.20.0",
+  "errors": [
+    {
+      "message": "Unrecognized key(s) in object: 'cl'",
+      "path": ["subdevices", 0, "items", 6, "parse"]
+    },
+    {
+      "message": "Unrecognized key(s) in object: 'cl'",
+      "path": ["subdevices", 0, "items", 9, "parse"]
+    }
+  ]
+}
+```
+
+##### Example skipped
+
+```json
+{
+  "result": "skipped",
+  "version": "2.20.0"
+}
 ```
 
 ### DDFB.DDFC - DDF JSON (compressed) - unique
