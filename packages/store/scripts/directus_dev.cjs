@@ -9,7 +9,7 @@ concurrently([
     prefixColor: 'yellow.bold',
   },
   {
-    command: 'pnpm --dir packages/main run dev',
+    command: 'pnpm --dir ../store-extension run dev',
     name: 'extensions',
     prefixColor: 'cyan.bold',
   },

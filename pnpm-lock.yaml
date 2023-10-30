@@ -186,7 +186,7 @@ importers:
     dependencies:
       '@deconz-community/directus-extension-store':
         specifier: workspace:^
-        version: link:packages/main
+        version: link:../store-extension
       directus:
         specifier: ^10.7.1
         version: 10.7.1(vue@3.3.4)
@@ -210,11 +210,11 @@ importers:
         specifier: 0.0.2-1
         version: 0.0.2-1
 
-  packages/store/packages/main:
+  packages/store-extension:
     dependencies:
       '@deconz-community/ddf-bundler':
         specifier: workspace:^
-        version: link:../../../bundler
+        version: link:../bundler
       '@directus/api':
         specifier: ^14.0.1
         version: 14.0.1(@types/node@20.8.9)(vue@3.3.4)
@@ -5151,7 +5151,7 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.4(rollup@3.22.0)
+      '@rollup/pluginutils': 5.0.5(rollup@3.22.0)
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
@@ -5168,7 +5168,7 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.4(rollup@3.22.0)
+      '@rollup/pluginutils': 5.0.5(rollup@3.22.0)
       rollup: 3.22.0
 
   /@rollup/plugin-node-resolve@11.2.1(rollup@2.79.1):
@@ -5195,7 +5195,7 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.4(rollup@3.22.0)
+      '@rollup/pluginutils': 5.0.5(rollup@3.22.0)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
@@ -5222,7 +5222,7 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.4(rollup@3.22.0)
+      '@rollup/pluginutils': 5.0.5(rollup@3.22.0)
       magic-string: 0.27.0
       rollup: 3.22.0
 
@@ -5299,20 +5299,6 @@ packages:
       picomatch: 2.3.1
       rollup: 2.79.1
 
-  /@rollup/pluginutils@5.0.4(rollup@3.22.0):
-    resolution: {integrity: sha512-0KJnIoRI8A+a1dqOYLxH8vBf8bphDmty5QvIm2hqm7oFCFYKCAZWWd2hXgMibaPsNDhI0AtpYfQZJG47pt/k4g==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@types/estree': 1.0.1
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
-      rollup: 3.22.0
-
   /@rollup/pluginutils@5.0.4(rollup@3.29.2):
     resolution: {integrity: sha512-0KJnIoRI8A+a1dqOYLxH8vBf8bphDmty5QvIm2hqm7oFCFYKCAZWWd2hXgMibaPsNDhI0AtpYfQZJG47pt/k4g==}
     engines: {node: '>=14.0.0'}
@@ -5342,6 +5328,20 @@ packages:
       picomatch: 2.3.1
       rollup: 2.79.1
     dev: true
+
+  /@rollup/pluginutils@5.0.5(rollup@3.22.0):
+    resolution: {integrity: sha512-6aEYR910NyP73oHiJglti74iRyOwgFU4x3meH/H8OJx6Ry0j6cOVZ5X/wTvub7G7Ao6qaHBEaNsV3GLJkSsF+Q==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@types/estree': 1.0.1
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+      rollup: 3.22.0
 
   /@sendgrid/client@6.5.5:
     resolution: {integrity: sha512-Nbfgo94gbWSL8PIgJfuHoifyOJJepvV8NQkkglctAEfb1hyozKhrzE6v1kPG/z4j0RodaTtXD5LJj/t0q/VhLA==}
@@ -7188,6 +7188,7 @@ packages:
   /arraybuffer.prototype.slice@1.0.2:
     resolution: {integrity: sha512-yMBKppFur/fbHu9/6USUe03bZ4knMYiwFBcyiaXB8Go0qNehwX6inYPzK9U0NeQvGxKthcmHcaR8P5MStSRBAw==}
     engines: {node: '>= 0.4'}
+    requiresBuild: true
     dependencies:
       array-buffer-byte-length: 1.0.0
       call-bind: 1.0.2
@@ -10190,6 +10191,7 @@ packages:
   /function.prototype.name@1.1.6:
     resolution: {integrity: sha512-Z5kx79swU5P27WEayXM1tBi5Ze/lbIyiNgU3qyXUOf9b2rgXYyF9Dy9Cx+IQv/Lc8WCG6L82zwUPpSS9hGehIg==}
     engines: {node: '>= 0.4'}
+    requiresBuild: true
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.2.1
@@ -13195,7 +13197,7 @@ packages:
   /openapi3-ts@4.1.2:
     resolution: {integrity: sha512-B7gOkwsYMZO7BZXwJzXCuVagym2xhqsrilVvV0dnq2Di4+iLUXKVX9gOK23ZqaAHZOwABXN0QTdW8QnkUTX6DA==}
     dependencies:
-      yaml: 2.3.1
+      yaml: 2.3.3
     dev: false
 
   /openid-client@5.4.2:
@@ -14867,7 +14869,7 @@ packages:
       esbuild: '>=0.10.1'
       rollup: ^1.20.0 || ^2.0.0 || ^3.0.0
     dependencies:
-      '@rollup/pluginutils': 5.0.4(rollup@3.22.0)
+      '@rollup/pluginutils': 5.0.5(rollup@3.22.0)
       debug: 4.3.4
       es-module-lexer: 1.3.0
       esbuild: 0.17.19
@@ -14961,6 +14963,7 @@ packages:
   /safe-array-concat@1.0.1:
     resolution: {integrity: sha512-6XbUAseYE2KtOuGueyeobCySj9L4+66Tn6KQMOPQJrAJEowYKW/YR/MGJZl7FdydUdaFu4LYyDZjxf4/Nmo23Q==}
     engines: {node: '>=0.4'}
+    requiresBuild: true
     dependencies:
       call-bind: 1.0.2
       get-intrinsic: 1.2.1
@@ -15695,6 +15698,7 @@ packages:
   /string.prototype.trim@1.2.8:
     resolution: {integrity: sha512-lfjY4HcixfQXOfaqCvcBuOIapyaroTXhbkfJN3gcB1OtyupngWK4sEET9Knd0cXd28kTUqu/kHoV4HKSJdnjiQ==}
     engines: {node: '>= 0.4'}
+    requiresBuild: true
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.2.1
@@ -15702,6 +15706,7 @@ packages:
 
   /string.prototype.trimend@1.0.7:
     resolution: {integrity: sha512-Ni79DqeB72ZFq1uH/L6zJ+DKZTkOtPIHovb3YZHQViE+HDouuU4mBrLOLDn5Dde3RF8qw5qVETEjhu9locMLvA==}
+    requiresBuild: true
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.2.1
@@ -15709,6 +15714,7 @@ packages:
 
   /string.prototype.trimstart@1.0.7:
     resolution: {integrity: sha512-NGhtDFu3jCEm7B4Fy0DpLewdJQOZcQ0rGbwQ/+stjnrp2i+rlKeCvos9hOIeCmqwratM47OBxY7uFZzjxHXmrg==}
+    requiresBuild: true
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.2.1
@@ -17946,11 +17952,11 @@ packages:
   /yaml@2.3.1:
     resolution: {integrity: sha512-2eHWfjaoXgTBC2jNM1LRef62VQa0umtvRiDSk6HSzW7RvS5YtkabJrwYLLEKWBc8a5U2PTSCs+dJjUTJdlHsWQ==}
     engines: {node: '>= 14'}
+    dev: true
 
   /yaml@2.3.3:
     resolution: {integrity: sha512-zw0VAJxgeZ6+++/su5AFoqBbZbrEakwu+X0M5HmcwUiBL7AzcuPKjj5we4xfQLp78LkEMpD0cOnUhmgOVy3KdQ==}
     engines: {node: '>= 14'}
-    dev: true
 
   /yargs-parser@18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
