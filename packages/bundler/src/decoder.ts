@@ -76,7 +76,7 @@ export async function dataDecoder(file: File | Blob) {
 
 export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundle>> {
   const bundle = Bundle()
-  bundle.data.name = file.name
+  bundle.data.name = 'name' in file ? file.name : 'decoded bundle'
 
   const { parseChunks } = await dataDecoder(file)
 
