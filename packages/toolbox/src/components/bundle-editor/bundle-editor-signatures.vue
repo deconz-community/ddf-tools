@@ -5,7 +5,7 @@ import { useConfirm } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
 
-import { VDataTable } from 'vuetify/labs/components'
+import { VDataTable } from 'vuetify/components'
 
 const props = defineProps<{
   modelValue: ChunkSignature[]
