@@ -106,8 +106,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
       manifest: {
-        name: 'Deconz-Ruler',
-        short_name: 'Deconz-Ruler',
+        name: 'Deconz-Toolbox',
+        short_name: 'Deconz-Toolbox',
         theme_color: '#ffffff',
         icons: [
           {
