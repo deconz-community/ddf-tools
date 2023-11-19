@@ -7,4 +7,4 @@ USER node
 
 COPY . .
 
-RUN pnpm install ./packages/store
+RUN pnpm install ./packages/store-extension
