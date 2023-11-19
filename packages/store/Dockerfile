@@ -1,14 +1,10 @@
 # Use the official Directus image as the base image
-FROM directus/directus
+FROM directus/directus:10.8.1
 
-# Copy the local project files to the container
-COPY . /var/directus
+USER root
+RUN corepack enable
+USER node
 
-# Set the working directory in the container to /var/directus
-WORKDIR /var/directus
+COPY . .
 
-# Expose the port Directus is running on
-EXPOSE 8055
-
-# Start Directus
-CMD ["npx", "directus", "start"]
+RUN pnpm install ./packages/store
