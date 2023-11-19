@@ -22,8 +22,7 @@ const fileName = {
 
 const formats = Object.keys(fileName) as Array<keyof typeof fileName>
 
-// eslint-disable-next-line antfu/no-cjs-exports
-module.exports = defineConfig({
+export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'index.ts'),

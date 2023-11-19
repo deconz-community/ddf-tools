@@ -11,8 +11,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
 
-// eslint-disable-next-line antfu/no-cjs-exports
-module.exports = defineConfig({
+export default defineConfig({
   base: '/ddf-tools/',
   resolve: {
     alias: {
@@ -131,7 +130,7 @@ module.exports = defineConfig({
       },
     }),
 
-    monacoEditorPlugin({}),
+    monacoEditorPlugin.default({}),
 
   ],
 
