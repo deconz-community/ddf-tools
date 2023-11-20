@@ -1,5 +1,5 @@
 version: 1
-directus: 13.1.1
+directus: 14.1.1
 vendor: sqlite
 collections:
   - collection: bundles
@@ -19,10 +19,11 @@ collections:
       note: null
       preview_url: null
       singleton: false
-      sort: 2
+      sort: 1
       sort_field: null
       translations: null
       unarchive_value: null
+      versioning: false
     schema:
       name: bundles
   - collection: bundles_device_identifiers
@@ -48,6 +49,7 @@ collections:
       sort_field: null
       translations: null
       unarchive_value: null
+      versioning: false
     schema:
       name: bundles_device_identifiers
   - collection: bundles_sub_devices
@@ -71,6 +73,7 @@ collections:
       sort_field: null
       translations: null
       unarchive_value: null
+      versioning: false
     schema:
       name: bundles_sub_devices
   - collection: device_identifiers
@@ -94,8 +97,59 @@ collections:
       sort_field: null
       translations: null
       unarchive_value: null
+      versioning: false
     schema:
       name: device_identifiers
+  - collection: organizations
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: organizations
+      color: null
+      display_template: null
+      group: null
+      hidden: false
+      icon: null
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: 2
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: organizations
+  - collection: organizations_directus_users
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: organizations_directus_users
+      color: null
+      display_template: '{{organizations_id.name}} - {{directus_users_id.first_name}}'
+      group: organizations
+      hidden: false
+      icon: import_export
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: 1
+      sort_field: null
+      translations:
+        - language: en-US
+          translation: Roles
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: organizations_directus_users
   - collection: signatures
     meta:
       accountability: all
@@ -117,6 +171,7 @@ collections:
       sort_field: null
       translations: null
       unarchive_value: null
+      versioning: false
     schema:
       name: signatures
   - collection: sub_devices
@@ -140,6 +195,7 @@ collections:
       sort_field: null
       translations: null
       unarchive_value: null
+      versioning: false
     schema:
       name: sub_devices
 fields:
@@ -159,7 +215,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 15
+      sort: 14
       special: null
       translations: null
       validation: null
@@ -192,13 +248,13 @@ fields:
         relative: true
       field: date_created
       group: null
-      hidden: true
+      hidden: false
       interface: datetime
       note: null
       options: null
       readonly: true
       required: false
-      sort: 4
+      sort: 8
       special:
         - cast-timestamp
         - date-created
@@ -233,13 +289,13 @@ fields:
         relative: true
       field: date_updated
       group: null
-      hidden: true
+      hidden: false
       interface: datetime
       note: null
       options: null
       readonly: true
       required: false
-      sort: 6
+      sort: 10
       special:
         - cast-timestamp
         - date-updated
@@ -322,53 +378,13 @@ fields:
           {{device_identifiers_id.model}}
       readonly: false
       required: false
-      sort: 12
+      sort: 11
       special:
         - m2m
       translations: null
       validation: null
       validation_message: null
       width: full
-  - collection: bundles
-    field: downloads_count
-    type: integer
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: downloads_count
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options:
-        iconLeft: download
-        min: 0
-      readonly: false
-      required: false
-      sort: 11
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: downloads_count
-      table: bundles
-      data_type: integer
-      default_value: 0
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
   - collection: bundles
     field: id
     type: string
@@ -423,7 +439,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 7
+      sort: 3
       special: null
       translations: null
       validation: null
@@ -462,7 +478,7 @@ fields:
         template: '{{signature}}'
       readonly: false
       required: false
-      sort: 14
+      sort: 13
       special:
         - o2m
       translations: null
@@ -485,7 +501,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 13
+      sort: 12
       special:
         - m2m
       translations: null
@@ -510,9 +526,13 @@ fields:
         choices:
           - text: Latest
             value: latest
+          - text: Beta
+            value: beta
+          - text: Alpha
+            value: alpha
       readonly: false
       required: false
-      sort: 8
+      sort: 4
       special: null
       translations: null
       validation: null
@@ -544,14 +564,14 @@ fields:
       display_options: null
       field: user_created
       group: null
-      hidden: true
+      hidden: false
       interface: select-dropdown-m2o
       note: null
       options:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 3
+      sort: 7
       special:
         - user-created
       translations: null
@@ -584,14 +604,14 @@ fields:
       display_options: null
       field: user_updated
       group: null
-      hidden: true
+      hidden: false
       interface: select-dropdown-m2o
       note: null
       options:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 5
+      sort: 9
       special:
         - user-updated
       translations: null
@@ -630,7 +650,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 9
+      sort: 5
       special: null
       translations: null
       validation: null
@@ -668,12 +688,12 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 10
+      sort: 6
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
       name: version_deconz
       table: bundles
@@ -1174,6 +1194,427 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: organizations
+    field: date_created
+    type: timestamp
+    meta:
+      collection: organizations
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 3
+      special:
+        - cast-timestamp
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_created
+      table: organizations
+      data_type: datetime
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: organizations
+    field: date_updated
+    type: timestamp
+    meta:
+      collection: organizations
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: true
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 5
+      special:
+        - cast-timestamp
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_updated
+      table: organizations
+      data_type: datetime
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: organizations
+    field: id
+    type: uuid
+    meta:
+      collection: organizations
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: input
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 1
+      special:
+        - uuid
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: organizations
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: organizations
+    field: members
+    type: alias
+    meta:
+      collection: organizations
+      conditions: null
+      display: null
+      display_options: null
+      field: members
+      group: null
+      hidden: false
+      interface: list-m2m
+      note: null
+      options:
+        enableCreate: false
+        template: '{{directus_users_id.first_name}} - {{role}}'
+      readonly: false
+      required: false
+      sort: 7
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: organizations
+    field: name
+    type: string
+    meta:
+      collection: organizations
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: organizations
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: organizations
+    field: user_created
+    type: string
+    meta:
+      collection: organizations
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 2
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: organizations
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: organizations
+    field: user_updated
+    type: string
+    meta:
+      collection: organizations
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 4
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_updated
+      table: organizations
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: organizations_directus_users
+    field: directus_users_id
+    type: string
+    meta:
+      collection: organizations_directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: directus_users_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: directus_users_id
+      table: organizations_directus_users
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: organizations_directus_users
+    field: id
+    type: integer
+    meta:
+      collection: organizations_directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: id
+      table: organizations_directus_users
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: true
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: organizations_directus_users
+    field: organizations_id
+    type: string
+    meta:
+      collection: organizations_directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: organizations_id
+      group: null
+      hidden: true
+      interface: null
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: organizations_id
+      table: organizations_directus_users
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: organizations
+      foreign_key_column: id
+  - collection: organizations_directus_users
+    field: role
+    type: string
+    meta:
+      collection: organizations_directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: role
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: Member
+            value: member
+          - text: Owner
+            value: owner
+      readonly: false
+      required: true
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: role
+      table: organizations_directus_users
+      data_type: varchar
+      default_value: null
+      max_length: 50
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: signatures
     field: bundle
     type: string
@@ -1595,6 +2036,102 @@ relations:
       column: sub_devices_type
       foreign_key_table: sub_devices
       foreign_key_column: type
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: directus_settings
+    field: public_favicon
+    related_collection: directus_files
+    meta: null
+    schema:
+      table: directus_settings
+      column: public_favicon
+      foreign_key_table: directus_files
+      foreign_key_column: id
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: organizations
+    field: user_created
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: organizations
+      many_field: user_created
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: organizations
+      column: user_created
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: organizations
+    field: user_updated
+    related_collection: directus_users
+    meta:
+      junction_field: null
+      many_collection: organizations
+      many_field: user_updated
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: organizations
+      column: user_updated
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: NO ACTION
+  - collection: organizations_directus_users
+    field: directus_users_id
+    related_collection: directus_users
+    meta:
+      junction_field: organizations_id
+      many_collection: organizations_directus_users
+      many_field: directus_users_id
+      one_allowed_collections: null
+      one_collection: directus_users
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: organizations_directus_users
+      column: directus_users_id
+      foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: organizations_directus_users
+    field: organizations_id
+    related_collection: organizations
+    meta:
+      junction_field: directus_users_id
+      many_collection: organizations_directus_users
+      many_field: organizations_id
+      one_allowed_collections: null
+      one_collection: organizations
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: members
+      sort_field: null
+    schema:
+      table: organizations_directus_users
+      column: organizations_id
+      foreign_key_table: organizations
+      foreign_key_column: id
       constraint_name: null
       on_update: NO ACTION
       on_delete: CASCADE

@@ -11,11 +11,46 @@ import {
   readItem as readItem$,
 } from "@directus/sdk";
 
-export type Nullable<T> = T | null;
-export type Optional<T> = Nullable<T>;
-export type UnknownType<T> = T | unknown;
-export type UUID = string;
-export type BigInt = number;
+export namespace Types {
+  // Internal
+  export type Nullable<T> = T | null;
+  export type Optional<T> = Nullable<T>;
+  export type UnknownType<T> = T | unknown;
+
+  // Numbers
+  export type BigInteger = number;
+  export type Decimal = number;
+  export type Float = number;
+  export type Integer = number;
+  export type Number = number;
+
+  // Buffers
+  export type Binary = string;
+  export type String = string;
+  export type Text = string;
+
+  // Date & Time
+  export type Date = string | globalThis.Date;
+  export type DateTime = string | globalThis.Date;
+
+  // Geometry
+  export namespace Geometry {
+    export type LineString = any;
+    export type MultiLineString = any;
+    export type MultiPoint = any;
+    export type MultiPolygon = any;
+    export type Point = any;
+    export type Polygon = any;
+  }
+
+  // Complex
+  export type JSON = any;
+  export type JSONSchema = any;
+
+  // Others
+  export type UUID = string;
+  export type Boolean = boolean;
+}
 
 /**
  * System collections.
@@ -93,219 +128,9 @@ export namespace Collections {
    *
    */
   export interface ExtraDirectusUser {
-    avatar_url: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "directus_users";
-            field: "avatar_url";
-            type: "string";
-            schema: {
-              name: "avatar_url";
-              table: "directus_users";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 38;
-              collection: "directus_users";
-              field: "avatar_url";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 2;
-              width: "full";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 38;
-          collection: "directus_users";
-          field: "avatar_url";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 2;
-          width: "full";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    private_key: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "directus_users";
-            field: "private_key";
-            type: "string";
-            schema: {
-              name: "private_key";
-              table: "directus_users";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 40;
-              collection: "directus_users";
-              field: "private_key";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 3;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 40;
-          collection: "directus_users";
-          field: "private_key";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 3;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    public_key: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "directus_users";
-            field: "public_key";
-            type: "string";
-            schema: {
-              name: "public_key";
-              table: "directus_users";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 39;
-              collection: "directus_users";
-              field: "public_key";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 4;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 39;
-          collection: "directus_users";
-          field: "public_key";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 4;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
+    avatar_url: Types.Optional<Types.String>;
+    private_key: Types.Optional<Types.String>;
+    public_key: Types.Optional<Types.String>;
   }
 
   /**
@@ -361,6 +186,18 @@ export namespace Collections {
    *
    */
   export type DirectusTranslation = Directus.DirectusTranslation<Schema>;
+
+  /**
+   * The resolved directus versions collection type.
+   *
+   */
+  export type DirectusVersion = Directus.DirectusVersion<Schema>;
+
+  /**
+   * The resolved directus extensions collection type.
+   *
+   */
+  // export type DirectusExtension = Directus.DirectusExtension<Schema>;
 }
 
 /**
@@ -371,1118 +208,90 @@ export namespace Collections {
    * The bundles collection.
    */
   export interface Bundles {
-    id: UnknownType<{
-      schema: {
-        raw: {
-          collection: "bundles";
-          field: "id";
-          type: "string";
-          schema: {
-            name: "id";
-            table: "bundles";
-            data_type: "char";
-            default_value: null;
-            max_length: 64;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: true;
-            is_primary_key: true;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 67;
-            collection: "bundles";
-            field: "id";
-            special: null;
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 1;
-            width: "half";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 67;
-        collection: "bundles";
-        field: "id";
-        special: null;
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 1;
-        width: "half";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    ddf_uuid: UnknownType<{
-      schema: {
-        raw: {
-          collection: "bundles";
-          field: "ddf_uuid";
-          type: "string";
-          schema: {
-            name: "ddf_uuid";
-            table: "bundles";
-            data_type: "char";
-            default_value: null;
-            max_length: 36;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 72;
-            collection: "bundles";
-            field: "ddf_uuid";
-            special: null;
-            interface: "input";
-            options: null;
-            display: "raw";
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 2;
-            width: "half";
-            translations: [
-              {
-                language: "en-US";
-                translation: "DDF UUID";
-              },
-            ];
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 72;
-        collection: "bundles";
-        field: "ddf_uuid";
-        special: null;
-        interface: "input";
-        options: null;
-        display: "raw";
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 2;
-        width: "half";
-        translations: [
-          {
-            language: "en-US";
-            translation: "DDF UUID";
-          },
-        ];
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    user_created: Optional<Collections.DirectusUser>;
-    date_created: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "bundles";
-            field: "date_created";
-            type: "timestamp";
-            schema: {
-              name: "date_created";
-              table: "bundles";
-              data_type: "datetime";
-              default_value: null;
-              max_length: null;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 69;
-              collection: "bundles";
-              field: "date_created";
-              special: ["date-created", "cast-timestamp"];
-              interface: "datetime";
-              options: null;
-              display: "datetime";
-              display_options: {
-                relative: true;
-              };
-              readonly: true;
-              hidden: true;
-              sort: 4;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 69;
-          collection: "bundles";
-          field: "date_created";
-          special: ["date-created", "cast-timestamp"];
-          interface: "datetime";
-          options: null;
-          display: "datetime";
-          display_options: {
-            relative: true;
-          };
-          readonly: true;
-          hidden: true;
-          sort: 4;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    user_updated: Optional<Collections.DirectusUser>;
-    date_updated: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "bundles";
-            field: "date_updated";
-            type: "timestamp";
-            schema: {
-              name: "date_updated";
-              table: "bundles";
-              data_type: "datetime";
-              default_value: null;
-              max_length: null;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 71;
-              collection: "bundles";
-              field: "date_updated";
-              special: ["date-updated", "cast-timestamp"];
-              interface: "datetime";
-              options: null;
-              display: "datetime";
-              display_options: {
-                relative: true;
-              };
-              readonly: true;
-              hidden: true;
-              sort: 6;
-              width: "half";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: false;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 71;
-          collection: "bundles";
-          field: "date_updated";
-          special: ["date-updated", "cast-timestamp"];
-          interface: "datetime";
-          options: null;
-          display: "datetime";
-          display_options: {
-            relative: true;
-          };
-          readonly: true;
-          hidden: true;
-          sort: 6;
-          width: "half";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: false;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    product: UnknownType<{
-      schema: {
-        raw: {
-          collection: "bundles";
-          field: "product";
-          type: "string";
-          schema: {
-            name: "product";
-            table: "bundles";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 73;
-            collection: "bundles";
-            field: "product";
-            special: null;
-            interface: "input";
-            options: null;
-            display: "raw";
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 7;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 73;
-        collection: "bundles";
-        field: "product";
-        special: null;
-        interface: "input";
-        options: null;
-        display: "raw";
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 7;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    tag: Optional<"latest">;
-    version: UnknownType<{
-      schema: {
-        raw: {
-          collection: "bundles";
-          field: "version";
-          type: "string";
-          schema: {
-            name: "version";
-            table: "bundles";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 74;
-            collection: "bundles";
-            field: "version";
-            special: null;
-            interface: "input";
-            options: null;
-            display: "raw";
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 9;
-            width: "half";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 74;
-        collection: "bundles";
-        field: "version";
-        special: null;
-        interface: "input";
-        options: null;
-        display: "raw";
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 9;
-        width: "half";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    version_deconz: UnknownType<{
-      schema: {
-        raw: {
-          collection: "bundles";
-          field: "version_deconz";
-          type: "string";
-          schema: {
-            name: "version_deconz";
-            table: "bundles";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 75;
-            collection: "bundles";
-            field: "version_deconz";
-            special: null;
-            interface: "input";
-            options: null;
-            display: "raw";
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 10;
-            width: "half";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 75;
-        collection: "bundles";
-        field: "version_deconz";
-        special: null;
-        interface: "input";
-        options: null;
-        display: "raw";
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 10;
-        width: "half";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    downloads_count: Optional<number>;
+    id: Types.String;
+    ddf_uuid: Types.String;
+    product: Types.String;
+    tag: Types.Optional<"alpha" | "beta" | "latest" | Types.String>;
+    version: Types.String;
+    version_deconz: Types.String;
+    user_created: Types.Optional<Types.String | Collections.DirectusUser>;
+    date_created: Types.Optional<Types.DateTime>;
+    user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
+    date_updated: Types.Optional<Types.DateTime>;
     device_identifiers: BundlesDeviceIdentifiers;
     sub_devices: BundlesSubDevices;
     signatures: Signatures;
-    content: Optional<string>;
+    content: Types.Optional<Types.String>;
   }
 
   /**
    * The bundles device identifiers collection.
    */
   export interface BundlesDeviceIdentifiers {
-    id: number;
-    bundles_id: Optional<Bundles>;
-    device_identifiers_id: Optional<DeviceIdentifiers>;
+    id: Types.Integer;
+    bundles_id: Types.Optional<Types.String | Bundles>;
+    device_identifiers_id: Types.Optional<Types.String | DeviceIdentifiers>;
   }
 
   /**
    * The bundles sub devices collection.
    */
   export interface BundlesSubDevices {
-    id: number;
-    bundles_id: Optional<Bundles>;
-    sub_devices_type: Optional<SubDevices>;
+    id: Types.Integer;
+    bundles_id: Types.Optional<Types.String | Bundles>;
+    sub_devices_type: Types.Optional<Types.String | SubDevices>;
   }
 
   /**
    * The device identifiers collection.
    */
   export interface DeviceIdentifiers {
-    id: UnknownType<{
-      schema: {
-        raw: {
-          collection: "device_identifiers";
-          field: "id";
-          type: "uuid";
-          schema: {
-            name: "id";
-            table: "device_identifiers";
-            data_type: "char";
-            default_value: null;
-            max_length: 36;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: true;
-            is_primary_key: true;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 63;
-            collection: "device_identifiers";
-            field: "id";
-            special: ["uuid"];
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: true;
-            hidden: true;
-            sort: 1;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: false;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 63;
-        collection: "device_identifiers";
-        field: "id";
-        special: ["uuid"];
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: true;
-        hidden: true;
-        sort: 1;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: false;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    manufacturer: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "device_identifiers";
-            field: "manufacturer";
-            type: "string";
-            schema: {
-              name: "manufacturer";
-              table: "device_identifiers";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 64;
-              collection: "device_identifiers";
-              field: "manufacturer";
-              special: null;
-              interface: "input";
-              options: {
-                iconLeft: null;
-              };
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 2;
-              width: "full";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: true;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 64;
-          collection: "device_identifiers";
-          field: "manufacturer";
-          special: null;
-          interface: "input";
-          options: {
-            iconLeft: null;
-          };
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 2;
-          width: "full";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: true;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
-    model: Optional<
-      UnknownType<{
-        schema: {
-          raw: {
-            collection: "device_identifiers";
-            field: "model";
-            type: "string";
-            schema: {
-              name: "model";
-              table: "device_identifiers";
-              data_type: "varchar";
-              default_value: null;
-              max_length: 255;
-              numeric_precision: null;
-              numeric_scale: null;
-              is_generated: false;
-              generation_expression: null;
-              is_nullable: true;
-              is_unique: false;
-              is_primary_key: false;
-              has_auto_increment: false;
-              foreign_key_column: null;
-              foreign_key_table: null;
-            };
-            meta: {
-              id: 65;
-              collection: "device_identifiers";
-              field: "model";
-              special: null;
-              interface: "input";
-              options: null;
-              display: null;
-              display_options: null;
-              readonly: false;
-              hidden: false;
-              sort: 3;
-              width: "full";
-              translations: null;
-              note: null;
-              conditions: null;
-              required: true;
-              group: null;
-              validation: null;
-              validation_message: null;
-            };
-          };
-          raw_relation: null;
-        };
-        meta: {
-          id: 65;
-          collection: "device_identifiers";
-          field: "model";
-          special: null;
-          interface: "input";
-          options: null;
-          display: null;
-          display_options: null;
-          readonly: false;
-          hidden: false;
-          sort: 3;
-          width: "full";
-          translations: null;
-          note: null;
-          conditions: null;
-          required: true;
-          group: null;
-          validation: null;
-          validation_message: null;
-        };
-      }>
-    >;
+    id: Types.String;
+    manufacturer: Types.Optional<Types.String>;
+    model: Types.Optional<Types.String>;
     bundles: BundlesDeviceIdentifiers;
+  }
+
+  /**
+   * The organizations collection.
+   */
+  export interface Organizations {
+    id: Types.String;
+    user_created: Types.Optional<Types.String | Collections.DirectusUser>;
+    date_created: Types.Optional<Types.DateTime>;
+    user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
+    date_updated: Types.Optional<Types.DateTime>;
+    name: Types.String;
+    members: OrganizationsDirectusUsers;
+  }
+
+  /**
+   * The organizations directus users collection.
+   */
+  export interface OrganizationsDirectusUsers {
+    id: Types.Integer;
+    organizations_id: Types.Optional<Types.String | Organizations>;
+    directus_users_id: Types.Optional<Types.String | DirectusUser>;
+    role: Types.Optional<"owner" | "member" | Types.String>;
   }
 
   /**
    * The signatures collection.
    */
   export interface Signatures {
-    id: UnknownType<{
-      schema: {
-        raw: {
-          collection: "signatures";
-          field: "id";
-          type: "uuid";
-          schema: {
-            name: "id";
-            table: "signatures";
-            data_type: "char";
-            default_value: null;
-            max_length: 36;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: true;
-            is_primary_key: true;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 100;
-            collection: "signatures";
-            field: "id";
-            special: ["uuid"];
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: true;
-            hidden: true;
-            sort: 1;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: false;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 100;
-        collection: "signatures";
-        field: "id";
-        special: ["uuid"];
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: true;
-        hidden: true;
-        sort: 1;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: false;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    bundle: Bundles;
-    signature: UnknownType<{
-      schema: {
-        raw: {
-          collection: "signatures";
-          field: "signature";
-          type: "string";
-          schema: {
-            name: "signature";
-            table: "signatures";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 101;
-            collection: "signatures";
-            field: "signature";
-            special: null;
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 3;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 101;
-        collection: "signatures";
-        field: "signature";
-        special: null;
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 3;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    key: UnknownType<{
-      schema: {
-        raw: {
-          collection: "signatures";
-          field: "key";
-          type: "string";
-          schema: {
-            name: "key";
-            table: "signatures";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 102;
-            collection: "signatures";
-            field: "key";
-            special: null;
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 4;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 102;
-        collection: "signatures";
-        field: "key";
-        special: null;
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 4;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
+    id: Types.String;
+    bundle: Types.String | Bundles;
+    signature: Types.String;
+    key: Types.String;
   }
 
   /**
    * The sub devices collection.
    */
   export interface SubDevices {
-    type: UnknownType<{
-      schema: {
-        raw: {
-          collection: "sub_devices";
-          field: "type";
-          type: "string";
-          schema: {
-            name: "type";
-            table: "sub_devices";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: true;
-            is_primary_key: true;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 104;
-            collection: "sub_devices";
-            field: "type";
-            special: null;
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 1;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: false;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 104;
-        collection: "sub_devices";
-        field: "type";
-        special: null;
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 1;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: false;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    name: UnknownType<{
-      schema: {
-        raw: {
-          collection: "sub_devices";
-          field: "name";
-          type: "string";
-          schema: {
-            name: "name";
-            table: "sub_devices";
-            data_type: "varchar";
-            default_value: null;
-            max_length: 255;
-            numeric_precision: null;
-            numeric_scale: null;
-            is_generated: false;
-            generation_expression: null;
-            is_nullable: false;
-            is_unique: false;
-            is_primary_key: false;
-            has_auto_increment: false;
-            foreign_key_column: null;
-            foreign_key_table: null;
-          };
-          meta: {
-            id: 105;
-            collection: "sub_devices";
-            field: "name";
-            special: null;
-            interface: "input";
-            options: null;
-            display: null;
-            display_options: null;
-            readonly: false;
-            hidden: false;
-            sort: 2;
-            width: "full";
-            translations: null;
-            note: null;
-            conditions: null;
-            required: true;
-            group: null;
-            validation: null;
-            validation_message: null;
-          };
-        };
-        raw_relation: null;
-      };
-      meta: {
-        id: 105;
-        collection: "sub_devices";
-        field: "name";
-        special: null;
-        interface: "input";
-        options: null;
-        display: null;
-        display_options: null;
-        readonly: false;
-        hidden: false;
-        sort: 2;
-        width: "full";
-        translations: null;
-        note: null;
-        conditions: null;
-        required: true;
-        group: null;
-        validation: null;
-        validation_message: null;
-      };
-    }>;
-    endpoint: Optional<"/lights" | "/sensors">;
+    type: Types.String;
+    name: Types.String;
+    endpoint: Types.Optional<"/lights" | "/sensors" | Types.String>;
     bundles: BundlesSubDevices;
   }
 }
@@ -1520,6 +329,16 @@ export interface Schema {
    * The device identifiers collection.
    */
   device_identifiers: Collections.DeviceIdentifiers[];
+
+  /**
+   * The organizations collection.
+   */
+  organizations: Collections.Organizations[];
+
+  /**
+   * The organizations directus users collection.
+   */
+  organizations_directus_users: Collections.OrganizationsDirectusUsers[];
 
   /**
    * The signatures collection.
@@ -1624,6 +443,49 @@ export function readDeviceIdentifiers<
 >(key: string | number, query?: Query) {
   return readItem$<Schema, "device_identifiers", Query>(
     "device_identifiers",
+    key,
+    query,
+  );
+}
+
+/**
+ * List organizations items.
+ */
+export function listOrganizations<
+  const Query extends Query$<Schema, Collections.Organizations>,
+>(query?: Query) {
+  return readItems$<Schema, "organizations", Query>("organizations", query);
+}
+
+/**
+ * Gets a single known organizations item by id.
+ */
+export function readOrganizations<
+  const Query extends Query$<Schema, Collections.Organizations>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "organizations", Query>("organizations", key, query);
+}
+
+/**
+ * List organizations directus users items.
+ */
+export function listOrganizationsDirectusUsers<
+  const Query extends Query$<Schema, Collections.OrganizationsDirectusUsers>,
+>(query?: Query) {
+  return readItems$<Schema, "organizations_directus_users", Query>(
+    "organizations_directus_users",
+    query,
+  );
+}
+
+/**
+ * Gets a single known organizations directus users item by id.
+ */
+export function readOrganizationsDirectusUsers<
+  const Query extends Query$<Schema, Collections.OrganizationsDirectusUsers>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "organizations_directus_users", Query>(
+    "organizations_directus_users",
     key,
     query,
   );
