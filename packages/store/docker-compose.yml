@@ -3,7 +3,7 @@ services:
   ddfstore:
     build:
       context: ../../.
-      dockerfile: Dockerfile
+      dockerfile: packages/store/Dockerfile
     ports:
       - 8055:8055
     volumes:
