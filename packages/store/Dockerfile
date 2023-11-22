@@ -3,7 +3,8 @@
 ## Create Production Image
 
 # Use the official Directus image as the base image
-FROM directus/directus:10.8.2
+# FROM directus/directus:10.8.2
+FROM node:18-alpine AS runtime
 
 # WORKDIR /directus
 
