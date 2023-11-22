@@ -8,7 +8,7 @@ FROM ubuntu AS builder
 
 # WORKDIR /directus
 
-COPY . ./ddf-tools
+COPY ../../ ./ddf-tools
 
 # USER root
 # RUN corepack enable \
