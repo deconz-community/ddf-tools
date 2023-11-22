@@ -16,7 +16,6 @@ RUN corepack enable \
 EXPOSE 8055
 USER node
 
-CMD bash
 
 #CMD : \
 #&& node /directus/cli.js bootstrap \
