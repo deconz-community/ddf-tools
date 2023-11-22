@@ -24,45 +24,33 @@ RUN pnpm fetch
 
 COPY . .
 
-
-#RUN <<EOF
-#	pnpm install --recursive --offline --frozen-lockfile
-#	npm_config_workspace_concurrency=1 pnpm run build
-#	pnpm --filter directus deploy --prod dist
-#	cd dist
-#	# Regenerate package.json file with essential fields only
-#	# (see https://github.com/directus/directus/issues/20338)
-#	node -e '
-#		const f = "package.json", {name, version, type, exports, bin} = require(`./${f}`), {packageManager} = require(`../${f}`);
-#		fs.writeFileSync(f, JSON.stringify({name, version, type, exports, bin, packageManager}, null, 2));
-#	'
-#	mkdir -p database extensions uploads
-#EOF
+RUN <<EOF
+  pnpm install --recursive --offline --frozen-lockfile
+  pnpm --dir packages/store-extension run build
+EOF
 
 
 ####################################################################################################
 ## Create Production Image
 
 # Use the official Directus image as the base image
-# FROM directus/directus:10.8.2
-# FROM ubuntu AS runtime
+FROM directus/directus:10.8.2
 
-# WORKDIR /directus
+WORKDIR /directus
 
+USER root
+RUN corepack enable \
+  && corepack prepare pnpm@8.7.6 --activate \
+  && chown -R node:node /directus
 
+EXPOSE 8055
 
-# USER root
-# RUN corepack enable \
-# && corepack prepare pnpm@8.7.6 --activate \
-# && chown node:node /directus
-# EXPOSE 8055
-# USER node
-# 
-# 
-# CMD : \
-# && node /directus/cli.js bootstrap \
-# && node /directus/cli.js start;
-# 
+COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/dist /ddf-tools/store-extension/dist
+COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/package.json /ddf-tools/store-extension/package.json
+
+USER node
+RUN pnpm add /ddf-tools/store-extension
+
 
 # https://github.com/deconz-community/ddf-tools
 # refs/heads/main
