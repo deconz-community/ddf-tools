@@ -5,6 +5,8 @@
 FROM node:18-alpine AS builder
 WORKDIR /ddf-tools
 
+RUN apk update && apk add bash
+
 ARG TARGETPLATFORM
 
 ENV NODE_OPTIONS=--max-old-space-size=8192
