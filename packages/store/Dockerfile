@@ -21,4 +21,4 @@ USER node
 #&& node /directus/cli.js bootstrap \
 #&& node /directus/cli.js start;
 
-CMD []
+CMD ["bash"]
