@@ -5,18 +5,18 @@ services:
       context: ../../.
       dockerfile: packages/store/Dockerfile
     ports:
-      - 8055:8055
-#     volumes:
-#       - ./database:/directus/database
-#       - ./uploads:/directus/uploads
-#       - ./extensions:/directus/extensions
+      - 8056:8055
+    volumes:
+      - ddf-store-database:/directus/database
+      - ddf-store-uploads:/directus/uploads
+    env_file:
+      - .env
+      - .env.local
     environment:
-      KEY: ${KEY}
-      SECRET: ${SECRET}
-      ADMIN_EMAIL: "admin@example.com"
-      ADMIN_PASSWORD: "d1r3ctu5"
       DB_CLIENT: "sqlite3"
       DB_FILENAME: "/directus/database/data.db"
-      WEBSOCKETS_ENABLED: true
     stdin_open: true
     tty: true
+volumes:
+  ddf-store-database:
+  ddf-store-uploads:
