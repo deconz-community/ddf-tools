@@ -2,23 +2,23 @@
 ####################################################################################################
 ## Build Packages
 
-FROM node:18-alpine AS builder
-WORKDIR /ddf-tools
-
-ENV NODE_OPTIONS=--max-old-space-size=8192
-
-COPY package.json .
-RUN corepack enable && corepack prepare
-
-COPY pnpm-lock.yaml .
-RUN pnpm fetch
-
-COPY . .
-
-RUN <<EOF
-  pnpm install --filter packages/store-extension --recursive --offline --frozen-lockfile
-  pnpm --dir packages/store-extension run build
-EOF
+#FROM node:18-alpine AS builder
+#WORKDIR /ddf-tools
+#
+#ENV NODE_OPTIONS=--max-old-space-size=8192
+#
+#COPY package.json .
+#RUN corepack enable && corepack prepare
+#
+#COPY pnpm-lock.yaml .
+#RUN pnpm fetch
+#
+#COPY . .
+#
+#RUN <<EOF
+#  pnpm install --filter packages/store-extension --recursive --offline --frozen-lockfile
+#  pnpm --dir packages/store-extension run build
+#EOF
 
 
 ####################################################################################################
@@ -36,17 +36,17 @@ RUN corepack enable \
 
 EXPOSE 8055
 
-COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/dist /ddf-tools/store-extension/dist
-COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/package.json /ddf-tools/store-extension/package.json
-COPY --from=builder --chown=node:node /ddf-tools/packages/store/schema.yaml /directus/ddf-tools-schema.yaml
+#COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/dist /ddf-tools/store-extension/dist
+#COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/package.json /ddf-tools/store-extension/package.json
+#COPY --from=builder --chown=node:node /ddf-tools/packages/store/schema.yaml /directus/ddf-tools-schema.yaml
 
 USER node
 
-RUN pnpm add /ddf-tools/store-extension
+#RUN pnpm add /ddf-tools/store-extension
 
 CMD : \
 	&& node cli.js bootstrap \
-	&& node cli.js schema apply --yes ./ddf-tools-schema.yaml \
+#	&& node cli.js schema apply --yes ./ddf-tools-schema.yaml \
 	&& pm2-runtime start ecosystem.config.cjs \
 	;
 
