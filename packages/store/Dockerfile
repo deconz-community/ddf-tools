@@ -25,7 +25,7 @@ RUN pnpm fetch
 COPY . .
 
 RUN <<EOF
-  pnpm --dir packages/store-extension install
+  pnpm install --filter packages/store-extension --recursive --offline --frozen-lockfile
   pnpm --dir packages/store-extension run build
 EOF
 
