@@ -1,5 +1,17 @@
 # @deconz-community/cli
 
+## 1.3.0
+
+### Minor Changes
+
+- 61e073a: Update deps
+
+### Patch Changes
+
+- Updated dependencies [61e073a]
+  - @deconz-community/ddf-bundler@0.12.0
+  - @deconz-community/ddf-validator@2.21.0
+
 ## 1.2.0
 
 ### Minor Changes
