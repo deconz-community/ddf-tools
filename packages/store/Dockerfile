@@ -36,15 +36,13 @@ RUN corepack enable \
 
 EXPOSE 8055
 
-COPY --chown=node:node /ddf-tools/packages/store/schema.yaml /directus/ddf-tools-schema.yaml
-
 USER node
 
 RUN pnpm install @deconz-community/directus-extension-ddf-store
 
 CMD : \
 	&& node cli.js bootstrap \
-#	&& node cli.js schema apply --yes ./ddf-tools-schema.yaml \
+	&& node cli.js schema apply --yes ./schema.yaml \
 	&& pm2-runtime start ecosystem.config.cjs \
 	;
 
