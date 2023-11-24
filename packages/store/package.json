@@ -49,7 +49,7 @@
     },
     "packageManager": "pnpm@8.10.5",
     "dependencies": {
-        "@deconz-community/directus-extension-store": "workspace:^",
+        "@deconz-community/directus-extension-ddf-store": "workspace:^",
         "directus": "^10.8.2",
         "dotenv": "^16.3.1",
         "dotenv-cli": "^7.3.0",
