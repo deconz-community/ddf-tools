@@ -36,13 +36,11 @@ RUN corepack enable \
 
 EXPOSE 8055
 
-#COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/dist /ddf-tools/store-extension/dist
-#COPY --from=builder --chown=node:node /ddf-tools/packages/store-extension/package.json /ddf-tools/store-extension/package.json
-#COPY --from=builder --chown=node:node /ddf-tools/packages/store/schema.yaml /directus/ddf-tools-schema.yaml
+COPY --chown=node:node /ddf-tools/packages/store/schema.yaml /directus/ddf-tools-schema.yaml
 
 USER node
 
-#RUN pnpm add /ddf-tools/store-extension
+RUN pnpm install @deconz-community/directus-extension-ddf-store
 
 CMD : \
 	&& node cli.js bootstrap \
