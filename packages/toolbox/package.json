@@ -1,14 +1,32 @@
 {
   "name": "@deconz-community/toolbox",
-  "private": true,
   "type": "module",
+  "private": true,
+  "packageManager": "pnpm@8.10.5",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/toolbox",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
   "scripts": {
     "dev": "vite --port 4000",
     "build": "vite build",
     "up": "taze major -I",
     "postinstall": "xstate typegen \"./src/**/*.ts?(x)\""
   },
-  "packageManager": "pnpm@8.10.5",
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
     "@deconz-community/ddf-validator": "workspace:^",
@@ -91,29 +109,11 @@
     "vue-router": "^4.2.5",
     "vue3-perfect-scrollbar": "^1.6.1"
   },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/toolbox",
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deconz-community/ddf-tools.git"
-  },
-  "license": "MIT",
-  "author": {
-    "name": "Zehir",
-    "email": "zehir@zorim.fr",
-    "url": "https://github.com/Zehir"
-  },
   "maintainers": [
     {
       "name": "Zehir",
       "email": "zehir@zorim.fr",
       "url": "https://github.com/Zehir"
     }
-  ],
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  }
+  ]
 }

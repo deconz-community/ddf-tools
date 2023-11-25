@@ -1,61 +1,61 @@
 {
-    "name": "@deconz-community/directus-extension-ddf-store",
-    "version": "0.2.0",
-    "type": "module",
-    "description": "Extension for Directus to store DDF files in the database, used only by the Deconz Community",
-    "icon": "extension",
-    "keywords": [
-        "directus",
-        "directus-extension",
-        "directus-custom-bundle"
-    ],
-    "scripts": {
-        "build": "directus-extension build",
-        "dev": "directus-extension build -w --no-minify",
-        "add": "directus-extension add"
+  "name": "@deconz-community/directus-extension-ddf-store",
+  "type": "module",
+  "version": "0.2.0",
+  "description": "Extension for Directus to store DDF files in the database, used only by the Deconz Community",
+  "keywords": [
+    "directus",
+    "directus-extension",
+    "directus-custom-bundle"
+  ],
+  "icon": "extension",
+  "scripts": {
+    "build": "directus-extension build",
+    "dev": "directus-extension build -w --no-minify",
+    "add": "directus-extension add"
+  },
+  "directus:extension": {
+    "host": "^10.1.10",
+    "type": "bundle",
+    "path": {
+      "app": "dist/app.js",
+      "api": "dist/api.js"
     },
-    "directus:extension": {
-        "host": "^10.1.10",
-        "type": "bundle",
-        "path": {
-            "app": "dist/app.js",
-            "api": "dist/api.js"
-        },
-        "entries": [
-            {
-                "type": "hook",
-                "name": "hook-auth",
-                "source": "src/hooks/auth.ts"
-            },
-            {
-                "type": "hook",
-                "name": "hook-upload",
-                "source": "src/hooks/upload.ts"
-            },
-            {
-                "type": "endpoint",
-                "name": "bundle",
-                "source": "src/api/index.ts"
-            }
-        ]
-    },
-    "dependencies": {
-        "@deconz-community/ddf-bundler": "workspace:^",
-        "@directus/errors": "^0.2.0",
-        "@noble/hashes": "^1.3.2",
-        "@octokit/core": "^5.0.2",
-        "@sindresorhus/slugify": "^2.2.1",
-        "busboy": "^1.6.0",
-        "compare-versions": "^6.1.0",
-        "pako": "^2.1.0"
-    },
-    "devDependencies": {
-        "@directus/extensions-sdk": "10.1.14",
-        "@directus/api": "^14.1.2",
-        "@directus/types": "^11.0.2",
-        "@types/busboy": "^1.5.3",
-        "@types/node": "^20.10.0",
-        "express": "^4.18.2",
-        "typescript": "^5.3.2"
-    }
+    "entries": [
+      {
+        "type": "hook",
+        "name": "hook-auth",
+        "source": "src/hooks/auth.ts"
+      },
+      {
+        "type": "hook",
+        "name": "hook-upload",
+        "source": "src/hooks/upload.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "bundle",
+        "source": "src/api/index.ts"
+      }
+    ]
+  },
+  "dependencies": {
+    "@deconz-community/ddf-bundler": "workspace:^",
+    "@directus/errors": "^0.2.0",
+    "@noble/hashes": "^1.3.2",
+    "@octokit/core": "^5.0.2",
+    "@sindresorhus/slugify": "^2.2.1",
+    "busboy": "^1.6.0",
+    "compare-versions": "^6.1.0",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@directus/api": "^14.1.2",
+    "@directus/extensions-sdk": "10.1.14",
+    "@directus/types": "^11.0.2",
+    "@types/busboy": "^1.5.3",
+    "@types/node": "^20.10.0",
+    "express": "^4.18.2",
+    "typescript": "^5.3.2"
+  }
 }

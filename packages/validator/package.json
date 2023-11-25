@@ -1,95 +1,95 @@
 {
-    "name": "@deconz-community/ddf-validator",
-    "version": "2.21.0",
-    "type": "module",
-    "description": "Validating DDF files for deconz",
-    "keywords": [
-        "deconz",
-        "drezden",
-        "conbee",
-        "ddf",
-        "bundle"
-    ],
-    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/validator",
-    "bugs": {
-        "url": "https://github.com/deconz-community/ddf-tools/issues/"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/deconz-community/ddf-tools.git"
-    },
-    "license": "MIT",
-    "author": {
-        "name": "Zehir",
-        "email": "zehir@zorim.fr",
-        "url": "https://github.com/Zehir"
-    },
-    "maintainers": [
-        {
-            "name": "Zehir",
-            "email": "zehir@zorim.fr",
-            "url": "https://github.com/Zehir"
-        }
-    ],
-    "funding": {
-        "type": "individual",
-        "url": "https://github.com/sponsors/Zehir"
-    },
-    "files": [
-        "./dist/ddf-validator.cjs",
-        "./dist/ddf-validator.mjs",
-        "./dist/ddf-validator.d.ts",
-        "./dist/ddf-schema.json"
-    ],
-    "main": "./dist/ddf-validator.cjs",
-    "module": "./dist/ddf-validator.mjs",
-    "types": "./dist/ddf-validator.d.ts",
-    "exports": {
-        ".": {
-            "require": "./dist/ddf-validator.cjs",
-            "import": "./dist/ddf-validator.mjs"
-        }
-    },
-    "scripts": {
-        "build": "pnpm run build:vite && pnpm run build:dts",
-        "build:cleanup": "rimraf ./dist",
-        "build:vite": "vite build",
-        "build:dts": "node ./build-dts.js",
-        "lint": "eslint",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data",
-        "up": "taze major -I"
-    },
-    "engines": {
-        "pnpm": ">=8.6.8",
-        "node": ">=16.0.0"
-    },
-    "packageManager": "pnpm@8.10.5",
-    "devDependencies": {
-        "@types/jsdom": "^21.1.6",
-        "@types/node": "^20.10.0",
-        "@types/pako": "^2.0.3",
-        "@typescript-eslint/eslint-plugin": "^6.12.0",
-        "@typescript-eslint/parser": "^6.12.0",
-        "degit": "^2.8.4",
-        "eslint": "^8.54.0",
-        "fast-glob": "^3.3.2",
-        "lint-staged": "^15.1.0",
-        "rimraf": "^5.0.5",
-        "stylelint": "^15.11.0",
-        "stylelint-config-recommended": "^13.0.0",
-        "stylelint-config-sass-guidelines": "^10.0.0",
-        "taze": "^0.12.1",
-        "ts-node": "^10.9.1",
-        "typescript": "^5.3.2",
-        "vite": "^5.0.2",
-        "vitest": "^0.34.6",
-        "zod-to-json-schema": "^3.22.0",
-        "zod-to-ts": "^1.2.0",
-        "zod-validation-error": "^2.1.0"
-    },
-    "dependencies": {
-        "zod": "^3.22.4"
+  "name": "@deconz-community/ddf-validator",
+  "type": "module",
+  "version": "2.21.0",
+  "packageManager": "pnpm@8.10.5",
+  "description": "Validating DDF files for deconz",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/validator",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "keywords": [
+    "deconz",
+    "drezden",
+    "conbee",
+    "ddf",
+    "bundle"
+  ],
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
     }
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/ddf-validator.mjs",
+      "require": "./dist/ddf-validator.cjs"
+    }
+  },
+  "main": "./dist/ddf-validator.cjs",
+  "module": "./dist/ddf-validator.mjs",
+  "types": "./dist/ddf-validator.d.ts",
+  "files": [
+    "./dist/ddf-schema.json",
+    "./dist/ddf-validator.cjs",
+    "./dist/ddf-validator.d.ts",
+    "./dist/ddf-validator.mjs"
+  ],
+  "engines": {
+    "pnpm": ">=8.6.8",
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "pnpm run build:vite && pnpm run build:dts",
+    "build:cleanup": "rimraf ./dist",
+    "build:vite": "vite build",
+    "build:dts": "node ./build-dts.js",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data",
+    "up": "taze major -I"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^20.10.0",
+    "@types/pako": "^2.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "degit": "^2.8.4",
+    "eslint": "^8.54.0",
+    "fast-glob": "^3.3.2",
+    "lint-staged": "^15.1.0",
+    "rimraf": "^5.0.5",
+    "stylelint": "^15.11.0",
+    "stylelint-config-recommended": "^13.0.0",
+    "stylelint-config-sass-guidelines": "^10.0.0",
+    "taze": "^0.12.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.2",
+    "vitest": "^0.34.6",
+    "zod-to-json-schema": "^3.22.0",
+    "zod-to-ts": "^1.2.0",
+    "zod-validation-error": "^2.1.0"
+  }
 }

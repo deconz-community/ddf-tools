@@ -1,94 +1,94 @@
 {
-    "name": "@deconz-community/rest-client",
-    "version": "0.1.0",
-    "type": "module",
-    "private": true,
-    "description": "",
-    "keywords": [
-        "deconz",
-        "drezden",
-        "conbee",
-        "rest",
-        "client"
-    ],
-    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/rest-client",
-    "bugs": {
-        "url": "https://github.com/deconz-community/ddf-tools/issues/"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/deconz-community/ddf-tools.git"
-    },
-    "license": "MIT",
-    "author": {
-        "name": "Zehir",
-        "email": "zehir@zorim.fr",
-        "url": "https://github.com/Zehir"
-    },
-    "maintainers": [
-        {
-            "name": "Zehir",
-            "email": "zehir@zorim.fr",
-            "url": "https://github.com/Zehir"
-        }
-    ],
-    "funding": {
-        "type": "individual",
-        "url": "https://github.com/sponsors/Zehir"
-    },
-    "files": [
-        "./dist/rest-client.cjs",
-        "./dist/rest-client.mjs",
-        "./dist/rest-client.d.ts"
-    ],
-    "main": "./dist/rest-client.cjs",
-    "module": "./dist/rest-client.mjs",
-    "types": "./dist/rest-client.d.ts",
-    "exports": {
-        ".": {
-            "require": "./dist/rest-client.cjs",
-            "import": "./dist/rest-client.mjs"
-        }
-    },
-    "scripts": {
-        "build": "pnpm run build:vite",
-        "build:cleanup": "rimraf ./dist",
-        "build:vite": "vite build",
-        "lint": "eslint",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "up": "taze major -I"
-    },
-    "engines": {
-        "pnpm": ">=8.6.8",
-        "node": ">=16.0.0"
-    },
-    "packageManager": "pnpm@8.10.5",
-    "devDependencies": {
-        "@types/jsdom": "^21.1.6",
-        "@types/node": "^20.10.0",
-        "@types/pako": "^2.0.3",
-        "@typescript-eslint/eslint-plugin": "^6.12.0",
-        "@typescript-eslint/parser": "^6.12.0",
-        "degit": "^2.8.4",
-        "eslint": "^8.54.0",
-        "lint-staged": "^15.1.0",
-        "rimraf": "^5.0.5",
-        "stylelint": "^15.11.0",
-        "stylelint-config-recommended": "^13.0.0",
-        "stylelint-config-sass-guidelines": "^10.0.0",
-        "taze": "^0.12.1",
-        "typescript": "^5.3.2",
-        "vite": "^5.0.2",
-        "vitest": "^0.34.6",
-        "zod-to-json-schema": "^3.22.0",
-        "zod-to-ts": "^1.2.0",
-        "zod-validation-error": "^2.1.0"
-    },
-    "dependencies": {
-        "@zodios/core": "^10.9.6",
-        "axios": "^1.6.2",
-        "ts-results-es": "^4.0.0",
-        "zod": "^3.22.4"
+  "name": "@deconz-community/rest-client",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@8.10.5",
+  "description": "",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/rest-client",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "keywords": [
+    "deconz",
+    "drezden",
+    "conbee",
+    "rest",
+    "client"
+  ],
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
     }
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/rest-client.mjs",
+      "require": "./dist/rest-client.cjs"
+    }
+  },
+  "main": "./dist/rest-client.cjs",
+  "module": "./dist/rest-client.mjs",
+  "types": "./dist/rest-client.d.ts",
+  "files": [
+    "./dist/rest-client.cjs",
+    "./dist/rest-client.d.ts",
+    "./dist/rest-client.mjs"
+  ],
+  "engines": {
+    "pnpm": ">=8.6.8",
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "pnpm run build:vite",
+    "build:cleanup": "rimraf ./dist",
+    "build:vite": "vite build",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "up": "taze major -I"
+  },
+  "dependencies": {
+    "@zodios/core": "^10.9.6",
+    "axios": "^1.6.2",
+    "ts-results-es": "^4.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^20.10.0",
+    "@types/pako": "^2.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "degit": "^2.8.4",
+    "eslint": "^8.54.0",
+    "lint-staged": "^15.1.0",
+    "rimraf": "^5.0.5",
+    "stylelint": "^15.11.0",
+    "stylelint-config-recommended": "^13.0.0",
+    "stylelint-config-sass-guidelines": "^10.0.0",
+    "taze": "^0.12.1",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.2",
+    "vitest": "^0.34.6",
+    "zod-to-json-schema": "^3.22.0",
+    "zod-to-ts": "^1.2.0",
+    "zod-validation-error": "^2.1.0"
+  }
 }

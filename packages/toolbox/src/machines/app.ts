@@ -10,6 +10,7 @@ enableMapSet()
 
 const storageKey = 'app'
 const storageSchema = z.object({
+  storeUrl: z.optional(z.string()),
   credentials: z.record(z.object({
     id: z.string(),
     name: z.string(),
@@ -156,7 +157,10 @@ export const appMachine = createMachine({
   },
   services: {
     saveSettings: context => async () => {
-      const data: StorageSchema = { credentials: {} }
+      const data: StorageSchema = {
+        storeUrl: context.machine.store.state.context.storeUrl,
+        credentials: {},
+      }
 
       context.machine.gateways.forEach((machine: ActorRefFrom<typeof gatewayMachine>) => {
         const snapshot = machine.getSnapshot()

@@ -160,11 +160,7 @@ export function createAppMachine() {
 
         if (devTools) {
           // Handle Ninja registration
-          const ninja = createXStateNinjaSingleton({
-            // logLevel: LogLevels.debug,
-          })
-          // Disabled for now see https://github.com/rlaffers/xstate-ninja/issues/10
-
+          const ninja = createXStateNinjaSingleton()
           ninja.register(service)
           toDispose.push(() => ninja.unregister(service))
         }

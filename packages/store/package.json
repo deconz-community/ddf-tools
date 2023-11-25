@@ -1,63 +1,63 @@
 {
-    "name": "@deconz-community/store",
-    "version": "0.0.1",
-    "description": "",
-    "type": "module",
-    "icon": "extension",
-    "private": true,
-    "keywords": [
-        "deconz",
-        "drezden",
-        "conbee"
-    ],
-    "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
-    "bugs": {
-        "url": "https://github.com/deconz-community/ddf-tools/issues/"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/deconz-community/ddf-tools.git"
-    },
-    "license": "MIT",
-    "author": {
-        "name": "Zehir",
-        "email": "zehir@zorim.fr",
-        "url": "https://github.com/Zehir"
-    },
-    "maintainers": [
-        {
-            "name": "Zehir",
-            "email": "zehir@zorim.fr",
-            "url": "https://github.com/Zehir"
-        }
-    ],
-    "funding": {
-        "type": "individual",
-        "url": "https://github.com/sponsors/Zehir"
-    },
-    "scripts": {
-        "dev": "node ./scripts/directus_dev.cjs",
-        "import:schema": "npx directus schema apply ./schema.yaml",
-        "export:schema": "npx directus schema snapshot --yes ./schema.yaml && npx indirectus sdk generate --url http://localhost:8055 --token LOCALHOST_TOKEN --fetch && cp ./.directus/generated/client.ts ../store-extension/src/client.d.ts && cp ./.directus/generated/client.ts ../toolbox/src/interfaces/store.ts && rm -rf ./.directus",
-        "directus": "CONFIG_PATH='./scripts/load_env.cjs' npx directus",
-        "start": "pnpm directus start",
-        "test-docker": "docker compose --env-file .env.local -f docker-compose.yml up --build"
-    },
-    "engines": {
-        "pnpm": ">=8.6.8",
-        "node": ">=16.0.0"
-    },
-    "packageManager": "pnpm@8.10.5",
-    "dependencies": {
-        "@deconz-community/directus-extension-ddf-store": "workspace:^",
-        "directus": "^10.8.2",
-        "dotenv": "^16.3.1",
-        "dotenv-cli": "^7.3.0",
-        "sqlite3": "^5.1.6"
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.2",
-        "nodemon": "^3.0.1",
-        "spawn-command": "0.0.2-1"
+  "name": "@deconz-community/store",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@8.10.5",
+  "description": "",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "keywords": [
+    "deconz",
+    "drezden",
+    "conbee"
+  ],
+  "icon": "extension",
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
     }
+  ],
+  "engines": {
+    "pnpm": ">=8.6.8",
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "dev": "node ./scripts/directus_dev.cjs",
+    "import:schema": "npx directus schema apply ./schema.yaml",
+    "export:schema": "npx directus schema snapshot --yes ./schema.yaml && npx indirectus sdk generate --url http://localhost:8055 --token LOCALHOST_TOKEN --fetch && cp ./.directus/generated/client.ts ../store-extension/src/client.d.ts && cp ./.directus/generated/client.ts ../toolbox/src/interfaces/store.ts && rm -rf ./.directus",
+    "directus": "CONFIG_PATH='./scripts/load_env.cjs' npx directus",
+    "start": "pnpm directus start",
+    "test-docker": "docker compose --env-file .env.local -f docker-compose.yml up --build"
+  },
+  "dependencies": {
+    "@deconz-community/directus-extension-ddf-store": "workspace:^",
+    "directus": "^10.8.2",
+    "dotenv": "^16.3.1",
+    "dotenv-cli": "^7.3.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.1",
+    "spawn-command": "0.0.2-1"
+  }
 }

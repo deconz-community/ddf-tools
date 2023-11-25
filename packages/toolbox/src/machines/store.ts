@@ -19,9 +19,10 @@ export interface StoreContext {
 }
 
 export const storeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEELK8+ABuaADWOME44fiR0bEIBKmhVDL4gkIV8hJSMbLyiggAtEoq2MzmRl46ar66rIZWtggqDmpemiZTXqwm+nrjAUHoITl5MfhxCZF4KemZK9kRURtQhXsldeXC-MwiSCA10vUPjU26DkrOuhPMc8zMQxfIbKP7qCZTEwzOYLLxLEBZMLHfKbYhgDAYTDYMQAGyotEwAFtsIi1icCkU0JcyhUqg8nlcGogZoZsMYvKZDLo1PoptyQSMweNJppeeMZjM1PDEbIcQQaPhZNZCWgAK6wYgAGQA8gBxACSADk6eJJM85K9EE1AQ5XDpWHpWK0OoCBYZfNgYU5PJpDHoDNLDthZfKkbkTpAtXrtQBVAAqJseZsZluaNvarQdjuduldNkQTlYbKBpmhZnmhkDPGD+DlOzJ0UjMYACgARACCcYAogB9ZsAJW1ADF9Zqu4mGWUmc0NJpsD8vCYdJpRaZgfmEFyvPOlCvWH8TO53CYAoEQIqIHB5Flqsmp6mmkDVAul6wV0Yl5YN4-t61nD4Zm5ZgXClM9ET4FBb1qe9QEaJQxg0IwfiMUxzAFVxsDfVxxh5ZgvF0L4lCrVZkVOKDzWnJoTFULwJlmZg1FmExDABfQv2GZh9CUbA3FzVwuX6B0jGInAQ0iciU1gq0eW3F9l1XT8BSUfRt2YpRSyYgwBhEms6wVJUVXVCSYIUOw50PFQ-QGd8fCUAUeSLJd3TUFigV9P4dLEo5w0bCBjJeKTmlabdCy8fRvG0VgVPYgt9FUQtfUMWi9GouEwKDNBaFoPT-ItQKJlZUUdAI8KjC4tQlPmHjnH3IEoVFKK0oCIA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEELK8+ABuaADWOME44fiR0bEIBKmhVDL4gkIV8hJSMbLyiggAtEoq2MzmRl46ar66rIZWtggqDmpemiZTXqwm+nrjAUHoITl5MfhxCZF4KemZK9kRURtQhXsldeXC-MwiSCA10vUPjU26DkrOuhPMc8zMQxfIbKP7qCZTEwzOYLLxLEBZMLHfKbYhgDAYTDYMQAGyotEwAFtsIi1icCkU0JcyhUqg8nlcGogZoZsMYvKZDLo1PoptyQSMweNJppeeMZjM1PDEbIcQQaPhZNZCWgAK6wYgAGQA8gBxACSADk6eJJM85K9EE1AQ5XDpWHpWK0OoCBYZfNgYU5PJpDHoDNLDthZfKkbkTpAtXrtQBVAAqJseZsZluaNvarQdjuduldNkQTlYbKBpmhZnmhkDPGD+DlOzJ0UjMYACgARACCcYAogB9ZsAJW1ADF9Zqu4mGWUmc0NJpsD8vCYdJpRaZgfmEFyvPOlCvWH8TO53CYq1hiC2O92ewBlOPa-u9mP9zUT5NT1NNLxg1q5jm9LzOO4gwbh6mhOv0rBeN0f7dAEgQgIqEBwPIWTVG+LygG8QKqAuS6sCuRhLpYG5NIY24-pMBhqMw+jjKwUrwYifAoGhtTvphyhjBoRg-EYpjmAKrjYPhrjjDyzAAV8Sinkc4YolArHmtOTQmKoUFgapaizCYhgAvoxHDDRSjYG4uauFyEGsEYMk1nWYCKSmHEzvo264cuq5EQKSguZ6QLuD83l-N00mMUGIY7BQir4MqarwPS6EWk5zBzoeKh+gMBE+EoAo8kWS7umoulAr6fw2eFsnrJADnsQoVqtNuhZePo3jaFZAECqKqiFr6ZEzB8EllbQtB2dVGG1QgEysqKOi6N5q76G4XnzCZzj7kCUKim1cF+EAA */
 
   id: 'store',
+
   predictableActionArguments: true,
   tsTypes: {} as import('./store.typegen').Typegen0,
 
@@ -32,6 +33,9 @@ export const storeMachine = createMachine({
       profile: Collections.DirectusUser
     } | {
       type: 'LOGOUT'
+    } | {
+      type: 'UPDATE_DIRECTUS_URL'
+      directusUrl: string
     },
     services: {} as {
       connectToDirectus: {
@@ -47,7 +51,8 @@ export const storeMachine = createMachine({
   },
 
   context: {
-    directusUrl: import.meta.env.VITE_DIRECTUS_URL,
+    // directusUrl: import.meta.env.VITE_DIRECTUS_URL
+    directusUrl: "localhost"
   },
 
   states: {
@@ -112,6 +117,13 @@ export const storeMachine = createMachine({
   },
 
   initial: 'init',
+
+  on: {
+    UPDATE_DIRECTUS_URL: {
+      target: ".connecting",
+      actions: "updateDirectusUrl"
+    }
+  }
 },
 {
   actions: {
@@ -122,6 +134,10 @@ export const storeMachine = createMachine({
     })),
     updateProfile: assign((context, event) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
+    })),
+
+    updateDirectusUrl: assign((context, event) => produce(context, (draft) => {
+      draft.directusUrl = event.directusUrl
     })),
 
     connectWebsocket: assign(context => produce(context, (draft) => {
