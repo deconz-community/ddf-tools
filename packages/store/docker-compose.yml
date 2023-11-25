@@ -1,11 +1,11 @@
 version: '3'
 services:
-  ddfstore:
+  directus:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8056:8055
+      - 8055:8055
     volumes:
       - ddf-store-database:/directus/database
       - ddf-store-uploads:/directus/uploads
