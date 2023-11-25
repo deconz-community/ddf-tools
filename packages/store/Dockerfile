@@ -12,7 +12,7 @@ USER node
 RUN pnpm install @deconz-community/directus-extension-ddf-store
 
 
-
+# ddf-store
 # https://github.com/deconz-community/ddf-tools
 # refs/heads/main
 # packages/store/docker-compose.yml
