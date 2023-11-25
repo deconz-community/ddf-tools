@@ -41,7 +41,6 @@
     },
     "dependencies": {
         "@deconz-community/ddf-bundler": "workspace:^",
-        "@directus/api": "^14.1.2",
         "@directus/errors": "^0.2.0",
         "@noble/hashes": "^1.3.2",
         "@octokit/core": "^5.0.2",
@@ -52,6 +51,7 @@
     },
     "devDependencies": {
         "@directus/extensions-sdk": "10.1.14",
+        "@directus/api": "^14.1.2",
         "@directus/types": "^11.0.2",
         "@types/busboy": "^1.5.3",
         "@types/node": "^20.10.0",
