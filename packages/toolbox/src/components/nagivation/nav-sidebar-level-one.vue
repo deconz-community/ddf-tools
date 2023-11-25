@@ -2,7 +2,7 @@
 const app = useAppMachine('app')
 const store = useStore()
 
-type Link = ({ icon: string ; title: string ;to: string } | 'divider' | { gateway: string })
+type Link = ({ icon: string, title: string, to: string } | 'divider' | { gateway: string })
 
 const links = computed(() => {
   const list: Link[] = []
@@ -30,6 +30,8 @@ const links = computed(() => {
   }
 
   list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
+
+  list.push({ icon: 'mdi-cog', title: 'App Settings', to: '/settings' })
 
   return list
 })

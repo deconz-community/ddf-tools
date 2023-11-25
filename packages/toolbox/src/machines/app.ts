@@ -34,7 +34,7 @@ export interface AppContext {
 }
 
 export const appMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBBCEAEUyALmAO7ICeA2gAwC6ioqA9rAJZFvMB2jIFiAMwBWYQDoRggGwAOACw0A7FICcwgIwyANCAAeidXKkAmMauMa5gweuHGZKgL6OdaTAFVUEYmAI-y1PR8LOycPHz6CIb2YqIqspqCcioqioo6Agii4orqUoo0FjJSgjRqzq7oGABKYAC2zABuvoQkAbQMSCAhHFy8XZGGwoJiKsaq6uPFxslSGYi56mJykzI0UobqIpoVIG5isGBEnNxQsGJsEAA2YBgAysjNeIfHbKewHcGsveEDiDLCKSxGg0ORgxTSEzGdTzBCqcRbEE0GxSUGFYy7fYvE5nC7XW4AGWYyHw2LeZ0+XR6YX6oEiRhUYhmwlSMlyCjkwnS-EQ8LEiJBKLRxgxLj26AORxx5yuxIg5IwEB4YAu3EazAA1iqsVLyTK5eSEG91QBjYh9DqUpjfGkRRCcoFcmjqFSg4TO2QzWGo0ySKRSTmKBTjYSYiVk94HR4KpXcFXGzXa8O6yOwaOnI1q5hmmmWoJUm19O0IeSmFQuxTGUo2GjDOTewoSYayQoB-JyUVi7jMCBwPhuL6hIt-KKlflpGTWCuc2zCWEicR+4qT4aiEph1CS17vQc-Wl6AyKGTjo9T1Iz0SwuQOMQA6TyFQrWRqUNinXb3GXG6720j-LHwR7FKF91CPXIGxoW9pEUYZ7EnGY5A3LdpTEWUSXJH9hzpRARSBUDTxsc8NEvHksjSJt7wUZQ1BdJCI1xNNGgwgsh1+bConWOQxDSdZBBUKc7AcWEuUUCjZCo+EdmcRwgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBBAIjg+gOJYAqAogOpYCaA2gAwC6ioqA9rAJYAunbAdixAAPRAEZ6ADgB0AVgCcAZlmL5AJgDskgCyT52xQBoQAT0QBaNWun1Zk+gDY1DhwoNiNAX0-G0mAKoACjikZEShVHRMQuxcvAJCogjamnKSGo708lm2atoaxmYI5hLSYvYO2gb0GsqSilrevugYAEpkALIA8gBqYcTkkQzMSCCxPHyCo0ka8hrSuor22jWVNfKFFmoyOrJidulSuhpePiB+0rBg3Lz8ULDSnBAANmAYAMpYffjvZCQkAEkAHKEd7DGIcCYJaaIBySazKDQqOaybTqMTaTbJFLSSR2eiaBr0HKKJrndCXa63e6PF5vAAyXVwPz+gJBYOio3G8SmoCSan00gae3kDn2GjEcI2pkQBm0Qo02nFYjEqjs2jJFyuN04dwezzYyAguqgGAgAjAj34ADc2ABrS1aqkm-WG413BC620AY2QPOG4K5kJ5iUQAsU0gcs0kkn2ijyiiWWJU8t0mgJsjyc0cmop2upD1gyGtJrNFqttod0idOr1l2LJs9NrYvv9TEDrGDk1DCDh9BsAqVStVijE0qKKYW8Il8P2Yvh3jO-DYEDgQj8ELi3ZhxXj0gleSRGjUBPhegcWLUYgRiv28hVs1qp2aqEptfum6hvJE4lk0m2SJ5JocweBImIyggijaA4uK3q4VQnBKSi5q++YurSryfiGO57H+Bj2MSDhQbkBQQSo1iirIszXqozh4ihb4FtIBpGiaWHbnysIRgBmYpI+oH0OBE5ZFOmhWASWiigxaF1kWJZ3Ox0KcQg2RiLi9iJoJqqzFUyYiWmx4npoegKIunhAA */
   id: 'app',
 
   predictableActionArguments: true,
@@ -158,7 +158,7 @@ export const appMachine = createMachine({
   services: {
     saveSettings: context => async () => {
       const data: StorageSchema = {
-        storeUrl: context.machine.store.state.context.storeUrl,
+        storeUrl: context.machine.store.getSnapshot()?.context.directusUrl,
         credentials: {},
       }
 
@@ -172,7 +172,7 @@ export const appMachine = createMachine({
       localStorage.setItem(storageKey, JSON.stringify(data))
     },
 
-    loadSettings: () => async (callback) => {
+    loadSettings: context => async (callback) => {
       try {
         const saved = localStorage.getItem(storageKey)
         if (!saved)
@@ -183,6 +183,13 @@ export const appMachine = createMachine({
           type: 'ADD_GATEWAY',
           credentials,
         }))
+
+        if (data.storeUrl) {
+          context.machine.store.send({
+            type: 'UPDATE_DIRECTUS_URL',
+            directusUrl: data.storeUrl,
+          })
+        }
       }
       catch (e) {
         console.error(e)

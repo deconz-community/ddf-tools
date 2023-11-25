@@ -1,14 +1,14 @@
-import { assign, createMachine } from 'xstate'
+import { assign, createMachine, sendParent } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, realtime, rest, serverHealth } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store'
 
 export type Directus
-= DirectusClient<Schema>
-& AuthenticationClient<Schema>
-& RestClient<Schema>
-& WebSocketClient<Schema>
+  = DirectusClient<Schema>
+  & AuthenticationClient<Schema>
+  & RestClient<Schema>
+  & WebSocketClient<Schema>
 // & GraphqlClient<Schema>
 
 export interface StoreContext {
@@ -52,7 +52,7 @@ export const storeMachine = createMachine({
 
   context: {
     // directusUrl: import.meta.env.VITE_DIRECTUS_URL
-    directusUrl: "localhost"
+    directusUrl: 'localhost',
   },
 
   states: {
@@ -120,12 +120,14 @@ export const storeMachine = createMachine({
 
   on: {
     UPDATE_DIRECTUS_URL: {
-      target: ".connecting",
-      actions: "updateDirectusUrl"
-    }
-  }
-},
-{
+      target: '.connecting',
+      actions: [
+        'updateDirectusUrl',
+        'saveAppSettings',
+      ],
+    },
+  },
+}, {
   actions: {
     useDirectus: assign((context, event) => produce(context, (draft) => {
       draft.directus = event.type === 'done.invoke.store.connecting:invocation[0]'
@@ -139,6 +141,8 @@ export const storeMachine = createMachine({
     updateDirectusUrl: assign((context, event) => produce(context, (draft) => {
       draft.directusUrl = event.directusUrl
     })),
+
+    saveAppSettings: sendParent('SAVE_SETTINGS'),
 
     connectWebsocket: assign(context => produce(context, (draft) => {
       context.directus?.connect()

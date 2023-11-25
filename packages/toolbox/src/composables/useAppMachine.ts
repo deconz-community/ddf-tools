@@ -18,11 +18,11 @@ export interface AppMachinePart<Type extends AnyStateMachine> {
 }
 
 export type AppMachine =
-| { type: 'app' } & AppMachinePart<typeof appMachine>
-| { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
-| { type: 'store' } & AppMachinePart<typeof storeMachine>
-| { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
-| { type: 'device' } & AppMachinePart<typeof deviceMachine> & { query: { gateway: string ; id: string } }
+  | { type: 'app' } & AppMachinePart<typeof appMachine>
+  | { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
+  | { type: 'store' } & AppMachinePart<typeof storeMachine>
+  | { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
+  | { type: 'device' } & AppMachinePart<typeof deviceMachine> & { query: { gateway: string, id: string } }
 
 export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
 export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
