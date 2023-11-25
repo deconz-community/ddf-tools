@@ -166,7 +166,7 @@ export const storeMachine = createMachine({
   services: {
     connectToDirectus: async (context) => {
       const client = createDirectus<Schema>(context.directusUrl)
-        .with(authentication('cookie', {
+        .with(authentication('json', {
           credentials: 'include', // TODO What do this does ?
         }))
         .with(rest({
