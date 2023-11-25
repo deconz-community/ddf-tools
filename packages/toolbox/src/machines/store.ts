@@ -217,7 +217,7 @@ export const storeMachine = createMachine({
         }
       }
       catch (e) {
-
+        console.error(e)
       }
 
       return {
