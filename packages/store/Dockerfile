@@ -6,7 +6,7 @@
 FROM directus/directus:10.8.2
 
 USER root
-RUN corepack enable
+RUN corepack enable && corepack prepare
 
 USER node
 RUN pnpm install @deconz-community/directus-extension-ddf-store
