@@ -3,7 +3,7 @@ import { useRouteQuery } from '@vueuse/router'
 
 const store = useStore()
 
-const storeUrl = useRouteQuery('storeUrl', 'http://localhost:8055')
+const storeUrl = useRouteQuery('storeUrl', '')
 
 function updateStoreUrl() {
   store.send({ type: 'UPDATE_DIRECTUS_URL', directusUrl: storeUrl.value })
