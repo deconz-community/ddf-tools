@@ -39,6 +39,7 @@
     "@vueuse/components": "^10.6.1",
     "@vueuse/head": "^2.0.0",
     "@vueuse/integrations": "^10.6.1",
+    "@vueuse/router": "^10.6.1",
     "@xstate/vue": "^2.0.0",
     "axios": "^1.6.2",
     "crypto-js": "^4.2.0",

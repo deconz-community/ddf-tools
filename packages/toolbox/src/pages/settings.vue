@@ -1,10 +1,9 @@
 <script setup lang="ts">
-const app = useAppMachine('app')
+import { useRouteQuery } from '@vueuse/router'
 
 const store = useStore()
-const route = useRoute()
 
-const storeUrl = ref(typeof route.query.storeUrl === 'string' ? route.query.storeUrl : '')
+const storeUrl = useRouteQuery('storeUrl', 'http://localhost:8055')
 
 function updateStoreUrl() {
   store.send({ type: 'UPDATE_DIRECTUS_URL', directusUrl: storeUrl.value })
@@ -12,6 +11,21 @@ function updateStoreUrl() {
 </script>
 
 <template>
+  <v-alert v-show="store.state?.matches('online')" class="ma-2" title="Connected" type="success">
+    Connected to DDF Store at {{ store.state?.context?.directusUrl }}
+  </v-alert>
+  <v-alert v-show="store.state?.matches('offline')" class="ma-2" title="Offline" type="error">
+    <template v-if="store.state?.context?.directusUrl">
+      The store at {{ store.state?.context?.directusUrl }} seems offline.
+    </template>
+    <template v-else>
+      No store url configured.
+    </template>
+  </v-alert>
+  <v-alert v-show="store.state?.matches('connecting')" class="ma-2" title="Connecting" type="info">
+    Connecting to the store at {{ store.state?.context?.directusUrl }}...
+  </v-alert>
+
   <v-card class="ma-2">
     <template #title>
       Connect to DDF Store
