@@ -16,3 +16,5 @@ RUN pnpm install @deconz-community/directus-extension-ddf-store
 # https://github.com/deconz-community/ddf-tools
 # refs/heads/main
 # packages/store/docker-compose.yml
+
+# TODO : https://github.com/linuxserver/docker-swag
