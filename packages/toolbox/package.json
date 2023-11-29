@@ -22,7 +22,7 @@
     "url": "https://github.com/deconz-community/ddf-tools/issues/"
   },
   "scripts": {
-    "dev": "vite --port 4000",
+    "dev": "vite --host 0.0.0.0 --port 4000",
     "build": "vite build",
     "up": "taze major -I",
     "postinstall": "xstate typegen \"./src/**/*.ts?(x)\""
