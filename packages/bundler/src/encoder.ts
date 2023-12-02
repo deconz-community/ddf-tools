@@ -96,6 +96,7 @@ export function encodeDDFB(encoder: ReturnType<typeof dataEncoder>, data: Return
       // TODO : check if it's compressed
       encoder.withLength(typeof file.data === 'string' ? encoder.text(file.data, false) : file.data),
     ])),
+    data.validation ? encoder.chunk('VALI', encoder.text(JSON.stringify(data.validation))) : [],
   ])
 }
 
@@ -110,12 +111,10 @@ export function encode(bundle: ReturnType<typeof Bundle>, preEncodedDDFB?: Buffe
     chunk('RIFF', [
       preEncodedDDFB ?? encodeDDFB(encoder, data),
       data.signatures.map(signature =>
-        chunk('SIGN',
-          [
-            withLength(signature.key, Uint16),
-            withLength(signature.signature, Uint16),
-          ],
-        ),
+        chunk('SIGN', [
+          withLength(signature.key, Uint16),
+          withLength(signature.signature, Uint16),
+        ]),
       ),
     ]),
   )

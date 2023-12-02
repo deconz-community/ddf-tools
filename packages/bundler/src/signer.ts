@@ -81,12 +81,10 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
     chunk('RIFF', [
       DDFBChunk,
       signatures.map(signature =>
-        chunk('SIGN',
-          [
-            withLength(signature.key, Uint16),
-            withLength(signature.signature, Uint16),
-          ],
-        ),
+        chunk('SIGN', [
+          withLength(signature.key, Uint16),
+          withLength(signature.signature, Uint16),
+        ]),
       ),
     ]),
   )

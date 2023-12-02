@@ -57,21 +57,7 @@ This is always the first chunk and allows fast indexing and matching without par
   "device_identifiers": [
     ["Philips", "acme 2000"],
     ["Signify", "acme 200"]
-  ],
-  "validation": {
-    "result": "error",
-    "version": "2.20.0",
-    "errors": [
-      {
-        "message": "Unrecognized key(s) in object: 'cl'",
-        "path": ["subdevices", 0, "items", 6, "parse"]
-      },
-      {
-        "message": "Unrecognized key(s) in object: 'cl'",
-        "path": ["subdevices", 0, "items", 9, "parse"]
-      }
-    ]
-  }
+  ]
 }
 ```
 
@@ -166,50 +152,6 @@ The list of device identifier, it's generated from each combinaison of `manufact
 ]
 ```
 
-#### validation (optional)
-
-The result of the validation using the ddf-validator. It's a JSON object.
-If there is no errors the `errors` property is omitted.
-
-`result` can be `success`, `error` or `skipped`.
-
-##### Example success
-
-```json
-{
-  "result": "success",
-  "version": "2.20.0"
-}
-```
-
-##### Example error
-
-```json
-{
-  "result": "error",
-  "version": "2.20.0",
-  "errors": [
-    {
-      "message": "Unrecognized key(s) in object: 'cl'",
-      "path": ["subdevices", 0, "items", 6, "parse"]
-    },
-    {
-      "message": "Unrecognized key(s) in object: 'cl'",
-      "path": ["subdevices", 0, "items", 9, "parse"]
-    }
-  ]
-}
-```
-
-##### Example skipped
-
-```json
-{
-  "result": "skipped",
-  "version": "2.20.0"
-}
-```
-
 ### DDFB.DDFC - DDF JSON (compressed) - unique
 
 ```
@@ -249,6 +191,52 @@ For Text file they are all compressed using zlib.
 | NOTW | Warning note                             | Text file | markdown   |
 | KWIS | Know issue                               | Text file | markdown   |
 | IMGP | Image in PNG can be used in UI           | Binary    | png        |
+
+### DDFB.VALI - DDF Validation result - unique - optional
+
+The result of the validation using the ddf-validator. It's a JSON object.
+If there is no errors the `errors` property is omitted.
+
+`result` can be `success`, `error` or `skipped`.
+
+##### Example success
+
+```json
+{
+  "result": "success",
+  "version": "2.20.0"
+}
+```
+
+##### Example error
+
+```json
+{
+  "result": "error",
+  "version": "2.20.0",
+  "errors": [
+    {
+      "message": "Unrecognized key(s) in object: 'cl'",
+      "path": ["subdevices", 0, "items", 6, "parse"]
+    },
+    {
+      "message": "Unrecognized key(s) in object: 'cl'",
+      "path": ["subdevices", 0, "items", 9, "parse"]
+    }
+  ]
+}
+```
+
+##### Example skipped
+
+Used when the flag `ddfvalidate` is set to false in the DDFC.
+
+```json
+{
+  "result": "skipped",
+  "version": "2.20.0"
+}
+```
 
 ### SIGN - Signature - multiple
 

@@ -1,35 +1,35 @@
 {
-    "compilerOptions": {
-        "rootDir": "./",
-        "target": "ESNext",
-        "useDefineForClassFields": true,
-        "module": "ESNext",
-        "lib": [
-            "ESNext",
-            "DOM"
-        ],
-        "moduleResolution": "Node",
-        "strict": true,
-        "sourceMap": true,
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
-        "noEmit": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitReturns": true,
-        "forceConsistentCasingInFileNames": true,
-        "types": [
-            "vite/client",
-            "node"
-        ]
-    },
-    "include": [
-        "src",
-        "index.ts"
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM"
     ],
-    "exclude": [
-        "**/*.test.ts",
-        "node_modules",
-        "test/**"
-    ]
+    "useDefineForClassFields": true,
+    "rootDir": "./",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "types": [
+      "vite/client",
+      "node"
+    ],
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noEmit": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src",
+    "index.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "node_modules",
+    "test/**"
+  ]
 }
