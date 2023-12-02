@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- 61e073a: Update deps
+- 61e073a: Updated dependencies
 
 ## 2.20.0
 
@@ -35,7 +35,7 @@
 ### Minor Changes
 
 - d838cc7: Add isDDF method to check if a schema is a DDF file
-- fde89a1: Update deps
+- fde89a1: Updated dependencies
 
 ### Patch Changes
 
@@ -99,7 +99,7 @@
 
 ### Minor Changes
 
-- 195b55e: Update deps
+- 195b55e: Updated dependencies
 - c1ce019: Update pnpm to version 8
 
 ## 2.8.0
@@ -124,7 +124,7 @@
 
 ### Minor Changes
 
-- 6139347: Update deps to latest version
+- 6139347: Updated dependencies to latest version
 
 ## 2.5.0
 
@@ -134,7 +134,7 @@
 
 ### Patch Changes
 
-- 7f8c7c4: Update deps
+- 7f8c7c4: Updated dependencies
 
 ## 2.4.0
 
@@ -164,12 +164,12 @@
 - f860dd6: Add refine validation for parse/write method to have eval or script property
 - 4309e3d: Update validation of at parse property to accept arrays
 - e136c9d: Add support for zcl:attr and zcl:cmd functions
-- 8e57888: Update deps
+- 8e57888: Updated dependencies
 - 2c8843d: Update tests files
 
 ### Patch Changes
 
-- 4ea2e78: Update deps
+- 4ea2e78: Updated dependencies
 
 ## 2.1.0
 

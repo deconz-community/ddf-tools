@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- 61e073a: Update deps
+- 61e073a: Updated dependencies
 
 ### Patch Changes
 

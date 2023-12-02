@@ -4,20 +4,20 @@
 
 ### Minor Changes
 
-- 61e073a: Update deps
+- 61e073a: Updated dependencies
 
 ## 0.11.0
 
 ### Minor Changes
 
 - fce576f: Split hash and signature methods
-- fde89a1: Update deps
+- fde89a1: Updated dependencies
 
 ## 0.10.0
 
 ### Minor Changes
 
-- 195b55e: Update deps
+- 195b55e: Updated dependencies
 - c1ce019: Update pnpm to version 8
 
 ### Patch Changes
@@ -46,7 +46,7 @@
 
 ### Minor Changes
 
-- 6139347: Update deps to latest version
+- 6139347: Updated dependencies to latest version
 
 ## 0.5.2
 
@@ -58,18 +58,18 @@
 
 ### Patch Changes
 
-- 7f8c7c4: Update deps
+- 7f8c7c4: Updated dependencies
 
 ## 0.5.0
 
 ### Minor Changes
 
 - 42c9f92: Add tests
-- 8e57888: Update deps
+- 8e57888: Updated dependencies
 
 ### Patch Changes
 
-- 4ea2e78: Update deps
+- 4ea2e78: Updated dependencies
 
 ## 0.4.1
 
