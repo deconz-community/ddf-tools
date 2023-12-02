@@ -18,7 +18,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 
-const tab = ref<'info' | 'ddf' | 'files' | 'signatures'>('info')
+const tab = ref<'info' | 'ddf' | 'files' | 'validation' | 'signatures'>('validation'/* 'info' */)
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
@@ -89,6 +89,10 @@ function setDirty() {
         <v-icon size="x-large" icon="mdi-file" start />
         {{ `${files.length} ${files.length > 1 ? 'Files' : 'File'}` }}
       </v-tab>
+      <v-tab value="validation">
+        <v-icon size="x-large" icon="mdi-file-code" start />
+        Validation
+      </v-tab>
       <v-tab value="signatures">
         <v-icon size="x-large" icon="mdi-file" start />
         {{ `${bundle.data.signatures.length} ${bundle.data.signatures.length > 1 ? 'Signatures' : 'Signature'}` }}
@@ -122,6 +126,13 @@ function setDirty() {
         <v-window-item value="files">
           <bundle-editor-files
             v-model="files"
+            @change="setDirty()"
+          />
+        </v-window-item>
+
+        <v-window-item value="validation">
+          <bundle-editor-validation
+            :bundle="bundle"
             @change="setDirty()"
           />
         </v-window-item>

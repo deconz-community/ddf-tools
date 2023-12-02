@@ -21,7 +21,7 @@ Example :
 import { readFile } from 'node:fs/promises'
 import glob from 'fast-glob'
 import { fromZodError } from 'zod-validation-error'
-import { validator } from '@deconz-community/ddf-validator'
+import { createValidator } from '@deconz-community/ddf-validator'
 
 (async () => {
   const validator = createValidator()
