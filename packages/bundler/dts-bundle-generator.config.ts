@@ -1,4 +1,5 @@
-import packageJson from './package.json'
+// eslint-disable-next-line ts/no-var-requires, ts/no-require-imports
+const packageJson = require('./package.json')
 
 const config = {
   entries: [
