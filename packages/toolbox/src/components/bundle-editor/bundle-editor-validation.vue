@@ -13,6 +13,27 @@ const bundle = useVModel(props, 'bundle', emit)
 
 const errors = ref<{ path: string, message: string }[]>([])
 
+const validator = createValidator()
+
+watch(errors, () => {
+  if (errors.value.length === 0) {
+    bundle.value.data.validation = {
+      result: 'success',
+      version: validator.version,
+    }
+  }
+  else {
+    bundle.value.data.validation = {
+      result: 'error',
+      // TODO Fix path
+      errors: errors.value.map(({ path, message }) => ({ path: [path], message })),
+      version: validator.version,
+    }
+  }
+
+  emit('change')
+})
+
 function validate() {
   try {
     errors.value = createValidator().bulkValidate(
