@@ -217,11 +217,11 @@ If there is no errors the `errors` property is omitted.
   "errors": [
     {
       "message": "Unrecognized key(s) in object: 'cl'",
-      "path": ["subdevices", 0, "items", 6, "parse"]
+      "path": ["generic/items/state_airquality_item.json", "subdevices", 0, "items", 6, "parse"]
     },
     {
       "message": "Unrecognized key(s) in object: 'cl'",
-      "path": ["subdevices", 0, "items", 9, "parse"]
+      "path": ["ddf.json", "subdevices", 0, "items", 9, "parse"]
     }
   ]
 }

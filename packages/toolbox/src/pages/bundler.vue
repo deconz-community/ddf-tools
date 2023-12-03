@@ -16,7 +16,10 @@ const sampleList = {
   'Lutron Aurora': [genericDC, `${baseDCUrl}/lutron/lutron_aurora_foh.json`],
   'Mijia open/close sensor MCCGQ01LM': [genericDC, `${baseDCUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
   'Mijia smart plug ZNCZ04LM': [genericDC, `${baseDCUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
-}
+  'Danalock V3': [genericDC, `${baseDCUrl}/danalock/danalock_v3.json`],
+} as const
+
+const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'
 
 const genericDirectoryUrl = ref<string>('')
 const fileUrl = ref<string>('')
@@ -71,7 +74,7 @@ function loadSample(sample: typeof sampleList[keyof typeof sampleList]) {
 
 if (import.meta.env.VITE_DEBUG === 'true') {
   onMounted(() => {
-    loadSample(sampleList['Lutron Aurora'])
+    loadSample(sampleList[defaultSample])
     buildFromGithub()
   })
 }

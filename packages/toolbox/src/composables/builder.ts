@@ -47,14 +47,32 @@ export async function buildFromFile(
       if (subdevice.type.startsWith('$TYPE_') && !usedConstants.deviceTypes.includes(subdevice.type))
         usedConstants.deviceTypes.push(subdevice.type)
 
+      const fileName = `${subdevice.type.replace('$TYPE_', '').toLowerCase()}.json`
+      filesToAdd.push({
+        url: new URL(`${genericDirectory}/subdevices/${fileName}`).href,
+        path: `generic/subdevices/${fileName}`,
+        type: 'JSON',
+        patch(data) {
+          const decoded = JSON.parse(data)
+          delete decoded.items_optional
+          return JSON.stringify(decoded, null, 4)
+        },
+      })
+
       if (Array.isArray(subdevice.items)) {
         subdevice.items.forEach((item) => {
           if (item.name !== undefined) {
             const fileName = `${item.name.replace(/\//g, '_')}_item.json`
             filesToAdd.push({
               url: new URL(`${genericDirectory}/items/${fileName}`).href,
-              path: `generic/${fileName}`,
+              path: `generic/items/${fileName}`,
               type: 'JSON',
+              patch(data) {
+                const decoded = JSON.parse(data)
+                if (decoded.parse && 'srcitem' in decoded.parse && item.parse && 'srcitem' in item.parse)
+                  decoded.parse.srcitem = item.parse.srcitem
+                return JSON.stringify(decoded, null, 4)
+              },
             })
           }
           for (const [_key, value] of Object.entries(item)) {

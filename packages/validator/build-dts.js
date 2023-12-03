@@ -50,7 +50,7 @@ const typeAlias = createTypeAlias(node, 'DDF')
 
 const nodeString = printNode(typeAlias)
 
-const schemaTS = `import { ZodType } from "zod";
+const schemaTS = `import { ZodType, ZodError } from "zod";
 
 export ${nodeString}
 
@@ -67,7 +67,7 @@ export interface FileDefinition {
 }
 
 export type FileDefinitionWithError = FileDefinition & {
-  error: z.ZodError | Error
+  error: ZodError | Error
 }
 
 export declare function createValidator(generics?: GenericsData): {

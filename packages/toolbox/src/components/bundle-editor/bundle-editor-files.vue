@@ -16,7 +16,7 @@ const currentPath = ref('')
 const breadcrumbs = computed(() => {
   const result = currentPath.value.split('/').filter(Boolean)
   result.unshift('root')
-  return result
+  return result.map(item => ({ title: item }))
 })
 
 const fileTree = computed(() => filePathsToUniqueTree<BundleFile>(
@@ -28,7 +28,7 @@ const currentTreePosition = computed(
   () => {
     return breadcrumbs.value.slice(1).reduce(
       (acc, cur) => {
-        const next = acc.children.find(child => child.name === cur)
+        const next = acc.children.find(child => child.name === cur.title)
         if (next)
           return next
         currentPath.value = acc.path
@@ -159,7 +159,7 @@ function selectDirectory(index: number) {
   if (index <= 0)
     currentPath.value = ''
   else
-    currentPath.value = breadcrumbs.value.slice(1, index + 1).join('/')
+    currentPath.value = breadcrumbs.value.map(item => item.title).slice(1, index + 1).join('/')
 }
 </script>
 
@@ -229,7 +229,7 @@ function selectDirectory(index: number) {
           </template>
           <template #title="{ item, index }">
             <v-chip @click="selectDirectory(index)">
-              {{ item }}
+              {{ item.title }}
             </v-chip>
           </template>
         </v-breadcrumbs>
