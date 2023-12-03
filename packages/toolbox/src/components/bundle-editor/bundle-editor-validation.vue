@@ -100,13 +100,22 @@ function validate() {
     text="This bundle passed the validation."
   />
 
-  <v-alert
-    v-else-if="bundle.data.validation?.result === 'error'"
-    class="ma-2"
-    type="error"
-    title="Validation result"
-    :text="`${bundle.data.validation?.errors.length} errors found.`"
-  />
+  <template v-else-if="bundle.data.validation?.result === 'error'">
+    <v-alert
+      class="ma-2"
+      type="error"
+      title="Validation result"
+      :text="`${bundle.data.validation?.errors.length} errors found.`"
+    />
+
+    <v-card
+      v-for="(error, index) in bundle.data.validation?.errors" :key="index"
+      class="ma-2"
+      variant="outlined"
+      :title="`File : ${error.path[0]}`"
+      :text="`${error.message} at ${error.path.slice(1).join(' ')}`"
+    />
+  </template>
 
   <v-alert
     v-else-if="bundle.data.validation?.result === 'skipped'"
@@ -116,13 +125,11 @@ function validate() {
     text="This bundle was skipped from validation."
   />
 
-  <template v-if="bundle.data.validation?.result === 'error'">
-    <v-card
-      v-for="(error, index) in bundle.data.validation?.errors" :key="index"
-      class="ma-2"
-      variant="outlined"
-      :title="`File : ${error.path[0]}`"
-      :text="`${error.message} at ${error.path.slice(1).join(' ')}`"
-    />
-  </template>
+  <v-alert
+    v-else
+    class="ma-2"
+    type="info"
+    title="Validation result"
+    text="No validation has been run yet."
+  />
 </template>
