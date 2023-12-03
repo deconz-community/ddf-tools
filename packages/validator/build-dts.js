@@ -3,9 +3,10 @@
 import fs from 'node:fs'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
-import fastGlob from 'fast-glob';
-const { globSync } = fastGlob;
+import fastGlob from 'fast-glob'
 import { createValidator } from './dist/ddf-validator.cjs'
+
+const { globSync } = fastGlob
 
 // Generate zod Schema
 const validator = createValidator()
@@ -60,11 +61,25 @@ export interface GenericsData {
   deviceTypes: Record<string, string>
 }
 
+export interface FileDefinition {
+  path: string
+  data: unknown
+}
+
+export type FileDefinitionWithError = FileDefinition & {
+  error: z.ZodError | Error
+}
+
 export declare function createValidator(generics?: GenericsData): {
   generics: GenericsData;
   loadGeneric: (data: unknown) => DDF;
   validate: (data: unknown) => DDF;
   getSchema: () => ZodType<DDF>;
+  bulkValidate: (genericFiles: FileDefinition[], ddfFiles: FileDefinition[], callbacks?: {
+    onSectionStart?: ((type: 'generic' | 'ddf', total: number) => void) | undefined;
+    onSectionProgress?: ((type: 'generic' | 'ddf', current: number, total: number) => void) | undefined;
+    onSectionEnd?: ((type: 'generic' | 'ddf', total: number, errors: FileDefinitionWithError[]) => void) | undefined;
+}) => FileDefinitionWithError[]
   version: string;
 };
 

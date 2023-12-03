@@ -136,6 +136,8 @@ export function createAppMachine() {
 
         // console.log('Debug mode', devTools)
 
+        // TODO migrate to @statelyai/inspect
+
         if (devTools) {
           const enableInspect = false
           if (enableInspect) {

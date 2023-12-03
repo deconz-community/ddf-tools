@@ -22,13 +22,13 @@ export const ddfRefines = {
 
 function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   const areBothString = typeof data.manufacturername === 'string'
-      && typeof data.modelid === 'string'
+    && typeof data.modelid === 'string'
 
   if (areBothString)
     return
 
   const areBothArray = Array.isArray(data.manufacturername)
-      && Array.isArray(data.modelid)
+    && Array.isArray(data.modelid)
 
   if (areBothArray && data.manufacturername.length !== data.modelid.length) {
     ctx.addIssue({
@@ -315,7 +315,7 @@ function validateMandatoryItemsForDevices(data: DDF, ctx: z.RefinementCtx, gener
     if (!generic) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `The device is missing the device definition for the type "${device.type}"`,
+        message: `The device is missing the device definition (subdevice1.schema.json) for the type "${device.type}"`,
         path: ['subdevices', device_index, 'items'],
       })
       return
