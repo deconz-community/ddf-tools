@@ -62,7 +62,7 @@ function validate() {
   <v-card v-for="(error, index) in errors" :key="index">
     <v-card-title>{{ error.path }}</v-card-title>
     <v-card-text>
-      <pre>{{ error.message }}</pre>
+      <p>{{ error.message }}</p>
     </v-card-text>
   </v-card>
 </template>
