@@ -1,5 +1,12 @@
 # @deconz-community/ddf-bundler
 
+## 0.13.0
+
+### Minor Changes
+
+- 2e42535: Added support for the VALI chunk
+- 42f7b9e: Updated dependencies
+
 ## 0.12.0
 
 ### Minor Changes

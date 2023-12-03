@@ -1,5 +1,12 @@
 # @deconz-community/ddf-validator
 
+## 2.22.0
+
+### Minor Changes
+
+- b90de1f: Add type definition for bulkValidate
+- 42f7b9e: Updated dependencies
+
 ## 2.21.0
 
 ### Minor Changes
