@@ -55,13 +55,7 @@ function validate() {
 </script>
 
 <template>
-  <v-text-field
-    v-model="bundle.data.desc.uuid"
-    readonly
-    label="UUID"
-  />
-
-  <v-btn @click="validate()">
+  <v-btn color="success" @click="validate()">
     Validate
   </v-btn>
 
