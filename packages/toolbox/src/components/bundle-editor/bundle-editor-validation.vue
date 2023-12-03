@@ -37,6 +37,7 @@ function validate() {
           data: JSON.parse(file.data as string),
         }
       }),
+    // DDF file
     [
       {
         path: bundle.value.data.name,
