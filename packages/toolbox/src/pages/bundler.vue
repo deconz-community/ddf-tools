@@ -4,19 +4,20 @@ import { Bundle, decode, generateHash } from '@deconz-community/ddf-bundler'
 import { buildFromFile } from '~/composables/builder'
 
 // const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
-const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main/devices'
+const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
 
 // const genericDE = `${baseDEUrl}/generic`
+const devicesDC = `${baseDCUrl}/devices`
 const genericDC = `${baseDCUrl}/generic`
 
 const sampleList = {
-  'STARKVIND Air purifier': [`${baseDCUrl}/generic`, `${baseDCUrl}/ikea/starkvind_air_purifier.json`],
-  'FYRTUR block-out roller blind': [genericDC, `${baseDCUrl}/ikea/fyrtur_block-out_roller_blind.json`],
-  'SYMFONISK sound remote gen2': [genericDC, `${baseDCUrl}/ikea/symfonisk_sound_remote_gen2.json`],
-  'Lutron Aurora': [genericDC, `${baseDCUrl}/lutron/lutron_aurora_foh.json`],
-  'Mijia open/close sensor MCCGQ01LM': [genericDC, `${baseDCUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
-  'Mijia smart plug ZNCZ04LM': [genericDC, `${baseDCUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
-  'Danalock V3': [genericDC, `${baseDCUrl}/danalock/danalock_v3.json`],
+  'STARKVIND Air purifier': [`${baseDCUrl}/generic`, `${devicesDC}/ikea/starkvind_air_purifier.json`],
+  'FYRTUR block-out roller blind': [genericDC, `${devicesDC}/ikea/fyrtur_block-out_roller_blind.json`],
+  'SYMFONISK sound remote gen2': [genericDC, `${devicesDC}/ikea/symfonisk_sound_remote_gen2.json`],
+  'Lutron Aurora': [genericDC, `${devicesDC}/lutron/lutron_aurora_foh.json`],
+  'Mijia open/close sensor MCCGQ01LM': [genericDC, `${devicesDC}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
+  'Mijia smart plug ZNCZ04LM': [genericDC, `${devicesDC}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
+  'Danalock V3': [genericDC, `${devicesDC}/danalock/danalock_v3.json`],
 } as const
 
 const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'
