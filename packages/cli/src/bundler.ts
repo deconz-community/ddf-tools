@@ -101,8 +101,6 @@ export function bundlerCommand() {
           encoded = await sign(encoded, [{ key: hexToBytes(privateKey) }])
 
         await fs.writeFile(outputPath, encoded.stream())
-
-        console.log(bundle.data.name)
       }))
     })
 }
