@@ -2,11 +2,10 @@
 
 import process from 'node:process'
 import { createRequire } from 'node:module'
-import { program } from 'commander'
+import { program } from '@commander-js/extra-typings'
+import { validator } from './validator'
 
-import { validator } from './src/validator.js'
-
-const packageDefinition = createRequire(import.meta.url)('./package.json')
+const packageDefinition = createRequire(import.meta.url)('../package.json')
 
 program
   .name('ddf-tools')

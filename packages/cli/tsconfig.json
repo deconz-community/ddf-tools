@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "jsx": "preserve",
     "lib": [
-      "DOM",
       "ESNext"
     ],
     "baseUrl": ".",
@@ -16,13 +14,7 @@
     },
     "resolveJsonModule": true,
     "types": [
-      "vitest",
-      "vite/client",
-      "vue/ref-macros",
-      "vite-plugin-pages/client",
-      "vite-plugin-vue-layouts/client",
-      "vite-plugin-pwa/client",
-      "unplugin-vue-macros/macros-global"
+      "vite/client"
     ],
     "allowJs": true,
     "strict": true,
@@ -33,19 +25,9 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "vueCompilerOptions": {
-    "plugins": [
-      "@vue-macros/volar/define-model",
-      "@vue-macros/volar/define-slots"
-    ]
-  },
   "include": [
-    "src/components.d.ts",
-    "src/auto-imports.d.ts",
     "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.d.ts"
   ],
   "exclude": [
     "dist",

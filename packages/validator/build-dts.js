@@ -75,6 +75,8 @@ export declare function createValidator(generics?: GenericsData): {
   loadGeneric: (data: unknown) => DDF;
   validate: (data: unknown) => DDF;
   getSchema: () => ZodType<DDF>;
+  isGeneric: (schema: string) => boolean;
+  isDDF: (schema: string) => boolean;
   bulkValidate: (genericFiles: FileDefinition[], ddfFiles: FileDefinition[], callbacks?: {
     onSectionStart?: ((type: 'generic' | 'ddf', total: number) => void) | undefined;
     onSectionProgress?: ((type: 'generic' | 'ddf', current: number, total: number) => void) | undefined;

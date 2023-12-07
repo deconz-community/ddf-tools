@@ -1,11 +1,17 @@
 /* eslint-disable no-console */
 import { readFile } from 'node:fs/promises'
-import { program } from 'commander'
+import { program } from '@commander-js/extra-typings'
 import glob from 'fast-glob'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { fromZodError } from 'zod-validation-error'
+import { ZodError } from 'zod'
 import chalk from 'chalk'
 import ora from 'ora'
+
+interface FileDefinition {
+  path: string
+  data: Record<string, unknown>
+}
 
 export function validator() {
   program
@@ -25,48 +31,48 @@ export function validator() {
 
       spinner.start(chalk.blue(`Loading ${files.length} files from disk`))
 
-      const genericFiles = []
-      const ddfFiles = []
+      const genericFiles: FileDefinition[] = []
+      const ddfFiles: FileDefinition[] = []
 
       await Promise.all(files.map(
         async (path) => {
-          const file = { path, data: undefined }
+          const file: FileDefinition = { path, data: {} }
 
           try {
             const data = await readFile(path, 'utf-8')
             file.data = JSON.parse(data)
-            if ('ddfvalidate' in file.data && file.data.ddfvalidate === false && skip) {
+            if (file.data && 'ddfvalidate' in file.data && file.data.ddfvalidate === false && skip) {
               spinner.stop()
               console.log(chalk.yellow(`Skipping file ${file.path} because it has the ddfvalidate option set to false`))
               spinner.start()
               return
             }
           }
-          catch (e) {
+          catch (error) {
             spinner.stop()
-            console.log(chalk.red(`Error parsing file ${file.path}, it's not a valid JSON file; ${e.toString()}`))
+            const message = error instanceof Error ? error.message : 'Unknown error'
+            console.log(chalk.red(`Error parsing file ${file.path}, it's not a valid JSON file; ${message}`))
             spinner.start()
             return
           }
 
-          if (validator.isGeneric(file.data.schema)) {
-            genericFiles.push(file)
+          if ('schema' in file.data && typeof file.data.schema === 'string') {
+            if (validator.isGeneric(file.data.schema))
+              return genericFiles.push(file)
+            else if (validator.isDDF(file.data.schema))
+              return ddfFiles.push(file)
           }
-          else if (validator.isDDF(file.data.schema)) {
-            ddfFiles.push(file)
-          }
-          else {
-            spinner.stop()
-            console.log(chalk.yellow(`Unknown schema for file ${file.path}${file.data.schema ? `, got '${file.data.schema}'` : ''}`))
-            spinner.start()
-          }
+
+          spinner.stop()
+          console.log(chalk.yellow(`Unknown schema for file ${file.path}${file.data.schema ? `, got '${file.data.schema}'` : ''}`))
+          spinner.start()
         },
       ))
       spinner.text = chalk.blue(`Loaded ${genericFiles.length} generic files and ${ddfFiles.length} DDF files from disk`)
       spinner.succeed()
 
-      const plural = (singular, plural, count) => count > 1 ? plural : singular
-      const typeFilesText = (type, count) => `${type} ${plural('file', 'files', count)}`
+      const plural = (singular: string, plural: string, count: number) => count > 1 ? plural : singular
+      const typeFilesText = (type: string, count: number) => `${type} ${plural('file', 'files', count)}`
 
       validator.bulkValidate(genericFiles, ddfFiles, {
         onSectionStart: (type, total) => {
@@ -89,11 +95,14 @@ export function validator() {
             */
 
             let message = ''
+
             try {
-              message = fromZodError(error, {
-                issueSeparator: '\n    ',
-                prefix: null,
-              }).message
+              if (error instanceof ZodError) {
+                message = fromZodError(error, {
+                  issueSeparator: '\n    ',
+                  prefix: null,
+                }).message
+              }
             }
             catch (e) {
               message = error.toString()
