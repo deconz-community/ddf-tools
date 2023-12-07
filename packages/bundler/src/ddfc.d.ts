@@ -1,3 +1,5 @@
+// TODO remplace with the validator
+
 export interface DDFC {
   schema: string
   uuid: string
