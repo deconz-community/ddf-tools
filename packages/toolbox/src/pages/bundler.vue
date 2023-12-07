@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { Bundle, decode, generateHash } from '@deconz-community/ddf-bundler'
-
-import { buildFromFile } from '~/composables/builder'
+import { Bundle, buildFromFiles, decode, generateHash } from '@deconz-community/ddf-bundler'
 
 // const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
 const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
@@ -43,7 +41,7 @@ async function buildFromGithub() {
   error.value = ''
 
   try {
-    const newBundle = await buildFromFile(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
+    const newBundle = await buildFromFiles(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
       const result = await fetch(url)
       if (result.status !== 200)
         throw new Error(result.statusText)

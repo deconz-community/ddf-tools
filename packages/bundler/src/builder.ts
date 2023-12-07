@@ -1,11 +1,13 @@
-import { Bundle, asArray } from '@deconz-community/ddf-bundler'
-import type { DDFC, TextFile } from '@deconz-community/ddf-bundler'
+import { Bundle } from './bundle'
+import type { DDFC } from './ddfc'
+import type { TextFile } from './types'
+import { asArray } from './utils'
 
-export async function buildFromFile(
+export async function buildFromFiles(
   genericDirectory: string,
   ddfPath: string,
   getFile: (path: string) => Promise<Blob>,
-): Promise<ReturnType<typeof Bundle>> {
+) {
   const bundle = Bundle()
 
   bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
