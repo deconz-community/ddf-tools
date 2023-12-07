@@ -18,8 +18,6 @@ export function Bundle() {
     signatures: [],
   }
 
-  const checkSignature = () => true
-
   const generateDESC = () => {
     const ddfc = JSON.parse(data.ddfc)
     data.desc.last_modified = new Date()
@@ -61,5 +59,5 @@ export function Bundle() {
     }
   }
 
-  return { data, checkSignature, generateDESC }
+  return { data, generateDESC }
 }
