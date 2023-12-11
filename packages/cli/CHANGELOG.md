@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.5.1
+
+### Patch Changes
+
+- 6f8ec6c: Skip DDF files present inside generic folder for bundler
+
 ## 1.5.0
 
 ### Minor Changes
