@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.5.2
+
+### Patch Changes
+
+- 99972bf: Disable some logs
+
 ## 1.5.1
 
 ### Patch Changes
