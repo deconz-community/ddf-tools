@@ -27,152 +27,148 @@ export default defineEndpoint({
     const services = context.services as typeof Services
     const schema = await context.getSchema()
 
-    router.post('/upload',
-      (req, res, next) => {
-        const accountability = 'accountability' in req ? req.accountability as Accountability : null
+    router.post('/upload', (req, res, next) => {
+      const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
-        if (typeof accountability?.user !== 'string')
-          throw new ForbiddenError()
+      if (typeof accountability?.user !== 'string')
+        throw new ForbiddenError()
 
-        if (!req.is('multipart/form-data'))
-          throw new ForbiddenError()
+      if (!req.is('multipart/form-data'))
+        throw new ForbiddenError()
 
-        next()
-      },
-      asyncHandler(multipartHandler),
-      asyncHandler(async (req, res, next) => {
-        // @ts-expect-error - The middleware above ensures that this is defined
-        const accountability = req.accountability as Accountability
-        const adminAccountability = structuredClone({
-          ...accountability,
-          admin: true,
-        })
+      next()
+    }, asyncHandler(multipartHandler), asyncHandler(async (req, res, next) => {
+      // @ts-expect-error - The middleware above ensures that this is defined
+      const accountability = req.accountability as Accountability
+      const adminAccountability = structuredClone({
+        ...accountability,
+        admin: true,
+      })
 
-        const result: Record<string, {
-          success: boolean
-          createdId?: PrimaryKey
-          message?: string
-        }> = {}
+      const result: Record<string, {
+        success: boolean
+        createdId?: PrimaryKey
+        message?: string
+      }> = {}
 
-        await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
-          try {
-            const { meta, blob } = item
-            const { tag = 'latest' } = meta
+      await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
+        try {
+          const { meta, blob } = item
+          const { tag = 'latest' } = meta
 
-            const bundle = await decode(blob)
-            if (!bundle.data.hash)
-              throw new Error('No hash')
+          const bundle = await decode(blob)
+          if (!bundle.data.hash)
+            throw new Error('No hash')
 
-            if (typeof tag !== 'string')
-              throw new Error('Invalid tag, should be a string')
-            if (!bundle.data.desc.uuid)
-              throw new Error('The bundle is missing a UUID, please add a "uuid" field to the DDF json file.')
-            if (!bundle.data.desc.version)
-              throw new Error('The bundle is missing a version, please add a "version" field to the DDF json file.')
-            if (!bundle.data.desc.version_deconz)
-              throw new Error('The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.')
+          if (typeof tag !== 'string')
+            throw new Error('Invalid tag, should be a string')
+          if (!bundle.data.desc.uuid)
+            throw new Error('The bundle is missing a UUID, please add a "uuid" field to the DDF json file.')
+          if (!bundle.data.desc.version)
+            throw new Error('The bundle is missing a version, please add a "version" field to the DDF json file.')
+          if (!bundle.data.desc.version_deconz)
+            throw new Error('The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.')
 
-            const hash = bytesToHex(bundle.data.hash)
-            const content = Buffer.from(pako.deflate(await blob.arrayBuffer())).toString('base64')
+          const hash = bytesToHex(bundle.data.hash)
+          const content = Buffer.from(pako.deflate(await blob.arrayBuffer())).toString('base64')
 
-            await context.database.transaction(async (knex) => {
-              const serviceOptions = { schema, knex, accountability: adminAccountability }
+          await context.database.transaction(async (knex) => {
+            const serviceOptions = { schema, knex, accountability: adminAccountability }
 
-              const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
-              const deviceIdentifiersService = new services.ItemsService<Collections.DeviceIdentifiers>('device_identifiers', serviceOptions)
+            const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
+            const deviceIdentifiersService = new services.ItemsService<Collections.DeviceIdentifiers>('device_identifiers', serviceOptions)
 
-              const device_identifier_ids = await Promise.all(bundle.data.desc.device_identifiers.map(async (deviceIdentifier) => {
-                const [manufacturer, model] = deviceIdentifier
+            const device_identifier_ids = await Promise.all(bundle.data.desc.device_identifiers.map(async (deviceIdentifier) => {
+              const [manufacturer, model] = deviceIdentifier
 
-                const device_identifier_id = await deviceIdentifiersService.readByQuery({
-                  fields: ['id'],
-                  filter: {
-                    manufacturer: {
-                      _eq: manufacturer,
-                    },
-                    model: {
-                      _eq: model,
-                    },
-                  },
-                })
-
-                if (device_identifier_id.length > 0)
-                  return device_identifier_id[0]!.id
-
-                return await deviceIdentifiersService.createOne({
-                  manufacturer,
-                  model,
-                })
-              }))
-
-              const existingBundleForTag = await bundleService.readByQuery({
-                fields: ['id', 'version'],
+              const device_identifier_id = await deviceIdentifiersService.readByQuery({
+                fields: ['id'],
                 filter: {
-                  _and: [
-                    { tag: { _eq: tag } },
-                    { ddf_uuid: { _eq: bundle.data.desc.uuid } },
-                  ],
+                  manufacturer: {
+                    _eq: manufacturer,
+                  },
+                  model: {
+                    _eq: model,
+                  },
                 },
               })
 
-              if (existingBundleForTag[0]) {
-                const existingVersion = existingBundleForTag[0].version as string
-                const newVersion = bundle.data.desc.version
-                if (!compare(newVersion, existingVersion, '>'))
-                  throw new Error(`New version should be greater than existing version (existing: ${existingVersion}, new: ${newVersion})`)
-              }
+              if (device_identifier_id.length > 0)
+                return device_identifier_id[0]!.id
 
-              const newBundle = await bundleService.createOne({
-                id: hash,
-                ddf_uuid: bundle.data.desc.uuid,
-                content,
-                product: bundle.data.desc.product,
-                tag: tag as any,
-                version: bundle.data.desc.version,
-                version_deconz: bundle.data.desc.version_deconz,
-                device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
-                signatures: bundle.data.signatures.map(signature => ({
-                  signature: bytesToHex(signature.signature),
-                  key: bytesToHex(signature.key),
-                })) as any,
+              return await deviceIdentifiersService.createOne({
+                manufacturer,
+                model,
               })
+            }))
 
-              result[uuid] = {
-                success: true,
-                createdId: newBundle,
-              }
+            const existingBundleForTag = await bundleService.readByQuery({
+              fields: ['id', 'version'],
+              filter: {
+                _and: [
+                  { tag: { _eq: tag } },
+                  { ddf_uuid: { _eq: bundle.data.desc.uuid } },
+                ],
+              },
             })
-          }
-          catch (error) {
-            const message = () => {
-              if (isDirectusError<RecordNotUniqueErrorExtensions>(error, 'RECORD_NOT_UNIQUE')) {
-                switch (error.extensions.collection) {
-                  case 'bundles':
-                    switch (error.extensions.field) {
-                      case 'id':
-                        return 'Bundle with same hash already exists'
-                      case 'version':
-                        return 'Bundle with same version already exists'
-                    }
-                }
-              }
 
-              if (error instanceof Error)
-                return error.message
-
-              return 'Unknown Error'
+            if (existingBundleForTag[0]) {
+              const existingVersion = existingBundleForTag[0].version as string
+              const newVersion = bundle.data.desc.version
+              if (!compare(newVersion, existingVersion, '>'))
+                throw new Error(`New version should be greater than existing version (existing: ${existingVersion}, new: ${newVersion})`)
             }
+
+            const newBundle = await bundleService.createOne({
+              id: hash,
+              ddf_uuid: bundle.data.desc.uuid,
+              content,
+              product: bundle.data.desc.product,
+              tag: tag as any,
+              version: bundle.data.desc.version,
+              version_deconz: bundle.data.desc.version_deconz,
+              device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
+              signatures: bundle.data.signatures.map(signature => ({
+                signature: bytesToHex(signature.signature),
+                key: bytesToHex(signature.key),
+              })) as any,
+            })
 
             result[uuid] = {
-              success: false,
-              message: message(),
+              success: true,
+              createdId: newBundle,
             }
-          }
-        }))
+          })
+        }
+        catch (error) {
+          const message = () => {
+            if (isDirectusError<RecordNotUniqueErrorExtensions>(error, 'RECORD_NOT_UNIQUE')) {
+              switch (error.extensions.collection) {
+                case 'bundles':
+                  switch (error.extensions.field) {
+                    case 'id':
+                      return 'Bundle with same hash already exists'
+                    case 'version':
+                      return 'Bundle with same version already exists'
+                  }
+              }
+            }
 
-        res.json({ result })
-      }),
-    )
+            if (error instanceof Error)
+              return error.message
+
+            return 'Unknown Error'
+          }
+
+          result[uuid] = {
+            success: false,
+            message: message(),
+          }
+        }
+      }))
+
+      res.json({ result })
+    }))
 
     router.get('/download/:id', asyncHandler(async (req, res, next) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null

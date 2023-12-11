@@ -1,32 +1,32 @@
 {
-    "compilerOptions": {
-        "target": "ES2019",
-        "lib": ["ES2019", "DOM"],
-        "moduleResolution": "node",
-        "strict": true,
-        "noFallthroughCasesInSwitch": true,
-        "esModuleInterop": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "noUncheckedIndexedAccess": true,
-        "noUnusedParameters": true,
-        "alwaysStrict": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "strictBindCallApply": true,
-        "strictPropertyInitialization": true,
-        "resolveJsonModule": false,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "allowSyntheticDefaultImports": true,
-        "isolatedModules": true,
-        "rootDir": "./src"
-    },
-    "include": [
-        "./src/**/*.ts",
-        "@directus/api/dist/services/index.d.ts",
-        "@directus/api/dist/errors/record-not-unique.d.ts"
-    ]
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": ["ES2019", "DOM"],
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "resolveJsonModule": false,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "alwaysStrict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "./src/**/*.ts",
+    "@directus/api/dist/services/index.d.ts",
+    "@directus/api/dist/errors/record-not-unique.d.ts"
+  ]
 }
