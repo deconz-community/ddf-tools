@@ -85,7 +85,7 @@ export function bundlerCommand() {
         const inputFilePath = path.resolve(inputFile)
 
         if (inputFilePath.startsWith(genericDirectoryPath)) {
-          console.log(`Skipping DDF file [${inputFile}] because it's inside the generic directory`)
+          // console.log(`Skipping DDF file [${inputFile}] because it's inside the generic directory`)
           return
         }
 
@@ -97,13 +97,6 @@ export function bundlerCommand() {
             return new Blob([data])
           },
         )
-
-        const ddfc = JSON.parse(bundle.data.ddfc)
-        if (typeof ddfc !== 'object' || ddfc === null)
-          return console.warn(`[${bundle.data.name}] ddfc is not an object`)
-
-        if ('schema' in ddfc || ddfc.schema !== 'devcap1.schema.json')
-          return console.warn(`[${bundle.data.name}] It's not a DDF file`)
 
         if (validate) {
           // TODO move this in a shared package
