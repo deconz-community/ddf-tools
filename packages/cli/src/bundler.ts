@@ -8,6 +8,9 @@ import { hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
+import { createDirectus, rest, staticToken } from '@directus/sdk'
+import { v4 as uuidv4 } from 'uuid'
+import type { PrimaryKey } from '@directus/types'
 
 export function bundlerCommand() {
   program
@@ -18,31 +21,27 @@ export function bundlerCommand() {
     .option('-o, --output <path>', 'Output directory path')
     .option('--no-validate', 'Disable validation of the DDF file')
     .option('--private-key <privateKey>', 'Private key to sign the bundle with')
-    // .option('--upload', 'Upload the bundle to the store after creating it')
-    // .option('--store-url <url>', 'Store URL')
-    // .option('--store-token <token>', 'Authentication token')
-    // .option('--tag <tag>', 'Registers the published bundle with the given tag. By default, the "latest" tag is used.')
+    .option('--upload', 'Upload the bundle to the store after creating it')
+    .option('--store-url <url>', 'Store URL')
+    .option('--store-token <token>', 'Authentication token')
+    .option('--tag <tag>', 'Registers the published bundle with the given tag. By default, the "latest" tag is used.')
     .action(async (input, options) => {
       const {
         generic,
-        output = path.dirname(input),
+        output,
         validate,
         privateKey,
-        /*
         upload = false,
         storeUrl,
         storeToken,
         tag = 'latest',
-        */
       } = options
 
       // Validate options
-      /*
       if (upload && (!storeUrl || !storeToken)) {
         console.log('You must provide both --store-url and --store-token when using --upload')
         return
       }
-      */
 
       {
         const genericStat = await fs.stat(generic)
@@ -52,7 +51,12 @@ export function bundlerCommand() {
         }
       }
 
-      {
+      if (!upload && !output) {
+        console.log('You must provide either --upload or --output')
+        return
+      }
+
+      if (output) {
         const outputStat = await fs.stat(output)
         if (!outputStat.isDirectory()) {
           console.log('output must be a directory')
@@ -81,6 +85,7 @@ export function bundlerCommand() {
           `file://${path.resolve(generic)}`,
           `file://${path.resolve(inputFile)}`,
           async (filePath) => {
+            console.log(inputFile, filePath)
             const data = await fs.readFile(filePath.replace('file://', ''))
             return new Blob([data])
           },
@@ -144,18 +149,48 @@ export function bundlerCommand() {
               errors,
             }
           }
-
-          console.log(JSON.stringify(bundle.data.validation, null, 2))
         }
-
-        const outputPath = path.join(output, bundle.data.name)
 
         let encoded = encode(bundle)
 
         if (privateKey)
           encoded = await sign(encoded, [{ key: hexToBytes(privateKey) }])
 
-        await fs.writeFile(outputPath, encoded.stream())
+        if (output) {
+          const outputPath = path.join(output, bundle.data.name)
+          await fs.writeFile(outputPath, encoded.stream())
+          console.log(output)
+        }
+
+        if (upload) {
+          const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest())
+          const uuid = uuidv4()
+
+          const formData = new FormData()
+          formData.append('tag', tag)
+          formData.append(uuid, encoded)
+
+          const { result } = await client.request<
+          // TODO import type from the store extension
+          { result: Record<string, {
+            success: boolean
+            createdId?: PrimaryKey | undefined
+            message?: string | undefined
+          }> }
+          >(() => {
+            return {
+              method: 'POST',
+              path: '/bundle/upload',
+              body: formData,
+              headers: { 'Content-Type': 'multipart/form-data' },
+            }
+          })
+
+          if (result[uuid].success === true)
+            console.log(`[${bundle.data.name}] uploaded successfully`)
+          else
+            console.log(`[${bundle.data.name}] failed to upload : ${result[uuid].message}`)
+        }
       }))
     })
 }

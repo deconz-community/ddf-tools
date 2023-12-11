@@ -99,6 +99,9 @@ importers:
       '@deconz-community/ddf-validator':
         specifier: workspace:^
         version: link:../validator
+      '@directus/sdk':
+        specifier: ^13.0.2
+        version: 13.0.2
       '@noble/hashes':
         specifier: ^1.3.2
         version: 1.3.2
@@ -124,6 +127,9 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(zod@3.22.4)
     devDependencies:
+      '@directus/types':
+        specifier: ^11.0.2
+        version: 11.0.2(mysql@2.18.1)(pg@8.11.0)(sqlite3@5.1.6)(tedious@16.1.0)
       '@liuli-util/vite-plugin-node':
         specifier: ^0.7.0
         version: 0.7.0(@types/node@20.10.4)(rollup@4.6.1)(vite@5.0.6)
@@ -3923,7 +3929,6 @@ packages:
   /@directus/sdk@13.0.2:
     resolution: {integrity: sha512-KECQM0w8xlgr5EklX+Jb9+dIzXyvJFjRfhiIAI7l/b0WEtVaCfvRMIrJXR3XsLeVW9u2nu+b/TffOyTMSLjm2w==}
     engines: {node: '>=18.0.0'}
-    dev: true
 
   /@directus/specs@10.2.4:
     resolution: {integrity: sha512-UnTalIGHSMNquJC9xzZrRKbSADlL9zYI64+TjQ4TUWFbTnVvDSEjmUbBUyUDtptslGqd0B7eo0NO4nT4eq/k0w==}
