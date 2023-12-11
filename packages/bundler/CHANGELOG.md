@@ -1,5 +1,16 @@
 # @deconz-community/ddf-bundler
 
+## 0.14.0
+
+### Minor Changes
+
+- 52f0ed0: Add buildFromFiles method
+- 39d9a6a: Update dependencies
+
+### Patch Changes
+
+- d4adb19: Code cleanup for the builder
+
 ## 0.13.0
 
 ### Minor Changes
