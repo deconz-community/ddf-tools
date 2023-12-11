@@ -3,7 +3,7 @@ import { readBundles } from '~/interfaces/store'
 
 const store = useStore()
 
-const bundleID = ref('8633575f730c1a066ba1a4fa841da43beb571d2aa4c2498878be8fdd09173e38')
+const bundleID = ref('3a20ecba2f1294dbea57fa10b0383775606ab5c7ec77f46775eb49ecdd93a5bd')
 
 const dataRest = store.request(computed(() => readBundles(bundleID.value, {
   fields: [
