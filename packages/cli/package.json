@@ -46,6 +46,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "download:test-data": "rm -rf ./test-data && mkdir ./test-data && cd ./test-data && npx degit deconz-community/ddf",
     "preview": "vite-node ./src/index.ts"
   },
   "dependencies": {
