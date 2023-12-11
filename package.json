@@ -28,10 +28,10 @@
     "release": "turbo run test && turbo run build && changeset publish",
     "publish": "changeset publish",
     "build": "turbo run build",
+    "taze": "taze",
     "build:toolbox": "pnpm --dir packages/toolbox run build",
     "dev:store": "pnpm --dir packages/store run dev",
-    "dev:toolbox": "pnpm --dir packages/toolbox run dev",
-    "taze": "taze"
+    "dev:toolbox": "pnpm --dir packages/toolbox run dev"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.4.2",
