@@ -6,10 +6,10 @@ const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
 
 // const genericDE = `${baseDEUrl}/generic`
 const devicesDC = `${baseDCUrl}/devices`
-const genericDC = `${baseDCUrl}/generic`
+const genericDC = `${devicesDC}/generic`
 
 const sampleList = {
-  'STARKVIND Air purifier': [`${baseDCUrl}/generic`, `${devicesDC}/ikea/starkvind_air_purifier.json`],
+  'STARKVIND Air purifier': [genericDC, `${devicesDC}/ikea/starkvind_air_purifier.json`],
   'FYRTUR block-out roller blind': [genericDC, `${devicesDC}/ikea/fyrtur_block-out_roller_blind.json`],
   'SYMFONISK sound remote gen2': [genericDC, `${devicesDC}/ikea/symfonisk_sound_remote_gen2.json`],
   'Lutron Aurora': [genericDC, `${devicesDC}/lutron/lutron_aurora_foh.json`],
