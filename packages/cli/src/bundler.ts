@@ -75,21 +75,35 @@ export function bundlerCommand() {
           inputFiles.push(...await glob(`${input}/**/*.json`))
         }
         else {
-          console.log('Input must be a file or directory')
+          console.warn('Input must be a file or directory')
           return
         }
       }
+      const genericDirectoryPath = path.resolve(generic)
 
       await Promise.all(inputFiles.map(async (inputFile) => {
+        const inputFilePath = path.resolve(inputFile)
+
+        if (inputFilePath.startsWith(genericDirectoryPath)) {
+          console.log(`Skipping DDF file [${inputFile}] because it's inside the generic directory`)
+          return
+        }
+
         const bundle = await buildFromFiles(
-          `file://${path.resolve(generic)}`,
-          `file://${path.resolve(inputFile)}`,
+          `file://${genericDirectoryPath}`,
+          `file://${inputFilePath}`,
           async (filePath) => {
-            console.log(inputFile, filePath)
             const data = await fs.readFile(filePath.replace('file://', ''))
             return new Blob([data])
           },
         )
+
+        const ddfc = JSON.parse(bundle.data.ddfc)
+        if (typeof ddfc !== 'object' || ddfc === null)
+          return console.warn(`[${bundle.data.name}] ddfc is not an object`)
+
+        if ('schema' in ddfc || ddfc.schema !== 'devcap1.schema.json')
+          return console.warn(`[${bundle.data.name}] It's not a DDF file`)
 
         if (validate) {
           // TODO move this in a shared package
@@ -159,7 +173,6 @@ export function bundlerCommand() {
         if (output) {
           const outputPath = path.join(output, bundle.data.name)
           await fs.writeFile(outputPath, encoded.stream())
-          console.log(output)
         }
 
         if (upload) {
