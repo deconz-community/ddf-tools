@@ -22,9 +22,6 @@ const bundleList = store.request(computed(() => listBundles({
 </script>
 
 <template>
-  <v-btn to="/upload">
-    Upload
-  </v-btn>
   <v-card class="ma-2">
     <template #title>
       DDF Store Temporary list of bundles
