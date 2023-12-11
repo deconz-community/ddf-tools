@@ -1,5 +1,4 @@
 import { Bundle } from './bundle'
-import type { DDFC } from './ddfc'
 import type { TextFile } from './types'
 import { asArray } from './utils'
 
@@ -12,17 +11,30 @@ export async function buildFromFiles(
 
   bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
   bundle.data.ddfc = await (await getFile(ddfPath)).text()
-  const ddfc: DDFC = JSON.parse(bundle.data.ddfc)
+  const ddfc: Record<string, unknown> = JSON.parse(bundle.data.ddfc)
 
   // Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
     manufacturers: string[]
     deviceTypes: string[]
   } = {
-    manufacturers: typeof ddfc.manufacturername === 'string'
-      ? [ddfc.manufacturername]
-      : ddfc.manufacturername.filter((name, index) => ddfc.manufacturername.indexOf(name) === index),
+    manufacturers: [],
     deviceTypes: [],
+  }
+
+  if (typeof ddfc.manufacturername === 'string') {
+    usedConstants.manufacturers.push(ddfc.manufacturername)
+  }
+  else if (Array.isArray(ddfc.manufacturername)) {
+    ddfc.manufacturername.forEach((name) => {
+      if (typeof name !== 'string')
+        return
+
+      if (usedConstants.manufacturers.includes(name))
+        return
+
+      usedConstants.manufacturers.push(name)
+    })
   }
 
   const filesToAdd: {
@@ -34,7 +46,10 @@ export async function buildFromFiles(
 
   // Download markdown files
   if (ddfc['md:known_issues'] !== undefined) {
-    for (const filePath of asArray(ddfc['md:known_issues'])) {
+    for (const filePath of asArray<unknown>(ddfc['md:known_issues'])) {
+      if (typeof filePath !== 'string')
+        continue
+
       filesToAdd.push({
         url: new URL(`${ddfPath}/../${filePath}`).href,
         path: filePath,
@@ -62,8 +77,11 @@ export async function buildFromFiles(
       })
 
       if (Array.isArray(subdevice.items)) {
-        subdevice.items.forEach((item) => {
-          if (item.name !== undefined) {
+        subdevice.items.forEach((item: unknown) => {
+          if (typeof item !== 'object' || item === null)
+            return console.error('Invalid item', item)
+
+          if ('name' in item && typeof item.name === 'string') {
             const fileName = `${item.name.replace(/\//g, '_')}_item.json`
             filesToAdd.push({
               url: new URL(`${genericDirectory}/items/${fileName}`).href,
@@ -71,8 +89,18 @@ export async function buildFromFiles(
               type: 'JSON',
               patch(data) {
                 const decoded = JSON.parse(data)
-                if (decoded.parse && 'srcitem' in decoded.parse && item.parse && 'srcitem' in item.parse)
-                  decoded.parse.srcitem = item.parse.srcitem
+
+                try {
+                  // @ts-expect-error Try to patch the item. Easier to try than checking types
+                  const newItem = item.parse.srcitem
+                  if (decoded.parse.srcitem === undefined || newItem === undefined)
+                    throw new Error('No srcitem')
+                  decoded.parse.srcitem = newItem
+                }
+                catch (error) {
+                  return data
+                }
+
                 return JSON.stringify(decoded, null, 4)
               },
             })

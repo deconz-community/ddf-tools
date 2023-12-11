@@ -5,6 +5,9 @@ import { program } from '@commander-js/extra-typings'
 import glob from 'fast-glob'
 import { buildFromFiles, encode, sign } from '@deconz-community/ddf-bundler'
 import { hexToBytes } from '@noble/hashes/utils'
+import { createValidator } from '@deconz-community/ddf-validator'
+import { ZodError } from 'zod'
+import { fromZodError } from 'zod-validation-error'
 
 export function bundlerCommand() {
   program
@@ -13,7 +16,7 @@ export function bundlerCommand() {
     .argument('<path>', 'Source DDF file / directory')
     .requiredOption('-g, --generic <path>', 'Generic directory path')
     .option('-o, --output <path>', 'Output directory path')
-    // .option('--no-validate', 'Disable validation of the DDF file')
+    .option('--no-validate', 'Disable validation of the DDF file')
     .option('--private-key <privateKey>', 'Private key to sign the bundle with')
     // .option('--upload', 'Upload the bundle to the store after creating it')
     // .option('--store-url <url>', 'Store URL')
@@ -23,7 +26,7 @@ export function bundlerCommand() {
       const {
         generic,
         output = path.dirname(input),
-        // validate,
+        validate,
         privateKey,
         /*
         upload = false,
@@ -83,15 +86,67 @@ export function bundlerCommand() {
           },
         )
 
-        /*
         if (validate) {
-          // bundle.validate()
-          bundle.data.validation = {
-            result: 'skipped',
-            version: '0.0.0',
+          // TODO move this in a shared package
+          const validator = createValidator()
+
+          const validationResult = validator.bulkValidate(
+            // Generic files
+            bundle.data.files
+              .filter(file => file.type === 'JSON')
+              .map((file) => {
+                return {
+                  path: file.path,
+                  data: JSON.parse(file.data as string),
+                }
+              }),
+            // DDF file
+            [
+              {
+                path: bundle.data.name,
+                data: JSON.parse(bundle.data.ddfc),
+              },
+            ],
+          )
+
+          if (validationResult.length === 0) {
+            bundle.data.validation = {
+              result: 'success',
+              version: validator.version,
+            }
           }
+          else {
+            const errors: {
+              message: string
+              path: (string | number)[]
+            }[] = []
+
+            validationResult.forEach(({ path, error }) => {
+              if (error instanceof ZodError) {
+                fromZodError(error).details.forEach((detail) => {
+                  errors.push({
+                    path: [path, ...detail.path],
+                    message: detail.message,
+                  })
+                })
+              }
+              else {
+                errors.push({
+                  path: [path],
+                  message: error.toString(),
+                })
+              }
+            })
+
+            bundle.data.validation = {
+              result: 'error',
+              version: validator.version,
+              errors,
+            }
+          }
+
+          console.log(JSON.stringify(bundle.data.validation, null, 2))
         }
-        */
 
         const outputPath = path.join(output, bundle.data.name)
 
