@@ -1,5 +1,12 @@
 # @deconz-community/ddf-validator
 
+## 2.23.0
+
+### Minor Changes
+
+- 39d9a6a: Update dependencies
+- a495fb5: Add typing for isGeneric and isDDF methods
+
 ## 2.22.0
 
 ### Minor Changes

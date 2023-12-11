@@ -1,5 +1,24 @@
 # @deconz-community/cli
 
+## 1.5.0
+
+### Minor Changes
+
+- 52f0ed0: Add bundler command
+- a495fb5: Migrate code to typescript
+- d4adb19: Add support for the validation for the bundler
+- 39d9a6a: Update dependencies
+- fc5021c: Add support for uploading bundle to the store
+
+### Patch Changes
+
+- Updated dependencies [52f0ed0]
+- Updated dependencies [d4adb19]
+- Updated dependencies [39d9a6a]
+- Updated dependencies [a495fb5]
+  - @deconz-community/ddf-bundler@0.14.0
+  - @deconz-community/ddf-validator@2.23.0
+
 ## 1.4.0
 
 ### Minor Changes
