@@ -21,7 +21,7 @@ const filter = refDebounced(computed(() => {
   if (product.value !== '') {
     _filters.push({
       product: {
-        _contains: product.value,
+        _icontains: product.value,
       },
     })
   }
@@ -33,7 +33,7 @@ const filter = refDebounced(computed(() => {
         {
           device_identifiers_id: {
             [key]: {
-              _contains: value.value,
+              _icontains: value.value,
             },
           },
         },
