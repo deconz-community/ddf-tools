@@ -50,7 +50,7 @@ const filter = refDebounced(computed(() => {
 }), 500)
 
 const bundleCount = store.request(computed(() => aggregate('bundles', {
-  aggregate: { count: ['id'] },
+  aggregate: { countDistinct: ['ddf_uuid'] },
   query: {
     filter: filter.value,
   },
@@ -84,8 +84,8 @@ const bundleList = store.request(computed(() => listBundles({
 })))
 
 const totalItems = computed(() => {
-  if (bundleCount.state.value && bundleCount.state.value[0].count.id)
-    return Number.parseInt(bundleCount.state.value[0].count.id)
+  if (bundleCount.state.value && bundleCount.state.value[0].countDistinct.ddf_uuid)
+    return Number.parseInt(bundleCount.state.value[0].countDistinct.ddf_uuid)
   return 0
 })
 
