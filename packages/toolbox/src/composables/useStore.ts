@@ -5,10 +5,11 @@ import type { MaybeRef } from 'vue'
 import type { Schema } from '~/interfaces/store'
 
 export type RequestOptions<Output extends object | unknown> = {
+  initialState?: Output
   needAuth?: boolean
   debounce?: number
   maxWait?: number
-} & UseAsyncStateOptions<true, Output | null>
+} & Omit<UseAsyncStateOptions<true, Output | null>, 'shallow' | 'resetOnExecute'>
 
 export function useStore() {
   const store = useAppMachine('store')
@@ -18,12 +19,11 @@ export function useStore() {
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
 
   function request<Output extends object | unknown>(getOptions: MaybeRef<RestCommand<Output, Schema>>, options: RequestOptions<Output> = {}) {
-    options.shallow = true
-
     const {
       needAuth = true,
-      debounce = 500,
-      maxWait = 5000,
+      debounce = 200,
+      maxWait = 2000,
+      initialState = null,
     } = options
 
     if (options.needAuth === undefined)
@@ -34,14 +34,18 @@ export function useStore() {
     const shell = useAsyncState(
       async () => {
         if (!client.value)
-          return null
+          return initialState
         if (needAuth === true && !profile.value)
-          return null
+          return initialState
 
         return await client.value.request(unref(getOptions))
       },
-      null,
-      options,
+      initialState,
+      {
+        ...options,
+        shallow: true,
+        resetOnExecute: false,
+      },
     )
 
     watch([client, profile], () => shell.execute())
