@@ -11,19 +11,43 @@ App.navigationTitle = 'Home'
 
 const page = useRouteQuery('page', '1', { transform: Number })
 const product = useRouteQuery('product', '')
-
+const manufacturer = useRouteQuery('manufacturer', '')
+const model = useRouteQuery('model', '')
 const itemsPerPage = ref(5)
 
-const filter = computed(() => {
-  if (product.value === '')
+const filter = refDebounced(computed(() => {
+  const _filters: any[] = []
+
+  if (product.value !== '') {
+    _filters.push({
+      product: {
+        _contains: product.value,
+      },
+    })
+  }
+
+  Object.entries({ manufacturer, model }).forEach(([key, value]) => {
+    if (value.value !== '') {
+      _filters.push({
+        device_identifiers:
+        {
+          device_identifiers_id: {
+            [key]: {
+              _contains: value.value,
+            },
+          },
+        },
+      })
+    }
+  })
+
+  if (_filters.length === 0)
     return {}
 
   return {
-    product: {
-      _contains: product.value,
-    },
+    _and: _filters,
   }
-})
+}), 500)
 
 const bundleCount = store.request(computed(() => aggregate('bundles', {
   aggregate: { count: ['id'] },
@@ -107,6 +131,24 @@ const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value
               dense
               hide-details
               class="ma-2"
+            />
+            <v-text-field
+              v-model="manufacturer"
+              label="Manufacturer"
+              outlined
+              dense
+              hide-details
+              class="ma-2"
+              :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+            />
+            <v-text-field
+              v-model="model"
+              label="Model"
+              outlined
+              dense
+              hide-details
+              class="ma-2"
+              :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
             />
           </div>
         </template>
