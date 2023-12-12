@@ -44,21 +44,13 @@ const downloadURL = computed(() => {
   <v-card v-if="bundle.state.value" class="ma-2">
     <template #title>
       {{ bundle.state.value.product }}
-      <v-chip
-        v-if="bundle.state.value.tag"
-        class="ma-2"
-        color="orange"
-        text-color="white"
-        :text="bundle.state.value.tag"
-      />
-
       <v-btn v-if="downloadURL" class="ma-2" :href="downloadURL" prepend-icon="mdi-download">
         Download
       </v-btn>
     </template>
 
     <template #subtitle>
-      {{ bundle.state.value.version }} • Published {{ useTimeAgo(bundle.state.value.date_created).value }}
+      Published {{ useTimeAgo(bundle.state.value.date_created).value }}
     </template>
 
     <template #text>

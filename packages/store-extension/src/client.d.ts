@@ -53,157 +53,141 @@ export namespace Types {
 }
 
 /**
- * System collections.
+ * All collection types.
  */
-
 export namespace Collections {
   /**
    * The resolved directus activity collection type.
    *
    */
-  export type DirectusActivity = Directus.DirectusActivity<Schema>;
+  export type DirectusActivity = Directus.DirectusActivity<System>;
 
   /**
    * The resolved directus collections collection type.
    *
    */
-  export type DirectusCollection = Directus.DirectusCollection<Schema>;
+  export type DirectusCollection = Directus.DirectusCollection<System>;
 
   /**
    * The resolved directus fields collection type.
    *
    */
-  export type DirectusField = Directus.DirectusField<Schema>;
+  export type DirectusField = Directus.DirectusField<System>;
 
   /**
    * The resolved directus files collection type.
    *
    */
-  export type DirectusFile = Directus.DirectusFile<Schema>;
+  export type DirectusFile = Directus.DirectusFile<System>;
 
   /**
    * The resolved directus folders collection type.
    *
    */
-  export type DirectusFolder = Directus.DirectusFolder<Schema>;
+  export type DirectusFolder = Directus.DirectusFolder<System>;
 
   /**
    * The resolved directus permissions collection type.
    *
    */
-  export type DirectusPermission = Directus.DirectusPermission<Schema>;
+  export type DirectusPermission = Directus.DirectusPermission<System>;
 
   /**
    * The resolved directus presets collection type.
    *
    */
-  export type DirectusPreset = Directus.DirectusPreset<Schema>;
+  export type DirectusPreset = Directus.DirectusPreset<System>;
 
   /**
    * The resolved directus relations collection type.
    *
    */
-  export type DirectusRelation = Directus.DirectusRelation<Schema>;
+  export type DirectusRelation = Directus.DirectusRelation<System>;
 
   /**
    * The resolved directus revisions collection type.
    *
    */
-  export type DirectusRevision = Directus.DirectusRevision<Schema>;
+  export type DirectusRevision = Directus.DirectusRevision<System>;
 
   /**
    * The resolved directus roles collection type.
    *
    */
-  export type DirectusRole = Directus.DirectusRole<Schema>;
+  export type DirectusRole = Directus.DirectusRole<System>;
 
   /**
    * The resolved directus settings collection type.
    *
    */
-  export type DirectusSettings = Directus.DirectusSettings<Schema>;
-
-  /**
-   * The extra fields added to the directus users collection.
-   *
-   */
-  export interface ExtraDirectusUser {
-    avatar_url: Types.Optional<Types.String>;
-    private_key: Types.Optional<Types.String>;
-    public_key: Types.Optional<Types.String>;
-  }
+  export type DirectusSettings = Directus.DirectusSettings<System>;
 
   /**
    * The resolved directus users collection type.
    *
    */
-  export type DirectusUser = Directus.DirectusUser<Schema>;
+  export type DirectusUser = Directus.DirectusUser<System>;
 
   /**
    * The resolved directus webhooks collection type.
    *
    */
-  export type DirectusWebhook = Directus.DirectusWebhook<Schema>;
+  export type DirectusWebhook = Directus.DirectusWebhook<System>;
 
   /**
    * The resolved directus dashboards collection type.
    *
    */
-  export type DirectusDashboard = Directus.DirectusDashboard<Schema>;
+  export type DirectusDashboard = Directus.DirectusDashboard<System>;
 
   /**
    * The resolved directus panels collection type.
    *
    */
-  export type DirectusPanel = Directus.DirectusPanel<Schema>;
+  export type DirectusPanel = Directus.DirectusPanel<System>;
 
   /**
    * The resolved directus notifications collection type.
    *
    */
-  export type DirectusNotification = Directus.DirectusNotification<Schema>;
+  export type DirectusNotification = Directus.DirectusNotification<System>;
 
   /**
    * The resolved directus shares collection type.
    *
    */
-  export type DirectusShare = Directus.DirectusShare<Schema>;
+  export type DirectusShare = Directus.DirectusShare<System>;
 
   /**
    * The resolved directus flows collection type.
    *
    */
-  export type DirectusFlow = Directus.DirectusFlow<Schema>;
+  export type DirectusFlow = Directus.DirectusFlow<System>;
 
   /**
    * The resolved directus operations collection type.
    *
    */
-  export type DirectusOperation = Directus.DirectusOperation<Schema>;
+  export type DirectusOperation = Directus.DirectusOperation<System>;
 
   /**
    * The resolved directus translations collection type.
    *
    */
-  export type DirectusTranslation = Directus.DirectusTranslation<Schema>;
+  export type DirectusTranslation = Directus.DirectusTranslation<System>;
 
   /**
    * The resolved directus versions collection type.
    *
    */
-  export type DirectusVersion = Directus.DirectusVersion<Schema>;
+  export type DirectusVersion = Directus.DirectusVersion<System>;
 
   /**
    * The resolved directus extensions collection type.
    *
    */
-  // export type DirectusExtension = Directus.DirectusExtension<Schema>;
-}
+  export type DirectusExtension = Directus.DirectusExtension<System>;
 
-/**
- * User collections.
- */
-export namespace Collections {
   /**
    * The bundles collection.
    */
@@ -211,16 +195,14 @@ export namespace Collections {
     id: Types.String;
     ddf_uuid: Types.String;
     product: Types.String;
-    tag: Types.Optional<"alpha" | "beta" | "latest" | Types.String>;
-    version: Types.String;
     version_deconz: Types.String;
     user_created: Types.Optional<Types.String | Collections.DirectusUser>;
     date_created: Types.Optional<Types.DateTime>;
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
-    device_identifiers: BundlesDeviceIdentifiers;
-    sub_devices: BundlesSubDevices;
-    signatures: Signatures;
+    device_identifiers: Collections.BundlesDeviceIdentifiers;
+    sub_devices: Collections.BundlesSubDevices;
+    signatures: Collections.Signatures;
     content: Types.Optional<Types.String>;
   }
 
@@ -229,8 +211,10 @@ export namespace Collections {
    */
   export interface BundlesDeviceIdentifiers {
     id: Types.Integer;
-    bundles_id: Types.Optional<Types.String | Bundles>;
-    device_identifiers_id: Types.Optional<Types.String | DeviceIdentifiers>;
+    bundles_id: Types.Optional<Types.String | Collections.Bundles>;
+    device_identifiers_id: Types.Optional<
+      Types.String | Collections.DeviceIdentifiers
+    >;
   }
 
   /**
@@ -238,8 +222,8 @@ export namespace Collections {
    */
   export interface BundlesSubDevices {
     id: Types.Integer;
-    bundles_id: Types.Optional<Types.String | Bundles>;
-    sub_devices_type: Types.Optional<Types.String | SubDevices>;
+    bundles_id: Types.Optional<Types.String | Collections.Bundles>;
+    sub_devices_type: Types.Optional<Types.String | Collections.SubDevices>;
   }
 
   /**
@@ -249,7 +233,7 @@ export namespace Collections {
     id: Types.String;
     manufacturer: Types.Optional<Types.String>;
     model: Types.Optional<Types.String>;
-    bundles: BundlesDeviceIdentifiers;
+    bundles: Collections.BundlesDeviceIdentifiers;
   }
 
   /**
@@ -262,7 +246,7 @@ export namespace Collections {
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
     name: Types.String;
-    members: OrganizationsDirectusUsers;
+    members: Collections.OrganizationsDirectusUsers;
   }
 
   /**
@@ -270,8 +254,8 @@ export namespace Collections {
    */
   export interface OrganizationsDirectusUsers {
     id: Types.Integer;
-    organizations_id: Types.Optional<Types.String | Organizations>;
-    directus_users_id: Types.Optional<Types.String | DirectusUser>;
+    organizations_id: Types.Optional<Types.String | Collections.Organizations>;
+    directus_users_id: Types.Optional<Types.String | Collections.DirectusUser>;
     role: Types.Optional<"owner" | "member" | Types.String>;
   }
 
@@ -280,7 +264,7 @@ export namespace Collections {
    */
   export interface Signatures {
     id: Types.String;
-    bundle: Types.String | Bundles;
+    bundle: Types.String | Collections.Bundles;
     signature: Types.String;
     key: Types.String;
   }
@@ -292,24 +276,156 @@ export namespace Collections {
     type: Types.String;
     name: Types.String;
     endpoint: Types.Optional<"/lights" | "/sensors" | Types.String>;
-    bundles: BundlesSubDevices;
+    bundles: Collections.BundlesSubDevices;
   }
 }
 
 /**
- * System collections.
+ * System schema extensions.
  */
-export interface Schema {
+
+export interface System {
   /**
-   * The extended directus users collection.
+   * The definition for the directus activity system collection.
+   *
    */
-  directus_users: Collections.ExtraDirectusUser[];
+  directus_activity: {}[];
+
+  /**
+   * The definition for the directus collections system collection.
+   *
+   */
+  directus_collections: {}[];
+
+  /**
+   * The definition for the directus fields system collection.
+   *
+   */
+  directus_fields: {}[];
+
+  /**
+   * The definition for the directus files system collection.
+   *
+   */
+  directus_files: {}[];
+
+  /**
+   * The definition for the directus folders system collection.
+   *
+   */
+  directus_folders: {}[];
+
+  /**
+   * The definition for the directus permissions system collection.
+   *
+   */
+  directus_permissions: {}[];
+
+  /**
+   * The definition for the directus presets system collection.
+   *
+   */
+  directus_presets: {}[];
+
+  /**
+   * The definition for the directus relations system collection.
+   *
+   */
+  directus_relations: {}[];
+
+  /**
+   * The definition for the directus revisions system collection.
+   *
+   */
+  directus_revisions: {}[];
+
+  /**
+   * The definition for the directus roles system collection.
+   *
+   */
+  directus_roles: {}[];
+
+  /**
+   * The definition for the directus settings system collection.
+   *
+   */
+  directus_settings: {};
+
+  /**
+   * The definition for the directus users system collection.
+   *
+   */
+  directus_users: {
+    avatar_url: Types.Optional<Types.String>;
+    private_key: Types.Optional<Types.String>;
+    public_key: Types.Optional<Types.String>;
+  }[];
+
+  /**
+   * The definition for the directus webhooks system collection.
+   *
+   */
+  directus_webhooks: {}[];
+
+  /**
+   * The definition for the directus dashboards system collection.
+   *
+   */
+  directus_dashboards: {}[];
+
+  /**
+   * The definition for the directus panels system collection.
+   *
+   */
+  directus_panels: {}[];
+
+  /**
+   * The definition for the directus notifications system collection.
+   *
+   */
+  directus_notifications: {}[];
+
+  /**
+   * The definition for the directus shares system collection.
+   *
+   */
+  directus_shares: {}[];
+
+  /**
+   * The definition for the directus flows system collection.
+   *
+   */
+  directus_flows: {}[];
+
+  /**
+   * The definition for the directus operations system collection.
+   *
+   */
+  directus_operations: {}[];
+
+  /**
+   * The definition for the directus translations system collection.
+   *
+   */
+  directus_translations: {}[];
+
+  /**
+   * The definition for the directus versions system collection.
+   *
+   */
+  directus_versions: {}[];
+
+  /**
+   * The definition for the directus extensions system collection.
+   *
+   */
+  directus_extensions: {}[];
 }
 
 /**
- * User collections.
+ * Schema definition.
  */
-export interface Schema {
+export interface Schema extends System {
   /**
    * The bundles collection.
    */

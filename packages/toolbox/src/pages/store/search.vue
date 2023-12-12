@@ -158,9 +158,6 @@ const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value
             <v-card variant="outlined" class="ma-2">
               <v-card-title>
                 {{ item.raw.product }}
-                <v-chip v-if="item.raw.tag === 'latest'" class="ml-2" color="green">
-                  {{ item.raw.tag }}
-                </v-chip>
                 <v-chip class="ml-2" color="grey">
                   {{ item.raw.id.substr(-10) }}
                 </v-chip>

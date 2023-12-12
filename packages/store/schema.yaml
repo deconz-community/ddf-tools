@@ -1,5 +1,5 @@
 version: 1
-directus: 14.1.1
+directus: 14.1.2
 vendor: sqlite
 collections:
   - collection: bundles
@@ -352,7 +352,7 @@ fields:
       numeric_precision: null
       numeric_scale: null
       is_nullable: false
-      is_unique: false
+      is_unique: true
       is_primary_key: false
       is_generated: false
       generation_expression: null
@@ -509,52 +509,6 @@ fields:
       validation_message: null
       width: full
   - collection: bundles
-    field: tag
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: tag
-      group: null
-      hidden: false
-      interface: select-dropdown
-      note: null
-      options:
-        allowNone: true
-        choices:
-          - text: Latest
-            value: latest
-          - text: Beta
-            value: beta
-          - text: Alpha
-            value: alpha
-      readonly: false
-      required: false
-      sort: 4
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: tag
-      table: bundles
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles
     field: user_created
     type: string
     meta:
@@ -634,44 +588,6 @@ fields:
       has_auto_increment: false
       foreign_key_table: directus_users
       foreign_key_column: id
-  - collection: bundles
-    field: version
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: raw
-      display_options: null
-      field: version
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 5
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: version
-      table: bundles
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
   - collection: bundles
     field: version_deconz
     type: string
