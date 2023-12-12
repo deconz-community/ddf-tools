@@ -24,7 +24,6 @@ export function bundlerCommand() {
     .option('--upload', 'Upload the bundle to the store after creating it')
     .option('--store-url <url>', 'Store URL')
     .option('--store-token <token>', 'Authentication token')
-    .option('--tag <tag>', 'Registers the published bundle with the given tag. By default, the "latest" tag is used.')
     .action(async (input, options) => {
       const {
         generic,
@@ -34,7 +33,6 @@ export function bundlerCommand() {
         upload = false,
         storeUrl,
         storeToken,
-        tag = 'latest',
       } = options
 
       // Validate options
@@ -173,7 +171,6 @@ export function bundlerCommand() {
           const uuid = uuidv4()
 
           const formData = new FormData()
-          formData.append('tag', tag)
           formData.append(uuid, encoded)
 
           const { result } = await client.request<

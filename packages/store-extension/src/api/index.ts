@@ -4,12 +4,11 @@ import { Stream } from 'node:stream'
 import { defineEndpoint } from '@directus/extensions-sdk'
 import type * as Services from '@directus/api/dist/services/index'
 import type { Accountability, PrimaryKey } from '@directus/types'
-import { createError, isDirectusError } from '@directus/errors'
-import type { RecordNotUniqueErrorExtensions } from '@directus/api/dist/errors/record-not-unique'
+import type { RecordNotUniqueError } from '@directus/errors'
+import { ErrorCode, createError, isDirectusError } from '@directus/errors'
 
 import { bytesToHex } from '@noble/hashes/utils'
 import pako from 'pako'
-import { compare } from 'compare-versions'
 import slugify from '@sindresorhus/slugify'
 
 import { decode } from '@deconz-community/ddf-bundler'
@@ -53,19 +52,14 @@ export default defineEndpoint({
 
       await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
         try {
-          const { meta, blob } = item
-          const { tag = 'latest' } = meta
+          const { blob } = item
 
           const bundle = await decode(blob)
           if (!bundle.data.hash)
             throw new Error('No hash')
 
-          if (typeof tag !== 'string')
-            throw new Error('Invalid tag, should be a string')
           if (!bundle.data.desc.uuid)
             throw new Error('The bundle is missing a UUID, please add a "uuid" field to the DDF json file.')
-          if (!bundle.data.desc.version)
-            throw new Error('The bundle is missing a version, please add a "version" field to the DDF json file.')
           if (!bundle.data.desc.version_deconz)
             throw new Error('The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.')
 
@@ -102,30 +96,11 @@ export default defineEndpoint({
               })
             }))
 
-            const existingBundleForTag = await bundleService.readByQuery({
-              fields: ['id', 'version'],
-              filter: {
-                _and: [
-                  { tag: { _eq: tag } },
-                  { ddf_uuid: { _eq: bundle.data.desc.uuid } },
-                ],
-              },
-            })
-
-            if (existingBundleForTag[0]) {
-              const existingVersion = existingBundleForTag[0].version as string
-              const newVersion = bundle.data.desc.version
-              if (!compare(newVersion, existingVersion, '>'))
-                throw new Error(`New version should be greater than existing version (existing: ${existingVersion}, new: ${newVersion})`)
-            }
-
             const newBundle = await bundleService.createOne({
               id: hash,
               ddf_uuid: bundle.data.desc.uuid,
               content,
               product: bundle.data.desc.product,
-              tag: tag as any,
-              version: bundle.data.desc.version,
               version_deconz: bundle.data.desc.version_deconz,
               device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
               signatures: bundle.data.signatures.map(signature => ({
@@ -142,14 +117,12 @@ export default defineEndpoint({
         }
         catch (error) {
           const message = () => {
-            if (isDirectusError<RecordNotUniqueErrorExtensions>(error, 'RECORD_NOT_UNIQUE')) {
+            if (isDirectusError<typeof RecordNotUniqueError['prototype']['extensions']>(error, ErrorCode.RecordNotUnique)) {
               switch (error.extensions.collection) {
                 case 'bundles':
                   switch (error.extensions.field) {
                     case 'id':
                       return 'Bundle with same hash already exists'
-                    case 'version':
-                      return 'Bundle with same version already exists'
                   }
               }
             }
@@ -183,7 +156,6 @@ export default defineEndpoint({
       const bundle = await bundleService.readOne(req.params.id, {
         fields: [
           'product',
-          'version',
           'content',
         ],
       })
@@ -191,7 +163,7 @@ export default defineEndpoint({
       if (!bundle.content)
         throw new Error('Bundle not found')
 
-      const fileName = `${slugify(`${bundle.product} v${bundle.version}`)}.ddf`
+      const fileName = `${slugify(`${bundle.product}-${req.params.id.substring(req.params.id.length - 10)}`)}.ddf`
 
       const buffer = Buffer.from(bundle.content, 'base64')
       const decompressed = Buffer.from(pako.inflate(buffer))
