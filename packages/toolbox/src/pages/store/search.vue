@@ -184,7 +184,7 @@ const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value
                 </v-list>
               </v-card-text>
               <v-card-actions>
-                <v-btn :to="`/bundle/${item.raw.id}`">
+                <v-btn :to="`/store/bundle/${item.raw.id}`">
                   Open
                 </v-btn>
                 <v-btn v-if="store.client" :href="`${store.client.url}bundle/download/${item.raw.id}`" prepend-icon="mdi-download">
