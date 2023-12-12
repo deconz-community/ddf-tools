@@ -61,8 +61,6 @@ const bundleList = store.request(computed(() => listBundles({
     'id',
     'product',
     'ddf_uuid',
-    'tag',
-    'version',
     'date_created',
     {
       device_identifiers: [
@@ -167,7 +165,7 @@ const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value
                   <chip-user :public-key="signature.key" class="mr-2" />
                 </template>
                 <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.date_created">
-                  {{ item.raw.version }} • {{ timeAgo }}
+                  {{ timeAgo }}
                 </UseTimeAgo>
               </v-card-subtitle>
               <v-card-text>

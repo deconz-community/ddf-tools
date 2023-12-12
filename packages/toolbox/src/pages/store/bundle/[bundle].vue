@@ -14,8 +14,6 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
   fields: [
     'id',
     'product',
-    'tag',
-    'version',
     'version_deconz',
     'date_created',
     {
@@ -49,7 +47,7 @@ const downloadURL = computed(() => {
       </v-btn>
     </template>
 
-    <template #subtitle>
+    <template v-if="bundle.state.value.date_created" #subtitle>
       Published {{ useTimeAgo(bundle.state.value.date_created).value }}
     </template>
 
