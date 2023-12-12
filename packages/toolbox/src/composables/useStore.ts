@@ -20,14 +20,12 @@ export function useStore() {
 
   function request<Output extends object | unknown>(getOptions: MaybeRef<RestCommand<Output, Schema>>, options: RequestOptions<Output> = {}) {
     const {
-      needAuth = true,
+      needAuth = false,
       debounce = 200,
       maxWait = 2000,
       initialState = null,
     } = options
 
-    if (options.needAuth === undefined)
-      options.needAuth = true
     if (!client.value)
       options.immediate = false
 
@@ -35,8 +33,9 @@ export function useStore() {
       async () => {
         if (!client.value)
           return initialState
+
         if (needAuth === true && !profile.value)
-          return initialState
+          throw new Error('You need to be logged in to access this data')
 
         return await client.value.request(unref(getOptions))
       },

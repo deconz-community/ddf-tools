@@ -4,12 +4,13 @@ import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient 
 import { authentication, createDirectus, readMe, realtime, rest, serverHealth } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store'
 
-export type Directus
-  = DirectusClient<Schema>
-  & AuthenticationClient<Schema>
+type DirectusBase = DirectusClient<Schema>
   & RestClient<Schema>
   & WebSocketClient<Schema>
 // & GraphqlClient<Schema>
+
+export type Directus
+  = DirectusBase | DirectusBase & AuthenticationClient<Schema>
 
 export interface StoreContext {
   directusUrl: string
@@ -164,43 +165,47 @@ export const storeMachine = createMachine({
     isAuthenticated: (context, event) => event.data.isAuthenticated === true,
   },
   services: {
-    connectToDirectus: async (context) => {
-      const client = createDirectus<Schema>(context.directusUrl)
-        .with(authentication('cookie', {
-          credentials: 'include', // TODO What do this does ?
-        }))
-        .with(rest({
-          onRequest: (fetchOptions) => {
-            let timeout = 3000
-            if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
-              const timeoutHeader = fetchOptions.headers['X-Timeout']
-              if (typeof timeoutHeader === 'string') {
-                const converted = Number.parseInt(timeoutHeader)
-                if (!Number.isNaN(converted))
-                  timeout = converted
+    connectToDirectus: async (context, event) => {
+      const makeBaseClient = () => {
+        return createDirectus<Schema>(context.directusUrl)
+          .with(rest({
+            onRequest: (fetchOptions) => {
+              let timeout = 3000
+              if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
+                const timeoutHeader = fetchOptions.headers['X-Timeout']
+                if (typeof timeoutHeader === 'string') {
+                  const converted = Number.parseInt(timeoutHeader)
+                  if (!Number.isNaN(converted))
+                    timeout = converted
+                }
               }
-            }
-            const abortController = new AbortController()
-            const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
-            fetchOptions.signal = abortController.signal
-            fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
-            return fetchOptions
-          },
-          onResponse: (_result, fetchOptions) => {
-            if (fetchOptions.signal?.aborted === false)
-              fetchOptions.signal.dispatchEvent(new Event('abort'))
-            return _result
-          },
-        }))
-        .with(realtime({
-          authMode: 'handshake',
-          reconnect: {
-            delay: 1000,
-            retries: 10,
-          },
-          heartbeat: true,
-        }))
-        // .with(graphql())
+              const abortController = new AbortController()
+              const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
+              fetchOptions.signal = abortController.signal
+              fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
+              return fetchOptions
+            },
+            onResponse: (_result, fetchOptions) => {
+              if (fetchOptions.signal?.aborted === false)
+                fetchOptions.signal.dispatchEvent(new Event('abort'))
+              return _result
+            },
+          }))
+          .with(realtime({
+            authMode: 'handshake',
+            reconnect: {
+              delay: 1000,
+              retries: 10,
+            },
+            heartbeat: true,
+          }))
+      }
+
+      const baseClient = makeBaseClient()
+
+      const client = baseClient.with(authentication('cookie', {
+        credentials: 'include', // TODO What do this does ?
+      }))
 
       const health = await client.request(serverHealth())
 
@@ -221,7 +226,7 @@ export const storeMachine = createMachine({
       }
 
       return {
-        directus: client,
+        directus: baseClient,
         isAuthenticated: false,
       }
     },
