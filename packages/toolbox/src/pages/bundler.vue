@@ -74,7 +74,7 @@ function loadSample(sample: typeof sampleList[keyof typeof sampleList]) {
 if (import.meta.env.VITE_DEBUG === 'true') {
   onMounted(() => {
     loadSample(sampleList[defaultSample])
-    buildFromGithub()
+    // buildFromGithub()
   })
 }
 </script>
