@@ -59,7 +59,7 @@ const tableHeaders: VDataTable['headers'] = [
 ]
 
 const tableItems = computedAsync(async () => {
-  return await Promise.all(signatures.value.map(async (signature: { key: Uint8Array; signature: Uint8Array }) => {
+  return await Promise.all(signatures.value.map(async (signature: { key: Uint8Array, signature: Uint8Array }) => {
     if (hash.value) {
       return {
         key: bytesToHex(signature.key),
@@ -195,7 +195,7 @@ if (import.meta.env.VITE_DEBUG === 'true') {
       </v-toolbar>
     </template>
     <template #item.key="{ item }">
-      <chip-user :public-key="item.key" />
+      <chip-user :public-key="item.key" class="ma-2" />
     </template>
     <template #item.signature="{ item }">
       <v-text-field

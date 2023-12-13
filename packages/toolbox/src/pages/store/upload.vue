@@ -77,6 +77,7 @@ async function upload() {
       })
     }
   }
+  // files.value = []
 }
 </script>
 

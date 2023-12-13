@@ -27,6 +27,12 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
         },
       ],
     },
+    {
+      signatures: [
+        'key',
+        'signature',
+      ],
+    },
   ],
 })))
 

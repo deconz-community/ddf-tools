@@ -157,6 +157,10 @@ export default defineEndpoint({
           if (!bundle.data.desc.version_deconz)
             throw new Error('The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.')
 
+          // TODO verify signatures
+          // Either remove the signatures from the bundle or deny the upload
+          // Make sure that the bundle is signed by the user that is uploading it
+
           const hash = bytesToHex(bundle.data.hash)
           const content = Buffer.from(pako.deflate(await blob.arrayBuffer())).toString('base64')
 

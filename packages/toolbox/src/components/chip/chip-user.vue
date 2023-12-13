@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { bytesToHex } from '@noble/hashes/utils'
 import { MD5 } from 'crypto-js'
-import type { Collections } from '~/interfaces/store'
 
 const props = defineProps<{
-  user?: Collections.DirectusUser
   publicKey?: string | Uint8Array
 }>()
 
@@ -25,11 +23,9 @@ const userKey = computed(() => {
 })
 
 const user = computedAsync<any | undefined>(async () => {
-  if (props.user)
-    return props.user
   if (userKey.value && store.state?.matches('online.connected'))
     return await store.getUserByKey(userKey.value)
-}, props.user)
+})
 
 const userAvatar = computed(() => {
   if (typeof user.value?.avatar_url === 'string') {
