@@ -9,7 +9,6 @@ const bundles = ref<ReturnType<typeof Bundle>[]>([])
 const store = useStore()
 
 const files = ref<File[]>([])
-const tag = ref('latest')
 
 watch(files, async () => {
   bundles.value = []
@@ -31,7 +30,6 @@ async function upload() {
 
   const formData = new FormData()
   files.value.forEach((file) => {
-    formData.append('tag', tag.value)
     formData.append(uuidv4(), file)
   })
 
@@ -61,11 +59,6 @@ async function upload() {
         multiple
         label="Open .ddf bundle from disk"
         accept=".ddf"
-      />
-      <v-select
-        v-model="tag"
-        label="Tag"
-        :items="['latest', 'beta', 'alpha']"
       />
       <v-btn @click="upload()">
         Upload

@@ -12,7 +12,7 @@ const links = computed(() => {
   list.push({ icon: 'mdi-api', title: 'REST Client', to: '/rest-client' })
   if (store.state?.matches('online')) {
     list.push({ icon: 'mdi-view-list', title: 'Bundle list', to: '/store/search' })
-    list.push({ icon: 'mdi-upload', title: 'Upload', to: '/upload' })
+    list.push({ icon: 'mdi-upload', title: 'Upload', to: '/store/upload' })
   }
   if (import.meta.env.VITE_DEBUG === 'true')
     list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })

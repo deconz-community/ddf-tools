@@ -28,11 +28,6 @@
         "source": "src/hooks/auth.ts"
       },
       {
-        "type": "hook",
-        "name": "hook-upload",
-        "source": "src/hooks/upload.ts"
-      },
-      {
         "type": "endpoint",
         "name": "bundle",
         "source": "src/api/index.ts"
