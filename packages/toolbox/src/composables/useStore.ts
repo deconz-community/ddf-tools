@@ -19,7 +19,7 @@ export function useStore() {
 
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
 
-  function request<Output extends object | unknown>(getOptions: MaybeRef<RestCommand<Output, Schema>>, options: RequestOptions<Output> = {}) {
+  function request<Output extends object | unknown>(getOptions: MaybeRef<RestCommand<Output, Schema> | undefined>, options: RequestOptions<Output> = {}) {
     const {
       needAuth = false,
       debounce = 200,
@@ -35,10 +35,15 @@ export function useStore() {
         if (!client.value)
           return initialState
 
+        // We need to be logged in to access this data but we are not
         if (needAuth === true && !profile.value)
-          throw new Error('You need to be logged in to access this data')
+          return initialState
 
-        return await client.value.request(unref(getOptions))
+        const options = unref(getOptions)
+        if (options === undefined)
+          return initialState
+
+        return await client.value.request(options)
       },
       initialState,
       {
@@ -48,7 +53,12 @@ export function useStore() {
       },
     )
 
-    watch([client, profile], () => shell.execute())
+    // Watch directus state
+    watch(client, () => shell.execute())
+
+    // We needed to be logged so we watch the profile
+    if (needAuth)
+      watch(profile, () => shell.execute())
 
     if (isRef(getOptions))
       watchDebounced(getOptions, () => shell.execute(), { debounce, maxWait })

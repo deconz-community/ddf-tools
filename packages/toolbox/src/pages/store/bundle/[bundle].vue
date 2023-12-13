@@ -36,28 +36,35 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
   ],
 })))
 
-const otherVersions = store.request(computed(() => listBundles({
-  fields: [
-    'id',
-    'version_deconz',
-    'date_created',
-  ],
-  filter: {
-    _and: [
-      {
-        ddf_uuid: {
-          _eq: bundle.state.value?.ddf_uuid,
-        },
-      },
-      {
-        id: {
-          _neq: bundle.state.value?.id,
-        },
-      },
+const otherVersions = store.request(computed(() => {
+  if (bundle.state.value === null)
+    return undefined
+
+  return listBundles({
+    fields: [
+      'id',
+      'version_deconz',
+      'date_created',
     ],
-  },
-  sort: ['-date_created'],
-})))
+    filter: {
+      _and: [
+        {
+          ddf_uuid: {
+            _eq: bundle.state.value.ddf_uuid,
+          },
+        },
+        {
+          id: {
+            _neq: bundle.state.value.id,
+          },
+        },
+      ],
+    },
+    sort: ['-date_created'],
+  })
+},
+
+))
 
 const downloadURL = computed(() => {
   if (!isReady.value || !store.client)
