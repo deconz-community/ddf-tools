@@ -1,5 +1,17 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.5.0
+
+### Minor Changes
+
+- 1b5be06: Removed tag and version options
+- 6013db8: Add bundle search endpoint
+
+### Patch Changes
+
+- Updated dependencies [2b94b81]
+  - @deconz-community/ddf-bundler@0.15.0
+
 ## 0.4.0
 
 ### Minor Changes

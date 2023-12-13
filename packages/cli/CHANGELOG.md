@@ -1,5 +1,18 @@
 # @deconz-community/cli
 
+## 1.6.0
+
+### Minor Changes
+
+- 1b5be06: Removed tag and version options
+- 2b94b81: Update deps
+
+### Patch Changes
+
+- Updated dependencies [2b94b81]
+  - @deconz-community/ddf-validator@2.24.0
+  - @deconz-community/ddf-bundler@0.15.0
+
 ## 1.5.2
 
 ### Patch Changes

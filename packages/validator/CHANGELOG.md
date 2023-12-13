@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.24.0
+
+### Minor Changes
+
+- 2b94b81: Update deps
+
 ## 2.23.0
 
 ### Minor Changes
