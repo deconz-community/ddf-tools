@@ -23,6 +23,7 @@ const userKey = computed(() => {
 })
 
 const user = computedAsync<any | undefined>(async () => {
+  // TODO cache this too
   if (userKey.value && store.state?.matches('online'))
     return await store.getUserByKey(userKey.value)
 })
