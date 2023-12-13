@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTimeAgo } from '@vueuse/core'
-import { readBundles } from '~/interfaces/store'
+import { listBundles, readBundles } from '~/interfaces/store'
 
 const props = defineProps<{
   bundle: string
@@ -13,6 +13,7 @@ const isReady = computed(() => store.state?.matches('online') === true)
 const bundle = store.request(computed(() => readBundles(props.bundle, {
   fields: [
     'id',
+    'ddf_uuid',
     'product',
     'version_deconz',
     'date_created',
@@ -28,6 +29,30 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
       ],
     },
   ],
+})))
+
+const otherVersions = store.request(computed(() => listBundles({
+  fields: [
+    'id',
+    'product',
+    'version_deconz',
+    'date_created',
+  ],
+  filter: {
+    _and: [
+      {
+        ddf_uuid: {
+          _eq: bundle.state.value?.ddf_uuid,
+        },
+      },
+      {
+        id: {
+          _neq: bundle.state.value?.id,
+        },
+      },
+    ],
+
+  },
 })))
 
 const downloadURL = computed(() => {
@@ -156,7 +181,7 @@ const downloadURL = computed(() => {
     </template>
   </v-card>
 
-  <pre>{{ bundle.state.value }}</pre>
+  <pre>{{ { bundle: bundle.state.value, otherVersions: otherVersions.state.value } }}</pre>
 </template>
 
 <route lang="json">
