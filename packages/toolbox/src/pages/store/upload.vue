@@ -2,12 +2,19 @@
 import { v4 as uuidv4 } from 'uuid'
 import { type Bundle, decode } from '@deconz-community/ddf-bundler'
 
+import type { PrimaryKey } from '@directus/types'
+
+// TODO migrate to @deconz-community/types
+type UploadResponse = Record<string, {
+  success: boolean
+  createdId?: PrimaryKey
+  message?: string
+}>
+
 const error = ref('')
 const sha = ref('')
 const bundles = ref<ReturnType<typeof Bundle>[]>([])
-
 const store = useStore()
-
 const files = ref<File[]>([])
 
 watch(files, async () => {
@@ -26,15 +33,13 @@ async function upload() {
 
   // TODO Check if bundle is part of a tree
 
-  console.log('upload')
-
   const formData = new FormData()
   files.value.forEach((file) => {
     formData.append(uuidv4(), file)
   })
 
   // const result = await store.client?.request(uploadFiles(formData))
-  const result = await store.client?.request(() => {
+  const result = await store.client?.request<UploadResponse>(() => {
     return {
       method: 'POST',
       path: '/bundle/upload',

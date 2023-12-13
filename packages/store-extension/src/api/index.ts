@@ -20,11 +20,109 @@ import { multipartHandler } from './multipart-handler'
 
 const ForbiddenError = createError('FORBIDDEN', 'You need to be authenticated to access this endpoint', 403)
 
+// TODO migrate to @deconz-community/types
+type UploadResponse = Record<string, {
+  success: boolean
+  createdId?: PrimaryKey
+  message?: string
+}>
+
 export default defineEndpoint({
   id: 'bundle',
   handler: async (router, context) => {
     const services = context.services as typeof Services
     const schema = await context.getSchema()
+
+    router.get('/search', asyncHandler(async (req, res, next) => {
+      const accountability = 'accountability' in req ? req.accountability as Accountability : null
+      const serviceOptions = { schema, knex: context.database, accountability }
+
+      const product = typeof req.query.product === 'string' && req.query.product !== '' ? req.query.product : null
+      const manufacturer = typeof req.query.manufacturer === 'string' && req.query.manufacturer !== '' ? req.query.manufacturer : null
+      const model = typeof req.query.model === 'string' && req.query.model !== '' ? req.query.model : null
+
+      const subquery = context.database('bundles')
+        .select('bundles.ddf_uuid')
+        .max('date_created as max_date')
+        .orderBy('max_date', 'desc')
+        .groupBy('ddf_uuid')
+
+      if (product)
+        subquery.where(context.database.raw('LOWER(`product`) LIKE ?', [`%${product.toLowerCase()}%`]))
+
+      if ((manufacturer) || (model)) {
+        subquery
+          .join('bundles_device_identifiers', 'bundles.id', '=', 'bundles_device_identifiers.bundles_id')
+          .join('device_identifiers', 'bundles_device_identifiers.device_identifiers_id', '=', 'device_identifiers.id')
+
+        if (manufacturer)
+          subquery.where(context.database.raw('LOWER(`manufacturer`) LIKE ?', [`%${manufacturer.toLowerCase()}%`]))
+
+        if (model)
+          subquery.where(context.database.raw('LOWER(`model`) LIKE ?', [`%${model.toLowerCase()}%`]))
+      }
+
+      if (typeof req.query.limit === 'string' && req.query.limit !== '') {
+        const limit = Math.min(Number.parseInt(req.query.limit), 20)
+
+        subquery.limit(limit)
+        if (typeof req.query.page === 'string' && req.query.page !== '')
+          subquery.offset(limit * (Number.parseInt(req.query.page) - 1))
+      }
+
+      /*
+      const query = context.database
+        .select([
+          'bundles.ddf_uuid',
+          'bundles.id',
+          'bundles.product',
+          'bundles.date_created',
+          'device_identifiers.manufacturer',
+          'device_identifiers.model',
+          'signatures.signature',
+          'signatures.key',
+        ])
+        .from('bundles')
+        .join(subquery.as('subquery'), function () {
+          this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
+            .andOn('bundles.date_created', '=', 'subquery.max_date')
+        })
+        .join('bundles_device_identifiers', 'bundles.id', '=', 'bundles_device_identifiers.bundles_id')
+        .join('device_identifiers', 'bundles_device_identifiers.device_identifiers_id', '=', 'device_identifiers.id')
+        .join('signatures', 'bundles.id', '=', 'signatures.bundle')
+        .orderBy('bundles.date_created', 'desc')
+      */
+
+      const query = context.database
+        .select('bundles.id')
+        .from('bundles')
+        .join(subquery.as('subquery'), function () {
+          this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
+            .andOn('bundles.date_created', '=', 'subquery.max_date')
+        })
+        .orderBy('bundles.date_created', 'desc')
+
+      const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
+      const items = await bundleService.readByQuery({
+        fields: [
+          'id',
+          'product',
+          'ddf_uuid',
+          'date_created',
+          'device_identifiers.device_identifiers_id.manufacturer',
+          'device_identifiers.device_identifiers_id.model',
+          'signatures.key',
+        ],
+        filter: {
+          id: {
+            _in: (await query).map(item => item.id),
+          },
+        },
+        sort: ['-date_created'],
+      })
+
+      res.json(items)
+    }))
 
     router.post('/upload', (req, res, next) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
@@ -44,11 +142,7 @@ export default defineEndpoint({
         admin: true,
       })
 
-      const result: Record<string, {
-        success: boolean
-        createdId?: PrimaryKey
-        message?: string
-      }> = {}
+      const result: UploadResponse = {}
 
       await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
         try {

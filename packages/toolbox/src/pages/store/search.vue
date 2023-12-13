@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { aggregate } from '@directus/sdk'
 import { useRouteQuery } from '@vueuse/router'
-import { listBundles } from '~/interfaces/store'
+import { aggregate } from '@directus/sdk'
+import type { RestCommand } from '@directus/sdk'
+import type { Schema } from '~/interfaces/store'
 
 const store = useStore()
 
@@ -56,29 +57,29 @@ const bundleCount = store.request(computed(() => aggregate('bundles', {
   },
 })))
 
-const bundleList = store.request(computed(() => listBundles({
-  fields: [
-    'id',
-    'product',
-    'ddf_uuid',
-    'date_created',
-    {
-      device_identifiers: [
-        {
-          device_identifiers_id: [
-            'manufacturer',
-            'model',
-          ],
-        },
-      ],
-    },
-    {
-      signatures: ['key'],
-    },
-  ],
+function bundleSearch(filters: {
+  page?: number
+  limit?: number
+  product?: string
+  manufacturer?: string
+  model?: string
+}): RestCommand<unknown, Schema> {
+  return () => {
+    const params = Object.fromEntries(Object.entries(filters).filter(([_, value]) => value !== ''))
+    return {
+      method: 'GET',
+      path: '/bundle/search',
+      params,
+    }
+  }
+}
+
+const bundleList = store.request(computed(() => bundleSearch({
   page: page.value,
   limit: itemsPerPage.value,
-  filter: filter.value,
+  product: product.value,
+  manufacturer: manufacturer.value,
+  model: model.value,
 })))
 
 const totalItems = computed(() => {
