@@ -23,7 +23,7 @@ const userKey = computed(() => {
 })
 
 const user = computedAsync<any | undefined>(async () => {
-  if (userKey.value && store.state?.matches('online.connected'))
+  if (userKey.value && store.state?.matches('online'))
     return await store.getUserByKey(userKey.value)
 })
 
@@ -91,7 +91,7 @@ function copyUserKeyToClipboard() {
           </v-list-item-title>
 
           <v-list-item-subtitle v-if="user">
-            Member since <!-- {{ useTimeAgo(user.).value }} -->
+            Member since {{ useTimeAgo(user.date_created).value }}
           </v-list-item-subtitle>
 
           <template #append>
