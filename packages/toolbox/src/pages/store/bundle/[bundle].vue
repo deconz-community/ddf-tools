@@ -51,8 +51,8 @@ const otherVersions = store.request(computed(() => listBundles({
         },
       },
     ],
-
   },
+  sort: ['-date_created'],
 })))
 
 const downloadURL = computed(() => {
@@ -70,6 +70,10 @@ const downloadURL = computed(() => {
       <v-btn v-if="downloadURL" class="ma-2" :href="downloadURL" prepend-icon="mdi-download">
         Download
       </v-btn>
+
+      <v-chip class="ml-2" color="grey">
+        {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
+      </v-chip>
     </template>
 
     <template v-if="bundle.state.value.date_created" #subtitle>
@@ -115,20 +119,19 @@ const downloadURL = computed(() => {
         </template>
       </v-card>
 
-      <!--
-      <v-card v-if="bundleVersions" elevation="1">
+      <v-card v-if="otherVersions.state.value" elevation="1">
         <template #title>
-          All versions
+          Other versions
         </template>
         <template #text>
-          <v-table v-if="lastestVersion">
+          <v-table>
             <thead>
               <tr>
                 <th class="text-left">
-                  Version
+                  Hash
                 </th>
                 <th class="text-left">
-                  Deconz Version
+                  Version Deconz
                 </th>
                 <th class="text-left">
                   Published
@@ -140,30 +143,21 @@ const downloadURL = computed(() => {
             </thead>
             <tbody>
               <tr
-                v-for="version in bundleVersions.items"
+                v-for="version in otherVersions.state.value"
                 :key="version.id"
               >
                 <td>
-                  {{ version.version }}
-                  <v-chip
-                    v-if="lastestVersion.pre_release"
-                    class="ma-2"
-                    color="orange"
-                    text-color="white"
-                    text="Pre-release"
-                  />
-                  <v-chip
-                    v-if="lastestVersion.deprecated"
-                    class="ma-2"
-                    color="orange"
-                    text-color="red"
-                    text="Deprecated"
-                  />
+                  <v-chip class="ml-2" color="grey">
+                    {{ version.id.substring(version.id.length - 10) }}
+                  </v-chip>
                 </td>
                 <td>{{ version.version_deconz }}</td>
-                <td>{{ useTimeAgo(version.created).value }}</td>
+                <td>{{ useTimeAgo(version.date_created).value }}</td>
                 <td>
-                  <v-btn class="ma-2" :href="client.getFileUrl(version, version.file)" prepend-icon="mdi-download">
+                  <v-btn :to="`/store/bundle/${version.id}`">
+                    Open
+                  </v-btn>
+                  <v-btn class="ma-2" :href="`${store.client.url}bundle/download/${version.id}`" prepend-icon="mdi-download">
                     Download
                   </v-btn>
                 </td>
@@ -172,16 +166,13 @@ const downloadURL = computed(() => {
           </v-table>
         </template>
       </v-card>
-      -->
-      <!--
-        <json-viewer v-if="bundle" :value="bundle" :expand-depth="5" />
-        <json-viewer v-if="bundleVersions" :value="bundleVersions" :expand-depth="5" />
-        <json-viewer v-if="lastestVersion" :value="lastestVersion" :expand-depth="5" />
-      -->
     </template>
   </v-card>
 
-  <pre>{{ { bundle: bundle.state.value, otherVersions: otherVersions.state.value } }}</pre>
+  <pre class="ma-2">{{ {
+    bundle: bundle.state.value,
+    otherVersions: otherVersions.state.value,
+  } }}</pre>
 </template>
 
 <route lang="json">
