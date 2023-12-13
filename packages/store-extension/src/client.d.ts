@@ -237,29 +237,6 @@ export namespace Collections {
   }
 
   /**
-   * The organizations collection.
-   */
-  export interface Organizations {
-    id: Types.String;
-    user_created: Types.Optional<Types.String | Collections.DirectusUser>;
-    date_created: Types.Optional<Types.DateTime>;
-    user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
-    date_updated: Types.Optional<Types.DateTime>;
-    name: Types.String;
-    members: Collections.OrganizationsDirectusUsers;
-  }
-
-  /**
-   * The organizations directus users collection.
-   */
-  export interface OrganizationsDirectusUsers {
-    id: Types.Integer;
-    organizations_id: Types.Optional<Types.String | Collections.Organizations>;
-    directus_users_id: Types.Optional<Types.String | Collections.DirectusUser>;
-    role: Types.Optional<"owner" | "member" | Types.String>;
-  }
-
-  /**
    * The signatures collection.
    */
   export interface Signatures {
@@ -277,6 +254,14 @@ export namespace Collections {
     name: Types.String;
     endpoint: Types.Optional<"/lights" | "/sensors" | Types.String>;
     bundles: Collections.BundlesSubDevices;
+  }
+
+  /**
+   * The test collection.
+   */
+  export interface Test {
+    id: Types.Integer;
+    date_created: Types.Optional<Types.DateTime>;
   }
 }
 
@@ -349,16 +334,23 @@ export interface System {
    * The definition for the directus settings system collection.
    *
    */
-  directus_settings: {};
+  directus_settings: {
+    private_key_stable: Types.Optional<Types.String>;
+    public_key_stable: Types.Optional<Types.String>;
+    private_key_beta: Types.Optional<Types.String>;
+    public_key_beta: Types.Optional<Types.String>;
+  };
 
   /**
    * The definition for the directus users system collection.
    *
    */
   directus_users: {
+    date_created: Types.Optional<Types.DateTime>;
     avatar_url: Types.Optional<Types.String>;
-    private_key: Types.Optional<Types.String>;
     public_key: Types.Optional<Types.String>;
+    private_key: Types.Optional<Types.String>;
+    can_sign_with_system_keys: Types.Boolean;
   }[];
 
   /**
@@ -447,16 +439,6 @@ export interface Schema extends System {
   device_identifiers: Collections.DeviceIdentifiers[];
 
   /**
-   * The organizations collection.
-   */
-  organizations: Collections.Organizations[];
-
-  /**
-   * The organizations directus users collection.
-   */
-  organizations_directus_users: Collections.OrganizationsDirectusUsers[];
-
-  /**
    * The signatures collection.
    */
   signatures: Collections.Signatures[];
@@ -465,6 +447,11 @@ export interface Schema extends System {
    * The sub devices collection.
    */
   sub_devices: Collections.SubDevices[];
+
+  /**
+   * The test collection.
+   */
+  test: Collections.Test[];
 }
 
 /**
@@ -565,49 +552,6 @@ export function readDeviceIdentifiers<
 }
 
 /**
- * List organizations items.
- */
-export function listOrganizations<
-  const Query extends Query$<Schema, Collections.Organizations>,
->(query?: Query) {
-  return readItems$<Schema, "organizations", Query>("organizations", query);
-}
-
-/**
- * Gets a single known organizations item by id.
- */
-export function readOrganizations<
-  const Query extends Query$<Schema, Collections.Organizations>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "organizations", Query>("organizations", key, query);
-}
-
-/**
- * List organizations directus users items.
- */
-export function listOrganizationsDirectusUsers<
-  const Query extends Query$<Schema, Collections.OrganizationsDirectusUsers>,
->(query?: Query) {
-  return readItems$<Schema, "organizations_directus_users", Query>(
-    "organizations_directus_users",
-    query,
-  );
-}
-
-/**
- * Gets a single known organizations directus users item by id.
- */
-export function readOrganizationsDirectusUsers<
-  const Query extends Query$<Schema, Collections.OrganizationsDirectusUsers>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "organizations_directus_users", Query>(
-    "organizations_directus_users",
-    key,
-    query,
-  );
-}
-
-/**
  * List signatures items.
  */
 export function listSignatures<
@@ -641,4 +585,23 @@ export function readSubDevices<
   const Query extends Query$<Schema, Collections.SubDevices>,
 >(key: string | number, query?: Query) {
   return readItem$<Schema, "sub_devices", Query>("sub_devices", key, query);
+}
+
+/**
+ * List test items.
+ */
+export function listTest<const Query extends Query$<Schema, Collections.Test>>(
+  query?: Query,
+) {
+  return readItems$<Schema, "test", Query>("test", query);
+}
+
+/**
+ * Gets a single known test item by id.
+ */
+export function readTest<const Query extends Query$<Schema, Collections.Test>>(
+  key: string | number,
+  query?: Query,
+) {
+  return readItem$<Schema, "test", Query>("test", key, query);
 }

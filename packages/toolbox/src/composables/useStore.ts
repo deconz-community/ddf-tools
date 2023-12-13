@@ -1,8 +1,7 @@
 import type { RestCommand } from '@directus/sdk'
-import { readUsers } from '@directus/sdk'
 import type { UseAsyncStateOptions } from '@vueuse/core'
 import type { MaybeRef } from 'vue'
-import type { Schema } from '~/interfaces/store'
+import type { Collections, Schema } from '~/interfaces/store'
 
 export type RequestOptions<Output extends object | unknown> = {
   initialState?: Output
@@ -10,6 +9,8 @@ export type RequestOptions<Output extends object | unknown> = {
   debounce?: number
   maxWait?: number
 } & Omit<UseAsyncStateOptions<true, Output | null>, 'shallow' | 'resetOnExecute'>
+
+export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar_url' | 'date_created' | 'public_key'>
 
 export function useStore() {
   const store = useAppMachine('store')
@@ -57,60 +58,17 @@ export function useStore() {
     // return result as unknown as Output
   }
 
-  /*
-  const findOrCreate = async (
-    collection: string,
-    searchFields: { [key: string]: string },
-    createFields: { [key: string]: string },
-  ) => {
-    const _client = client.value
-    if (!_client)
-      throw new Error('Directus client is not ready')
-
-    try {
-      const result = await _client
-        .collection(collection)
-        .getFirstListItem(
-          Object.entries(searchFields)
-            .map(([key, value]) => `${key}="${value}"`)
-            .join(' && '),
-        )
-
-      if (result)
-        return result
-      else
-        throw new Error('Try to create one')
-    }
-    catch (e) {
-      try {
-        const response = await _client.collection(collection).create({
-          ...searchFields,
-          ...createFields,
-        })
-
-        return response
-      }
-      catch (e) {
-        console.error(e)
-        throw e
-      }
-    }
-  }
-  */
-
   const getUserByKey = async (userKey: string) => {
-    const data = await client.value?.request(readUsers({
-      fields: ['*'],
-      filter: {
-        public_key: {
-          _eq: userKey,
+    // TODO find a way to cache this, maybe in the machine ?
+    return await client.value?.request<PublicUser | undefined>(() => {
+      return {
+        method: 'GET',
+        path: '/bundle/userinfo',
+        params: {
+          userKey,
         },
-      },
-    }))
-
-    if (!data || data.length === 0)
-      return undefined
-    return data[0]
+      }
+    })
   }
 
   return toReactive({

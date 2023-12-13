@@ -5,7 +5,7 @@ import { defineEndpoint } from '@directus/extensions-sdk'
 import type * as Services from '@directus/api/dist/services/index'
 import type { Accountability, PrimaryKey } from '@directus/types'
 import type { RecordNotUniqueError } from '@directus/errors'
-import { ErrorCode, createError, isDirectusError } from '@directus/errors'
+import { ErrorCode, ForbiddenError, InvalidQueryError, isDirectusError } from '@directus/errors'
 
 import { bytesToHex } from '@noble/hashes/utils'
 import pako from 'pako'
@@ -17,8 +17,6 @@ import { asyncHandler } from '../utils'
 import type { Collections } from '../client'
 import type { BlobsPayload } from './multipart-handler'
 import { multipartHandler } from './multipart-handler'
-
-const ForbiddenError = createError('FORBIDDEN', 'You need to be authenticated to access this endpoint', 403)
 
 // TODO migrate to @deconz-community/types
 type UploadResponse = Record<string, {
@@ -150,12 +148,13 @@ export default defineEndpoint({
 
           const bundle = await decode(blob)
           if (!bundle.data.hash)
-            throw new Error('No hash')
+            throw new InvalidQueryError({ reason: 'No hash' })
 
           if (!bundle.data.desc.uuid)
-            throw new Error('The bundle is missing a UUID, please add a "uuid" field to the DDF json file.')
+            throw new InvalidQueryError({ reason: 'The bundle is missing a UUID, please add a "uuid" field to the DDF json file.' })
+
           if (!bundle.data.desc.version_deconz)
-            throw new Error('The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.')
+            throw new InvalidQueryError({ reason: 'The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.' })
 
           // TODO verify signatures
           // Either remove the signatures from the bundle or deny the upload
@@ -249,7 +248,7 @@ export default defineEndpoint({
       const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
 
       if (typeof req.params.id !== 'string')
-        throw new Error('Invalid bundle id')
+        throw new InvalidQueryError({ reason: 'Invalid bundle id' })
 
       const bundle = await bundleService.readOne(req.params.id, {
         fields: [
@@ -259,7 +258,7 @@ export default defineEndpoint({
       })
 
       if (!bundle.content)
-        throw new Error('Bundle not found')
+        throw new InvalidQueryError({ reason: 'Bundle not found' })
 
       const fileName = `${slugify(`${bundle.product}-${req.params.id.substring(req.params.id.length - 10)}`)}.ddf`
 
@@ -272,6 +271,51 @@ export default defineEndpoint({
       res.set('Content-Type', 'text/plain')
 
       readStream.pipe(res)
+    }))
+
+    router.get('/userinfo', asyncHandler(async (req, res, next) => {
+      const serviceOptions = {
+        schema,
+        knex: context.database,
+      }
+
+      const filter: Partial<Record<'public_key' | 'id', string>> = {}
+
+      if (typeof req.query.userKey === 'string')
+        filter.public_key = req.query.userKey
+
+      if (typeof req.query.userId === 'string')
+        filter.id = req.query.userId
+
+      if (Object.keys(filter).length === 0) {
+        throw new InvalidQueryError({
+          reason: 'You must post either a userKey or a userId',
+        })
+      }
+
+      const userService = new services.UsersService(serviceOptions)
+      const result = await userService.readByQuery({
+        fields: [
+          'id',
+          'first_name',
+          'last_name',
+          'avatar_url',
+          'date_created',
+          'public_key',
+        ],
+        // @ts-expect-error - I added this field don't worry
+        filter,
+      })
+
+      const user = result.pop()
+
+      if (!user) {
+        throw new InvalidQueryError({
+          reason: 'User not found',
+        })
+      }
+
+      res.json(user)
     }))
   },
 })
