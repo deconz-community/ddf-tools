@@ -58,6 +58,7 @@
     "vue-json-viewer": "^3.0.4",
     "vue-toggles": "^2.1.0",
     "vuetify": "^3.4.6",
+    "vuetify-sonner": "^0.3.2",
     "vuetify-use-dialog": "^0.6.2",
     "xstate": "^4.38.3",
     "xstate-ninja": "^2.1.0",

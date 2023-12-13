@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { type Bundle, decode } from '@deconz-community/ddf-bundler'
 
 import type { PrimaryKey } from '@directus/types'
+import { toast } from 'vuetify-sonner'
 
 // TODO migrate to @deconz-community/types
 type UploadResponse = Record<string, {
@@ -16,6 +17,7 @@ const sha = ref('')
 const bundles = ref<ReturnType<typeof Bundle>[]>([])
 const store = useStore()
 const files = ref<File[]>([])
+const createSnackbar = useSnackbar()
 
 watch(files, async () => {
   bundles.value = []
@@ -39,7 +41,7 @@ async function upload() {
   })
 
   // const result = await store.client?.request(uploadFiles(formData))
-  const result = await store.client?.request<UploadResponse>(() => {
+  const result = await store.client?.request<{ result: UploadResponse }>(() => {
     return {
       method: 'POST',
       path: '/bundle/upload',
@@ -48,7 +50,33 @@ async function upload() {
     }
   })
 
-  console.log(JSON.stringify(result))
+  if (result) {
+    const results = Object.entries(result.result)
+
+    const goodResults = results.filter(([_, value]) => value.success)
+    const badResults = results.filter(([_, value]) => !value.success)
+
+    if (goodResults.length > 0) {
+      toast(`${goodResults.length} bundles uploaded successfully`, {
+        duration: 5000,
+        cardProps: {
+          color: 'success',
+        },
+      })
+    }
+
+    if (badResults.length > 0) {
+      badResults.forEach(([key, value]) => {
+        toast(formData.get(key)?.name ?? 'Bundle', {
+          description: value.message,
+          duration: 10000,
+          cardProps: {
+            color: 'error',
+          },
+        })
+      })
+    }
+  }
 }
 </script>
 

@@ -21,7 +21,6 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
       device_identifiers: [
         {
           device_identifiers_id: [
-            'id',
             'manufacturer',
             'model',
           ],
@@ -34,7 +33,6 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
 const otherVersions = store.request(computed(() => listBundles({
   fields: [
     'id',
-    'product',
     'version_deconz',
     'date_created',
   ],
