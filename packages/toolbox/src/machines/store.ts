@@ -1,7 +1,7 @@
 import { assign, createMachine, sendParent } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
-import { authentication, createDirectus, readMe, realtime, rest, serverHealth } from '@directus/sdk'
+import { authentication, createDirectus, readMe, readSettings, realtime, rest, serverHealth } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store'
 
 type DirectusBase = DirectusClient<Schema>
@@ -12,10 +12,13 @@ type DirectusBase = DirectusClient<Schema>
 export type Directus
   = DirectusBase | DirectusBase & AuthenticationClient<Schema>
 
+export type PublicSettingsKeys = 'public_key_stable' | 'public_key_beta'
+
 export interface StoreContext {
   directusUrl: string
   directus?: Directus
   profile?: Collections.DirectusUser
+  settings?: Pick<Collections.DirectusSettings, PublicSettingsKeys>
   websocketEventHandlerRemover?: () => void
 }
 
@@ -41,7 +44,8 @@ export const storeMachine = createMachine({
     services: {} as {
       connectToDirectus: {
         data: {
-          directus: Directus
+          directus: StoreContext['directus']
+          settings: StoreContext['settings']
           isAuthenticated: boolean
         }
       }
@@ -131,9 +135,15 @@ export const storeMachine = createMachine({
 }, {
   actions: {
     useDirectus: assign((context, event) => produce(context, (draft) => {
-      draft.directus = event.type === 'done.invoke.store.connecting:invocation[0]'
-        ? event.data.directus as any // TODO fix this
-        : undefined
+      if (event.type === 'done.invoke.store.connecting:invocation[0]') {
+        // TODO fix this, the type is not correct but it's working
+        draft.directus = event.data.directus as any
+        draft.settings = event.data.settings
+      }
+      else {
+        draft.directus = undefined
+        draft.settings = undefined
+      }
     })),
     updateProfile: assign((context, event) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
@@ -212,11 +222,14 @@ export const storeMachine = createMachine({
       if (health.status !== 'ok')
         throw new Error('Could not connect to Directus')
 
+      const settings = await client.request(readSettings())
+
       try {
         const auth = await client.refresh()
         if (auth.access_token !== null) {
           return {
             directus: client,
+            settings,
             isAuthenticated: true,
           }
         }
@@ -227,6 +240,7 @@ export const storeMachine = createMachine({
 
       return {
         directus: baseClient,
+        settings,
         isAuthenticated: false,
       }
     },
