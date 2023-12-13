@@ -1,5 +1,12 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.6.0
+
+### Minor Changes
+
+- f8e6ebf: Rework errors handling
+- f8e6ebf: Add userinfo endpoint
+
 ## 0.5.0
 
 ### Minor Changes
