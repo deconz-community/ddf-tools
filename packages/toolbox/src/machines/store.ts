@@ -145,6 +145,7 @@ export const storeMachine = createMachine({
         draft.settings = undefined
       }
     })),
+
     updateProfile: assign((context, event) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
