@@ -44,7 +44,6 @@ This is always the first chunk and allows fast indexing and matching without par
 
 ```json
 {
-  "version": "1.0.1",
   "source": "https://deconz-community.github.io/ddf-store/XXXX/XXXX",
   "last_modified": "2023-01-08T17:24:24z",
   "version_deconz": ">2.19.3",
@@ -58,16 +57,6 @@ This is always the first chunk and allows fast indexing and matching without par
     ["Signify", "acme 200"]
   ]
 }
-```
-
-#### version (required)
-
-The version of the DDF, increment it if anything change inside the DDF. Once released the content should not change if the version did not change. It's using [Semantic Versioning](https://semver.org/).
-
-##### Example
-
-```json
-"1.0.0"
 ```
 
 #### source (optional)
