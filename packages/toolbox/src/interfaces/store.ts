@@ -246,6 +246,7 @@ export namespace Collections {
     bundle: Types.String | Collections.Bundles;
     signature: Types.String;
     key: Types.String;
+    type: Types.Optional<"System" | "User" | Types.String>;
   }
 
   /**

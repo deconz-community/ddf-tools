@@ -35,7 +35,7 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
     {
       signatures: [
         'key',
-        'signature',
+        'type',
       ],
     },
   ],
@@ -72,19 +72,37 @@ const downloadURL = computed(() => {
 
   return `${store.client.url}bundle/download/${props.bundle}`
 })
+
+const bundleState = computed(() => {
+  const settings = store.state?.context?.settings
+  if (!settings)
+    return undefined
+
+  const keys = bundle.state.value?.signatures?.map(signature => signature.key)
+
+  if (!keys)
+    return undefined
+
+  if (keys.includes(settings.public_key_stable))
+    return 'stable'
+  if (keys.includes(settings.public_key_beta))
+    return 'beta'
+
+  return undefined
+})
 </script>
 
 <template>
   <v-card v-if="bundle.state.value" class="ma-2">
     <v-card-title>
       {{ bundle.state.value.product }}
-      <v-chip class="ma-2" variant="flat" color="green">
+      <v-chip v-if="bundleState === 'stable'" class="ma-2" variant="flat" color="green">
         Stable
       </v-chip>
-      <v-chip class="ma-2" variant="flat" color="orange">
+      <v-chip v-else-if="bundleState === 'beta'" class="ma-2" variant="flat" color="orange">
         Beta
       </v-chip>
-      <v-chip class="ma-2" variant="flat" color="red">
+      <v-chip v-else class="ma-2" variant="flat" color="red">
         Alpha
       </v-chip>
       <v-chip class="ma-2" color="grey">

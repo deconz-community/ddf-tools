@@ -142,11 +142,30 @@ export default defineEndpoint({
       })
 
       const result: UploadResponse = {}
-      const userService = new services.UsersService({ schema, knex: context.database, accountability: adminAccountability })
+      const serviceOptions = { schema, knex: context.database, accountability: adminAccountability }
+      const userService = new services.UsersService(serviceOptions)
+      const settingsService = new services.SettingsService(serviceOptions)
 
-      const userInfo: Pick<Collections.DirectusUser, 'id' | 'private_key' | 'public_key'> = await userService.readOne(userId, {
-        fields: ['id', 'private_key', 'public_key'],
-      }) as any
+      const [
+        settings,
+        userInfo,
+      ]: [
+        Pick<Collections.DirectusSettings, 'public_key_stable' | 'public_key_beta'>,
+        Pick<Collections.DirectusUser, 'id' | 'private_key' | 'public_key'>,
+      ] = await Promise.all([
+        settingsService.readSingleton({
+          fields: [
+            'public_key_stable',
+            'public_key_beta',
+          ],
+        }),
+        userService.readOne(userId, {
+          fields: ['id', 'private_key', 'public_key'],
+        }),
+      ]) as any
+
+      if (!settings.public_key_beta || !settings.public_key_stable)
+        throw new InvalidQueryError({ reason: 'The server is missing the system keys, please contact an admin.' })
 
       if (!userInfo.public_key || !userInfo.private_key)
         throw new InvalidQueryError({ reason: 'You must setup your keys in your profil settings before uploading bundles.' })
@@ -242,10 +261,15 @@ export default defineEndpoint({
               file_count: bundle.data.files.length + 1, // +1 for the DDF file
               version_deconz: bundle.data.desc.version_deconz,
               device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
-              signatures: bundle.data.signatures.map(signature => ({
-                signature: bytesToHex(signature.signature),
-                key: bytesToHex(signature.key),
-              })) as any,
+              signatures: bundle.data.signatures.map((signature) => {
+                const key = bytesToHex(signature.key)
+                const type = key === settings.public_key_stable || key === settings.public_key_beta ? 'system' : 'user'
+                return {
+                  signature: bytesToHex(signature.signature),
+                  key,
+                  type,
+                }
+              }) as any,
             })
 
             result[uuid] = {
