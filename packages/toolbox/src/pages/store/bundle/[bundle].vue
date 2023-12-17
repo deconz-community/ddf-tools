@@ -50,6 +50,12 @@ const otherVersions = store.request(computed(() => {
       'id',
       'version_deconz',
       'date_created',
+      {
+        signatures: [
+          'key',
+          'type',
+        ],
+      },
     ],
     filter: {
       _and: [
@@ -72,39 +78,13 @@ const downloadURL = computed(() => {
 
   return `${store.client.url}bundle/download/${props.bundle}`
 })
-
-const bundleState = computed(() => {
-  const settings = store.state?.context?.settings
-  if (!settings)
-    return undefined
-
-  const keys = bundle.state.value?.signatures?.map(signature => signature.key)
-
-  if (!keys)
-    return undefined
-
-  if (keys.includes(settings.public_key_stable))
-    return 'stable'
-  if (keys.includes(settings.public_key_beta))
-    return 'beta'
-
-  return undefined
-})
 </script>
 
 <template>
   <v-card v-if="bundle.state.value" class="ma-2">
     <v-card-title>
       {{ bundle.state.value.product }}
-      <v-chip v-if="bundleState === 'stable'" class="ma-2" variant="flat" color="green">
-        Stable
-      </v-chip>
-      <v-chip v-else-if="bundleState === 'beta'" class="ma-2" variant="flat" color="orange">
-        Beta
-      </v-chip>
-      <v-chip v-else class="ma-2" variant="flat" color="red">
-        Alpha
-      </v-chip>
+      <chip-signatures :signatures="bundle.state.value.signatures" only="system" class="ma-2" />
       <v-chip class="ma-2" color="grey">
         {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
       </v-chip>
@@ -181,6 +161,9 @@ const bundleState = computed(() => {
                       Hash
                     </th>
                     <th class="text-left">
+                      Tag
+                    </th>
+                    <th class="text-left">
                       Version Deconz
                     </th>
                     <th class="text-left">
@@ -201,14 +184,14 @@ const bundleState = computed(() => {
                         {{ version.id.substring(version.id.length - 10) }}
                       </v-chip>
                     </td>
+                    <td>
+                      <chip-signatures :signatures="version.signatures ?? []" only="system" class="ma-2" />
+                    </td>
                     <td>{{ version.version_deconz }}</td>
                     <td>{{ useTimeAgo(version.date_created).value }}</td>
                     <td>
                       <v-btn :to="`/store/bundle/${version.id}`">
                         Open
-                      </v-btn>
-                      <v-btn class="ma-2" :href="`${store.client.url}bundle/download/${version.id}`" prepend-icon="mdi-download">
-                        Download
                       </v-btn>
                     </td>
                   </tr>
@@ -255,10 +238,7 @@ const bundleState = computed(() => {
               {{ bundle.state.value.file_count ?? 'Unknown' }}
             </v-list-item>
             <v-list-item title="Collaborators">
-              <template v-for="(signature, s) in bundle.state.value.signatures" :key="s">
-                <chip-user :public-key="signature.key" class="mr-4 ma-2" size="large" />
-                <v-spacer />
-              </template>
+              <chip-signatures :signatures=" bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>
           </v-list>
           <v-btn color="red" prepend-icon="mdi-flag" class="w-100">

@@ -219,6 +219,8 @@ export default defineEndpoint({
           if (signatureChecks.includes(false))
             throw new InvalidQueryError({ reason: 'Some signature on the bundle are invalid, please remove them before uploading.' })
 
+          // TODO check for duplicate signatures by key
+
           const bundleBuffer = await (dirty ? encode(bundle) : blob).arrayBuffer()
           const content = Buffer.from(pako.deflate(bundleBuffer)).toString('base64')
 
