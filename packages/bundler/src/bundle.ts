@@ -8,7 +8,6 @@ export function Bundle() {
     desc: {
       uuid: '',
       product: 'Unknown device',
-      version: '0.0.1',
       version_deconz: '>2.23.1',
       last_modified: new Date(),
       device_identifiers: [],
@@ -23,7 +22,7 @@ export function Bundle() {
     data.desc.last_modified = new Date()
     data.desc.device_identifiers = []
 
-    const keys = ['uuid', 'product', 'version', 'version_deconz'] as const
+    const keys = ['uuid', 'product', 'version_deconz'] as const
     keys.forEach((key) => {
       if (ddfc[key] !== undefined)
         data.desc[key] = ddfc[key]

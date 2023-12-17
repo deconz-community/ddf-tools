@@ -70,7 +70,7 @@ function setDirty() {
     </template>
 
     <template #subtitle>
-      Version {{ bundle.data.desc.version }} for deconz {{ bundle.data.desc.version_deconz }}
+      For deconz {{ bundle.data.desc.version_deconz }}
       • Last modified {{ timeAgo }}
       <br>
       Hash : {{ hash }}
