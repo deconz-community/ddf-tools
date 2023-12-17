@@ -204,6 +204,8 @@ export namespace Collections {
     sub_devices: Collections.BundlesSubDevices;
     signatures: Collections.Signatures;
     content: Types.Optional<Types.String>;
+    content_size: Types.Optional<Types.Integer>;
+    file_count: Types.Optional<Types.Integer>;
   }
 
   /**
@@ -254,14 +256,6 @@ export namespace Collections {
     name: Types.String;
     endpoint: Types.Optional<"/lights" | "/sensors" | Types.String>;
     bundles: Collections.BundlesSubDevices;
-  }
-
-  /**
-   * The test collection.
-   */
-  export interface Test {
-    id: Types.Integer;
-    date_created: Types.Optional<Types.DateTime>;
   }
 }
 
@@ -447,11 +441,6 @@ export interface Schema extends System {
    * The sub devices collection.
    */
   sub_devices: Collections.SubDevices[];
-
-  /**
-   * The test collection.
-   */
-  test: Collections.Test[];
 }
 
 /**
@@ -585,23 +574,4 @@ export function readSubDevices<
   const Query extends Query$<Schema, Collections.SubDevices>,
 >(key: string | number, query?: Query) {
   return readItem$<Schema, "sub_devices", Query>("sub_devices", key, query);
-}
-
-/**
- * List test items.
- */
-export function listTest<const Query extends Query$<Schema, Collections.Test>>(
-  query?: Query,
-) {
-  return readItems$<Schema, "test", Query>("test", query);
-}
-
-/**
- * Gets a single known test item by id.
- */
-export function readTest<const Query extends Query$<Schema, Collections.Test>>(
-  key: string | number,
-  query?: Query,
-) {
-  return readItem$<Schema, "test", Query>("test", key, query);
 }

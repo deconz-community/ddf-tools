@@ -317,5 +317,28 @@ export default defineEndpoint({
 
       res.json(user)
     }))
+
+    router.post('/sign/:id', asyncHandler(async (req, res, next) => {
+      const accountability = 'accountability' in req ? req.accountability as Accountability : null
+
+      const serviceOptions = { schema, knex: context.database, accountability }
+
+      const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
+
+      if (typeof req.params.id !== 'string')
+        throw new InvalidQueryError({ reason: 'Invalid bundle id' })
+
+      const bundle = await bundleService.readOne(req.params.id, {
+        fields: [
+          'product',
+          'content',
+        ],
+      })
+
+      if (!bundle.content)
+        throw new InvalidQueryError({ reason: 'Bundle not found' })
+
+      res.json({ result: 'foo' })
+    }))
   },
 })
