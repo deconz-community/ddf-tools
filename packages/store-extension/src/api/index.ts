@@ -6,12 +6,12 @@ import type * as Services from '@directus/api/dist/services/index'
 import type { Accountability, PrimaryKey } from '@directus/types'
 import type { RecordNotUniqueError } from '@directus/errors'
 import { ErrorCode, ForbiddenError, InvalidQueryError, isDirectusError } from '@directus/errors'
+import { createSignature, decode, encode, generateHash, verifySignature } from '@deconz-community/ddf-bundler'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
-import { bytesToHex } from '@noble/hashes/utils'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import pako from 'pako'
 import slugify from '@sindresorhus/slugify'
-
-import { decode } from '@deconz-community/ddf-bundler'
 
 import { asyncHandler } from '../utils'
 import type { Collections } from '../client'
@@ -135,20 +135,48 @@ export default defineEndpoint({
     }, asyncHandler(multipartHandler), asyncHandler(async (req, res, next) => {
       // @ts-expect-error - The middleware above ensures that this is defined
       const accountability = req.accountability as Accountability
+      const userId = accountability.user!
       const adminAccountability = structuredClone({
         ...accountability,
         admin: true,
       })
 
       const result: UploadResponse = {}
+      const userService = new services.UsersService({ schema, knex: context.database, accountability: adminAccountability })
+
+      const userInfo: Pick<Collections.DirectusUser, 'id' | 'private_key' | 'public_key'> = await userService.readOne(userId, {
+        fields: ['id', 'private_key', 'public_key'],
+      }) as any
+
+      if (!userInfo.public_key || !userInfo.private_key)
+        throw new InvalidQueryError({ reason: 'You must setup your keys in your profil settings before uploading bundles.' })
+
+      const privateKey = hexToBytes(userInfo.private_key)
+
+      // TODO move this check on the update profil hook
+      // const privateKey = hexToBytes(userInfo.public_key)
+      const publicKey = secp256k1.getPublicKey(privateKey)
+      if (bytesToHex(publicKey) !== userInfo.public_key)
+        throw new InvalidQueryError({ reason: 'Your public key does not match your private key. Please check your user settings' })
 
       await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
         try {
           const { blob } = item
+          let dirty = false
 
           const bundle = await decode(blob)
+
           if (!bundle.data.hash)
-            throw new InvalidQueryError({ reason: 'No hash' })
+            throw new InvalidQueryError({ reason: 'Something went wrong during upload. Error code : \'3f33e91812fd\'' })
+
+          // Regenerate the desc to make sure that it matches the content
+          const oldHash = bytesToHex(bundle.data.hash)
+          bundle.generateDESC(true)
+          bundle.data.hash = await generateHash(bundle.data)
+          const hash = bytesToHex(bundle.data.hash)
+
+          if (oldHash !== hash)
+            throw new InvalidQueryError({ reason: 'The DESC chunk seems invalid, make sure you are using the latest version of the bundler.' })
 
           if (!bundle.data.desc.uuid)
             throw new InvalidQueryError({ reason: 'The bundle is missing a UUID, please add a "uuid" field to the DDF json file.' })
@@ -156,12 +184,24 @@ export default defineEndpoint({
           if (!bundle.data.desc.version_deconz)
             throw new InvalidQueryError({ reason: 'The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.' })
 
-          // TODO verify signatures
-          // Either remove the signatures from the bundle or deny the upload
-          // Make sure that the bundle is signed by the user that is uploading it
+          if (!bundle.data.signatures.some(signature => bytesToHex(signature.key) === userInfo.public_key)) {
+            const signature = createSignature(bundle.data.hash, privateKey)
+            bundle.data.signatures.push({
+              key: publicKey,
+              signature,
+            })
+            dirty = true
+          }
 
-          const hash = bytesToHex(bundle.data.hash)
-          const content = Buffer.from(pako.deflate(await blob.arrayBuffer())).toString('base64')
+          const signatureChecks = await Promise.all(bundle.data.signatures.map(
+            async signature => await verifySignature(bundle.data.hash!, signature.key, signature.signature),
+          ))
+
+          if (signatureChecks.includes(false))
+            throw new InvalidQueryError({ reason: 'Some signature on the bundle are invalid, please remove them before uploading.' })
+
+          const bundleBuffer = await (dirty ? encode(bundle) : blob).arrayBuffer()
+          const content = Buffer.from(pako.deflate(bundleBuffer)).toString('base64')
 
           await context.database.transaction(async (knex) => {
             const serviceOptions = { schema, knex, accountability: adminAccountability }
@@ -198,6 +238,8 @@ export default defineEndpoint({
               ddf_uuid: bundle.data.desc.uuid,
               content,
               product: bundle.data.desc.product,
+              content_size: blob.size,
+              file_count: bundle.data.files.length + 1, // +1 for the DDF file
               version_deconz: bundle.data.desc.version_deconz,
               device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
               signatures: bundle.data.signatures.map(signature => ({

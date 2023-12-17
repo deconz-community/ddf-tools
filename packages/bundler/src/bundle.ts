@@ -17,9 +17,10 @@ export function Bundle() {
     signatures: [],
   }
 
-  const generateDESC = () => {
+  const generateDESC = (preserveDate = false) => {
     const ddfc = JSON.parse(data.ddfc)
-    data.desc.last_modified = new Date()
+    if (preserveDate === false)
+      data.desc.last_modified = new Date()
     data.desc.device_identifiers = []
 
     const keys = ['uuid', 'product', 'version_deconz'] as const

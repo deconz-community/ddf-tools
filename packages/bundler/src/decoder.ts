@@ -94,6 +94,8 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                 switch (tag) {
                   case 'DESC' : {
                     bundle.data.desc = JSON.parse(reader.text(size))
+                    if (bundle.data.desc.last_modified)
+                      bundle.data.desc.last_modified = new Date(bundle.data.desc.last_modified)
                     break
                   }
                   case 'DDFC' : {

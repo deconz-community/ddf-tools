@@ -10,7 +10,6 @@ export interface BundleData {
 
 export interface ChunkDESC {
   uuid: string
-  version: string
   version_deconz: string
   last_modified: Date
   product: string
