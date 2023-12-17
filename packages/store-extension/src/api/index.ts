@@ -110,6 +110,7 @@ export default defineEndpoint({
           'device_identifiers.device_identifiers_id.manufacturer',
           'device_identifiers.device_identifiers_id.model',
           'signatures.key',
+          'signatures.type',
         ],
         filter: {
           id: {

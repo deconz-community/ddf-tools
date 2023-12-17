@@ -157,16 +157,14 @@ const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value
             <v-card variant="outlined" class="ma-2">
               <v-card-title>
                 {{ item.raw.product }}
-                <v-chip class="ml-2" color="grey">
+                <chip-signatures :signatures="item.raw.signatures" class="ma-2" />
+                <v-chip class="ma-2" color="grey">
                   {{ item.raw.id.substr(-10) }}
                 </v-chip>
               </v-card-title>
               <v-card-subtitle>
-                <template v-for="(signature, s) in item.raw.signatures" :key="s">
-                  <chip-user :public-key="signature.key" class="mr-2" />
-                </template>
                 <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.date_created">
-                  {{ timeAgo }}
+                  Published {{ timeAgo }}
                 </UseTimeAgo>
               </v-card-subtitle>
               <v-card-text>

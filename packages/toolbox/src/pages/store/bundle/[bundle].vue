@@ -201,7 +201,7 @@ const downloadURL = computed(() => {
           </v-window>
         </v-sheet>
 
-        <v-sheet class="ma-2 pa-2 d-flex flex-column" width="30%">
+        <v-sheet class="ma-2 pa-2" width="30%">
           <v-btn
             block
             color="primary"
