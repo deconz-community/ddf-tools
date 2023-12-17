@@ -207,8 +207,9 @@ const downloadURL = computed(() => {
             color="primary"
             prepend-icon="mdi-download"
             class="mb-2"
+            disabled
           >
-            Install
+            Install (TODO)
           </v-btn>
           <v-btn
             block color="primary"
@@ -220,7 +221,9 @@ const downloadURL = computed(() => {
           </v-btn>
           <v-list class="d-flex flex-column">
             <v-list-item title="Hash">
-              ...{{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
+              <v-chip class="ma-2" color="grey">
+                {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
+              </v-chip>
             </v-list-item>
             <v-list-item title="Published">
               {{ useTimeAgo(bundle.state.value.date_created).value }}
