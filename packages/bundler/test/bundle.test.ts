@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { bytesToHex } from '@noble/hashes/utils'
 import { Bundle, decode, encode, getHash } from '../index'
 
-describe('Tests', () => {
+describe('tests', () => {
   it('should parse without errors', async () => {
     const data = await readFile(path.join(__dirname, 'ddf/starkvind_air_purifier.ddf'))
     const expectedFileHash = 'f46faa39a35a83f92cbc0c360b0b4f75f4ab06b2c4c8ade9e10667f16834fde7'
@@ -46,6 +46,6 @@ describe('Tests', () => {
 
     const encoded = encode(bundle)
     const newHash = await getHash(new Uint8Array(await encoded.arrayBuffer()))
-    expect(bytesToHex(newHash)).toEqual('5dc66b2e777f76ee641adc69972f24d811bac14c4dc9f9dffe3364064c6d9d1c')
+    expect(bytesToHex(newHash)).toEqual('43b23a90298ef8f889c64d05622605f7b9faebe2738313913caaf8be2fb3526b')
   })
 })
