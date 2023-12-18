@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.8.0
+
+### Minor Changes
+
+- e168e41: Add sign endpoint for bundle
+
 ## 0.7.0
 
 ### Minor Changes
