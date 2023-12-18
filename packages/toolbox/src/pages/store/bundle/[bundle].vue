@@ -120,12 +120,22 @@ const settingsProps = computed(() => {
   return settingsMap[state]
 })
 
-const signing = ref(false)
-async function sign(state: 'alpha' | 'beta' | 'stable' | false = false) {
-  if (!state)
+const newState = ref('alpha')
+watch(settingsProps, () => {
+  newState.value = settingsProps.value?.state.toLocaleLowerCase() ?? 'alpha'
+})
+const updatingState = ref(false)
+async function updateState() {
+  if (!['alpha', 'beta', 'stable'].includes(newState.value))
     return
 
-  signing.value = true
+  if (updatingState.value === true)
+    return
+
+  if (settingsProps.value?.state.toLocaleLowerCase() === newState.value)
+    return
+
+  updatingState.value = true
 
   try {
     const result = await store.client?.request<{
@@ -137,17 +147,17 @@ async function sign(state: 'alpha' | 'beta' | 'stable' | false = false) {
       path: `/bundle/sign/${bundle.state.value?.id}`,
       params: {
         type: 'system',
-        state,
+        state: newState.value.toLocaleLowerCase(),
       },
     }))
     if (result && result.success)
-      bundle.execute()
+      await bundle.execute()
   }
   catch (e) {
     console.error(e)
   }
   finally {
-    signing.value = false
+    updatingState.value = false
   }
 }
 </script>
@@ -279,6 +289,36 @@ async function sign(state: 'alpha' | 'beta' | 'stable' | false = false) {
                 <v-card-text>
                   Current state : {{ settingsProps.state }}
                 </v-card-text>
+
+                <v-card-actions>
+                  <v-btn-toggle
+                    v-model="newState"
+                    mandatory
+                    divided
+                    variant="outlined"
+                    @click="updateState()"
+                  >
+                    <v-btn
+                      value="alpha"
+                      prepend-icon="mdi-tag-outline"
+                      text="Alpha"
+                      color="red"
+                    />
+                    <v-btn
+                      value="beta"
+                      prepend-icon="mdi-tag-outline"
+                      text="Beta"
+                      color="orange"
+                    />
+                    <v-btn
+                      value="stable"
+                      prepend-icon="mdi-tag-outline"
+                      text="Stable"
+                      color="green"
+                    />
+                  </v-btn-toggle>
+                </v-card-actions>
+                <!--
                 <v-card-actions>
                   <template v-for="newState in settingsProps.down" :key="newState">
                     <v-btn
@@ -301,6 +341,7 @@ async function sign(state: 'alpha' | 'beta' | 'stable' | false = false) {
                     </v-btn>
                   </template>
                 </v-card-actions>
+                -->
               </v-card>
               <v-card class="ma-2" title="Maintainers">
                 <v-card-text>
@@ -384,7 +425,7 @@ async function sign(state: 'alpha' | 'beta' | 'stable' | false = false) {
             </v-list-item>
           </v-list>
           <v-btn color="red" prepend-icon="mdi-flag" class="w-100">
-            Report malware
+            Report malware (TODO)
           </v-btn>
         </v-sheet>
       </v-sheet>
