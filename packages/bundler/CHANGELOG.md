@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.15.1
+
+### Patch Changes
+
+- 1eb62ea: Fixed last modified date decoding
+
 ## 0.15.0
 
 ### Minor Changes

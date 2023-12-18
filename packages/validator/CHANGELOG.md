@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.25.0
+
+### Minor Changes
+
+- 1dc2e49: Added support for "any" cmd
+
 ## 2.24.0
 
 ### Minor Changes
