@@ -303,18 +303,21 @@ async function updateState() {
                       prepend-icon="mdi-tag-outline"
                       text="Alpha"
                       color="red"
+                      :width="100"
                     />
                     <v-btn
                       value="beta"
                       prepend-icon="mdi-tag-outline"
                       text="Beta"
                       color="orange"
+                      :width="100"
                     />
                     <v-btn
                       value="stable"
                       prepend-icon="mdi-tag-outline"
                       text="Stable"
                       color="green"
+                      :width="100"
                     />
                   </v-btn-toggle>
                 </v-card-actions>
