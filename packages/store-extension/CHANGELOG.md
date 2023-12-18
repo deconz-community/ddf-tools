@@ -1,5 +1,16 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.7.0
+
+### Minor Changes
+
+- 1eb62ea: Validate signatures on upload
+
+### Patch Changes
+
+- Updated dependencies [1eb62ea]
+  - @deconz-community/ddf-bundler@0.15.1
+
 ## 0.6.0
 
 ### Minor Changes

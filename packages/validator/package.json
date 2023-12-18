@@ -1,7 +1,7 @@
 {
   "name": "@deconz-community/ddf-validator",
   "type": "module",
-  "version": "2.24.0",
+  "version": "2.25.0",
   "packageManager": "pnpm@8.12.0",
   "description": "Validating DDF files for deconz",
   "author": {
