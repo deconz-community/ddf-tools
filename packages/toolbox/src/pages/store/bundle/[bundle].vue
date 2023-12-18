@@ -78,6 +78,78 @@ const downloadURL = computed(() => {
 
   return `${store.client.url}bundle/download/${props.bundle}`
 })
+
+const settingsProps = computed(() => {
+  if (!store.profile?.can_sign_with_system_keys)
+    return undefined
+
+  if (!bundle.state.value)
+    return undefined
+
+  const settings = store.state?.context?.settings
+
+  if (!settings)
+    return undefined
+
+  const settingsMap = {
+    alpha: {
+      state: 'Alpha',
+      down: [],
+      up: ['beta', 'stable'],
+    },
+    beta: {
+      state: 'Beta',
+      down: ['alpha'],
+      up: ['stable'],
+    },
+    stable: {
+      state: 'Stable',
+      down: ['alpha', 'beta'],
+      up: [],
+    },
+  } as const
+
+  let state: keyof typeof settingsMap = 'alpha'
+
+  if (bundle.state.value.signatures.some(s => s.key === settings.public_key_beta))
+    state = 'beta'
+
+  if (bundle.state.value.signatures.some(s => s.key === settings.public_key_stable))
+    state = 'stable'
+
+  return settingsMap[state]
+})
+
+const signing = ref(false)
+async function sign(state: 'alpha' | 'beta' | 'stable' | false = false) {
+  if (!state)
+    return
+
+  signing.value = true
+
+  try {
+    const result = await store.client?.request<{
+      success: boolean
+      type: 'system'
+      state: 'alpha' | 'beta' | 'stable'
+    }>(() => ({
+      method: 'POST',
+      path: `/bundle/sign/${bundle.state.value?.id}`,
+      params: {
+        type: 'system',
+        state,
+      },
+    }))
+    if (result && result.success)
+      bundle.execute()
+  }
+  catch (e) {
+    console.error(e)
+  }
+  finally {
+    signing.value = false
+  }
+}
 </script>
 
 <template>
@@ -109,6 +181,9 @@ const downloadURL = computed(() => {
         </v-tab>
         <v-tab value="versions">
           {{ otherVersions.state.value?.length || 0 }} Versions
+        </v-tab>
+        <v-tab v-if="settingsProps" value="settings">
+          Settings
         </v-tab>
       </v-tabs>
 
@@ -198,6 +273,70 @@ const downloadURL = computed(() => {
                 </tbody>
               </v-table>
             </v-window-item>
+
+            <v-window-item v-if="settingsProps" value="settings">
+              <v-card class="ma-2" title="Lifecycle">
+                <v-card-text>
+                  Current state : {{ settingsProps.state }}
+                </v-card-text>
+                <v-card-actions>
+                  <template v-for="newState in settingsProps.down" :key="newState">
+                    <v-btn
+                      :disabled="signing"
+                      color="orange"
+                      prepend-icon="mdi-tag-arrow-down-outline"
+                      @click="sign(newState)"
+                    >
+                      Demote to {{ newState }}
+                    </v-btn>
+                  </template>
+                  <template v-for="newState in settingsProps.up" :key="newState">
+                    <v-btn
+                      :disabled="signing"
+                      color="green"
+                      prepend-icon="mdi-tag-arrow-up-outline"
+                      @click="sign(newState)"
+                    >
+                      Promote to {{ newState }}
+                    </v-btn>
+                  </template>
+                </v-card-actions>
+              </v-card>
+              <v-card class="ma-2" title="Maintainers">
+                <v-card-text>
+                  Foo
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn color="primary" prepend-icon="mdi-account-plus">
+                    Invite maintainer (TODO)
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+              <v-card class="ma-2" title="Deprecate version">
+                <v-card-text>
+                  This will mark this version of the package as deprecated.
+                  <v-spacer />
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn color="orange" prepend-icon="mdi-flag">
+                    Deprecate (TODO)
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+              <v-card class="ma-2" title="Deprecate bundle">
+                <v-card-text>
+                  This will mark all versions of the bundle as deprecated.
+                  <v-spacer />
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn color="red" prepend-icon="mdi-flag">
+                    Deprecate (TODO)
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-window-item>
           </v-window>
         </v-sheet>
 
@@ -240,7 +379,7 @@ const downloadURL = computed(() => {
             <v-list-item title="Total Files">
               {{ bundle.state.value.file_count ?? 'Unknown' }}
             </v-list-item>
-            <v-list-item title="Collaborators">
+            <v-list-item title="Maintainers">
               <chip-signatures :signatures=" bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>
           </v-list>

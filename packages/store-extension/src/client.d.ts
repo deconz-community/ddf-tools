@@ -244,9 +244,8 @@ export namespace Collections {
   export interface Signatures {
     id: Types.String;
     bundle: Types.String | Collections.Bundles;
-    signature: Types.String;
     key: Types.String;
-    type: Types.Optional<"System" | "User" | Types.String>;
+    type: "System" | "User" | Types.String;
   }
 
   /**
