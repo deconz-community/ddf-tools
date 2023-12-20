@@ -2,7 +2,7 @@
 import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { useConfirm } from 'vuetify-use-dialog'
-import { VTextField } from 'vuetify/components'
+import { VTextarea } from 'vuetify/components'
 import { toast } from 'vuetify-sonner'
 import { listBundles, readBundles, readDdfUuids } from '~/interfaces/store'
 
@@ -214,7 +214,7 @@ async function deprecate(type: 'bundle' | 'version') {
 
   const isConfirmed = await createConfirm({
     title: `This will mark this ${type} as deprecated`,
-    contentComponent: VTextField,
+    contentComponent: VTextarea,
     contentComponentProps: {
       'label': 'Deprecation message',
       'model-value': input,
