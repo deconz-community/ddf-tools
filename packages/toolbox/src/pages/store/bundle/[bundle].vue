@@ -205,7 +205,7 @@ const deprecation_message = computed(() => {
 })
 
 async function deprecate(type: 'bundle' | 'version') {
-  const input = ref('Dont use this bundle anymore because...')
+  const input = ref('')
 
   const rules = [
     (v: string) => !!v || 'Message is required',
@@ -219,6 +219,7 @@ async function deprecate(type: 'bundle' | 'version') {
       'label': 'Deprecation message',
       'model-value': input,
       'rules': rules,
+      'placeholder': 'Don\'t use this bundle anymore because...',
     },
     confirmationText: 'Deprecate',
     confirmationButtonProps: {
