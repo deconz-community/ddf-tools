@@ -227,7 +227,7 @@ async function deprecate(type: 'bundle' | 'version') {
       color: 'red',
     },
     dialogProps: {
-      width: 500,
+      width: 600,
     },
   })
 
