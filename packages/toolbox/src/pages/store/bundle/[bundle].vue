@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
-import { listBundles, readBundles } from '~/interfaces/store'
+import { useConfirm } from 'vuetify-use-dialog'
+import { VTextField } from 'vuetify/components'
+import { toast } from 'vuetify-sonner'
+import { listBundles, readBundles, readDdfUuids } from '~/interfaces/store'
 
 const props = defineProps<{
   bundle: string
 }>()
 
 const store = useStore()
+const createConfirm = useConfirm()
 
 const activeTab = useRouteQuery('activeTab', 'readme')
 
@@ -22,6 +26,7 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
     'date_created',
     'content_size',
     'file_count',
+    'deprecation_message',
     {
       device_identifiers: [
         {
@@ -41,8 +46,23 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
   ],
 })))
 
+const ddfUuidInfo = store.request(computed(() => {
+  if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== 'string')
+    return undefined
+
+  return readDdfUuids(bundle.state.value.ddf_uuid, {
+    fields: [
+      'deprecation_message',
+      'user_created',
+      {
+        maintainers: ['user'],
+      },
+    ],
+  })
+}))
+
 const otherVersions = store.request(computed(() => {
-  if (bundle.state.value === null)
+  if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== 'string')
     return undefined
 
   return listBundles({
@@ -50,6 +70,7 @@ const otherVersions = store.request(computed(() => {
       'id',
       'version_deconz',
       'date_created',
+      'deprecation_message',
       {
         signatures: [
           'key',
@@ -58,19 +79,13 @@ const otherVersions = store.request(computed(() => {
       },
     ],
     filter: {
-      _and: [
-        {
-          ddf_uuid: {
-            _eq: bundle.state.value.ddf_uuid,
-          },
-        },
-      ],
+      ddf_uuid: {
+        _eq: bundle.state.value.ddf_uuid,
+      },
     },
     sort: ['-date_created'],
   })
-},
-
-))
+}))
 
 const downloadURL = computed(() => {
   if (!isReady.value || !store.client)
@@ -153,11 +168,170 @@ async function updateState() {
     if (result && result.success)
       await bundle.execute()
   }
-  catch (e) {
-    console.error(e)
+  catch (error) {
+    if (Array.isArray(error.errors)) {
+      error.errors.forEach((error: any) => {
+        toast(`Error`, {
+          description: error.message,
+          duration: 5000,
+          cardProps: {
+            color: 'error',
+          },
+        })
+      })
+    }
   }
   finally {
     updatingState.value = false
+  }
+}
+
+const deprecation_message = computed(() => {
+  if (ddfUuidInfo.state.value && ddfUuidInfo.state.value.deprecation_message) {
+    return {
+      title: 'This bundle is deprecated',
+      text: ddfUuidInfo.state.value.deprecation_message,
+    }
+  }
+
+  else if (bundle.state.value && bundle.state.value.deprecation_message) {
+    return {
+      title: 'This version is deprecated',
+      text: bundle.state.value.deprecation_message,
+    }
+  }
+
+  else { return undefined }
+})
+
+async function deprecate(type: 'bundle' | 'version') {
+  const input = ref('Dont use this bundle anymore because...')
+
+  const rules = [
+    (v: string) => !!v || 'Message is required',
+    (v: string) => (v && v.length >= 10) || 'Message must be more than 10 characters',
+  ]
+
+  const isConfirmed = await createConfirm({
+    title: `This will mark this ${type} as deprecated`,
+    contentComponent: VTextField,
+    contentComponentProps: {
+      'label': 'Deprecation message',
+      'model-value': input,
+      'rules': rules,
+    },
+    confirmationText: 'Deprecate',
+    confirmationButtonProps: {
+      // TODO disable this button until the input is valid
+      color: 'red',
+    },
+    dialogProps: {
+      width: 500,
+    },
+  })
+
+  if (!isConfirmed)
+    return
+
+  for (const rule of rules) {
+    const result = rule(input.value)
+    if (typeof result === 'string') {
+      return toast(`Error while deprecating this ${type}.`, {
+        description: result,
+        duration: 5000,
+        cardProps: {
+          color: 'error',
+        },
+      })
+    }
+  }
+
+  try {
+    const params: Record<string, any> = {
+      type,
+      message: input.value,
+      ddf_uuid: bundle.state.value?.ddf_uuid,
+    }
+
+    if (type === 'version')
+      params.bundle_id = bundle.state.value?.id
+
+    const result = await store.client?.request<{
+      success: boolean
+      type: 'system'
+      state: 'alpha' | 'beta' | 'stable'
+    }>(() => ({
+      method: 'POST',
+      path: `/bundle/deprecate`,
+      params,
+    }))
+    if (result && result.success) {
+      await bundle.execute()
+      toast(`Deprecation message updated`, {
+        duration: 5000,
+        cardProps: {
+          color: 'success',
+        },
+      })
+    }
+  }
+  catch (error) {
+    if (Array.isArray(error.errors)) {
+      error.errors.forEach((error: any) => {
+        toast(`Error`, {
+          description: error.message,
+          duration: 5000,
+          cardProps: {
+            color: 'error',
+          },
+        })
+      })
+    }
+  }
+}
+
+async function reinstate(type: 'bundle' | 'version') {
+  try {
+    const params: Record<string, any> = {
+      type,
+      message: 'null',
+      ddf_uuid: bundle.state.value?.ddf_uuid,
+    }
+
+    if (type === 'version')
+      params.bundle_id = bundle.state.value?.id
+
+    const result = await store.client?.request<{
+      success: boolean
+      type: 'system'
+      state: 'alpha' | 'beta' | 'stable'
+    }>(() => ({
+      method: 'POST',
+      path: `/bundle/deprecate`,
+      params,
+    }))
+    if (result && result.success) {
+      await bundle.execute()
+      toast(`Deprecation message updated`, {
+        duration: 5000,
+        cardProps: {
+          color: 'success',
+        },
+      })
+    }
+  }
+  catch (error) {
+    if (Array.isArray(error.errors)) {
+      error.errors.forEach((error: any) => {
+        toast(`Error`, {
+          description: error.message,
+          duration: 5000,
+          cardProps: {
+            color: 'error',
+          },
+        })
+      })
+    }
   }
 }
 </script>
@@ -166,12 +340,13 @@ async function updateState() {
   <v-card v-if="bundle.state.value" class="ma-2">
     <v-card-title>
       {{ bundle.state.value.product }}
-      <chip-signatures :signatures="bundle.state.value.signatures" only="system" class="ma-2" />
+      <v-chip v-if="deprecation_message" variant="flat" color="orange">
+        Deprecated
+      </v-chip>
+      <chip-signatures v-else :signatures="bundle.state.value.signatures" only="system" class="ma-2" />
       <v-chip class="ma-2" color="grey">
         {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
       </v-chip>
-
-      <v-divider />
     </v-card-title>
 
     <v-card-subtitle>
@@ -201,6 +376,13 @@ async function updateState() {
         <v-sheet class="flex-grow-1 ma-2 pa-2">
           <v-window v-model="activeTab">
             <v-window-item value="readme">
+              <v-alert
+                v-show="deprecation_message"
+                v-bind="deprecation_message"
+                icon="mdi-alert"
+                type="warning"
+              />
+
               <v-card elevation="2" class="ma-2">
                 <template #title>
                   Supported devices
@@ -270,7 +452,10 @@ async function updateState() {
                       </v-chip>
                     </td>
                     <td>
-                      <chip-signatures :signatures="version.signatures ?? []" only="system" class="ma-2" />
+                      <v-chip v-if="version.deprecation_message" variant="flat" color="orange">
+                        Deprecated
+                      </v-chip>
+                      <chip-signatures v-else :signatures="version.signatures ?? []" only="system" class="ma-2" />
                     </td>
                     <td>{{ version.version_deconz }}</td>
                     <td>{{ useTimeAgo(version.date_created).value }}</td>
@@ -356,27 +541,51 @@ async function updateState() {
                   </v-btn>
                 </v-card-actions>
               </v-card>
-              <v-card class="ma-2" title="Deprecate version">
+              <v-card v-if="!bundle.state.value?.deprecation_message" class="ma-2" title="Deprecate version">
                 <v-card-text>
-                  This will mark this version of the package as deprecated.
+                  This will mark this version of the bundle as deprecated.
                   <v-spacer />
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn color="orange" prepend-icon="mdi-flag">
-                    Deprecate (TODO)
+                  <v-btn color="orange" prepend-icon="mdi-flag" @click="deprecate('version')">
+                    Deprecate this version
                   </v-btn>
                 </v-card-actions>
               </v-card>
-              <v-card class="ma-2" title="Deprecate bundle">
+              <v-card v-else class="ma-2" title="Reinstate version">
+                <v-card-text>
+                  This will reinstate this version of the bundle.
+                  <v-spacer />
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn color="orange" prepend-icon="mdi-flag" @click="reinstate('version')">
+                    Reinstate this version
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+              <v-card v-if="!ddfUuidInfo.state.value?.deprecation_message" class="ma-2" title="Deprecate bundle">
                 <v-card-text>
                   This will mark all versions of the bundle as deprecated.
                   <v-spacer />
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn color="red" prepend-icon="mdi-flag">
-                    Deprecate (TODO)
+                  <v-btn color="red" prepend-icon="mdi-flag" @click="deprecate('bundle')">
+                    Deprecate all versions
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+              <v-card v-else class="ma-2" title="Reinstate version">
+                <v-card-text>
+                  This will reinstate all versions of the bundle.
+                  <v-spacer />
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn color="orange" prepend-icon="mdi-flag" @click="reinstate('bundle')">
+                    Reinstate all version
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -427,7 +636,7 @@ async function updateState() {
               TODO
             </v-list-item>
             <v-list-item title="Signed by">
-              <chip-signatures :signatures=" bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
+              <chip-signatures :signatures="bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>
           </v-list>
           <v-btn color="red" prepend-icon="mdi-flag" class="w-100">
