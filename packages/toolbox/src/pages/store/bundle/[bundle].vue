@@ -578,7 +578,7 @@ async function reinstate(type: 'bundle' | 'version') {
                   </v-btn>
                 </v-card-actions>
               </v-card>
-              <v-card v-else class="ma-2" title="Reinstate version">
+              <v-card v-else class="ma-2" title="Reinstate bundle">
                 <v-card-text>
                   This will reinstate all versions of the bundle.
                   <v-spacer />

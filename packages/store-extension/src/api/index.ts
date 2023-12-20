@@ -78,12 +78,17 @@ export default defineEndpoint({
       const product = typeof req.query.product === 'string' && req.query.product !== '' ? req.query.product : null
       const manufacturer = typeof req.query.manufacturer === 'string' && req.query.manufacturer !== '' ? req.query.manufacturer : null
       const model = typeof req.query.model === 'string' && req.query.model !== '' ? req.query.model : null
+      const showDeprecated = req.query.showDeprecated === 'true'
+      let limit = 20
 
       const subquery = context.database('bundles')
         .select('bundles.ddf_uuid')
         .max('date_created as max_date')
         .orderBy('max_date', 'desc')
         .groupBy('ddf_uuid')
+
+      if (showDeprecated === false)
+        subquery.whereNull('bundles.deprecation_message')
 
       if (product)
         subquery.where(context.database.raw('LOWER(`product`) LIKE ?', [`%${product.toLowerCase()}%`]))
@@ -100,37 +105,6 @@ export default defineEndpoint({
           subquery.where(context.database.raw('LOWER(`model`) LIKE ?', [`%${model.toLowerCase()}%`]))
       }
 
-      if (typeof req.query.limit === 'string' && req.query.limit !== '') {
-        const limit = Math.min(Number.parseInt(req.query.limit), 20)
-
-        subquery.limit(limit)
-        if (typeof req.query.page === 'string' && req.query.page !== '')
-          subquery.offset(limit * (Number.parseInt(req.query.page) - 1))
-      }
-
-      /*
-      const query = context.database
-        .select([
-          'bundles.ddf_uuid',
-          'bundles.id',
-          'bundles.product',
-          'bundles.date_created',
-          'device_identifiers.manufacturer',
-          'device_identifiers.model',
-          'signatures.signature',
-          'signatures.key',
-        ])
-        .from('bundles')
-        .join(subquery.as('subquery'), function () {
-          this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
-            .andOn('bundles.date_created', '=', 'subquery.max_date')
-        })
-        .join('bundles_device_identifiers', 'bundles.id', '=', 'bundles_device_identifiers.bundles_id')
-        .join('device_identifiers', 'bundles_device_identifiers.device_identifiers_id', '=', 'device_identifiers.id')
-        .join('signatures', 'bundles.id', '=', 'signatures.bundle')
-        .orderBy('bundles.date_created', 'desc')
-      */
-
       const query = context.database
         .select('bundles.id')
         .from('bundles')
@@ -138,7 +112,21 @@ export default defineEndpoint({
           this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
             .andOn('bundles.date_created', '=', 'subquery.max_date')
         })
-        .orderBy('bundles.date_created', 'desc')
+
+      if (showDeprecated === false) {
+        query
+          .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
+          .whereNull('ddf_uuids.deprecation_message')
+      }
+
+      if (typeof req.query.limit === 'string' && req.query.limit !== '') {
+        limit = Math.min(Number.parseInt(req.query.limit), limit)
+        query.limit(limit)
+        if (typeof req.query.page === 'string' && req.query.page !== '')
+          query.offset(limit * (Number.parseInt(req.query.page) - 1))
+      }
+
+      query.orderBy('bundles.date_created', 'desc')
 
       const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
       const items = await bundleService.readByQuery({
@@ -160,7 +148,33 @@ export default defineEndpoint({
         sort: ['-date_created'],
       })
 
-      res.json(items)
+      let totalCount = Number.POSITIVE_INFINITY
+      if (items.length < limit) {
+        totalCount = items.length
+      }
+      else {
+        const queryCount = query
+          .clone()
+          .clearSelect()
+          .clear('limit')
+          .clear('offset')
+          .count('bundles.id as count')
+          .clear('join')
+          .join(subquery.clone().as('subquery'), function () {
+            this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
+              .andOn('bundles.date_created', '=', 'subquery.max_date')
+          })
+
+        if (showDeprecated === false)
+          queryCount.join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
+
+        const countResult = (await queryCount.clone()).shift()
+
+        if (countResult && countResult.count && typeof countResult.count === 'number')
+          totalCount = countResult.count
+      }
+
+      res.json({ items, totalCount })
     }))
 
     router.post('/upload', (req, res, next) => {

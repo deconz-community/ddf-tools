@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
-import { aggregate } from '@directus/sdk'
 import type { RestCommand } from '@directus/sdk'
 import type { Schema } from '~/interfaces/store'
 
@@ -14,48 +13,8 @@ const page = useRouteQuery('page', '1', { transform: Number })
 const product = useRouteQuery('product', '')
 const manufacturer = useRouteQuery('manufacturer', '')
 const model = useRouteQuery('model', '')
+const showDeprecated = useRouteQuery('showDeprecated', 'false', { transform: (v: string) => v === 'true' })
 const itemsPerPage = ref(5)
-
-const filter = refDebounced(computed(() => {
-  const _filters: any[] = []
-
-  if (product.value !== '') {
-    _filters.push({
-      product: {
-        _icontains: product.value,
-      },
-    })
-  }
-
-  Object.entries({ manufacturer, model }).forEach(([key, value]) => {
-    if (value.value !== '') {
-      _filters.push({
-        device_identifiers:
-        {
-          device_identifiers_id: {
-            [key]: {
-              _icontains: value.value,
-            },
-          },
-        },
-      })
-    }
-  })
-
-  if (_filters.length === 0)
-    return {}
-
-  return {
-    _and: _filters,
-  }
-}), 500)
-
-const bundleCount = store.request(computed(() => aggregate('bundles', {
-  aggregate: { countDistinct: ['ddf_uuid'] },
-  query: {
-    filter: filter.value,
-  },
-})))
 
 function bundleSearch(filters: {
   page?: number
@@ -63,6 +22,7 @@ function bundleSearch(filters: {
   product?: string
   manufacturer?: string
   model?: string
+  showDeprecated?: boolean
 }): RestCommand<unknown, Schema> {
   return () => {
     const params = Object.fromEntries(Object.entries(filters).filter(([_, value]) => value !== ''))
@@ -80,25 +40,24 @@ const bundleList = store.request(computed(() => bundleSearch({
   product: product.value,
   manufacturer: manufacturer.value,
   model: model.value,
+  showDeprecated: showDeprecated.value,
 })))
 
-const totalItems = computed(() => {
-  if (bundleCount.state.value && bundleCount.state.value[0].countDistinct.ddf_uuid)
-    return Number.parseInt(bundleCount.state.value[0].countDistinct.ddf_uuid)
-  return 0
+const pageCount = computed(() => {
+  if (!bundleList.state.value)
+    return 0
+  return Math.ceil(bundleList.state.value.totalCount / itemsPerPage.value)
 })
-
-const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
 </script>
 
 <template>
   <v-card class="ma-2">
     <template v-if="bundleList.state.value" #text>
-      <v-data-iterator :items="bundleList.state.value">
+      <v-data-iterator :items="bundleList.state.value.items">
         <template #header>
           <h1 class="text-h5 d-flex justify-space-between mb-4 align-center">
             <div class="text-truncate">
-              DDF Store list of bundles ({{ totalItems }})
+              DDF Store list of bundles ({{ bundleList.state.value.totalCount }})
             </div>
 
             <div class="d-flex align-center">
@@ -149,6 +108,7 @@ const pageCount = computed(() => Math.ceil(totalItems.value / itemsPerPage.value
               class="ma-2"
               :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
             />
+            <v-switch v-model="showDeprecated" label="Show deprecated" />
           </div>
         </template>
 
