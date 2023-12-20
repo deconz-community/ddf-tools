@@ -253,7 +253,7 @@ export default defineEndpoint({
             const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
             const deviceIdentifiersService = new services.ItemsService<Collections.DeviceIdentifiers>('device_identifiers', serviceOptions)
 
-            const uuid = (await UUIDService.readByQuery({
+            const uuidInfo = (await UUIDService.readByQuery({
               fields: [
                 'id',
                 'user_created',
@@ -266,8 +266,8 @@ export default defineEndpoint({
               },
             })).shift()
 
-            if (uuid) {
-              if (uuid.user_created !== userId && !uuid.maintainers.some(maintainer => maintainer.user === userId))
+            if (uuidInfo) {
+              if (uuidInfo.user_created !== userId && !uuidInfo.maintainers.some(m => m.user === userId))
                 throw new InvalidQueryError({ reason: 'You don\'t have permission to upload a bundle with that UUID because you are not the maintainer of it' })
             }
             else {

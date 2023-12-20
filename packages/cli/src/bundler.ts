@@ -79,6 +79,11 @@ export function bundlerCommand() {
       }
       const genericDirectoryPath = path.resolve(generic)
 
+      const bundleToUpload: Record<string, {
+        name: string
+        encoded: Blob
+      }> = {}
+
       await Promise.all(inputFiles.map(async (inputFile) => {
         const inputFilePath = path.resolve(inputFile)
 
@@ -167,11 +172,26 @@ export function bundlerCommand() {
         }
 
         if (upload) {
-          const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest())
-          const uuid = uuidv4()
+          bundleToUpload[uuidv4()] = {
+            name: bundle.data.name,
+            encoded,
+          }
+        }
+      }))
+
+      if (upload) {
+        const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest())
+
+        const entries = Object.entries(bundleToUpload)
+
+        const CHUNK_SIZE = 10
+        for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
+          console.log(`Processing chunk #${(i / CHUNK_SIZE) + 1}`)
+          const chunk = entries.slice(i, i + CHUNK_SIZE)
 
           const formData = new FormData()
-          formData.append(uuid, encoded)
+          for (const [uuid, { encoded }] of chunk)
+            formData.append(uuid, encoded)
 
           const { result } = await client.request<
           // TODO import type from the store extension
@@ -189,11 +209,13 @@ export function bundlerCommand() {
             }
           })
 
-          if (result[uuid].success === true)
-            console.log(`[${bundle.data.name}] uploaded successfully`)
-          else
-            console.log(`[${bundle.data.name}] failed to upload : ${result[uuid].message}`)
+          for (const [uuid, { name }] of chunk) {
+            if (result[uuid].success === true)
+              console.log(`[${name}] uploaded successfully`)
+            else
+              console.log(`[${name}] failed to upload : ${result[uuid].message}`)
+          }
         }
-      }))
+      }
     })
 }
