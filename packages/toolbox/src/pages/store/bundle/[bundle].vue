@@ -219,7 +219,7 @@ async function deprecate(type: 'bundle' | 'version') {
       'label': 'Deprecation message',
       'model-value': input,
       'rules': rules,
-      'placeholder': 'Don\'t use this bundle anymore because...',
+      'placeholder': `Don't use this ${type} anymore because...`,
     },
     confirmationText: 'Deprecate',
     confirmationButtonProps: {
