@@ -424,6 +424,9 @@ async function updateState() {
               {{ bundle.state.value.file_count ?? 'Unknown' }}
             </v-list-item>
             <v-list-item title="Maintainers">
+              TODO
+            </v-list-item>
+            <v-list-item title="Signed by">
               <chip-signatures :signatures=" bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>
           </v-list>
