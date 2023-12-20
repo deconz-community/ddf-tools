@@ -249,8 +249,32 @@ export default defineEndpoint({
           await context.database.transaction(async (knex) => {
             const serviceOptions = { schema, knex, accountability: adminAccountability }
 
+            const UUIDService = new services.ItemsService<Collections.DdfUuids>('ddf_uuids', serviceOptions)
             const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
             const deviceIdentifiersService = new services.ItemsService<Collections.DeviceIdentifiers>('device_identifiers', serviceOptions)
+
+            const uuid = (await UUIDService.readByQuery({
+              fields: [
+                'id',
+                'user_created',
+                'maintainers.user',
+              ],
+              filter: {
+                id: {
+                  _eq: bundle.data.desc.uuid,
+                },
+              },
+            })).shift()
+
+            if (uuid) {
+              if (uuid.user_created !== userId && !uuid.maintainers.some(maintainer => maintainer.user === userId))
+                throw new InvalidQueryError({ reason: 'You don\'t have permission to upload a bundle with that UUID because you are not the maintainer of it' })
+            }
+            else {
+              await UUIDService.createOne({
+                id: bundle.data.desc.uuid,
+              })
+            }
 
             const device_identifier_ids = await Promise.all(bundle.data.desc.device_identifiers.map(async (deviceIdentifier) => {
               const [manufacturer, model] = deviceIdentifier

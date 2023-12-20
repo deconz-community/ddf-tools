@@ -193,7 +193,7 @@ export namespace Collections {
    */
   export interface Bundles {
     id: Types.String;
-    ddf_uuid: Types.String;
+    ddf_uuid: Types.String | Collections.DdfUuids;
     product: Types.String;
     version_deconz: Types.String;
     user_created: Types.Optional<Types.String | Collections.DirectusUser>;
@@ -206,6 +206,7 @@ export namespace Collections {
     content: Types.Optional<Types.String>;
     content_size: Types.Optional<Types.Integer>;
     file_count: Types.Optional<Types.Integer>;
+    deprecation_message: Types.Optional<Types.String>;
   }
 
   /**
@@ -229,6 +230,20 @@ export namespace Collections {
   }
 
   /**
+   * The ddf uuids collection.
+   */
+  export interface DdfUuids {
+    id: Types.String;
+    user_created: Types.Optional<Types.String | Collections.DirectusUser>;
+    date_created: Types.Optional<Types.DateTime>;
+    user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
+    date_updated: Types.Optional<Types.DateTime>;
+    deprecation_message: Types.Optional<Types.String>;
+    maintainers: Collections.Maintainers;
+    bundles: Collections.Bundles;
+  }
+
+  /**
    * The device identifiers collection.
    */
   export interface DeviceIdentifiers {
@@ -236,6 +251,15 @@ export namespace Collections {
     manufacturer: Types.Optional<Types.String>;
     model: Types.Optional<Types.String>;
     bundles: Collections.BundlesDeviceIdentifiers;
+  }
+
+  /**
+   * The maintainers collection.
+   */
+  export interface Maintainers {
+    id: Types.Integer;
+    ddf_uuid: Types.Optional<Types.String | Collections.DdfUuids>;
+    user: Types.Optional<Types.String | Collections.DirectusUser>;
   }
 
   /**
@@ -345,6 +369,7 @@ export interface System {
     public_key: Types.Optional<Types.String>;
     private_key: Types.Optional<Types.String>;
     can_sign_with_system_keys: Types.Boolean;
+    ddf_uuids: Collections.Maintainers;
   }[];
 
   /**
@@ -428,9 +453,19 @@ export interface Schema extends System {
   bundles_sub_devices: Collections.BundlesSubDevices[];
 
   /**
+   * The ddf uuids collection.
+   */
+  ddf_uuids: Collections.DdfUuids[];
+
+  /**
    * The device identifiers collection.
    */
   device_identifiers: Collections.DeviceIdentifiers[];
+
+  /**
+   * The maintainers collection.
+   */
+  maintainers: Collections.Maintainers[];
 
   /**
    * The signatures collection.
@@ -516,6 +551,24 @@ export function readBundlesSubDevices<
 }
 
 /**
+ * List ddf uuids items.
+ */
+export function listDdfUuids<
+  const Query extends Query$<Schema, Collections.DdfUuids>,
+>(query?: Query) {
+  return readItems$<Schema, "ddf_uuids", Query>("ddf_uuids", query);
+}
+
+/**
+ * Gets a single known ddf uuids item by id.
+ */
+export function readDdfUuids<
+  const Query extends Query$<Schema, Collections.DdfUuids>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "ddf_uuids", Query>("ddf_uuids", key, query);
+}
+
+/**
  * List device identifiers items.
  */
 export function listDeviceIdentifiers<
@@ -538,6 +591,24 @@ export function readDeviceIdentifiers<
     key,
     query,
   );
+}
+
+/**
+ * List maintainers items.
+ */
+export function listMaintainers<
+  const Query extends Query$<Schema, Collections.Maintainers>,
+>(query?: Query) {
+  return readItems$<Schema, "maintainers", Query>("maintainers", query);
+}
+
+/**
+ * Gets a single known maintainers item by id.
+ */
+export function readMaintainers<
+  const Query extends Query$<Schema, Collections.Maintainers>,
+>(key: string | number, query?: Query) {
+  return readItem$<Schema, "maintainers", Query>("maintainers", key, query);
 }
 
 /**
