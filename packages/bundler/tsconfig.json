@@ -15,6 +15,7 @@
       "node"
     ],
     "strict": true,
+    "strictNullChecks": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
