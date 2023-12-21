@@ -453,7 +453,7 @@ async function reinstate(type: 'bundle' | 'version') {
                       </v-chip>
                     </td>
                     <td>
-                      <v-chip v-if="version.deprecation_message" variant="flat" color="orange">
+                      <v-chip v-if="version.deprecation_message || ddfUuidInfo.state.value?.deprecation_message" variant="flat" color="orange">
                         Deprecated
                       </v-chip>
                       <chip-signatures v-else :signatures="version.signatures ?? []" only="system" class="ma-2" />
@@ -507,30 +507,6 @@ async function reinstate(type: 'bundle' | 'version') {
                     />
                   </v-btn-toggle>
                 </v-card-actions>
-                <!--
-                <v-card-actions>
-                  <template v-for="newState in settingsProps.down" :key="newState">
-                    <v-btn
-                      :disabled="signing"
-                      color="orange"
-                      prepend-icon="mdi-tag-arrow-down-outline"
-                      @click="sign(newState)"
-                    >
-                      Demote to {{ newState }}
-                    </v-btn>
-                  </template>
-                  <template v-for="newState in settingsProps.up" :key="newState">
-                    <v-btn
-                      :disabled="signing"
-                      color="green"
-                      prepend-icon="mdi-tag-arrow-up-outline"
-                      @click="sign(newState)"
-                    >
-                      Promote to {{ newState }}
-                    </v-btn>
-                  </template>
-                </v-card-actions>
-                -->
               </v-card>
               <v-card class="ma-2" title="Maintainers">
                 <v-card-text>
