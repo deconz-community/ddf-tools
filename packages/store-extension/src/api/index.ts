@@ -120,6 +120,7 @@ export default defineEndpoint({
             .andOn('bundles.date_created', '=', 'subquery.max_date')
         })
 
+      // TODO check if this should be on the subquery too
       if (showDeprecated === false) {
         query
           .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
