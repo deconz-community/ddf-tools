@@ -13,6 +13,7 @@ const page = useRouteQuery('page', '1', { transform: Number })
 const product = useRouteQuery('product', '')
 const manufacturer = useRouteQuery('manufacturer', '')
 const model = useRouteQuery('model', '')
+const stableOnly = useRouteQuery('showNonStable', 'true', { transform: (v: string) => v === 'true' })
 const showDeprecated = useRouteQuery('showDeprecated', 'false', { transform: (v: string) => v === 'true' })
 const itemsPerPage = ref(5)
 
@@ -22,6 +23,7 @@ function bundleSearch(filters: {
   product?: string
   manufacturer?: string
   model?: string
+  hasKey?: string
   showDeprecated?: boolean
 }): RestCommand<unknown, Schema> {
   return () => {
@@ -34,14 +36,19 @@ function bundleSearch(filters: {
   }
 }
 
-const bundleList = store.request(computed(() => bundleSearch({
-  page: page.value,
-  limit: itemsPerPage.value,
-  product: product.value,
-  manufacturer: manufacturer.value,
-  model: model.value,
-  showDeprecated: showDeprecated.value,
-})))
+const bundleList = store.request(computed(() => {
+  const keyStable = store.state?.context?.settings?.public_key_stable ?? ''
+
+  return bundleSearch({
+    page: page.value,
+    limit: itemsPerPage.value,
+    product: product.value,
+    manufacturer: manufacturer.value,
+    model: model.value,
+    showDeprecated: showDeprecated.value,
+    hasKey: stableOnly.value ? keyStable : '',
+  })
+}))
 
 const pageCount = computed(() => {
   if (!bundleList.state.value)
@@ -97,7 +104,6 @@ const pageCount = computed(() => {
               dense
               hide-details
               class="ma-2"
-              :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
             />
             <v-text-field
               v-model="model"
@@ -106,9 +112,17 @@ const pageCount = computed(() => {
               dense
               hide-details
               class="ma-2"
-              :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
             />
-            <v-switch v-model="showDeprecated" label="Show deprecated" />
+            <v-switch
+              v-model="stableOnly"
+              label="Stable only"
+              hide-details
+            />
+            <v-switch
+              v-model="showDeprecated"
+              label="Show deprecated"
+              hide-details
+            />
           </div>
         </template>
 

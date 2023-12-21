@@ -78,6 +78,7 @@ export default defineEndpoint({
       const product = typeof req.query.product === 'string' && req.query.product !== '' ? req.query.product : null
       const manufacturer = typeof req.query.manufacturer === 'string' && req.query.manufacturer !== '' ? req.query.manufacturer : null
       const model = typeof req.query.model === 'string' && req.query.model !== '' ? req.query.model : null
+      const hasKey = typeof req.query.hasKey === 'string' && req.query.hasKey !== '' ? req.query.hasKey : null
       const showDeprecated = req.query.showDeprecated === 'true'
       let limit = 20
 
@@ -117,6 +118,12 @@ export default defineEndpoint({
         query
           .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
           .whereNull('ddf_uuids.deprecation_message')
+      }
+
+      if (hasKey) {
+        query
+          .join('signatures', 'bundles.id', '=', 'signatures.bundle')
+          .where('signatures.key', hasKey)
       }
 
       if (typeof req.query.limit === 'string' && req.query.limit !== '') {
