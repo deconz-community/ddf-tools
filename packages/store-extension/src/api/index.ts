@@ -84,12 +84,9 @@ export default defineEndpoint({
 
       const subquery = context.database('bundles')
         .select('bundles.ddf_uuid')
-        .max('date_created as max_date')
+        .max('bundles.date_created as max_date')
         .orderBy('max_date', 'desc')
         .groupBy('ddf_uuid')
-
-      if (showDeprecated === false)
-        subquery.whereNull('bundles.deprecation_message')
 
       if (product)
         subquery.where(context.database.raw('LOWER(`product`) LIKE ?', [`%${product.toLowerCase()}%`]))
@@ -112,6 +109,13 @@ export default defineEndpoint({
           .where('signatures.key', hasKey)
       }
 
+      if (showDeprecated === false) {
+        subquery
+          .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
+          .whereNull('ddf_uuids.deprecation_message')
+          .whereNull('bundles.deprecation_message')
+      }
+
       const query = context.database
         .select('bundles.id')
         .from('bundles')
@@ -119,13 +123,6 @@ export default defineEndpoint({
           this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
             .andOn('bundles.date_created', '=', 'subquery.max_date')
         })
-
-      // TODO check if this should be on the subquery too
-      if (showDeprecated === false) {
-        query
-          .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
-          .whereNull('ddf_uuids.deprecation_message')
-      }
 
       if (typeof req.query.limit === 'string' && req.query.limit !== '') {
         limit = Math.min(Number.parseInt(req.query.limit), limit)
