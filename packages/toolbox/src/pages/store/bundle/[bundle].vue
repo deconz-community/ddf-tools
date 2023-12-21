@@ -508,9 +508,10 @@ async function reinstate(type: 'bundle' | 'version') {
                   </v-btn-toggle>
                 </v-card-actions>
               </v-card>
+              <!--
               <v-card class="ma-2" title="Maintainers">
                 <v-card-text>
-                  Foo
+                  TODO
                 </v-card-text>
                 <v-card-actions>
                   <v-btn color="primary" prepend-icon="mdi-account-plus">
@@ -518,6 +519,7 @@ async function reinstate(type: 'bundle' | 'version') {
                   </v-btn>
                 </v-card-actions>
               </v-card>
+              -->
               <v-card v-if="!bundle.state.value?.deprecation_message" class="ma-2" title="Deprecate version">
                 <v-card-text>
                   This will mark this version of the bundle as deprecated.
@@ -609,9 +611,11 @@ async function reinstate(type: 'bundle' | 'version') {
             <v-list-item title="Total Files">
               {{ bundle.state.value.file_count ?? 'Unknown' }}
             </v-list-item>
+            <!--
             <v-list-item title="Maintainers">
               TODO
             </v-list-item>
+            -->
             <v-list-item title="Signed by">
               <chip-signatures :signatures="bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>

@@ -17,7 +17,7 @@ const device = useAppMachine('device', computed(() => ({ gateway: props.gateway,
     </v-card-subtitle>
     <v-card-text>
       <v-sheet elevation="10">
-        <pre>{{ device.state.context.data }}</pre>
+        <pre>{{ device.state.context.data.subdevices[0].state }}</pre>
       </v-sheet>
     </v-card-text>
   </v-card>
