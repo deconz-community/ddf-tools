@@ -99,7 +99,7 @@
     "typescript": "^5.3.3",
     "unplugin-auto-import": "^0.17.2",
     "unplugin-vue-components": "^0.26.0",
-    "unplugin-vue-macros": "^2.7.3",
+    "unplugin-vue-macros": "^2.7.5",
     "vite": "^5.0.10",
     "vite-plugin-pages": "^0.32.0",
     "vite-plugin-pwa": "^0.17.4",
