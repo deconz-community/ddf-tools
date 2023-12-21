@@ -11,7 +11,5 @@ export default defineConfig({
   // run `npm install` or `yarn install` right after bumping
   install: true,
   // override with different bumping mode for each package
-  packageMode: {
-    '/xstate/': 'minor',
-  },
+  packageMode: {},
 })
