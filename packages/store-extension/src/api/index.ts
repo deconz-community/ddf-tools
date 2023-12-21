@@ -106,6 +106,12 @@ export default defineEndpoint({
           subquery.where(context.database.raw('LOWER(`model`) LIKE ?', [`%${model.toLowerCase()}%`]))
       }
 
+      if (hasKey) {
+        subquery
+          .join('signatures', 'bundles.id', '=', 'signatures.bundle')
+          .where('signatures.key', hasKey)
+      }
+
       const query = context.database
         .select('bundles.id')
         .from('bundles')
@@ -118,12 +124,6 @@ export default defineEndpoint({
         query
           .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
           .whereNull('ddf_uuids.deprecation_message')
-      }
-
-      if (hasKey) {
-        query
-          .join('signatures', 'bundles.id', '=', 'signatures.bundle')
-          .where('signatures.key', hasKey)
       }
 
       if (typeof req.query.limit === 'string' && req.query.limit !== '') {
