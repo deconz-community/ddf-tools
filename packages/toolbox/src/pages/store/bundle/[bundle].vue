@@ -641,7 +641,7 @@ async function reinstate(type: 'bundle' | 'version') {
             </v-list-item>
           </v-list>
           <v-btn color="red" prepend-icon="mdi-flag" class="w-100">
-            Report malware (TODO)
+            Report (TODO)
           </v-btn>
         </v-sheet>
       </v-sheet>
