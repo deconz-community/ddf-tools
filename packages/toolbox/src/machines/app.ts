@@ -1,5 +1,5 @@
 import type { ActorRefFrom } from 'xstate'
-import { assign, createMachine, pure, raise, sendTo, spawn, stop } from 'xstate'
+import { assign, createMachine, enqueueActions, fromCallback, fromPromise, raise, sendTo, spawn, stop } from 'xstate'
 import { z } from 'zod'
 import { enableMapSet, produce } from 'immer'
 import { discoveryMachine } from './discovery'
@@ -7,6 +7,8 @@ import { gatewayMachine } from './gateway'
 import { storeMachine } from './store'
 
 enableMapSet()
+
+// https://stately.ai/docs/migration#use-params-to-pass-params-to-actions--guards
 
 const storageKey = 'app'
 const storageSchema = z.object({
@@ -34,13 +36,10 @@ export interface AppContext {
 }
 
 export const appMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBBAIjg+gOJYAqAogOpYCaA2gAwC6ioqA9rAJYAunbAdixAAPRAEZ6ADgB0AVgCcAZlmL5AJgDskgCyT52xQBoQAT0QBaNWun1Zk+gDY1DhwoNiNAX0-G0mAKoACjikZEShVHRMQuxcvAJCogjamnKSGo708lm2atoaxmYI5hLSYvYO2gb0GsqSilrevugYAEpkALIA8gBqYcTkkQzMSCCxPHyCo0ka8hrSuor22jWVNfKFFmoyOrJidulSuhpePiB+0rBg3Lz8ULDSnBAANmAYAMpYffjvZCQkAEkAHKEd7DGIcCYJaaIBySazKDQqOaybTqMTaTbJFLSSR2eiaBr0HKKJrndCXa63e6PF5vAAyXVwPz+gJBYOio3G8SmoCSan00gae3kDn2GjEcI2pkQBm0Qo02nFYjEqjs2jJFyuN04dwezzYyAguqgGAgAjAj34ADc2ABrS1aqkm-WG413BC620AY2QPOG4K5kJ5iUQAsU0gcs0kkn2ijyiiWWJU8t0mgJsjyc0cmop2upD1gyGtJrNFqttod0idOr1l2LJs9NrYvv9TEDrGDk1DCDh9BsAqVStVijE0qKKYW8Il8P2Yvh3jO-DYEDgQj8ELi3ZhxXj0gleSRGjUBPhegcWLUYgRiv28hVs1qp2aqEptfum6hvJE4lk0m2SJ5JocweBImIyggijaA4uK3q4VQnBKSi5q++YurSryfiGO57H+Bj2MSDhQbkBQQSo1iirIszXqozh4ihb4FtIBpGiaWHbnysIRgBmYpI+oH0OBE5ZFOmhWASWiigxaF1kWJZ3Ox0KcQg2RiLi9iJoJqqzFUyYiWmx4npoegKIunhAA */
+
   id: 'app',
 
-  predictableActionArguments: true,
-  tsTypes: {} as import('./app.typegen').Typegen0,
-
-  schema: {
+  types: {
     context: {} as AppContext,
     events: {} as {
       type: 'ADD_GATEWAY'
@@ -62,22 +61,19 @@ export const appMachine = createMachine({
     ADD_GATEWAY: {
       actions: [
         'spawnGateway',
-        // eslint-disable-next-line xstate/no-inline-implementation
-        raise('SAVE_SETTINGS'),
+        raise({ type: 'SAVE_SETTINGS' }),
       ],
     },
     UPDATE_GATEWAY: {
       actions: [
         'updateGatewayCredentials',
-        // eslint-disable-next-line xstate/no-inline-implementation
-        raise('SAVE_SETTINGS'),
+        raise({ type: 'SAVE_SETTINGS' }),
       ],
     },
     REMOVE_GATEWAY: {
       actions: [
         'stopGateway',
-        // eslint-disable-next-line xstate/no-inline-implementation
-        raise('SAVE_SETTINGS'),
+        raise({ type: 'SAVE_SETTINGS' }),
       ],
     },
   },
@@ -111,7 +107,7 @@ export const appMachine = createMachine({
 
   entry: 'init',
   type: 'parallel',
-}, {
+}).provide({
   actions: {
     init: assign({
       machine: () => {
@@ -124,39 +120,44 @@ export const appMachine = createMachine({
     }),
 
     spawnGateway: assign({
-      machine: (context, { credentials }) => produce(context.machine, (draft) => {
+      machine: ({ context, event }) => produce(context.machine, (draft) => {
+        const { credentials } = event
+        const newMachine = spawn(gatewayMachine, credentials.id)
+        /*
         const newMachine = spawn(gatewayMachine.withContext(structuredClone({
           ...gatewayMachine.context,
           credentials,
         })), credentials.id)
+        */
         draft.gateways.set(credentials.id, newMachine)
       }),
     }),
 
-    updateGatewayCredentials: pure((context, { credentials }) => {
+    updateGatewayCredentials: enqueueActions(({ context, event, enqueue }) => {
+      const { credentials } = event
+
       if (context.machine.gateways.has(credentials.id)) {
-        return sendTo(credentials.id, {
+        enqueue(sendTo(credentials.id, {
           type: 'UPDATE_CREDENTIALS',
           data: credentials,
-        })
+        }))
       }
     }),
 
-    stopGateway: pure((context, { id }) => {
+    stopGateway: enqueueActions(({ context, event, enqueue }) => {
+      const { id } = event
       if (context.machine.gateways.has(id)) {
-        return [
-          stop(id),
-          assign({
-            machine: produce(context.machine, (draft) => {
-              draft.gateways.delete(id)
-            }),
+        enqueue(stop(id))
+        enqueue(assign({
+          machine: produce(context.machine, (draft) => {
+            draft.gateways.delete(id)
           }),
-        ]
+        }))
       }
     }),
   },
-  services: {
-    saveSettings: context => async () => {
+  actors: {
+    saveSettings: fromPromise(async ({ context }) => {
       const data: StorageSchema = {
         storeUrl: context.machine.store.getSnapshot()?.context.directusUrl,
         credentials: {},
@@ -170,16 +171,16 @@ export const appMachine = createMachine({
       })
 
       localStorage.setItem(storageKey, JSON.stringify(data))
-    },
+    }),
 
-    loadSettings: context => async (callback) => {
+    loadSettings: fromCallback(({ sendBack, receive, input, context }) => {
       try {
         const saved = localStorage.getItem(storageKey)
         if (!saved)
           return
         const parsed = JSON.parse(saved)
         const data = storageSchema.parse(parsed)
-        Object.values(data.credentials).forEach((credentials: GatewayCredentials) => callback({
+        Object.values(data.credentials).forEach((credentials: GatewayCredentials) => sendBack({
           type: 'ADD_GATEWAY',
           credentials,
         }))
@@ -194,7 +195,8 @@ export const appMachine = createMachine({
       catch (e) {
         console.error(e)
       }
-    },
+    }),
+
   },
 
 })

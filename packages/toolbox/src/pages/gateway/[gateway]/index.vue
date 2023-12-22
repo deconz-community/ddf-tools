@@ -20,7 +20,7 @@ if (!gateway)
   throw new Error('no gateway')
 const { state, machine } = gateway
 
-const canFixIssue = useSelector(machine, state => state.can('EDIT_CREDENTIALS'))
+const canFixIssue = useSelector(machine, state => state.can({type:'EDIT_CREDENTIALS'}))
 
 const gateway = gateways.gateways[props.gateway]
 
@@ -69,7 +69,7 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
       <json-viewer :value="state.toStrings().pop()" />
       <json-viewer :value="state.context" />
 
-      <v-btn :disabled="!state.can('Fix issue')" @click="machine.send('Fix issue')">
+      <v-btn :disabled="!state.can({type: 'Fix issue'})" @click="machine.send({type: 'Fix issue'})">
         Fix issue
       </v-btn>
       -->
@@ -80,7 +80,7 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
       <!--
       <json-viewer :value="state.context" />
 
-      <v-btn v-if="state.can('Fix issue')" @click="gateway.machine.send('Fix issue')">
+      <v-btn v-if="state.can({type: 'Fix issue'})" @click="gateway.machine.send({type: 'Fix issue'})">
         Fix issue
       </v-btn>
 

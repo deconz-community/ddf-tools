@@ -13,13 +13,13 @@ const isNew = computed(() => gateway.state === undefined)
 
 const name = computed(() =>
   gateway.state?.context.credentials.name
-   ?? discovery.state?.context.results.get(props.id)?.name
-   ?? 'Unknown gateway',
+  ?? discovery.state?.context.results.get(props.id)?.name
+  ?? 'Unknown gateway',
 )
 
 const version = computed(() =>
   gateway.state?.context.config?.swversion
-   ?? discovery.state?.context.results.get(props.id)?.version,
+  ?? discovery.state?.context.results.get(props.id)?.version,
 )
 
 const devices = computed(() => {
@@ -100,7 +100,7 @@ function removeGateway() {
           <template v-else-if="gateway.state!.matches('offline.disabled')">
             <v-alert type="info" title="Info">
               The gateway is disabled.
-              <v-btn v-if="gateway.state!.can('CONNECT')" @click="gateway.send('CONNECT')">
+              <v-btn v-if="gateway.state!.can({ type: 'CONNECT' })" @click="gateway.send({ type: 'CONNECT' })">
                 Connect
               </v-btn>
             </v-alert>

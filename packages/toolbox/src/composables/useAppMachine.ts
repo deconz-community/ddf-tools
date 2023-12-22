@@ -1,8 +1,6 @@
 import type { App, MaybeRef } from 'vue'
-import createXStateNinjaSingleton from 'xstate-ninja'
-import { interpret } from 'xstate'
+import { createActor } from 'xstate'
 import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
-import { inspect } from '@xstate/inspect'
 import { useXstateActor } from './xstate/useXstateActor'
 import { useXstateSelector } from './xstate/useXstateSelector'
 import { appMachine } from '~/machines/app'
@@ -132,12 +130,14 @@ export function createAppMachine() {
       const scope = getCurrentScope() ?? effectScope()
       scope.run(() => {
         const toDispose: (() => void)[] = []
-        const devTools = import.meta.env.VITE_DEBUG === 'true'
+
+        // const devTools = import.meta.env.VITE_DEBUG === 'true'
 
         // console.log('Debug mode', devTools)
 
         // TODO migrate to @statelyai/inspect
 
+        /*
         if (devTools) {
           const enableInspect = false
           if (enableInspect) {
@@ -146,12 +146,11 @@ export function createAppMachine() {
             })
           }
         }
+        */
 
         // console.log('Interpreting machine')
 
-        const service = interpret(appMachine, {
-          devTools,
-        })
+        const service = createActor(appMachine)
 
         // console.log('Starting service')
 
@@ -160,12 +159,14 @@ export function createAppMachine() {
 
         // console.log('App machine started')
 
+        /*
         if (devTools) {
           // Handle Ninja registration
           const ninja = createXStateNinjaSingleton()
           ninja.register(service)
           toDispose.push(() => ninja.unregister(service))
         }
+        */
 
         // Cleanup
         onScopeDispose(() => {

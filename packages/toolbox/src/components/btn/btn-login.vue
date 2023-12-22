@@ -27,7 +27,7 @@ const loginUrl = computed(() => {
 
 async function logout() {
   await store.client?.logout()
-  store.send('LOGOUT')
+  store.send({ type: 'LOGOUT' })
   createSnackbar({ text: 'Logged out.' })
 }
 </script>

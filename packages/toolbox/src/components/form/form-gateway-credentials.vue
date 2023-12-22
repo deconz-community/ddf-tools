@@ -16,9 +16,9 @@ const { cloned: credentials, sync: resetCredentials } = useCloned(
 )
 
 /*
-const canConnect = computed(() => state.value?.can('CONNECT'))
-const cantPrevious = computed(() => !state.can('PREVIOUS'))
-const cantNext = computed(() => !state.can('NEXT'))
+const canConnect = computed(() => state.value?.can({type:'CONNECT'}))
+const cantPrevious = computed(() => !state.can({type:'PREVIOUS'}))
+const cantNext = computed(() => !state.can({type:'NEXT'}))
 */
 
 async function fetchKey() {
@@ -103,15 +103,15 @@ function save() {
       <v-card-actions v-if="gateway.state.matches('offline.editing')">
         <v-btn
           elevation="2"
-          :disabled="gateway.state.can('PREVIOUS') !== true"
-          @click="gateway.send('PREVIOUS')"
+          :disabled="gateway.state.can({ type: 'PREVIOUS' }) !== true"
+          @click="gateway.send({ type: 'PREVIOUS' })"
         >
           Previous
         </v-btn>
         <v-btn
           elevation="2"
-          :disabled="gateway.state.can('NEXT') !== true"
-          @click="gateway.send('NEXT')"
+          :disabled="gateway.state.can({ type: 'NEXT' }) !== true"
+          @click="gateway.send({ type: 'NEXT' })"
         >
           Next
         </v-btn>

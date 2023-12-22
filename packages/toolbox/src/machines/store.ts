@@ -23,14 +23,10 @@ export interface StoreContext {
 }
 
 export const storeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEELK8+ABuaADWOME44fiR0bEIBKmhVDL4gkIV8hJSMbLyiggAtEoq2MzmRl46ar66rIZWtggqDmpemiZTXqwm+nrjAUHoITl5MfhxCZF4KemZK9kRURtQhXsldeXC-MwiSCA10vUPjU26DkrOuhPMc8zMQxfIbKP7qCZTEwzOYLLxLEBZMLHfKbYhgDAYTDYMQAGyotEwAFtsIi1icCkU0JcyhUqg8nlcGogZoZsMYvKZDLo1PoptyQSMweNJppeeMZjM1PDEbIcQQaPhZNZCWgAK6wYgAGQA8gBxACSADk6eJJM85K9EE1AQ5XDpWHpWK0OoCBYZfNgYU5PJpDHoDNLDthZfKkbkTpAtXrtQBVAAqJseZsZluaNvarQdjuduldNkQTlYbKBpmhZnmhkDPGD+DlOzJ0UjMYACgARACCcYAogB9ZsAJW1ADF9Zqu4mGWUmc0NJpsD8vCYdJpRaZgfmEFyvPOlCvWH8TO53CYq1hiC2O92ewBlOPa-u9mP9zUT5NT1NNLxg1q5jm9LzOO4gwbh6mhOv0rBeN0f7dAEgQgIqEBwPIWTVG+LygG8QKqAuS6sCuRhLpYG5NIY24-pMBhqMw+jjKwUrwYifAoGhtTvphyhjBoRg-EYpjmAKrjYPhrjjDyzAAV8Sinkc4YolArHmtOTQmKoUFgapaizCYhgAvoxHDDRSjYG4uauFyEGsEYMk1nWYCKSmHEzvo264cuq5EQKSguZ6QLuD83l-N00mMUGIY7BQir4MqarwPS6EWk5zBzoeKh+gMBE+EoAo8kWS7umoulAr6fw2eFsnrJADnsQoVqtNuhZePo3jaFZAECqKqiFr6ZEzB8EllbQtB2dVGG1QgEysqKOi6N5q76G4XnzCZzj7kCUKim1cF+EAA */
 
   id: 'store',
 
-  predictableActionArguments: true,
-  tsTypes: {} as import('./store.typegen').Typegen0,
-
-  schema: {
+  types: {
     context: {} as StoreContext,
     events: {} as {
       type: 'LOGIN' | 'UPDATE_PROFILE'
@@ -41,6 +37,7 @@ export const storeMachine = createMachine({
       type: 'UPDATE_DIRECTUS_URL'
       directusUrl: string
     },
+    /*
     services: {} as {
       connectToDirectus: {
         data: {
@@ -53,6 +50,7 @@ export const storeMachine = createMachine({
         data: void
       }
     },
+    */
   },
 
   context: {
@@ -74,7 +72,7 @@ export const storeMachine = createMachine({
 
         onDone: [{
           target: 'online.connected',
-          cond: 'isAuthenticated',
+          guard: 'isAuthenticated',
         }, 'online.anonymous'],
       },
 
@@ -101,7 +99,7 @@ export const storeMachine = createMachine({
 
             UPDATE_PROFILE: {
               target: 'connected',
-              internal: true,
+              // reenter: false, // TODO check if this is needed
               actions: 'updateProfile',
             },
           },
@@ -132,9 +130,9 @@ export const storeMachine = createMachine({
       ],
     },
   },
-}, {
+}).provide({
   actions: {
-    useDirectus: assign((context, event) => produce(context, (draft) => {
+    useDirectus: assign(({ context, event }) => produce(context, (draft) => {
       if (event.type === 'done.invoke.store.connecting:invocation[0]') {
         // TODO fix this, the type is not correct but it's working
         draft.directus = event.data.directus as any
@@ -146,17 +144,17 @@ export const storeMachine = createMachine({
       }
     })),
 
-    updateProfile: assign((context, event) => produce(context, (draft) => {
+    updateProfile: assign(({ context, event }) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
 
-    updateDirectusUrl: assign((context, event) => produce(context, (draft) => {
+    updateDirectusUrl: assign(({ context, event }) => produce(context, (draft) => {
       draft.directusUrl = event.directusUrl
     })),
 
     saveAppSettings: sendParent('SAVE_SETTINGS'),
 
-    connectWebsocket: assign(context => produce(context, (draft) => {
+    connectWebsocket: assign(({ context }) => produce(context, (draft) => {
       context.directus?.connect()
       draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
         if (message.type !== 'notification')
@@ -165,7 +163,7 @@ export const storeMachine = createMachine({
       })
     })),
 
-    disconnectWebsocket: assign(context => produce(context, (draft) => {
+    disconnectWebsocket: assign(({ context }) => produce(context, (draft) => {
       context.directus?.disconnect()
       context.websocketEventHandlerRemover?.()
       delete draft.websocketEventHandlerRemover
@@ -173,10 +171,10 @@ export const storeMachine = createMachine({
 
   },
   guards: {
-    isAuthenticated: (context, event) => event.data.isAuthenticated === true,
+    isAuthenticated: ({ event }) => event.data.isAuthenticated === true,
   },
-  services: {
-    connectToDirectus: async (context, event) => {
+  actors: {
+    connectToDirectus: async ({ context }) => {
       const makeBaseClient = () => {
         return createDirectus<Schema>(context.directusUrl)
           .with(rest({
@@ -246,7 +244,7 @@ export const storeMachine = createMachine({
       }
     },
 
-    watchProfile: context => async (sendBack) => {
+    watchProfile: ({ context }) => async (sendBack) => {
       const profile = await context.directus?.request(readMe())
       if (profile)
         sendBack({ type: 'UPDATE_PROFILE', profile })

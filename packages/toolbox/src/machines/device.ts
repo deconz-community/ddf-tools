@@ -1,4 +1,4 @@
-import { assign, createMachine } from 'xstate'
+import { assign, createMachine, fromPromise } from 'xstate'
 import type { Gateway, Response } from '@deconz-community/rest-client'
 
 export interface deviceContext {
@@ -8,21 +8,12 @@ export interface deviceContext {
 }
 
 export const deviceMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QTANwJYGMwDp0QBswBiAD1gBcBDC3KgM1oCcAKAZgAYuuBKYlDNjyEwAbQ4BdRKAAOAe1joK6OQDtpIUogBMARl05dAVgBs2owBoQAT0S6uAXwdWBWXPTAVMAC3Sqo-Gq4fqhyANa4rkIeXr7+CCFymDQqquIS6RryispqGloIALScOEYA7AAcuuZWtgh6ACw4ZWVsDWxlRk4uaG44MT5+AWBMTHJMODIENPTjALY4Ue6eg-GJyblpkplIINlKqfmIbBUmOACcHZY2Oh2lTs4gqnIo8LtLWQoHebsFhZWlSrVa51fTdEBLYRET45Q6-RD-HAmXRlXQVTq1RDnCr3R6QgZxKAw77qeEIFFNIxsYGY+rVXE9QS4EZjJjEzZHBBGCpNE7aKo1G71NgmB4OIA */
   id: 'device',
-  predictableActionArguments: true,
 
-  tsTypes: {} as import('./device.typegen').Typegen0,
+  // TODO use input
+  context: ({ input }) => (input),
 
-  schema: {
-    context: {} as deviceContext,
-    services: {} as {
-      fetchData: {
-        data: Response<'getDevice'>
-      }
-    },
-  },
-
+  initial: 'fetching',
   states: {
     idle: {
       after: {
@@ -33,6 +24,10 @@ export const deviceMachine = createMachine({
     fetching: {
       invoke: {
         src: 'fetchData',
+        input: ({ context }) => ({
+          gateway: context.gateway,
+          id: context.id,
+        }),
 
         onDone: {
           target: 'idle',
@@ -46,24 +41,22 @@ export const deviceMachine = createMachine({
     error: {},
   },
 
-  initial: 'fetching',
-}, {
-  services: {
-    fetchData: (context) => {
-      /*
-      console.log('fetchData', typeof context.gateway.getDevice)
-      console.log('fetchData', context.gateway.getDevice)
-      */
-      return context.gateway.getDevice({
+}).provide({
+  actors: {
+    fetchData: fromPromise(({ input }) => {
+      // console.log('fetchData', typeof context.gateway.getDevice)
+      // console.log('fetchData', context.gateway.getDevice)
+
+      return input.gateway.getDevice({
         params: {
-          deviceUniqueID: context.id,
+          deviceUniqueID: input.id,
         },
       })
-    },
+    }),
   },
   actions: {
     saveData: assign({
-      data: (context, event) => event.data.success,
+      data: ({ event }) => event.data.success,
     }),
   },
 })
