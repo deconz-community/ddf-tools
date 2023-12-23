@@ -25,19 +25,6 @@ export const gatewayMachine = setup({
       credentials: GatewayCredentials
     },
 
-    /*
-    services: {} as {
-      connectToGateway: {
-        data: FindGatewayResult
-      }
-      fetchDevices: {
-        data: Result<string[], never>
-      }
-      createApiKey: {
-        data: Result<string, never>
-      }
-    },
-    */
   },
 
   actors: {
@@ -143,8 +130,10 @@ export const gatewayMachine = setup({
                   newList
                     .filter(uuid => !oldList.includes(uuid))
                     .forEach((uuid) => {
+                      const id = `device-${context.credentials.id}-${uuid}`
                       devices.set(uuid, spawn('deviceMachine', {
-                        id: uuid,
+                        id,
+                        systemId: id,
                         input: {
                           deviceID: uuid,
                           gatewayClient: context.gateway!,
