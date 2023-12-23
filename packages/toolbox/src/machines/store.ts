@@ -1,4 +1,4 @@
-import { assign, createMachine, sendParent } from 'xstate'
+import { assign, fromPromise, raise, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, readSettings, realtime, rest, serverHealth } from '@directus/sdk'
@@ -22,9 +22,7 @@ export interface StoreContext {
   websocketEventHandlerRemover?: () => void
 }
 
-export const storeMachine = createMachine({
-
-  id: 'store',
+export const storeMachine = setup({
 
   types: {
     context: {} as StoreContext,
@@ -37,21 +35,11 @@ export const storeMachine = createMachine({
       type: 'UPDATE_DIRECTUS_URL'
       directusUrl: string
     },
-    /*
-    services: {} as {
-      connectToDirectus: {
-        data: {
-          directus: StoreContext['directus']
-          settings: StoreContext['settings']
-          isAuthenticated: boolean
-        }
-      }
-      watchProfile: {
-        data: void
-      }
-    },
-    */
   },
+
+}).createMachine({
+
+  id: 'store',
 
   context: {
     // directusUrl: import.meta.env.VITE_DIRECTUS_URL
@@ -67,16 +55,109 @@ export const storeMachine = createMachine({
 
     connecting: {
       invoke: {
-        src: 'connectToDirectus',
-        onError: 'offline',
+        input: ({ context }) => ({
+          directusUrl: context.directusUrl,
+        }),
+        src: fromPromise(async ({ input }: {
+          input: {
+            directusUrl: string
+          }
+        }) => {
+          const makeBaseClient = () => {
+            return createDirectus<Schema>(input.directusUrl)
+              .with(rest({
+                onRequest: (fetchOptions) => {
+                  let timeout = 3000
+                  if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
+                    const timeoutHeader = fetchOptions.headers['X-Timeout']
+                    if (typeof timeoutHeader === 'string') {
+                      const converted = Number.parseInt(timeoutHeader)
+                      if (!Number.isNaN(converted))
+                        timeout = converted
+                    }
+                  }
+                  const abortController = new AbortController()
+                  const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
+                  fetchOptions.signal = abortController.signal
+                  fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
+                  return fetchOptions
+                },
+                onResponse: (_result, fetchOptions) => {
+                  if (fetchOptions.signal?.aborted === false)
+                    fetchOptions.signal.dispatchEvent(new Event('abort'))
+                  return _result
+                },
+              }))
+              .with(realtime({
+                authMode: 'handshake',
+                reconnect: {
+                  delay: 1000,
+                  retries: 10,
+                },
+                heartbeat: true,
+              }))
+          }
 
-        onDone: [{
-          target: 'online.connected',
-          guard: 'isAuthenticated',
-        }, 'online.anonymous'],
+          const baseClient = makeBaseClient()
+
+          const client = baseClient.with(authentication('cookie', {
+            credentials: 'include', // TODO What do this does ?
+          }))
+
+          const health = await client.request(serverHealth())
+
+          if (health.status !== 'ok')
+            throw new Error('Could not connect to Directus')
+
+          const settings = await client.request(readSettings())
+
+          try {
+            const auth = await client.refresh()
+            if (auth.access_token !== null) {
+              return {
+                directus: client,
+                settings,
+                isAuthenticated: true,
+              }
+            }
+          }
+          catch (e) {
+            // console.error(e)
+          }
+
+          return {
+            directus: baseClient,
+            settings,
+            isAuthenticated: false,
+          }
+        }),
+
+        onError: {
+          target: 'offline',
+          actions: assign(({ context }) => produce(context, (draft) => {
+            draft.directus = undefined
+            draft.settings = undefined
+          })),
+        },
+        onDone: [
+          {
+            target: 'online.connected',
+            guard: ({ event }) => event.output.isAuthenticated === true,
+            actions: assign(({ context, event }) => produce(context, (draft) => {
+              draft.directus = event.output.directus
+              draft.settings = event.output.settings
+            })),
+          },
+          {
+            target: 'online.anonymous',
+            actions: assign(({ context, event }) => produce(context, (draft) => {
+              draft.directus = event.output.directus
+              draft.settings = event.output.settings
+            })),
+          },
+        ],
+
       },
-
-      exit: 'useDirectus',
     },
 
     online: {
@@ -105,7 +186,16 @@ export const storeMachine = createMachine({
           },
 
           invoke: {
-            src: 'watchProfile',
+            input: ({ context }) => ({
+              directus: context.directus,
+            }),
+            src: fromPromise(async ({ input }: { input: { directus: Directus } }) => {
+              // TODO get updated profile with websocket
+              return await input.directus?.request(readMe())
+            }),
+            onDone: {
+              actions: ({ event }) => raise({ type: 'UPDATE_PROFILE', profile: event.output }),
+            },
           },
 
           entry: 'connectWebsocket',
@@ -125,34 +215,19 @@ export const storeMachine = createMachine({
     UPDATE_DIRECTUS_URL: {
       target: '.connecting',
       actions: [
-        'updateDirectusUrl',
-        'saveAppSettings',
+        assign(({ context, event }) => produce(context, (draft) => {
+          draft.directusUrl = event.directusUrl
+        })),
+        // TODO 'saveAppSettings',
       ],
     },
   },
-}).provide({
+
   actions: {
-    useDirectus: assign(({ context, event }) => produce(context, (draft) => {
-      if (event.type === 'done.invoke.store.connecting:invocation[0]') {
-        // TODO fix this, the type is not correct but it's working
-        draft.directus = event.data.directus as any
-        draft.settings = event.data.settings
-      }
-      else {
-        draft.directus = undefined
-        draft.settings = undefined
-      }
-    })),
 
     updateProfile: assign(({ context, event }) => produce(context, (draft) => {
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
-
-    updateDirectusUrl: assign(({ context, event }) => produce(context, (draft) => {
-      draft.directusUrl = event.directusUrl
-    })),
-
-    saveAppSettings: sendParent('SAVE_SETTINGS'),
 
     connectWebsocket: assign(({ context }) => produce(context, (draft) => {
       context.directus?.connect()
@@ -168,88 +243,6 @@ export const storeMachine = createMachine({
       context.websocketEventHandlerRemover?.()
       delete draft.websocketEventHandlerRemover
     })),
-
-  },
-  guards: {
-    isAuthenticated: ({ event }) => event.data.isAuthenticated === true,
-  },
-  actors: {
-    connectToDirectus: async ({ context }) => {
-      const makeBaseClient = () => {
-        return createDirectus<Schema>(context.directusUrl)
-          .with(rest({
-            onRequest: (fetchOptions) => {
-              let timeout = 3000
-              if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
-                const timeoutHeader = fetchOptions.headers['X-Timeout']
-                if (typeof timeoutHeader === 'string') {
-                  const converted = Number.parseInt(timeoutHeader)
-                  if (!Number.isNaN(converted))
-                    timeout = converted
-                }
-              }
-              const abortController = new AbortController()
-              const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
-              fetchOptions.signal = abortController.signal
-              fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
-              return fetchOptions
-            },
-            onResponse: (_result, fetchOptions) => {
-              if (fetchOptions.signal?.aborted === false)
-                fetchOptions.signal.dispatchEvent(new Event('abort'))
-              return _result
-            },
-          }))
-          .with(realtime({
-            authMode: 'handshake',
-            reconnect: {
-              delay: 1000,
-              retries: 10,
-            },
-            heartbeat: true,
-          }))
-      }
-
-      const baseClient = makeBaseClient()
-
-      const client = baseClient.with(authentication('cookie', {
-        credentials: 'include', // TODO What do this does ?
-      }))
-
-      const health = await client.request(serverHealth())
-
-      if (health.status !== 'ok')
-        throw new Error('Could not connect to Directus')
-
-      const settings = await client.request(readSettings())
-
-      try {
-        const auth = await client.refresh()
-        if (auth.access_token !== null) {
-          return {
-            directus: client,
-            settings,
-            isAuthenticated: true,
-          }
-        }
-      }
-      catch (e) {
-        // console.error(e)
-      }
-
-      return {
-        directus: baseClient,
-        settings,
-        isAuthenticated: false,
-      }
-    },
-
-    watchProfile: ({ context }) => async (sendBack) => {
-      const profile = await context.directus?.request(readMe())
-      if (profile)
-        sendBack({ type: 'UPDATE_PROFILE', profile })
-      // TODO get updated profile with websocket
-    },
 
   },
 })

@@ -58,7 +58,7 @@ function getMachine<Type extends AppMachine['type']>(
         return app
 
       case 'discovery':
-        if (state.children.discovery)
+        if (state.children)
           return state.children.discovery
         break
 

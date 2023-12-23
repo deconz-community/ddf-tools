@@ -55,9 +55,11 @@ export const appMachine = setup({
   actions: {
     init: assign({
       discovery: ({ spawn }) => spawn('discoveryMachine', {
+        id: 'discovery',
         systemId: 'discovery',
       }),
       store: ({ spawn }) => spawn('storeMachine', {
+        id: 'store',
         systemId: 'store',
       }),
       gateways: new Map(),
