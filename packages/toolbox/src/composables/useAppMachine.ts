@@ -1,6 +1,7 @@
 import type { App, MaybeRef } from 'vue'
 import { createActor } from 'xstate'
-import type { AnyStateMachine, EventFrom, InterpreterFrom, StateFrom } from 'xstate'
+import type { Actor, AnyStateMachine, EventFrom, StateFrom } from 'xstate'
+import { createBrowserInspector } from '@statelyai/inspect'
 import { useXstateActor } from './xstate/useXstateActor'
 import { useXstateSelector } from './xstate/useXstateSelector'
 import { appMachine } from '~/machines/app'
@@ -10,7 +11,7 @@ import type { deviceMachine } from '~/machines/device'
 import type { storeMachine } from '~/machines/store'
 
 export interface AppMachinePart<Type extends AnyStateMachine> {
-  interpreter: InterpreterFrom<Type>
+  actor: Actor<Type>
   state: StateFrom<Type>
   events: EventFrom<Type>
 }
@@ -25,12 +26,12 @@ export type AppMachine =
 export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
 export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
 
-export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['interpreter']> = Symbol('AppMachine')
+export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['actor']> = Symbol('AppMachine')
 
 export interface UseAppMachine<Type extends AppMachine['type']> {
   client: any
   state: ExtractMachine<Type>['state'] | undefined
-  send: ExtractMachine<Type>['interpreter']['send']
+  send: ExtractMachine<Type>['actor']['send']
 }
 
 export function useAppMachine<Type extends AppMachine['type']>(
@@ -44,11 +45,10 @@ export function useAppMachine<Type extends AppMachine['type']>(
     throw new Error('useAppMachine() is called but was not created.')
 
   return effectScope().run(() => getMachine(app, args[0], args[1])) as any
-  // return scope.run(() => foo(app, ...args)) as any
 }
 
 function getMachine<Type extends AppMachine['type']>(
-  app: ExtractMachine<'app'>['interpreter'],
+  app: ExtractMachine<'app'>['actor'],
   type: Type,
   _query?: MaybeRef<MachineQuery<Type>>,
 ): UseAppMachine<Type> {
@@ -63,7 +63,7 @@ function getMachine<Type extends AppMachine['type']>(
         break
 
       case 'store':
-        if (state.children.store)
+        if (state.children)
           return state.children.store
         break
 
@@ -101,7 +101,7 @@ function getMachine<Type extends AppMachine['type']>(
   }
 
   const stateRef = shallowRef<ExtractMachine<Type>['state'] | undefined>(actorRef.value?.getSnapshot())
-  const sendRef = shallowRef<ExtractMachine<Type>['interpreter']['send']>(logEvent as any)
+  const sendRef = shallowRef<ExtractMachine<Type>['actor']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
   watch(actorRef, (newActor) => {
@@ -128,45 +128,23 @@ export function createAppMachine() {
   return markRaw({
     install(app: App) {
       const scope = getCurrentScope() ?? effectScope()
+
       scope.run(() => {
         const toDispose: (() => void)[] = []
 
-        // const devTools = import.meta.env.VITE_DEBUG === 'true'
+        const inspect = import.meta.env.VITE_DEBUG === 'true'
+          ? createBrowserInspector({
+            url: 'https://stately.ai/registry/inspect',
+          }).inspect
+          : undefined
 
-        // console.log('Debug mode', devTools)
-
-        // TODO migrate to @statelyai/inspect
-
-        /*
-        if (devTools) {
-          const enableInspect = false
-          if (enableInspect) {
-            inspect({
-              iframe: false,
-            })
-          }
-        }
-        */
-
-        // console.log('Interpreting machine')
-
-        const service = createActor(appMachine)
-
-        // console.log('Starting service')
+        const service = createActor(appMachine, {
+          inspect,
+        })
 
         service.start()
+
         toDispose.push(() => service.stop())
-
-        // console.log('App machine started')
-
-        /*
-        if (devTools) {
-          // Handle Ninja registration
-          const ninja = createXStateNinjaSingleton()
-          ninja.register(service)
-          toDispose.push(() => ninja.unregister(service))
-        }
-        */
 
         // Cleanup
         onScopeDispose(() => {

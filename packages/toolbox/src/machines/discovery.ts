@@ -83,6 +83,8 @@ export const discoveryMachine = setup({
     results: new Map(),
   }),
 
+  initial: 'idle',
+
   states: {
     idle: {
       on: {
@@ -115,8 +117,6 @@ export const discoveryMachine = setup({
       entry: 'cleanupResults',
     },
   },
-
-  initial: 'idle',
 
 }).provide({
   actions: {

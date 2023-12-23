@@ -1,10 +1,10 @@
 import type { ActorRefFrom } from 'xstate'
-import { assign, createMachine, enqueueActions, fromCallback, fromPromise, raise, sendTo, spawn, stop } from 'xstate'
+import { assign, setup } from 'xstate'
 import { z } from 'zod'
 import { enableMapSet, produce } from 'immer'
 import { discoveryMachine } from './discovery'
-import { gatewayMachine } from './gateway'
 import { storeMachine } from './store'
+import { gatewayMachine } from './gateway'
 
 enableMapSet()
 
@@ -28,17 +28,12 @@ export type StorageSchema = z.output<typeof storageSchema>
 export type GatewayCredentials = StorageSchema['credentials'][string]
 
 export interface AppContext {
-  machine: {
-    discovery: ActorRefFrom<typeof discoveryMachine>
-    store: ActorRefFrom<typeof storeMachine>
-    gateways: Map<string, ActorRefFrom<typeof gatewayMachine>>
-  }
+  discovery: ActorRefFrom<typeof discoveryMachine>
+  store: ActorRefFrom<typeof storeMachine>
+  gateways: Map<string, ActorRefFrom<typeof gatewayMachine>>
 }
 
-export const appMachine = createMachine({
-
-  id: 'app',
-
+export const appMachine = setup({
   types: {
     context: {} as AppContext,
     events: {} as {
@@ -51,13 +46,117 @@ export const appMachine = createMachine({
       type: 'REMOVE_GATEWAY'
       id: string
     } | {
-      type: 'SAVE_SETTINGS' | 'LOAD_SETTINGS'
+      type: 'SAVE_SETTINGS'
+    } | {
+      type: 'LOAD_SETTINGS'
     },
   },
 
+  actions: {
+    init: assign({
+      discovery: ({ spawn }) => spawn('discoveryMachine', {
+        systemId: 'discovery',
+      }),
+      store: ({ spawn }) => spawn('storeMachine', {
+        systemId: 'store',
+      }),
+      gateways: new Map(),
+    }),
+
+    loadSettings: ({ self }) => {
+      try {
+        const saved = localStorage.getItem(storageKey)
+        if (!saved)
+          return
+        const parsed = JSON.parse(saved)
+        const data = storageSchema.parse(parsed)
+
+        Object
+          .values(data.credentials)
+          .forEach((credentials: GatewayCredentials) => self.send({
+            type: 'ADD_GATEWAY',
+            credentials,
+          }))
+
+        if (data.storeUrl) {
+          /*
+          context.machine.store.send({
+            type: 'UPDATE_DIRECTUS_URL',
+            directusUrl: data.storeUrl,
+          })
+          */
+        }
+      }
+      catch (e) {
+        console.error(e)
+      }
+    },
+
+    saveSettings: () => {
+
+    },
+
+    spawnGateway: assign({
+      gateways: ({ context, event, spawn }) => produce(context.gateways, (draft) => {
+        if (event.type !== 'ADD_GATEWAY')
+          return
+
+        const { credentials } = event
+
+        draft.set(credentials.id, spawn('gatewayMachine', {
+          id: `gateway-${credentials.id}`,
+          systemId: `gateway-${credentials.id}`,
+          input: {
+            credentials,
+          },
+        }))
+      }),
+    }),
+
+  },
+
+  actors: {
+    discoveryMachine,
+    storeMachine,
+    gatewayMachine,
+  },
+
+}).createMachine({
+
+  id: 'app',
+
   context: {} as AppContext,
 
+  entry: [
+    'init',
+    'loadSettings',
+  ],
+
   on: {
+    LOAD_SETTINGS: {
+      actions: {
+        type: 'loadSettings',
+      },
+    },
+    SAVE_SETTINGS: {
+      actions: {
+        type: 'saveSettings',
+      },
+    },
+
+    ADD_GATEWAY: {
+      actions: 'spawnGateway',
+    },
+
+    /*
+    ADD_GATEWAY: {
+      target: '#app',
+      actions: [
+        'spawnGateway',
+      ],
+    },
+    */
+    /*
     ADD_GATEWAY: {
       actions: [
         'spawnGateway',
@@ -76,59 +175,25 @@ export const appMachine = createMachine({
         raise({ type: 'SAVE_SETTINGS' }),
       ],
     },
+    */
   },
 
-  states: {
-    settings: {
-      states: {
-        idle: {
-          on: {
-            SAVE_SETTINGS: 'saving',
-            LOAD_SETTINGS: 'loading',
-          },
-        },
-        loading: {
-          invoke: {
-            src: 'loadSettings',
-            onDone: 'idle',
-          },
-        },
-        saving: {
-          invoke: {
-            src: 'saveSettings',
-            onDone: 'idle',
-          },
-        },
-      },
-
-      initial: 'loading',
-    },
-  },
-
-  entry: 'init',
-  type: 'parallel',
 }).provide({
   actions: {
-    init: assign({
-      machine: () => {
-        return {
-          discovery: spawn(discoveryMachine, 'discovery'),
-          store: spawn(storeMachine, 'store'),
-          gateways: new Map(),
-        }
-      },
-    }),
 
+    /*
     spawnGateway: assign({
       machine: ({ context, event }) => produce(context.machine, (draft) => {
         const { credentials } = event
-        const newMachine = spawn(gatewayMachine, credentials.id)
-        /*
-        const newMachine = spawn(gatewayMachine.withContext(structuredClone({
-          ...gatewayMachine.context,
-          credentials,
-        })), credentials.id)
-        */
+        const newMachine = createActor(gatewayMachine, {
+          systemId: credentials.id,
+        })
+
+        //const newMachine = spawn(gatewayMachine.withContext(structuredClone({
+        //  ...gatewayMachine.context,
+        //  credentials,
+        //})), credentials.id)
+
         draft.gateways.set(credentials.id, newMachine)
       }),
     }),
@@ -147,7 +212,7 @@ export const appMachine = createMachine({
     stopGateway: enqueueActions(({ context, event, enqueue }) => {
       const { id } = event
       if (context.machine.gateways.has(id)) {
-        enqueue(stop(id))
+        enqueue(stopChild(id))
         enqueue(assign({
           machine: produce(context.machine, (draft) => {
             draft.gateways.delete(id)
@@ -155,8 +220,10 @@ export const appMachine = createMachine({
         }))
       }
     }),
+    */
   },
   actors: {
+    /*
     saveSettings: fromPromise(async ({ context }) => {
       const data: StorageSchema = {
         storeUrl: context.machine.store.getSnapshot()?.context.directusUrl,
@@ -173,29 +240,7 @@ export const appMachine = createMachine({
       localStorage.setItem(storageKey, JSON.stringify(data))
     }),
 
-    loadSettings: fromCallback(({ sendBack, receive, input, context }) => {
-      try {
-        const saved = localStorage.getItem(storageKey)
-        if (!saved)
-          return
-        const parsed = JSON.parse(saved)
-        const data = storageSchema.parse(parsed)
-        Object.values(data.credentials).forEach((credentials: GatewayCredentials) => sendBack({
-          type: 'ADD_GATEWAY',
-          credentials,
-        }))
-
-        if (data.storeUrl) {
-          context.machine.store.send({
-            type: 'UPDATE_DIRECTUS_URL',
-            directusUrl: data.storeUrl,
-          })
-        }
-      }
-      catch (e) {
-        console.error(e)
-      }
-    }),
+    */
 
   },
 

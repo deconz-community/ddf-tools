@@ -1,21 +1,17 @@
-import { assign, createMachine, sendParent, spawn } from 'xstate'
-import { FindGateway } from '@deconz-community/rest-client'
-import type { Gateway, Response } from '@deconz-community/rest-client'
-import { Ok } from 'ts-results-es'
+import type { ActorRefFrom } from 'xstate'
+import { assign, fromPromise, setup } from 'xstate'
+import { FindGateway, type Gateway, type Response } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
-import type { UseAppMachine } from '~/composables/useAppMachine'
 
 export interface gatewayContext {
   credentials: GatewayCredentials
   gateway?: ReturnType<typeof Gateway>
-  devices: Record<string, UseAppMachine<'device'>>
+  devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config: Response<'getConfig'>['success']
 }
 
-export const gatewayMachine = createMachine({
-
-  id: 'gateway',
+export const gatewayMachine = setup({
 
   types: {
     context: {} as gatewayContext,
@@ -25,6 +21,10 @@ export const gatewayMachine = createMachine({
       type: 'UPDATE_CREDENTIALS'
       data: GatewayCredentials
     },
+    input: {} as {
+      credentials: GatewayCredentials
+    },
+
     /*
     services: {} as {
       connectToGateway: {
@@ -40,40 +40,41 @@ export const gatewayMachine = createMachine({
     */
   },
 
-  // TODO use input
+  actors: {
+    deviceMachine,
+    connectToGateway: fromPromise(({ input }: {
+      input: {
+        URIs: string[]
+        apiKey: string
+        expectedBridgeID: string
+      }
+    }) => {
+      return FindGateway(input.URIs, input.apiKey, input.expectedBridgeID)
+    }),
+    fetchDevices: fromPromise(async ({ input }: {
+      input: {
+        gateway: ReturnType<typeof Gateway>
+      }
+    }) => {
+      return input.gateway.getDevices()
+    }),
+  },
+
+}).createMachine({
+
+  id: 'gateway',
+
   context: ({ input }) => ({
-    credentials: {
-      apiKey: '<nouser>',
-      id: '<unknown>',
-      name: '',
-      URIs: {
-        api: [],
-        websocket: [],
-      },
-    },
+    credentials: input.credentials,
     gateway: undefined,
-    devices: {},
+    devices: new Map(),
     config: undefined,
   }),
 
-  /*
-  context: {
-    credentials: {
-      apiKey: '<nouser>',
-      id: '<unknown>',
-      name: '',
-      URIs: {
-        api: [],
-        websocket: [],
-      },
-    },
-    gateway: undefined,
-    devices: {},
-    config: undefined,
-  },
-  */
+  initial: 'init',
 
   states: {
+
     init: {
       after: {
         500: 'connecting',
@@ -81,24 +82,40 @@ export const gatewayMachine = createMachine({
     },
 
     connecting: {
-      invoke: [{
+      invoke: {
         src: 'connectToGateway',
-
-        onDone: [{
-          target: 'online.poolingDevices',
-          guard: 'isOk',
-          actions: 'useClient',
-        }, {
-          target: 'offline.error.unreachable',
-          guard: 'isUnreachable',
-        }, {
-          target: 'offline.error.invalidApiKey',
-          guard: 'isInvalidAPIKey',
-        }, 'offline.error'],
-      }],
+        input: ({ context }) => ({
+          URIs: context.credentials.URIs.api,
+          apiKey: context.credentials.apiKey,
+          expectedBridgeID: context.credentials.id,
+        }),
+        onDone: [
+          {
+            target: 'online.poolingDevices',
+            guard: ({ event }) => event.output.isOk() && event.output.unwrap().code === 'ok',
+            actions: assign({
+              gateway: ({ event }) => event.output.unwrap().gateway,
+            }),
+          },
+          {
+            target: 'offline.error.unreachable',
+            guard: ({ event }) => event.output.isErr() && event.output.unwrapErr().code === 'unreachable',
+          },
+          {
+            target: 'offline.error.invalidApiKey',
+            guard: ({ event }) => event.output.isOk() && ['invalid_api_key', 'bridge_id_mismatch'].includes(event.output.unwrap().code),
+          },
+          {
+            target: 'offline.error',
+          },
+        ],
+      },
     },
 
     online: {
+
+      initial: 'idle',
+
       states: {
         idle: {
           on: {
@@ -113,19 +130,49 @@ export const gatewayMachine = createMachine({
         poolingDevices: {
           invoke: {
             src: 'fetchDevices',
-
+            input: ({ context }) => ({ gateway: context.gateway! }),
             onDone: {
               target: 'idle',
-              actions: 'updateDevices',
-            },
+              actions: assign({
+                devices: ({ context, event, spawn }) => {
+                  const { devices } = context
 
-            id: 'fetchDevices',
+                  const newList = event.output.success ?? []
+                  const oldList = Array.from(devices.keys())
+
+                  newList
+                    .filter(uuid => !oldList.includes(uuid))
+                    .forEach((uuid) => {
+                      devices.set(uuid, spawn('deviceMachine', {
+                        id: uuid,
+                        input: {
+                          deviceID: uuid,
+                          gatewayClient: context.gateway!,
+                        },
+                      }))
+                    })
+                  oldList
+                    .filter(uuid => !newList.includes(uuid))
+                    .forEach((uuid) => {
+                      devices.get(uuid)?.stop()
+                      devices.delete(uuid)
+                    })
+                  return devices
+                },
+              }),
+            },
           },
         },
       },
 
-      initial: 'idle',
-      exit: 'updateDevices',
+      exit: assign({
+        devices: ({ context }) => {
+          const { devices } = context
+          devices.forEach(device => device.stop())
+          devices.clear()
+          return devices
+        },
+      }),
     },
 
     offline: {
@@ -180,84 +227,18 @@ export const gatewayMachine = createMachine({
         CONNECT: 'connecting',
       },
     },
+
   },
 
-  initial: 'init',
-
   on: {
+    /*
     UPDATE_CREDENTIALS: {
       target: '.init',
       actions: ['updateCredentials', 'saveSettings'],
     },
 
     EDIT_CREDENTIALS: '.offline.editing',
+    */
   },
 
-}).provide({
-  actors: {
-    connectToGateway: ({ context }) => FindGateway(context.credentials.URIs.api, context.credentials.apiKey, context.credentials.id),
-    fetchDevices: ({ context }) => new Promise((resolve, reject) => {
-      if (!context.gateway)
-        return reject(new Error('No gateway client'))
-      context.gateway.getDevices().then((result) => {
-        resolve(Ok(result.success!))
-      })
-    }),
-
-  },
-  actions: {
-    useClient: assign({
-      gateway: ({ context, event }) => event.data.unwrap().gateway,
-    }),
-    updateCredentials: assign({
-      credentials: ({ context, event }) => event.data,
-    }),
-
-    saveSettings: sendParent({ type: 'SAVE_SETTINGS' }),
-
-    updateDevices: assign({
-      devices: ({ context, event }) => {
-        const devices = context.devices
-
-        const newList = event.type === 'done.invoke.fetchDevices' ? event.data.unwrap() : []
-        const oldList = objectKeys(devices)
-
-        if (newList.length > 0 && !context.gateway)
-          throw new Error('No gateway client')
-
-        newList
-          .filter(uuid => !oldList.includes(uuid))
-          .forEach((uuid) => {
-            devices[uuid] = spawn(deviceMachine, uuid)
-            /*
-            devices[uuid] = spawn(deviceMachine.withContext({
-              id: uuid,
-              gateway: context.gateway!,
-              data: undefined,
-            }), uuid)
-            */
-          })
-
-        oldList
-          .filter(uuid => !newList.includes(uuid))
-          .forEach((uuid) => {
-            // TODO Fix this
-            devices[uuid].stop?.()
-            delete devices[uuid]
-          })
-
-        return devices
-      },
-    }),
-  },
-  guards: {
-    isOk: ({ context, event }) => event.data.isOk()
-    && event.data.unwrap().code === 'ok',
-    // isErr: ({context, event}) => event.data.isErr(),
-    // TODO, need to handle the bridge_id_mismatch error
-    isInvalidAPIKey: ({ context, event }) => event.data.isOk()
-    && ['invalid_api_key', 'bridge_id_mismatch'].includes(event.data.unwrap().code),
-    isUnreachable: ({ context, event }) => event.data.isErr()
-    && event.data.unwrapErr().code === 'unreachable',
-  },
 })

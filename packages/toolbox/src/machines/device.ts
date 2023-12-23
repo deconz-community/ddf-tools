@@ -1,17 +1,41 @@
-import { assign, createMachine, fromPromise } from 'xstate'
+import { assign, fromPromise, setup } from 'xstate'
 import type { Gateway, Response } from '@deconz-community/rest-client'
 
 export interface deviceContext {
-  id: string
-  gateway: ReturnType<typeof Gateway>
-  data: Response<'getDevice'>['success']
+  deviceID: string
+  gatewayClient: ReturnType<typeof Gateway>
+  // gateway: ReturnType<typeof Gateway>
+  data?: Response<'getDevice'>['success']
 }
 
-export const deviceMachine = createMachine({
+export const deviceMachine = setup({
+
+  types: {
+    context: {} as deviceContext,
+    input: {} as Pick<deviceContext, 'deviceID' | 'gatewayClient'>,
+  },
+  actors: {
+    fetchData: fromPromise(({ input }: {
+      input: {
+        gateway: ReturnType<typeof Gateway>
+        deviceID: string
+      }
+    }) => {
+      return input.gateway.getDevice({
+        params: {
+          deviceUniqueID: input.deviceID,
+        },
+      })
+    }),
+
+  },
+}).createMachine({
   id: 'device',
 
-  // TODO use input
-  context: ({ input }) => (input),
+  context: ({ input }) => ({
+    ...input,
+    data: undefined,
+  }),
 
   initial: 'fetching',
   states: {
@@ -25,38 +49,22 @@ export const deviceMachine = createMachine({
       invoke: {
         src: 'fetchData',
         input: ({ context }) => ({
-          gateway: context.gateway,
-          id: context.id,
+          gateway: context.gatewayClient,
+          deviceID: context.deviceID,
         }),
-
         onDone: {
           target: 'idle',
-          actions: 'saveData',
+          actions: assign({
+            data: ({ event }) => event.output.success,
+          }),
         },
 
         onError: 'error',
       },
+
     },
 
     error: {},
   },
 
-}).provide({
-  actors: {
-    fetchData: fromPromise(({ input }) => {
-      // console.log('fetchData', typeof context.gateway.getDevice)
-      // console.log('fetchData', context.gateway.getDevice)
-
-      return input.gateway.getDevice({
-        params: {
-          deviceUniqueID: input.id,
-        },
-      })
-    }),
-  },
-  actions: {
-    saveData: assign({
-      data: ({ event }) => event.data.success,
-    }),
-  },
 })

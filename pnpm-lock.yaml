@@ -319,6 +319,9 @@ importers:
       '@noble/secp256k1':
         specifier: ^2.0.0
         version: 2.0.0
+      '@statelyai/inspect':
+        specifier: ^0.0.11
+        version: 0.0.11(ws@8.14.2)
       '@vuelidate/core':
         specifier: ^2.0.3
         version: 2.0.3(vue@3.3.13)
@@ -5825,6 +5828,16 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       escape-string-regexp: 5.0.0
+    dev: false
+
+  /@statelyai/inspect@0.0.11(ws@8.14.2):
+    resolution: {integrity: sha512-IgWob6yTiGF4OUb50AStnSOupiZUg4hXTy12SzUS/vpwv60aY1wcPSXrnaRnv5G+xH7zWIILzQlKhIZyiZqJhg==}
+    dependencies:
+      fast-safe-stringify: 2.1.1
+      isomorphic-ws: 5.0.0(ws@8.14.2)
+      xstate: 5.1.0
+    transitivePeerDependencies:
+      - ws
     dev: false
 
   /@stylistic/eslint-plugin-js@1.5.1(eslint@8.56.0):
@@ -11764,6 +11777,14 @@ packages:
     transitivePeerDependencies:
       - encoding
     dev: true
+
+  /isomorphic-ws@5.0.0(ws@8.14.2):
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
+    dependencies:
+      ws: 8.14.2
+    dev: false
 
   /isstream@0.1.2:
     resolution: {integrity: sha512-Yljz7ffyPbrLpLngrMtZ7NduUgVvi6wG9RJ9IUcyCd59YQ911PBJphODUcbOVbqYfxe1wuYf/LJ8PauMRwsM/g==}
@@ -18359,6 +18380,10 @@ packages:
   /xstate@5.0.0-beta.54:
     resolution: {integrity: sha512-BTnCPBQ2iTKe4uCnHEe1hNx6VTbXU+5mQGybSQHOjTLiBi4Ryi+tL9T6N1tmqagvM8rfl4XRfvndogfWCWcdpw==}
     dev: true
+
+  /xstate@5.1.0:
+    resolution: {integrity: sha512-p7kkckyBwcjhcV782rx+jGg0zGLvu9AlNjsQ8ijmBUCUq/eyUPno3ZNwr2AjnfJ1Rx16ZnjYM0JQuQfu2yjTjw==}
+    dev: false
 
   /xstate@5.3.1:
     resolution: {integrity: sha512-j4lYbMKqTQ1gxS0NAhjX0JkFJ44OLqYgXV7kVSc0YpnENhPNigvrFMqpBFtfho39pgzdcmpmnmUyEUVWwYMOdA==}

@@ -86,7 +86,6 @@ export function useStore() {
     client,
     profile,
     request,
-    findOrCreate: () => undefined,
     getUserByKey,
   })
 }
