@@ -106,8 +106,8 @@ export const appMachine = setup({
         const { credentials } = event
 
         draft.set(credentials.id, spawn('gatewayMachine', {
-          id: `gateway-${credentials.id}`,
-          systemId: `gateway-${credentials.id}`,
+          id: 'gateway',
+          systemId: credentials.id,
           input: {
             credentials,
           },

@@ -40,7 +40,6 @@
     "@vueuse/head": "^2.0.0",
     "@vueuse/integrations": "^10.7.0",
     "@vueuse/router": "^10.7.0",
-    "@xstate/vue": "^3.0.2",
     "axios": "^1.6.2",
     "crypto-js": "^4.2.0",
     "file-saver": "^2.0.5",

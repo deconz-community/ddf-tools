@@ -1,9 +1,7 @@
-import type { App, MaybeRef } from 'vue'
+import type { App, EffectScope, MaybeRef } from 'vue'
 import { createActor } from 'xstate'
 import type { Actor, AnyStateMachine, EventFrom, StateFrom } from 'xstate'
 import { createBrowserInspector } from '@statelyai/inspect'
-import { useXstateActor } from './xstate/useXstateActor'
-import { useXstateSelector } from './xstate/useXstateSelector'
 import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
@@ -26,10 +24,17 @@ export type AppMachine =
 export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
 export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
 
-export const appMachineSymbol: InjectionKey<ExtractMachine<'app'>['actor']> = Symbol('AppMachine')
+export interface MachineTree {
+  app?: ExtractMachine<'app'>['actor']
+  discovery?: ExtractMachine<'discovery'>['actor']
+  store?: ExtractMachine<'store'>['actor']
+  gateways: Map<string, ExtractMachine<'gateway'>['actor']>
+  devices: Map<string, ExtractMachine<'device'>['actor']>
+}
+
+export const appMachineSymbol: InjectionKey<MachineTree> = Symbol('AppMachine')
 
 export interface UseAppMachine<Type extends AppMachine['type']> {
-  client: any
   state: ExtractMachine<Type>['state'] | undefined
   send: ExtractMachine<Type>['actor']['send']
 }
@@ -40,83 +45,69 @@ export function useAppMachine<Type extends AppMachine['type']>(
     : [type: Type, query: MaybeRef<MachineQuery<Type>>]
 ): UseAppMachine<Type> {
   // console.error('useAppMachine', type, params)
-  const app = inject(appMachineSymbol)
-  if (!app)
+  const machineTree = inject(appMachineSymbol)
+  if (!machineTree)
     throw new Error('useAppMachine() is called but was not created.')
 
-  return effectScope().run(() => getMachine(app, args[0], args[1])) as any
+  const scope = getCurrentScope() ?? effectScope()
+
+  return scope.run(() => getMachine(scope, machineTree, args[0], args[1])) as any
 }
 
 function getMachine<Type extends AppMachine['type']>(
-  app: ExtractMachine<'app'>['actor'],
+  scope: EffectScope,
+  machineTree: MachineTree,
   type: Type,
   _query?: MaybeRef<MachineQuery<Type>>,
 ): UseAppMachine<Type> {
-  const actorRef = useXstateSelector(app, (state) => {
+  const actorRef = computed(() => {
     switch (type) {
       case 'app':
-        return app
+        return machineTree.app
 
       case 'discovery':
-        if (state.children)
-          return state.children.discovery
-        break
+        return machineTree.discovery
 
       case 'store':
-        if (state.children)
-          return state.children.store
-        break
+        return machineTree.store
 
-      case 'gateway':{
-        const query = unref(_query) as MachineQuery<'gateway'>
-        const gateway = state.children[query.id]
-        if (gateway)
-          return gateway
-        break
-      }
+      case 'gateway':
+        return machineTree.gateways.get(_query.id)
 
-      case 'device':{
-        const device = effectScope().run(() => {
-          const query = unref(_query) as MachineQuery<'device'>
-          const gateway = getMachine(app, 'gateway', computed(() => ({ id: query.gateway })))
-          return gateway.state?.children[query.id]
-        })
-
-        if (device)
-          return device
-        break
-      }
+      case 'device':
+        return machineTree.devices.get(`${_query.gateway}-${_query.id}`)
 
       default : {
         const _exhaustiveCheck: never = type
         throw new Error(`Unhandled machine type: ${_exhaustiveCheck}`)
       }
     }
-
-    return undefined
   })
 
   const logEvent = (event: unknown) => {
     console.error('Event lost', event)
   }
 
-  const stateRef = shallowRef<ExtractMachine<Type>['state'] | undefined>(actorRef.value?.getSnapshot())
+  const stateRef = shallowRef<ExtractMachine<Type>['state'] | undefined>(undefined)
   const sendRef = shallowRef<ExtractMachine<Type>['actor']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
-  watch(actorRef, (newActor) => {
-    if (!newActor) {
-      stateRef.value = undefined
-      sendRef.value = logEvent as any
-      return
-    }
-    const newNewActor = useXstateActor(newActor)
+  scope.run(() => {
+    watch(actorRef, (newActor, _, onCleanup) => {
+      if (!newActor) {
+        stateRef.value = undefined
+        sendRef.value = logEvent as any
+        return
+      }
 
-    watch(newNewActor.state, (newState) => {
-      sendRef.value = newNewActor.send as any
-      stateRef.value = newState
+      stateRef.value = newActor.getSnapshot()
+
+      const { unsubscribe } = newActor.subscribe((state) => {
+        stateRef.value = state
+      })
+      onCleanup(() => unsubscribe())
     }, { immediate: true })
-  }, { immediate: true })
+  })
 
   return reactive({
     state: stateRef,
@@ -138,9 +129,64 @@ export function createAppMachine() {
           }).inspect
           : undefined
 
-        const service = createActor(appMachine, {
-          inspect,
+        const machineTree = reactive<MachineTree>({
+          app: undefined,
+          discovery: undefined,
+          store: undefined,
+          gateways: new Map(),
+          devices: new Map(),
         })
+
+        const service = createActor(appMachine, {
+          id: 'app',
+          systemId: 'app',
+          inspect: {
+            next: (snapshot) => {
+              if (
+                snapshot.type !== '@xstate.actor'
+                || !('options' in snapshot.actorRef)
+                || typeof snapshot.actorRef.options !== 'object'
+                || snapshot.actorRef.options === null
+                || !('systemId' in snapshot.actorRef.options)
+                || typeof snapshot.actorRef.options.systemId !== 'string'
+              )
+                return inspect?.next?.(snapshot)
+
+              const type = snapshot.actorRef.id
+
+              switch (type) {
+                case 'app':
+                case 'store':
+                case 'discovery':
+                  // @ts-expect-error The key is valid
+                  machineTree[type] = markRaw(snapshot.actorRef) as ExtractMachine<typeof type>['actor']
+
+                  snapshot.actorRef.subscribe(() => {}, undefined, () => {
+                    machineTree[type] = undefined
+                  })
+                  break
+
+                case 'gateway':
+                case 'device':{
+                  const systemID = snapshot.actorRef.options.systemId as string
+                  machineTree[`${type}s`].set(systemID, markRaw(snapshot.actorRef) as any)
+
+                  snapshot.actorRef.subscribe(() => {}, undefined, () => {
+                    machineTree[`${type}s`].delete(systemID)
+                  })
+
+                  break
+                }
+              }
+
+              return inspect?.next?.(snapshot)
+            },
+            error: inspect?.error,
+            complete: inspect?.complete,
+          },
+        })
+
+        machineTree.app = service
 
         service.start()
 
@@ -151,7 +197,7 @@ export function createAppMachine() {
           toDispose.forEach(fn => fn())
         })
 
-        app.provide(appMachineSymbol, service)
+        app.provide(appMachineSymbol, machineTree)
       })
     },
   })

@@ -1,11 +1,9 @@
 <script setup lang="ts">
-/*
 import { readSettings } from '@directus/sdk'
 
 const store = useStore()
 
 const settings = store.request(computed(() => readSettings()))
-*/
 </script>
 
 <template>
@@ -17,8 +15,8 @@ const settings = store.request(computed(() => readSettings()))
     <template #text>
       <!--
       <pre>{{ store.state?.value }}</pre>
-      <pre>{{ settings.state?.value }}</pre>
       -->
+      <pre>{{ settings.state }}</pre>
     </template>
   </v-card>
 </template>

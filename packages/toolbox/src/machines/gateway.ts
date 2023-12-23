@@ -130,10 +130,9 @@ export const gatewayMachine = setup({
                   newList
                     .filter(uuid => !oldList.includes(uuid))
                     .forEach((uuid) => {
-                      const id = `device-${context.credentials.id}-${uuid}`
                       devices.set(uuid, spawn('deviceMachine', {
-                        id,
-                        systemId: id,
+                        id: 'device',
+                        systemId: `${context.credentials.id}-${uuid}`,
                         input: {
                           deviceID: uuid,
                           gatewayClient: context.gateway!,
