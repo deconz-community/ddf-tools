@@ -1,4 +1,4 @@
-import { assign, fromPromise, raise, setup } from 'xstate'
+import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, readSettings, realtime, rest, serverHealth } from '@directus/sdk'
@@ -218,7 +218,7 @@ export const storeMachine = setup({
         assign(({ context, event }) => produce(context, (draft) => {
           draft.directusUrl = event.directusUrl
         })),
-        // TODO 'saveAppSettings',
+        sendTo(({ system }) => system.get('app'), { type: 'SAVE_SETTINGS' }),
       ],
     },
   },

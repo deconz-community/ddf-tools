@@ -65,7 +65,7 @@ export const appMachine = setup({
       gateways: new Map(),
     }),
 
-    loadSettings: ({ self }) => {
+    loadSettings: ({ self, system }) => {
       try {
         const saved = localStorage.getItem(storageKey)
         if (!saved)
@@ -81,12 +81,10 @@ export const appMachine = setup({
           }))
 
         if (data.storeUrl) {
-          /*
-          context.machine.store.send({
+          system.get('store').send({
             type: 'UPDATE_DIRECTUS_URL',
             directusUrl: data.storeUrl,
           })
-          */
         }
       }
       catch (e) {
@@ -95,13 +93,13 @@ export const appMachine = setup({
     },
 
     saveSettings: () => {
-
+      console.log('saveSettings')
     },
 
     spawnGateway: assign({
       gateways: ({ context, event, spawn }) => produce(context.gateways, (draft) => {
         if (event.type !== 'ADD_GATEWAY')
-          return
+          return console.error('spawnGateway: invalid event type', event)
 
         const { credentials } = event
 

@@ -34,7 +34,7 @@
     "dev:toolbox": "pnpm --dir packages/toolbox run dev"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.4.6",
+    "@antfu/eslint-config": "^2.6.0",
     "@changesets/cli": "^2.27.1",
     "@eslint/eslintrc": "^2.1.4",
     "eslint": "^8.56.0",
