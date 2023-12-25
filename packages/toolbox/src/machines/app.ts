@@ -61,6 +61,7 @@ export const appMachine = setup({
       store: ({ spawn }) => spawn('storeMachine', {
         id: 'store',
         systemId: 'store',
+        input: {},
       }),
       gateways: new Map(),
     }),
@@ -182,22 +183,6 @@ export const appMachine = setup({
   actions: {
 
     /*
-    spawnGateway: assign({
-      machine: ({ context, event }) => produce(context.machine, (draft) => {
-        const { credentials } = event
-        const newMachine = createActor(gatewayMachine, {
-          systemId: credentials.id,
-        })
-
-        //const newMachine = spawn(gatewayMachine.withContext(structuredClone({
-        //  ...gatewayMachine.context,
-        //  credentials,
-        //})), credentials.id)
-
-        draft.gateways.set(credentials.id, newMachine)
-      }),
-    }),
-
     updateGatewayCredentials: enqueueActions(({ context, event, enqueue }) => {
       const { credentials } = event
 

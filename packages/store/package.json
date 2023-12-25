@@ -45,7 +45,7 @@
     "import:schema": "npx directus schema apply ./schema.yaml",
     "export:schema": "npx directus schema snapshot --yes ./schema.yaml && npx indirectus sdk generate --url http://localhost:8055 --token LOCALHOST_TOKEN --fetch && cp ./.directus/generated/client.ts ../store-extension/src/client.d.ts && cp ./.directus/generated/client.ts ../toolbox/src/interfaces/store.ts && rm -rf ./.directus",
     "directus": "CONFIG_PATH='./scripts/load_env.cjs' npx directus",
-    "start": "pnpm directus start",
+    "start": "pnpm directus bootstrap && pnpm directus start",
     "test-docker": "docker compose --env-file .env.local -f docker-compose.yml up --build"
   },
   "dependencies": {

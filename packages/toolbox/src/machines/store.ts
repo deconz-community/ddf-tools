@@ -26,6 +26,7 @@ export const storeMachine = setup({
 
   types: {
     context: {} as StoreContext,
+    input: {} as Partial<Pick<StoreContext, 'directusUrl'>>,
     events: {} as {
       type: 'LOGIN' | 'UPDATE_PROFILE'
       profile: Collections.DirectusUser
@@ -41,10 +42,9 @@ export const storeMachine = setup({
 
   id: 'store',
 
-  context: {
-    // directusUrl: import.meta.env.VITE_DIRECTUS_URL
-    directusUrl: 'localhost',
-  },
+  context: ({ input }) => ({
+    directusUrl: input.directusUrl ?? 'localhost',
+  }),
 
   states: {
     init: {
