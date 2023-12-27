@@ -1,5 +1,16 @@
 # @deconz-community/cli
 
+## 1.7.0
+
+### Minor Changes
+
+- 78ce760: Upload bundle by batch of 10
+
+### Patch Changes
+
+- Updated dependencies [36cceed]
+  - @deconz-community/ddf-validator@2.26.0
+
 ## 1.6.1
 
 ### Patch Changes

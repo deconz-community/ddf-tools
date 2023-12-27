@@ -1,5 +1,12 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.9.0
+
+### Minor Changes
+
+- a785c2d: Add /deprecate endpoint
+- caf6dcd: Add DDF UUID permissions on upload
+
 ## 0.8.0
 
 ### Minor Changes

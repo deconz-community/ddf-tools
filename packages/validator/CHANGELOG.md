@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.26.0
+
+### Minor Changes
+
+- 36cceed: Allow fc option in all zcl commands
+
 ## 2.25.0
 
 ### Minor Changes
