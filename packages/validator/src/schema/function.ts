@@ -9,14 +9,13 @@ const zclGlobal = z.strictObject({
   at: z.optional(cf.hexa(4).or(z.array(cf.hexa(4)))).describe('Attribute ID.'),
   mf: z.optional(cf.hexa(4)).describe('Manufacturer code, must be set to 0x0000 for non manufacturer specific commands.'),
   cmd: z.optional(z.union([z.literal('any'), cf.hexa(2)])).describe('Zigbee command.'),
+  fc: z.optional(cf.hexa(2).or(z.number())).describe('Zigbee command frame control.'),
   eval: z.optional(cf.javascript()).describe('Javascript expression to transform the attribute value to the Item value.'),
   script: z.optional(cf.filePath()).describe('Relative path of a Javascript .js file.'),
 })
 
 const zclCommon = {
-  read: zclGlobal.extend({
-    fc: z.optional(cf.hexa(2).or(z.number())).describe('Zigbee command frame control.'),
-  }),
+  read: zclGlobal.extend({}),
   parse: zclGlobal.extend({}),
   write: zclGlobal.extend({
     'state.timeout': z.optional(z.number()),
