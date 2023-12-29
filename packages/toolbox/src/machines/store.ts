@@ -28,7 +28,10 @@ export const storeMachine = setup({
     context: {} as StoreContext,
     input: {} as Partial<Pick<StoreContext, 'directusUrl'>>,
     events: {} as {
-      type: 'LOGIN' | 'UPDATE_PROFILE'
+      type: 'LOGIN'
+      profile: Collections.DirectusUser
+    } | {
+      type: 'UPDATE_PROFILE'
       profile: Collections.DirectusUser
     } | {
       type: 'LOGOUT'
@@ -36,6 +39,12 @@ export const storeMachine = setup({
       type: 'UPDATE_DIRECTUS_URL'
       directusUrl: string
     },
+  },
+
+  actors: {
+    fetchProfile: fromPromise(async ({ input }: { input: Directus }) => {
+      return await input.request(readMe()) as Collections.DirectusUser
+    }),
   },
 
 }).createMachine({
@@ -177,24 +186,16 @@ export const storeMachine = setup({
               target: 'anonymous',
               actions: 'updateProfile',
             },
-
             UPDATE_PROFILE: {
-              target: 'connected',
-              // reenter: false, // TODO check if this is needed
-              actions: 'updateProfile',
+              actions: assign({ profile: ({ event }) => event.profile }),
             },
           },
 
           invoke: {
-            input: ({ context }) => ({
-              directus: context.directus,
-            }),
-            src: fromPromise(async ({ input }: { input: { directus: Directus } }) => {
-              // TODO get updated profile with websocket
-              return await input.directus?.request(readMe())
-            }),
+            input: ({ context }) => context.directus!,
+            src: 'fetchProfile',
             onDone: {
-              actions: ({ event }) => raise({ type: 'UPDATE_PROFILE', profile: event.output }),
+              actions: raise(({ event }) => ({ type: 'UPDATE_PROFILE', profile: event.output })),
             },
           },
 
@@ -226,6 +227,7 @@ export const storeMachine = setup({
   actions: {
 
     updateProfile: assign(({ context, event }) => produce(context, (draft) => {
+      console.log('updateProfile', event)
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
 
