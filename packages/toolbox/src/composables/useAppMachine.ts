@@ -1,4 +1,4 @@
-import type { App, EffectScope, MaybeRef } from 'vue'
+import type { App, MaybeRef, ShallowRef } from 'vue'
 import { createActor } from 'xstate'
 import type { Actor, AnyStateMachine, EventFrom, StateFrom } from 'xstate'
 import { createBrowserInspector } from '@statelyai/inspect'
@@ -32,7 +32,7 @@ export interface MachineTree {
   devices: Map<string, ExtractMachine<'device'>['actor']>
 }
 
-export const appMachineSymbol: InjectionKey<MachineTree> = Symbol('AppMachine')
+export const appMachineSymbol: InjectionKey<ShallowRef<MachineTree>> = Symbol('AppMachine')
 
 export interface UseAppMachine<Type extends AppMachine['type']> {
   state: ExtractMachine<Type>['state'] | undefined
@@ -49,40 +49,58 @@ export function useAppMachine<Type extends AppMachine['type']>(
   if (!machineTree)
     throw new Error('useAppMachine() is called but was not created.')
 
-  const scope = getCurrentScope() ?? effectScope()
+  const scope = getCurrentScope()
 
-  return scope.run(() => getMachine(scope, machineTree, args[0], args[1])) as any
+  if (!scope)
+    throw new Error('useAppMachine() need to be called in the setup call.')
+
+  return scope.run(() => getMachine(machineTree, args[0], args[1])) as any
 }
 
 function getMachine<Type extends AppMachine['type']>(
-  scope: EffectScope,
-  machineTree: MachineTree,
+  machineTree: Ref<MachineTree>,
   type: Type,
   _query?: MaybeRef<MachineQuery<Type>>,
 ): UseAppMachine<Type> {
-  const actorRef = computed(() => {
-    switch (type) {
-      case 'app':
-        return machineTree.app
+  const actorRef = shallowRef<Actor<any> | undefined>()
 
-      case 'discovery':
-        return machineTree.discovery
+  const watchSources: Ref<any>[] = [machineTree]
+  if (isRef(_query))
+    watchSources.push(_query)
 
-      case 'store':
-        return machineTree.store
+  watch(watchSources, () => {
+    const getMachine = () => {
+      switch (type) {
+        case 'app':
+          return machineTree.value.app
 
-      case 'gateway':
-        return machineTree.gateways.get(_query.id)
+        case 'discovery':
+          return machineTree.value.discovery
 
-      case 'device':
-        return machineTree.devices.get(`${_query.gateway}-${_query.id}`)
+        case 'store':
+          return machineTree.value.store
 
-      default : {
-        const _exhaustiveCheck: never = type
-        throw new Error(`Unhandled machine type: ${_exhaustiveCheck}`)
+        case 'gateway':{
+          const query = unref(_query) as MachineQuery<'gateway'>
+          return machineTree.value.gateways.get(query.id)
+        }
+
+        case 'device':{
+          const query = unref(_query) as MachineQuery<'device'>
+          return machineTree.value.devices.get(`${query.gateway}-${query.id}`)
+        }
+
+        default : {
+          const _exhaustiveCheck: never = type
+          throw new Error(`Unhandled machine type: ${_exhaustiveCheck}`)
+        }
       }
     }
-  })
+
+    const newActor = getMachine()
+    if (newActor !== actorRef.value)
+      actorRef.value = newActor
+  }, { immediate: true })
 
   const logEvent = (event: unknown) => {
     console.error('Event lost', event)
@@ -92,22 +110,20 @@ function getMachine<Type extends AppMachine['type']>(
   const sendRef = shallowRef<ExtractMachine<Type>['actor']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
-  scope.run(() => {
-    watch(actorRef, (newActor, _, onCleanup) => {
-      if (!newActor) {
-        stateRef.value = undefined
-        sendRef.value = logEvent as any
-        return
-      }
+  watch(actorRef, (newActor, _, onCleanup) => {
+    if (!newActor) {
+      stateRef.value = undefined
+      sendRef.value = logEvent as any
+      return
+    }
 
-      stateRef.value = newActor.getSnapshot()
+    stateRef.value = newActor.getSnapshot()
 
-      const { unsubscribe } = newActor.subscribe((state) => {
-        stateRef.value = state
-      })
-      onCleanup(() => unsubscribe())
-    }, { immediate: true })
-  })
+    const { unsubscribe } = newActor.subscribe((state) => {
+      stateRef.value = state
+    })
+    onCleanup(() => unsubscribe())
+  }, { immediate: true })
 
   return reactive({
     state: stateRef,
@@ -118,87 +134,76 @@ function getMachine<Type extends AppMachine['type']>(
 export function createAppMachine() {
   return markRaw({
     install(app: App) {
-      const scope = getCurrentScope() ?? effectScope()
+      const inspect = import.meta.env.VITE_DEBUG === 'true'
+        ? createBrowserInspector({
+          url: 'https://stately.ai/registry/inspect',
+        }).inspect
+        : undefined
 
-      scope.run(() => {
-        const toDispose: (() => void)[] = []
-
-        const inspect = import.meta.env.VITE_DEBUG === 'true'
-          ? createBrowserInspector({
-            url: 'https://stately.ai/registry/inspect',
-          }).inspect
-          : undefined
-
-        const machineTree = reactive<MachineTree>({
-          app: undefined,
-          discovery: undefined,
-          store: undefined,
-          gateways: new Map(),
-          devices: new Map(),
-        })
-
-        const service = createActor(appMachine, {
-          id: 'app',
-          systemId: 'app',
-          inspect: {
-            next: (snapshot) => {
-              if (
-                snapshot.type !== '@xstate.actor'
-                || !('options' in snapshot.actorRef)
-                || typeof snapshot.actorRef.options !== 'object'
-                || snapshot.actorRef.options === null
-                || !('systemId' in snapshot.actorRef.options)
-                || typeof snapshot.actorRef.options.systemId !== 'string'
-              )
-                return inspect?.next?.(snapshot)
-
-              const type = snapshot.actorRef.id
-
-              switch (type) {
-                case 'app':
-                case 'store':
-                case 'discovery':
-                  // @ts-expect-error The key is valid
-                  machineTree[type] = markRaw(snapshot.actorRef) as ExtractMachine<typeof type>['actor']
-
-                  snapshot.actorRef.subscribe(() => {}, undefined, () => {
-                    machineTree[type] = undefined
-                  })
-                  break
-
-                case 'gateway':
-                case 'device':{
-                  const systemID = snapshot.actorRef.options.systemId as string
-                  machineTree[`${type}s`].set(systemID, markRaw(snapshot.actorRef) as any)
-
-                  snapshot.actorRef.subscribe(() => {}, undefined, () => {
-                    machineTree[`${type}s`].delete(systemID)
-                  })
-
-                  break
-                }
-              }
-
-              return inspect?.next?.(snapshot)
-            },
-            error: inspect?.error,
-            complete: inspect?.complete,
-          },
-        })
-
-        machineTree.app = service
-
-        service.start()
-
-        toDispose.push(() => service.stop())
-
-        // Cleanup
-        onScopeDispose(() => {
-          toDispose.forEach(fn => fn())
-        })
-
-        app.provide(appMachineSymbol, machineTree)
+      const machineTree = shallowRef<MachineTree>({
+        app: undefined,
+        discovery: undefined,
+        store: undefined,
+        gateways: new Map(),
+        devices: new Map(),
       })
+
+      const service = createActor(appMachine, {
+        id: 'app',
+        systemId: 'app',
+        inspect: {
+          next: (snapshot) => {
+            if (
+              snapshot.type !== '@xstate.actor'
+              || !('options' in snapshot.actorRef)
+              || typeof snapshot.actorRef.options !== 'object'
+              || snapshot.actorRef.options === null
+              || !('systemId' in snapshot.actorRef.options)
+              || typeof snapshot.actorRef.options.systemId !== 'string'
+            )
+              return inspect?.next?.(snapshot)
+
+            const type = snapshot.actorRef.id
+
+            switch (type) {
+              case 'app':
+              case 'store':
+              case 'discovery':
+                // @ts-expect-error The key is valid
+                machineTree.value[type] = snapshot.actorRef as ExtractMachine<typeof type>['actor']
+
+                snapshot.actorRef.subscribe(() => {}, undefined, () => {
+                  machineTree.value[type] = undefined
+                })
+                break
+
+              case 'gateway':
+              case 'device':{
+                const systemID = snapshot.actorRef.options.systemId as string
+                machineTree.value[`${type}s`].set(systemID, snapshot.actorRef as any)
+
+                snapshot.actorRef.subscribe(() => {}, undefined, () => {
+                  machineTree.value[`${type}s`].delete(systemID)
+                })
+
+                break
+              }
+            }
+
+            triggerRef(machineTree)
+
+            return inspect?.next?.(snapshot)
+          },
+          error: inspect?.error,
+          complete: inspect?.complete,
+        },
+      })
+
+      machineTree.value.app = service
+
+      service.start()
+
+      app.provide(appMachineSymbol, machineTree)
     },
   })
 }

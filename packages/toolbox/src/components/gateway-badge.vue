@@ -5,7 +5,8 @@ const props = defineProps<{
   gatewayId: string
 }>()
 
-const gateway = useAppMachine('gateway', { id: props.gatewayId })
+const gateway = useAppMachine('gateway', computed(() => ({ id: props.gatewayId })))
+
 const route = useRoute()
 
 const badgeColor = computed(() => {

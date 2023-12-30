@@ -4,7 +4,6 @@ import type { Gateway, Response } from '@deconz-community/rest-client'
 export interface deviceContext {
   deviceID: string
   gatewayClient: ReturnType<typeof Gateway>
-  // gateway: ReturnType<typeof Gateway>
   data?: Response<'getDevice'>['success']
 }
 
@@ -47,11 +46,11 @@ export const deviceMachine = setup({
 
     fetching: {
       invoke: {
-        src: 'fetchData',
         input: ({ context }) => ({
           gateway: context.gatewayClient,
           deviceID: context.deviceID,
         }),
+        src: 'fetchData',
         onDone: {
           target: 'idle',
           actions: assign({

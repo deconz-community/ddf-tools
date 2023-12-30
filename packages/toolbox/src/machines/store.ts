@@ -47,6 +47,28 @@ export const storeMachine = setup({
     }),
   },
 
+  actions: {
+    updateProfile: assign(({ context, event }) => produce(context, (draft) => {
+      draft.profile = 'profile' in event ? event.profile : undefined
+    })),
+
+    connectWebsocket: assign(({ context }) => produce(context, (draft) => {
+      context.directus?.connect()
+      draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
+        if (message.type !== 'notification')
+          return
+        console.log(message)
+      })
+    })),
+
+    disconnectWebsocket: assign(({ context }) => produce(context, (draft) => {
+      context.directus?.disconnect()
+      context.websocketEventHandlerRemover?.()
+      delete draft.websocketEventHandlerRemover
+    })),
+
+  },
+
 }).createMachine({
 
   id: 'store',
@@ -224,26 +246,4 @@ export const storeMachine = setup({
     },
   },
 
-  actions: {
-
-    updateProfile: assign(({ context, event }) => produce(context, (draft) => {
-      draft.profile = 'profile' in event ? event.profile : undefined
-    })),
-
-    connectWebsocket: assign(({ context }) => produce(context, (draft) => {
-      context.directus?.connect()
-      draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
-        if (message.type !== 'notification')
-          return
-        console.log(message)
-      })
-    })),
-
-    disconnectWebsocket: assign(({ context }) => produce(context, (draft) => {
-      context.directus?.disconnect()
-      context.websocketEventHandlerRemover?.()
-      delete draft.websocketEventHandlerRemover
-    })),
-
-  },
 })

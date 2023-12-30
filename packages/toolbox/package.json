@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 4000",
     "build": "vite build",
-    "postinstall": "xstate typegen \"./src/**/*.ts?(x)\""
+    "__postinstall": "xstate typegen \"./src/**/*.ts?(x)\""
   },
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",

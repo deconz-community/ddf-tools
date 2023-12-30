@@ -1,5 +1,5 @@
 import type { ActorRefFrom } from 'xstate'
-import { assign, fromPromise, setup } from 'xstate'
+import { assign, fromPromise, sendTo, setup } from 'xstate'
 import { FindGateway, type Gateway, type Response } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
@@ -16,7 +16,19 @@ export const gatewayMachine = setup({
   types: {
     context: {} as gatewayContext,
     events: {} as | {
-      type: 'EDIT_CREDENTIALS' | 'DONE' | 'NEXT' | 'PREVIOUS' | 'SAVE' | 'CONNECT' | 'REFRESH_DEVICES'
+      type: 'EDIT_CREDENTIALS'
+    } | {
+      type: 'DONE'
+    } | {
+      type: 'NEXT'
+    } | {
+      type: 'PREVIOUS'
+    } | {
+      type: 'SAVE'
+    } | {
+      type: 'CONNECT'
+    } | {
+      type: 'REFRESH_DEVICES'
     } | {
       type: 'UPDATE_CREDENTIALS'
       data: GatewayCredentials
@@ -219,14 +231,16 @@ export const gatewayMachine = setup({
   },
 
   on: {
-    /*
     UPDATE_CREDENTIALS: {
       target: '.init',
-      actions: ['updateCredentials', 'saveSettings'],
+      actions: [
+        assign({ credentials: ({ event }) => event.data }),
+        sendTo(({ system }) => system.get('app'), { type: 'SAVE_SETTINGS' }),
+      ],
     },
 
     EDIT_CREDENTIALS: '.offline.editing',
-    */
+
   },
 
 })

@@ -150,20 +150,6 @@ export const appMachine = setup({
     },
 
     /*
-    ADD_GATEWAY: {
-      target: '#app',
-      actions: [
-        'spawnGateway',
-      ],
-    },
-    */
-    /*
-    ADD_GATEWAY: {
-      actions: [
-        'spawnGateway',
-        raise({ type: 'SAVE_SETTINGS' }),
-      ],
-    },
     UPDATE_GATEWAY: {
       actions: [
         'updateGatewayCredentials',
