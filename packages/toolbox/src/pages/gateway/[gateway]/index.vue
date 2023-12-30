@@ -8,9 +8,8 @@ const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway }))
 const credentials = computed(() => {
   return gateway.state?.context.credentials
 })
+
 const devices = computed(() => {
-  console.log('-->', gateway)
-  console.log('-->', gateway.state)
   if (!gateway.state?.context.devices)
     return []
 
