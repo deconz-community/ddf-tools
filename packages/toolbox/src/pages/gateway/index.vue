@@ -13,7 +13,7 @@ const newList = computed(() => {
   const discoveredGateway = discovery.state ? Array.from(discovery.state.context.results.values()) : []
   // console.log(discoveredGateway)
 
-  const existingGateway = app.state ? Array.from(app.state.context.machine.gateways.keys()) : []
+  const existingGateway = app.state ? Array.from(app.state.context.gateways.keys()) : []
 
   list.push(...existingGateway)
 

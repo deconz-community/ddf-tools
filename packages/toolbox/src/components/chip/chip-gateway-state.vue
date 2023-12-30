@@ -22,8 +22,9 @@ const state = computed<{
   if (state.matches('online'))
     return { color: 'green', text: 'Online', tooltip: `${Object.keys(state.context.devices).length} devices` }
 
-  if (['connecting', 'init'].some(state.matches))
+  if ((['connecting', 'init'] as const).some(s => state.matches(s)))
     return { color: 'blue', text: 'Connecting' }
+
   if (state.matches('offline.disabled'))
     return { color: 'gray', text: 'Disabled' }
 
@@ -34,7 +35,7 @@ const state = computed<{
   if (state.matches('offline.error'))
     return { color: 'red', text: 'Offline', tooltip: 'Unknown error' }
 
-  return { color: 'gray', text: 'What ?!?', tooltip: state.value.toString() }
+  return { color: 'gray', text: 'What ?!?', tooltip: state.toString() }
 })
 </script>
 

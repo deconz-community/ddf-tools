@@ -227,7 +227,6 @@ export const storeMachine = setup({
   actions: {
 
     updateProfile: assign(({ context, event }) => produce(context, (draft) => {
-      console.log('updateProfile', event)
       draft.profile = 'profile' in event ? event.profile : undefined
     })),
 

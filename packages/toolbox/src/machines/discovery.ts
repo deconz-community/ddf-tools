@@ -63,9 +63,10 @@ export const discoveryMachine = setup({
         const client = Gateway(uri, '<nouser>', { timeout: 1500 })
         const config = await client.getConfig()
         if (config.success) {
+          console.log('Found gateway', config.success.bridgeid, config.success.name, config.success.swversion, uri)
           self.send({
             // TODO Typing for that
-            type: 'GATEWAY_FOUNDtoto',
+            type: 'GATEWAY_FOUND',
             id: config.success.bridgeid,
             name: config.success.name,
             version: config.success.swversion,
