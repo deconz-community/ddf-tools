@@ -1,5 +1,5 @@
 import type { ActorRefFrom } from 'xstate'
-import { assign, fromPromise, sendTo, setup } from 'xstate'
+import { assign, enqueueActions, fromPromise, sendTo, setup } from 'xstate'
 import { FindGateway, type Gateway, type Response } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
@@ -132,16 +132,24 @@ export const gatewayMachine = setup({
             input: ({ context }) => ({ gateway: context.gateway! }),
             onDone: {
               target: 'idle',
-              actions: assign({
-                devices: ({ context, event, spawn }) => {
-                  const { devices } = context
 
-                  const newList = event.output.success ?? []
-                  const oldList = Array.from(devices.keys())
+              actions: enqueueActions(({ enqueue, context, event }) => {
+                const { devices } = context
 
-                  newList
-                    .filter(uuid => !oldList.includes(uuid))
-                    .forEach((uuid) => {
+                const newList = event.output.success ?? []
+                const oldList = Array.from(devices.keys())
+
+                const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))
+                const removedUUIDs = oldList.filter(uuid => !newList.includes(uuid))
+
+                removedUUIDs.forEach((uuid) => {
+                  enqueue.stopChild(devices.get(uuid)!)
+                  devices.delete(uuid)
+                })
+
+                enqueue.assign({
+                  devices: ({ context, spawn }) => {
+                    addedUUIDs.forEach((uuid) => {
                       devices.set(uuid, spawn('deviceMachine', {
                         id: 'device',
                         systemId: `${context.credentials.id}-${uuid}`,
@@ -151,28 +159,37 @@ export const gatewayMachine = setup({
                         },
                       }))
                     })
-                  oldList
-                    .filter(uuid => !newList.includes(uuid))
-                    .forEach((uuid) => {
-                      devices.get(uuid)?.stop()
-                      devices.delete(uuid)
-                    })
-                  return devices
-                },
+                    return devices
+                  },
+                })
               }),
+
             },
           },
         },
       },
 
-      exit: assign({
-        devices: ({ context }) => {
-          const { devices } = context
-          devices.forEach(device => device.stop())
-          devices.clear()
-          return devices
-        },
+      exit: enqueueActions(({ enqueue, context }) => {
+        const { devices } = context
+        devices.forEach(device => enqueue.stopChild(device))
+        enqueue.assign({ devices: new Map() })
       }),
+
+      /*
+      [
+
+        enqueueActions
+        assign({
+          devices: ({ context }) => {
+            const { devices } = context
+            devices.forEach(device => device.stop())
+            devices.clear()
+            return devices
+          },
+        }),
+      ]
+      */
+
     },
 
     offline: {

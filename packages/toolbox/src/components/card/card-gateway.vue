@@ -35,7 +35,7 @@ function addGateway() {
         name: credentials.name,
         apiKey: '',
         URIs: {
-          api: credentials.uri,
+          api: credentials.uris,
           websocket: [],
         },
       },
@@ -118,7 +118,7 @@ function removeGateway() {
         <v-btn elevation="2" @click="removeGateway()">
           Remove
         </v-btn>
-        <btn-event elevation="2" :machine="gateway" event="EDIT_CREDENTIALS" />
+        <btn-event elevation="2" :machine="gateway" :event="{ type: 'EDIT_CREDENTIALS' }" />
       </v-card-actions>
     </v-card-item>
   </v-card>
