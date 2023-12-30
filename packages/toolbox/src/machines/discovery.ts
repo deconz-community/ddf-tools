@@ -63,8 +63,7 @@ export const discoveryMachine = setup({
         const client = Gateway(uri, '<nouser>', { timeout: 1500 })
         const config = await client.getConfig()
         if (config.success) {
-          console.log('Found gateway', config.success.bridgeid, config.success.name, config.success.swversion, uri)
-          self.send({
+          self._parent?.send({
             // TODO Typing for that
             type: 'GATEWAY_FOUND',
             id: config.success.bridgeid,
@@ -109,9 +108,20 @@ export const discoveryMachine = setup({
         STOP_SCAN: 'idle',
 
         GATEWAY_FOUND: {
-          target: 'scanning',
-          // reenter: false, // TODO check if this is needed
-          // actions: 'saveGatewayResult',
+          actions: assign({
+            results: ({ context, event }) => produce(context.results, (draft) => {
+              console.log('GATEWAY_FOUND', event)
+              const { id, name, version, uri } = event
+              if (draft.has(id)) {
+                const result = draft.get(id)!
+                result.name = name
+                result.uri.push(uri)
+              }
+              else {
+                draft.set(id, { id, name, version, uri: [uri] })
+              }
+            }),
+          }),
         },
       },
 
@@ -128,19 +138,7 @@ export const discoveryMachine = setup({
     }),
 
     /*
-    saveGatewayResult: assign({
-      results: ({ context, event }) => produce(context.results, (draft) => {
-        const { id, name, version, uri } = event
-        if (draft.has(id)) {
-          const result = draft.get(id)!
-          result.name = name
-          result.uri.push(uri)
-        }
-        else {
-          draft.set(id, { id, name, version, uri: [uri] })
-        }
-      }),
-    }),
+    saveGatewayResult:
     */
   },
 })

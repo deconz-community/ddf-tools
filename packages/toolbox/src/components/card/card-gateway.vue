@@ -3,8 +3,6 @@ const props = defineProps<{
   id: string
 }>()
 
-console.log('Init component card-gateway', props.id)
-
 const app = useAppMachine('app')
 const gateway = useAppMachine('gateway', { id: props.id })
 const discovery = useAppMachine('discovery')
@@ -23,8 +21,7 @@ const version = computed(() =>
 )
 
 const devices = computed(() => {
-  const result = Object.keys(gateway.state?.context.devices ?? [])
-  console.log(props.id, result.length)
+  const result = Array.from(gateway.state?.context.devices.keys() ?? [])
   return result
 })
 
