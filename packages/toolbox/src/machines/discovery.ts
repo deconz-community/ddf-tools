@@ -1,6 +1,7 @@
 import { Discovery, Gateway } from '@deconz-community/rest-client'
 import { produce } from 'immer'
-import { assign, fromPromise, setup } from 'xstate'
+import type { ActorRef } from 'xstate'
+import { assertEvent, assign, fromPromise, setup } from 'xstate'
 
 export interface DiscoveryResult {
   id: string
@@ -13,6 +14,14 @@ export interface DiscoveryContext {
   results: Map<string, DiscoveryResult>
 }
 
+interface FoundEvent {
+  type: 'GATEWAY_FOUND'
+  uri: string
+  id: string
+  name: string
+  version: string
+}
+
 export const discoveryMachine = setup({
   types: {
     context: {} as DiscoveryContext,
@@ -21,17 +30,14 @@ export const discoveryMachine = setup({
       uris?: string | string[]
     } | {
       type: 'STOP_SCAN'
-    } | {
-      type: 'GATEWAY_FOUND'
-      uri: string
-      id: string
-      name: string
-      version: string
-    },
+    } | FoundEvent,
   },
 
   actors: {
-    scanner: fromPromise<void, { uris: string | string[] }>(async ({ input, self }) => {
+    scanner: fromPromise(async ({ input }: { input: {
+      uris: string | string[] | undefined
+      discoveryMachine: ActorRef<any, FoundEvent>
+    } }) => {
       const guesses = [
         'http://localhost',
         'http://localhost:443',
@@ -63,7 +69,7 @@ export const discoveryMachine = setup({
         const client = Gateway(uri, '<nouser>', { timeout: 1500 })
         const config = await client.getConfig()
         if (config.success) {
-          self._parent?.send({
+          input.discoveryMachine.send({
             // TODO Typing for that
             type: 'GATEWAY_FOUND',
             id: config.success.bridgeid,
@@ -98,9 +104,13 @@ export const discoveryMachine = setup({
     scanning: {
       invoke: {
         src: 'scanner',
-        input: ({ event }) => ({
-          uris: event.uris,
-        }),
+        input: ({ event, self }) => {
+          assertEvent(event, 'START_SCAN')
+          return {
+            uris: event.uris,
+            discoveryMachine: self,
+          }
+        },
         onDone: 'idle',
       },
 
@@ -110,15 +120,14 @@ export const discoveryMachine = setup({
         GATEWAY_FOUND: {
           actions: assign({
             results: ({ context, event }) => produce(context.results, (draft) => {
-              console.log('GATEWAY_FOUND', event)
               const { id, name, version, uri } = event
               if (draft.has(id)) {
                 const result = draft.get(id)!
                 result.name = name
-                result.uri.push(uri)
+                result.uris.push(uri)
               }
               else {
-                draft.set(id, { id, name, version, uri: [uri] })
+                draft.set(id, { id, name, version, uris: [uri] })
               }
             }),
           }),
