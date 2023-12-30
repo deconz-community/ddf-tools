@@ -28,6 +28,7 @@ const newList = computed(() => {
 </script>
 
 <template>
+  {{ discovery.state }}
   <v-card class="ma-3">
     <v-card-title>
       Scan for gateways
