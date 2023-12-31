@@ -175,21 +175,6 @@ export const gatewayMachine = setup({
         enqueue.assign({ devices: new Map() })
       }),
 
-      /*
-      [
-
-        enqueueActions
-        assign({
-          devices: ({ context }) => {
-            const { devices } = context
-            devices.forEach(device => device.stop())
-            devices.clear()
-            return devices
-          },
-        }),
-      ]
-      */
-
     },
 
     offline: {
