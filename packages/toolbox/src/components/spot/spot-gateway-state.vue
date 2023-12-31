@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
-const gateway = useAppMachine('gateway', computed(() => ({ id: route.params.gateway as string })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: route.params.gateway as string })))
 </script>
 
 <template>

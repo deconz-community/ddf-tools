@@ -3,9 +3,10 @@ const props = defineProps<{
   id: string
 }>()
 
-const app = useAppMachine('app')
-const gateway = useAppMachine('gateway', { id: props.id })
-const discovery = useAppMachine('discovery')
+const machines = createUseAppMachine()
+const app = machines.use('app')
+const gateway = machines.use('gateway', { id: props.id })
+const discovery = machines.use('discovery')
 
 const isNew = computed(() => gateway.state === undefined)
 

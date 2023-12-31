@@ -7,7 +7,8 @@ const baseURL = computed(() => {
   return `/gateway/${route.params.gateway}`
 })
 
-const gateway = useAppMachine('gateway', computed(() => ({ id: route.params.gateway as string })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: route.params.gateway as string })))
 
 const scope = getCurrentScope()
 if (!scope)
@@ -18,9 +19,7 @@ const devices = computed(() => {
 
   if (gateway.state) {
     Array.from(gateway.state.context.devices.keys()).forEach((id) => {
-      const device = scope.run(() => {
-        return useAppMachine('device', computed(() => ({ gateway: route.params.gateway as string, id })))
-      })
+      const device = machines.use('device', computed(() => ({ gateway: route.params.gateway as string, id })))
 
       if (!device)
         return

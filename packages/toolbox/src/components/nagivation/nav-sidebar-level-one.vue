@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const app = useAppMachine('app')
+const machines = createUseAppMachine()
+const app = machines.use('app')
 
 const store = useStore()
 

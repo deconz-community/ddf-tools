@@ -13,7 +13,8 @@ export type RequestOptions<Output extends object | unknown> = {
 export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar_url' | 'date_created' | 'public_key'>
 
 export function useStore() {
-  const store = useAppMachine('store')
+  const machines = createUseAppMachine()
+  const store = machines.use('store')
   const client = computed(() => store.state?.context.directus)
   const profile = computed(() => store.state?.context.profile)
 

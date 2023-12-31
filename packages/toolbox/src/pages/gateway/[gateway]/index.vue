@@ -3,7 +3,8 @@ const props = defineProps<{
   gateway: string
 }>()
 
-const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
 
 const credentials = computed(() => {
   return gateway.state?.context.credentials

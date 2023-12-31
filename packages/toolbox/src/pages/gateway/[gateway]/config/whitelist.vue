@@ -5,7 +5,8 @@ const props = defineProps<{
   gateway: string
 }>()
 
-const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
 const search = ref('')
 
 const { state, isLoading, execute } = useAsyncState(async () => {

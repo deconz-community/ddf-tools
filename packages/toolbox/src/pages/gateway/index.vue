@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import CardGateway from '~/components/card/card-gateway.vue'
 
-const app = useAppMachine('app')
-
-const discovery = useAppMachine('discovery')
+const machines = createUseAppMachine()
+const app = machines.use('app')
+const discovery = machines.use('discovery')
 
 const discoveryUri = ref<string>(JSON.parse(import.meta.env.VITE_GATEWAY_DISCOVERY_URI).join(','))
 

@@ -39,12 +39,7 @@ export interface UseAppMachine<Type extends AppMachine['type']> {
   send: ExtractMachine<Type>['actor']['send']
 }
 
-export function useAppMachine<Type extends AppMachine['type']>(
-  ...args: MachineQuery<Type> extends never
-    ? [type: Type]
-    : [type: Type, query: MaybeRef<MachineQuery<Type>>]
-): UseAppMachine<Type> {
-  // console.error('useAppMachine', type, params)
+export function createUseAppMachine() {
   const machineTree = inject(appMachineSymbol)
   if (!machineTree)
     throw new Error('useAppMachine() is called but was not created.')
@@ -52,9 +47,20 @@ export function useAppMachine<Type extends AppMachine['type']>(
   const scope = getCurrentScope()
 
   if (!scope)
-    throw new Error('useAppMachine() need to be called in the setup call.')
+    throw new Error('createUseAppMachine() need to be called in the setup call.')
 
-  return scope.run(() => getMachine(machineTree, args[0], args[1])) as any
+  function use<Type extends AppMachine['type']>(
+    ...args: MachineQuery<Type> extends never
+      ? [type: Type]
+      : [type: Type, query: MaybeRef<MachineQuery<Type>>]
+  ): UseAppMachine<Type> {
+    if (!scope || !machineTree)
+      throw new Error('Something went wrong, this should not happening.')
+
+    return scope.run(() => getMachine(machineTree, args[0], args[1])) as any
+  }
+
+  return { use }
 }
 
 function getMachine<Type extends AppMachine['type']>(

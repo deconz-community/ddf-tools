@@ -4,7 +4,8 @@ const props = defineProps<{
   device: string
 }>()
 
-const device = useAppMachine('device', computed(() => ({ gateway: props.gateway, id: props.device })))
+const machines = createUseAppMachine()
+const device = machines.use('device', computed(() => ({ gateway: props.gateway, id: props.device })))
 </script>
 
 <template>
