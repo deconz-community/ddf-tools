@@ -1,5 +1,5 @@
 import type { ActorRefFrom } from 'xstate'
-import { assign, setup } from 'xstate'
+import { assign, enqueueActions, setup } from 'xstate'
 import { z } from 'zod'
 import { enableMapSet, produce } from 'immer'
 import { discoveryMachine } from './discovery'
@@ -109,23 +109,6 @@ export const appMachine = setup({
       localStorage.setItem(storageKey, JSON.stringify(data))
     },
 
-    spawnGateway: assign({
-      gateways: ({ context, event, spawn }) => produce(context.gateways, (draft) => {
-        if (event.type !== 'ADD_GATEWAY')
-          return console.error('spawnGateway: invalid event type', event)
-
-        const { credentials } = event
-
-        draft.set(credentials.id, spawn('gatewayMachine', {
-          id: 'gateway',
-          systemId: credentials.id,
-          input: {
-            credentials,
-          },
-        }))
-      }),
-    }),
-
   },
 
   actors: {
@@ -158,72 +141,38 @@ export const appMachine = setup({
     },
 
     ADD_GATEWAY: {
-      actions: 'spawnGateway',
-    },
-
-    /*
-    UPDATE_GATEWAY: {
-      actions: [
-        'updateGatewayCredentials',
-        raise({ type: 'SAVE_SETTINGS' }),
-      ],
-    },
-    REMOVE_GATEWAY: {
-      actions: [
-        'stopGateway',
-        raise({ type: 'SAVE_SETTINGS' }),
-      ],
-    },
-    */
-  },
-
-}).provide({
-  actions: {
-
-    /*
-    updateGatewayCredentials: enqueueActions(({ context, event, enqueue }) => {
-      const { credentials } = event
-
-      if (context.machine.gateways.has(credentials.id)) {
-        enqueue(sendTo(credentials.id, {
-          type: 'UPDATE_CREDENTIALS',
-          data: credentials,
-        }))
-      }
-    }),
-
-    stopGateway: enqueueActions(({ context, event, enqueue }) => {
-      const { id } = event
-      if (context.machine.gateways.has(id)) {
-        enqueue(stopChild(id))
-        enqueue(assign({
-          machine: produce(context.machine, (draft) => {
-            draft.gateways.delete(id)
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue.assign({
+          gateways: ({ context, event, spawn }) => produce(context.gateways, (draft) => {
+            const { credentials } = event
+            draft.set(credentials.id, spawn('gatewayMachine', {
+              id: 'gateway',
+              systemId: credentials.id,
+              input: {
+                credentials,
+              },
+            }))
           }),
-        }))
-      }
-    }),
-    */
-  },
-  actors: {
-    /*
-    saveSettings: fromPromise(async ({ context }) => {
-      const data: StorageSchema = {
-        storeUrl: context.machine.store.getSnapshot()?.context.directusUrl,
-        credentials: {},
-      }
+        })
+        enqueue.raise({ type: 'SAVE_SETTINGS' })
+      }),
+    },
 
-      context.machine.gateways.forEach((machine: ActorRefFrom<typeof gatewayMachine>) => {
-        const snapshot = machine.getSnapshot()
-        if (!snapshot)
-          return undefined
-        data.credentials[snapshot.context.credentials.id] = snapshot.context.credentials
-      })
+    REMOVE_GATEWAY: {
+      actions: enqueueActions(({ context, event, enqueue }) => {
+        const { id } = event
+        if (!context.gateways.has(id))
+          return
 
-      localStorage.setItem(storageKey, JSON.stringify(data))
-    }),
-
-    */
+        enqueue.stopChild(context.gateways.get(id)!)
+        enqueue.assign({
+          gateways: produce(context.gateways, (draft) => {
+            draft.delete(id)
+          }),
+        })
+        enqueue.raise({ type: 'SAVE_SETTINGS' })
+      }),
+    },
 
   },
 

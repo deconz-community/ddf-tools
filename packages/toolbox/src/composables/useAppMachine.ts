@@ -126,8 +126,13 @@ function getMachine<Type extends AppMachine['type']>(
     stateRef.value = newActor.getSnapshot()
     sendRef.value = newActor.send
 
-    const { unsubscribe } = newActor.subscribe((state) => {
-      stateRef.value = state
+    const { unsubscribe } = newActor.subscribe({
+      next: (state) => {
+        stateRef.value = state
+      },
+      complete: () => nextTick(() => {
+        actorRef.value = undefined
+      }),
     })
     onCleanup(() => unsubscribe())
   }, { immediate: true })

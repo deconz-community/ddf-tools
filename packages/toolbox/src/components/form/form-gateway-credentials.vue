@@ -15,12 +15,6 @@ const { cloned: credentials, sync: resetCredentials } = useCloned(
   { clone: structuredClone },
 )
 
-/*
-const canConnect = computed(() => state.value?.can({type:'CONNECT'}))
-const cantPrevious = computed(() => !state.can({type:'PREVIOUS'}))
-const cantNext = computed(() => !state.can({type:'NEXT'}))
-*/
-
 async function fetchKey() {
   if (!credentials.value)
     throw new Error('No credentials')
@@ -67,9 +61,19 @@ function save() {
   })
 }
 
+function findWebsocket() {
+  console.log('findWebsocket')
+  console.log(credentials.value)
+}
+
 onScopeDispose(() => {
   if (props.gateway.state?.matches({ offline: 'editing' }))
     props.gateway.send({ type: 'CONNECT' })
+})
+
+onMounted(async () => {
+  // props.gateway.send({ type: 'NEXT' })
+  // props.gateway.send({ type: 'NEXT' })
 })
 </script>
 
@@ -78,7 +82,7 @@ onScopeDispose(() => {
     <v-card variant="outlined">
       <template v-if="gateway.state.matches({ offline: { editing: 'address' } })">
         <v-card-title>
-          Editing address
+          Editing API address
         </v-card-title>
         <v-card-text>
           <v-btn @click="credentials.URIs.api.push('')">
@@ -103,6 +107,26 @@ onScopeDispose(() => {
           <v-btn @click="fetchKey()">
             Fetch API key
           </v-btn>
+        </v-card-text>
+      </template>
+      <template v-else-if="gateway.state.matches({ offline: { editing: 'websocket' } })">
+        <v-card-title>
+          Editing Websocket address
+        </v-card-title>
+        <v-card-text>
+          <v-btn @click="credentials.URIs.websocket.push('')">
+            Add
+          </v-btn>
+          <v-btn @click="findWebsocket()">
+            Find
+          </v-btn>
+          <template v-for="address, index of credentials.URIs.websocket" :key="index">
+            <v-text-field
+              v-model="credentials.URIs.websocket[index]"
+              append-inner-icon="mdi-close"
+              @click:append-inner="credentials.URIs.websocket.splice(index, 1)"
+            />
+          </template>
         </v-card-text>
       </template>
       <v-card-actions v-if="gateway.state.matches({ offline: 'editing' })">

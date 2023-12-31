@@ -186,6 +186,21 @@ export const gatewayMachine = setup({
         },
         websocket: {
 
+          initial: 'connecting',
+          states: {
+            ready: {
+
+            },
+            connecting: {
+
+            },
+            disabled: {
+
+            },
+            error: {
+
+            },
+          },
         },
       },
 
@@ -225,18 +240,25 @@ export const gatewayMachine = setup({
 
         editing: {
           states: {
-            apiKey: {
-              on: {
-                PREVIOUS: 'address',
-              },
-
-            },
-
             address: {
               on: {
                 NEXT: 'apiKey',
               },
             },
+
+            apiKey: {
+              on: {
+                PREVIOUS: 'address',
+                NEXT: 'websocket',
+              },
+            },
+
+            websocket: {
+              on: {
+                PREVIOUS: 'apiKey',
+              },
+            },
+
           },
 
           initial: 'address',

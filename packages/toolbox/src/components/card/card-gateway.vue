@@ -47,6 +47,11 @@ function addGateway() {
 function removeGateway() {
   app.send({ type: 'REMOVE_GATEWAY', id: props.id })
 }
+
+onMounted(async () => {
+  await new Promise(resolve => setTimeout(resolve, 200))
+  // gateway.send({ type: 'EDIT_CREDENTIALS' })
+})
 </script>
 
 <template>
