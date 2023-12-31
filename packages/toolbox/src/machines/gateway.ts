@@ -1,6 +1,6 @@
-import type { ActorRefFrom, AnyEventObject } from 'xstate'
+import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
-import { type Response, findGateway, type gatewayClient } from '@deconz-community/rest-client'
+import { type Response, findGateway, type gatewayClient, websocketSchema } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
@@ -56,8 +56,13 @@ export const gatewayMachine = setup({
       return findGateway(input.URIs, input.apiKey, input.expectedBridgeID)
     }),
 
-    connectToGatewayWebsocket: fromCallback<AnyEventObject, { gatewayID: string, uri: string }>(({ sendBack, input, system }) => {
+    connectToGatewayWebsocket: fromCallback<AnyEventObject, {
+      gatewayID: string
+      uri: string
+      gateway: ActorRef<any, any>
+    }>(({ sendBack, input, system, self }) => {
       const scope = effectScope(true)
+      const schema = websocketSchema()
 
       scope.run(() => {
         const { data } = useWebSocket(input.uri, {
@@ -74,15 +79,25 @@ export const gatewayMachine = setup({
           if (typeof data !== 'string')
             return
 
-          const decoded = JSON.parse(data) as unknown
+          const raw = JSON.parse(data)
+          const message = schema.safeParse(raw)
+          if (!message.success)
+            return console.error('Cant parse websocket message', raw, message.error)
 
-          if (typeof decoded !== 'object' || decoded === null)
-            return console.error('The event is not an object', decoded)
+          const { uniqueid } = message.data
 
-          if ('t' in decoded && decoded.t !== 'event')
-            return console.error('Event', decoded)
+          if (!uniqueid)
+            return
 
-          console.log(input, decoded)
+          const devices = input.gateway.getSnapshot().context.devices as gatewayContext['devices']
+
+          devices.forEach((device) => {
+            const { context } = device.getSnapshot()
+            if (!uniqueid.startsWith(context.deviceID))
+              return
+
+            device.send({ type: 'WEBSOCKET_EVENT', data: message.data })
+          })
         })
       })
 
@@ -240,10 +255,11 @@ export const gatewayMachine = setup({
           states: {
             running: {
               invoke: {
-                input: ({ event, context }) => {
+                input: ({ event, context, self }) => {
                   assertEvent(event, 'WEBSOCKET_CONNECT')
                   return {
                     gatewayID: context.credentials.id,
+                    gateway: self,
                     uri: event.uri,
                   }
                 },

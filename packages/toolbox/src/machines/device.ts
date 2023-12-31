@@ -1,5 +1,5 @@
 import { assign, fromPromise, setup } from 'xstate'
-import type { Response, gatewayClient } from '@deconz-community/rest-client'
+import type { Response, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
 
 export interface deviceContext {
   deviceID: string
@@ -14,6 +14,9 @@ export const deviceMachine = setup({
     input: {} as Pick<deviceContext, 'deviceID' | 'gatewayClient'>,
     events: {} as | {
       type: 'REFRESH'
+    } | {
+      type: 'WEBSOCKET_EVENT'
+      data: WebsocketEvent
     },
   },
   actors: {
