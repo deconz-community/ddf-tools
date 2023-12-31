@@ -1,12 +1,12 @@
 import type { ActorRefFrom, AnyEventObject } from 'xstate'
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
-import { type Response, findGateway, type gateway } from '@deconz-community/rest-client'
+import { type Response, findGateway, type gatewayClient } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
 export interface gatewayContext {
   credentials: GatewayCredentials
-  gateway?: ReturnType<typeof gateway>
+  gateway?: ReturnType<typeof gatewayClient>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config: Response<'getConfig'>['success']
 }
@@ -91,7 +91,7 @@ export const gatewayMachine = setup({
 
     fetchDevices: fromPromise(async ({ input }: {
       input: {
-        gateway: ReturnType<typeof gateway>
+        gateway: ReturnType<typeof gatewayClient>
       }
     }) => {
       return input.gateway.getDevices()

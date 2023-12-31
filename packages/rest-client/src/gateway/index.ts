@@ -12,7 +12,7 @@ import { groupsEndpoints } from './endpoints/groupsEndpoints'
 import { lightsEndpoints } from './endpoints/lightsEndpoints'
 import { sensorsEndpoints } from './endpoints/sensorsEndpoints'
 
-export function gateway(address: string, apiKey: string, axiosConfig: AxiosRequestConfig = {}) {
+export function gatewayClient(address: string, apiKey: string, axiosConfig: AxiosRequestConfig = {}) {
   const client = new Zodios(
     address,
     [

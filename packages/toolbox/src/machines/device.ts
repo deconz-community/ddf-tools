@@ -1,9 +1,9 @@
 import { assign, fromPromise, setup } from 'xstate'
-import type { Response, gateway } from '@deconz-community/rest-client'
+import type { Response, gatewayClient } from '@deconz-community/rest-client'
 
 export interface deviceContext {
   deviceID: string
-  gatewayClient: ReturnType<typeof gateway>
+  gatewayClient: ReturnType<typeof gatewayClient>
   data?: Response<'getDevice'>['success']
 }
 
@@ -19,7 +19,7 @@ export const deviceMachine = setup({
   actors: {
     fetchData: fromPromise(({ input }: {
       input: {
-        gateway: ReturnType<typeof gateway>
+        gateway: ReturnType<typeof gatewayClient>
         deviceID: string
       }
     }) => {

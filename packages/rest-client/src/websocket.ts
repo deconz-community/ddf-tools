@@ -9,17 +9,23 @@ export function websocketSchema() {
       z.literal('scenes'),
       z.literal('sensors'),
     ]),
+    uniqueid: z.optional(z.string()),
   })
 
   return z.discriminatedUnion('e', [
     baseEvent.extend({
       e: z.literal('added'),
       id: z.string(),
+      group: z.optional(z.map(z.string(), z.unknown())),
+      light: z.optional(z.map(z.string(), z.unknown())),
+      sensor: z.optional(z.map(z.string(), z.unknown())),
     }),
     baseEvent.extend({
       e: z.literal('changed'),
       id: z.string(),
-      config: z.map(z.string(), z.unknown()),
+      name: z.optional(z.string()),
+      config: z.optional(z.map(z.string(), z.unknown())),
+      state: z.optional(z.map(z.string(), z.unknown())),
     }),
     baseEvent.extend({
       e: z.literal('deleted'),
@@ -31,15 +37,4 @@ export function websocketSchema() {
       scid: z.string(),
     }),
   ])
-
-  /*
-  return z.strictObject({
-    t: z.literal('event'),
-    e: z.union([z.literal('changed'), z.literal('added'), z.literal('deleted')]),
-    id: z.string(),
-    r: z.number(),
-    t: z.string(),
-    uniqueid: z.string(),
-  })
-  */
 }

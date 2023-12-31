@@ -2,7 +2,7 @@ import { Zodios } from '@zodios/core'
 import type { AxiosRequestConfig } from 'axios'
 import { z } from 'zod'
 
-export function discovery(axiosConfig: AxiosRequestConfig = {}) {
+export function discoveryClient(axiosConfig: AxiosRequestConfig = {}) {
   const client = new Zodios('https://phoscon.de', [{
     method: 'get',
     path: '/discover',

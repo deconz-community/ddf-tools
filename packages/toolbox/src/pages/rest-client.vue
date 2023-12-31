@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { discovery, gateway } from '@deconz-community/rest-client'
+import { discoveryClient, gatewayClient } from '@deconz-community/rest-client'
 import hmacSHA256 from 'crypto-js/hmac-sha256'
 
 const apiUrl = ref<string>(import.meta.env.VITE_API_URL ?? 'http://localhost:80')
@@ -12,9 +12,9 @@ const challengeResult = computed(() => {
   return hmacSHA256(challenge.value, installCode.value.toLowerCase())
 })
 
-const discoveryResult = computed(() => discovery())
+const discoveryResult = computed(() => discoveryClient())
 
-const gatewayClient = computed(() => gateway(apiUrl.value, apiKey.value))
+const gateway = computed(() => gatewayClient(apiUrl.value, apiKey.value))
 
 async function test() {
   try {
@@ -70,8 +70,8 @@ test()
       </v-expansion-panels>
 
       <zodios-api
-        v-for="api in gatewayClient.api" :key="api.path"
-        :api="api" :client="gatewayClient" :api-key="apiKey"
+        v-for="api in gateway.api" :key="api.path"
+        :api="api" :client="gateway" :api-key="apiKey"
       />
     </template>
   </v-card>

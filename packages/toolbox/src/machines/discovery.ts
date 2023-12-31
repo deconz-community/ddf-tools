@@ -1,4 +1,4 @@
-import { discovery, gateway } from '@deconz-community/rest-client'
+import { discoveryClient, gatewayClient } from '@deconz-community/rest-client'
 import { produce } from 'immer'
 import type { ActorRef } from 'xstate'
 import { assertEvent, assign, fromPromise, setup } from 'xstate'
@@ -54,7 +54,7 @@ export const discoveryMachine = setup({
       })
 
       try {
-        const discoveryResult = await discovery().discover()
+        const discoveryResult = await discoveryClient().discover()
         discoveryResult.forEach((gateway) => {
           const uri = `http://${gateway.internalipaddress}:${gateway.internalport}`
           if (!guesses.includes(uri))
@@ -66,7 +66,7 @@ export const discoveryMachine = setup({
       }
 
       await Promise.allSettled(guesses.map(async (uri) => {
-        const client = gateway(uri, '<nouser>', { timeout: 1500 })
+        const client = gatewayClient(uri, '<nouser>', { timeout: 1500 })
         const config = await client.getConfig()
         if (config.success) {
           input.discoveryMachine.send({
