@@ -62,6 +62,9 @@ export const deviceMachine = setup({
 
               if (attr) {
                 objectEntries(attr).forEach(([key, value]) => {
+                  if (key === 'uniqueid')
+                    return
+
                   if (draft[key])
                     draft[key] = value
                 })
