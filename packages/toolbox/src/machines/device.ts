@@ -12,6 +12,9 @@ export const deviceMachine = setup({
   types: {
     context: {} as deviceContext,
     input: {} as Pick<deviceContext, 'deviceID' | 'gatewayClient'>,
+    events: {} as | {
+      type: 'REFRESH'
+    },
   },
   actors: {
     fetchData: fromPromise(({ input }: {
@@ -39,6 +42,9 @@ export const deviceMachine = setup({
   initial: 'fetching',
   states: {
     idle: {
+      on: {
+        REFRESH: 'fetching',
+      },
       after: {
         300000: 'fetching',
       },
@@ -64,6 +70,7 @@ export const deviceMachine = setup({
     },
 
     error: {},
+
   },
 
 })

@@ -64,7 +64,10 @@ const devices = computed(() => {
       title="API Keys"
       :to="`${baseURL}/config/whitelist`"
     />
-    <v-list-subheader>Devices</v-list-subheader>
+    <v-list-subheader>
+      Devices
+      <v-btn icon="mdi-refresh" size="small" class="ma-2" @click="gateway.send({ type: 'REFRESH_DEVICES' })" />
+    </v-list-subheader>
     <v-list-item
       v-for="device in devices" :key="device.id"
       :title="device.name"

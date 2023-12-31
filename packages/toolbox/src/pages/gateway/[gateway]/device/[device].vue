@@ -21,6 +21,11 @@ const device = machines.use('device', computed(() => ({ gateway: props.gateway, 
         <pre>{{ device.state.context.data.subdevices[0].state }}</pre>
       </v-sheet>
     </v-card-text>
+    <v-card-actions>
+      <v-btn :disabled="device.state.matches('fetching') === true" @click="device.send({ type: 'REFRESH' })">
+        REFRESH
+      </v-btn>
+    </v-card-actions>
   </v-card>
   <v-card v-else class="ma-3">
     <v-card-title>
