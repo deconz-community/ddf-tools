@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-validator",
   "type": "module",
   "version": "2.26.0",
-  "packageManager": "pnpm@8.12.1",
+  "packageManager": "pnpm@8.13.1",
   "description": "Validating DDF files for deconz",
   "author": {
     "name": "Zehir",
@@ -70,7 +70,7 @@
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.6",
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.10.6",
     "@types/pako": "^2.0.3",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
@@ -82,7 +82,7 @@
     "stylelint": "^16.1.0",
     "stylelint-config-recommended": "^14.0.0",
     "stylelint-config-sass-guidelines": "^10.0.0",
-    "taze": "^0.13.0",
+    "taze": "^0.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",

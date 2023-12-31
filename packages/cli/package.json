@@ -2,7 +2,7 @@
   "name": "@deconz-community/cli",
   "type": "module",
   "version": "1.7.0",
-  "packageManager": "pnpm@8.12.1",
+  "packageManager": "pnpm@8.13.1",
   "description": "A command line tool for working with DDFs.",
   "author": {
     "name": "Zehir",
@@ -66,7 +66,7 @@
   "devDependencies": {
     "@directus/types": "^11.0.3",
     "@liuli-util/vite-plugin-node": "^0.7.0",
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.10.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
