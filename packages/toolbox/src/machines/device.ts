@@ -1,5 +1,7 @@
 import { assign, fromPromise, setup } from 'xstate'
 import type { Response, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
+import { produce } from 'immer'
+import { objectEntries } from 'ts-extras'
 
 export interface deviceContext {
   deviceID: string
@@ -47,6 +49,50 @@ export const deviceMachine = setup({
     idle: {
       on: {
         REFRESH: 'fetching',
+        WEBSOCKET_EVENT: {
+          actions: assign({
+            data: ({ context, event }) => produce(context.data, (draft) => {
+              if (!draft || event.data.e !== 'changed')
+                return
+
+              const { state, config, attr } = event.data
+
+              if (state === undefined && config === undefined && attr === undefined)
+                return
+
+              if (attr) {
+                objectEntries(attr).forEach(([key, value]) => {
+                  if (draft[key])
+                    draft[key] = value
+                })
+              }
+
+              draft.subdevices?.forEach((subdevice) => {
+                if (subdevice.uniqueid !== event.data.uniqueid)
+                  return
+
+                if (state) {
+                  objectEntries(state).forEach(([key, value]) => {
+                    if (subdevice.state[key]) {
+                      subdevice.state[key].value = value
+                      if (state.lastupdated)
+                        subdevice.state[key].lastupdated = state.lastupdated
+                    }
+                  })
+                }
+                if (config) {
+                  objectEntries(config).forEach(([key, value]) => {
+                    if (subdevice.config[key]) {
+                      subdevice.config[key].value = value
+                      if (state?.lastupdated)
+                        subdevice.config[key].lastupdated = state.lastupdated
+                    }
+                  })
+                }
+              })
+            }),
+          }),
+        },
       },
       after: {
         300000: 'fetching',
