@@ -1,28 +1,42 @@
-import { assign, createMachine } from 'xstate'
+import { assign, fromPromise, setup } from 'xstate'
 import type { Gateway, Response } from '@deconz-community/rest-client'
 
 export interface deviceContext {
-  id: string
-  gateway: ReturnType<typeof Gateway>
-  data: Response<'getDevice'>['success']
+  deviceID: string
+  gatewayClient: ReturnType<typeof Gateway>
+  data?: Response<'getDevice'>['success']
 }
 
-export const deviceMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QTANwJYGMwDp0QBswBiAD1gBcBDC3KgM1oCcAKAZgAYuuBKYlDNjyEwAbQ4BdRKAAOAe1joK6OQDtpIUogBMARl05dAVgBs2owBoQAT0S6uAXwdWBWXPTAVMAC3Sqo-Gq4fqhyANa4rkIeXr7+CCFymDQqquIS6RryispqGloIALScOEYA7AAcuuZWtgh6ACw4ZWVsDWxlRk4uaG44MT5+AWBMTHJMODIENPTjALY4Ue6eg-GJyblpkplIINlKqfmIbBUmOACcHZY2Oh2lTs4gqnIo8LtLWQoHebsFhZWlSrVa51fTdEBLYRET45Q6-RD-HAmXRlXQVTq1RDnCr3R6QgZxKAw77qeEIFFNIxsYGY+rVXE9QS4EZjJjEzZHBBGCpNE7aKo1G71NgmB4OIA */
-  id: 'device',
-  predictableActionArguments: true,
+export const deviceMachine = setup({
 
-  tsTypes: {} as import('./device.typegen').Typegen0,
-
-  schema: {
+  types: {
     context: {} as deviceContext,
-    services: {} as {
-      fetchData: {
-        data: Response<'getDevice'>
-      }
-    },
+    input: {} as Pick<deviceContext, 'deviceID' | 'gatewayClient'>,
   },
+  actors: {
+    fetchData: fromPromise(({ input }: {
+      input: {
+        gateway: ReturnType<typeof Gateway>
+        deviceID: string
+      }
+    }) => {
+      return input.gateway.getDevice({
+        params: {
+          deviceUniqueID: input.deviceID,
+        },
+      })
+    }),
 
+  },
+}).createMachine({
+  id: 'device',
+
+  context: ({ input }) => ({
+    ...input,
+    data: undefined,
+  }),
+
+  initial: 'fetching',
   states: {
     idle: {
       after: {
@@ -32,38 +46,24 @@ export const deviceMachine = createMachine({
 
     fetching: {
       invoke: {
+        input: ({ context }) => ({
+          gateway: context.gatewayClient,
+          deviceID: context.deviceID,
+        }),
         src: 'fetchData',
-
         onDone: {
           target: 'idle',
-          actions: 'saveData',
+          actions: assign({
+            data: ({ event }) => event.output.success,
+          }),
         },
 
         onError: 'error',
       },
+
     },
 
     error: {},
   },
 
-  initial: 'fetching',
-}, {
-  services: {
-    fetchData: (context) => {
-      /*
-      console.log('fetchData', typeof context.gateway.getDevice)
-      console.log('fetchData', context.gateway.getDevice)
-      */
-      return context.gateway.getDevice({
-        params: {
-          deviceUniqueID: context.id,
-        },
-      })
-    },
-  },
-  actions: {
-    saveData: assign({
-      data: (context, event) => event.data.success,
-    }),
-  },
 })

@@ -27,13 +27,13 @@ const loginUrl = computed(() => {
 
 async function logout() {
   await store.client?.logout()
-  store.send('LOGOUT')
+  store.send({ type: 'LOGOUT' })
   createSnackbar({ text: 'Logged out.' })
 }
 </script>
 
 <template>
-  <template v-if="store.state?.matches('online.connected') && store.profile">
+  <template v-if="store.state?.matches({ online: 'connected' }) && store.profile">
     <v-menu
       width="200"
     >
@@ -70,7 +70,7 @@ async function logout() {
       </v-list>
     </v-menu>
   </template>
-  <template v-else-if="store.state?.matches('online.anonymous')">
+  <template v-else-if="store.state?.matches({ online: 'anonymous' })">
     <v-btn
       prepend-icon="mdi-login"
       :href="loginUrl"

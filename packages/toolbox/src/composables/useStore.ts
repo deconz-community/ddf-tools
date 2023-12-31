@@ -1,6 +1,8 @@
 import type { RestCommand } from '@directus/sdk'
 import type { UseAsyncStateOptions } from '@vueuse/core'
-import type { MaybeRef } from 'vue'
+import type { MaybeRef, UnwrapNestedRefs } from 'vue'
+
+import type { UseAppMachine } from './useAppMachine'
 import type { Collections, Schema } from '~/interfaces/store'
 
 export type RequestOptions<Output extends object | unknown> = {
@@ -13,7 +15,8 @@ export type RequestOptions<Output extends object | unknown> = {
 export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar_url' | 'date_created' | 'public_key'>
 
 export function useStore() {
-  const store = useAppMachine('store')
+  const machines = createUseAppMachine()
+  const store = machines.use('store')
   const client = computed(() => store.state?.context.directus)
   const profile = computed(() => store.state?.context.profile)
 
@@ -86,7 +89,11 @@ export function useStore() {
     client,
     profile,
     request,
-    findOrCreate: () => undefined,
     getUserByKey,
-  })
+  }) as UnwrapNestedRefs<UseAppMachine<'store'> & {
+    client: typeof client
+    profile: typeof profile
+    request: typeof request
+    getUserByKey: typeof getUserByKey
+  }>
 }

@@ -28,7 +28,7 @@ watch(files, async () => {
 
 async function upload() {
   // Check if logged in
-  if (store.state?.matches('online.connected') !== true)
+  if (store.state?.matches({ online: 'connected' }) !== true)
     throw new Error('You must be logged in to upload a bundle')
 
   // TODO Check if bundle already exists

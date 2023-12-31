@@ -33,7 +33,8 @@ export function Gateway(address: string, apiKey: string, axiosConfig: AxiosReque
           Accept: 'application/vnd.ddel.v1.1', // Version recommended by Manup
         },
       },
-    })
+    },
+  )
 
   client.use(pluginAuth(() => apiKey))
   client.use(pluginTransformResponse())

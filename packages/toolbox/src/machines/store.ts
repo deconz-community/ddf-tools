@@ -1,4 +1,4 @@
-import { assign, createMachine, sendParent } from 'xstate'
+import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, readSettings, realtime, rest, serverHealth } from '@directus/sdk'
@@ -22,18 +22,16 @@ export interface StoreContext {
   websocketEventHandlerRemover?: () => void
 }
 
-export const storeMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOYB0BLAdrigMQAeqAhijhQGbUYAUAjAAwCUxqmOBRA2qwC6iUAAc0sIrjT5RIUogAszbADYVAViWsAHAE4A7IYBMu3QBoQAT0RsT6zbs3Mla3Yc0BmNWYC+flbcWNgAxrL4YKEoBFDEELK8+ABuaADWOME44fiR0bEIBKmhVDL4gkIV8hJSMbLyiggAtEoq2MzmRl46ar66rIZWtggqDmpemiZTXqwm+nrjAUHoITl5MfhxCZF4KemZK9kRURtQhXsldeXC-MwiSCA10vUPjU26DkrOuhPMc8zMQxfIbKP7qCZTEwzOYLLxLEBZMLHfKbYhgDAYTDYMQAGyotEwAFtsIi1icCkU0JcyhUqg8nlcGogZoZsMYvKZDLo1PoptyQSMweNJppeeMZjM1PDEbIcQQaPhZNZCWgAK6wYgAGQA8gBxACSADk6eJJM85K9EE1AQ5XDpWHpWK0OoCBYZfNgYU5PJpDHoDNLDthZfKkbkTpAtXrtQBVAAqJseZsZluaNvarQdjuduldNkQTlYbKBpmhZnmhkDPGD+DlOzJ0UjMYACgARACCcYAogB9ZsAJW1ADF9Zqu4mGWUmc0NJpsD8vCYdJpRaZgfmEFyvPOlCvWH8TO53CYq1hiC2O92ewBlOPa-u9mP9zUT5NT1NNLxg1q5jm9LzOO4gwbh6mhOv0rBeN0f7dAEgQgIqEBwPIWTVG+LygG8QKqAuS6sCuRhLpYG5NIY24-pMBhqMw+jjKwUrwYifAoGhtTvphyhjBoRg-EYpjmAKrjYPhrjjDyzAAV8Sinkc4YolArHmtOTQmKoUFgapaizCYhgAvoxHDDRSjYG4uauFyEGsEYMk1nWYCKSmHEzvo264cuq5EQKSguZ6QLuD83l-N00mMUGIY7BQir4MqarwPS6EWk5zBzoeKh+gMBE+EoAo8kWS7umoulAr6fw2eFsnrJADnsQoVqtNuhZePo3jaFZAECqKqiFr6ZEzB8EllbQtB2dVGG1QgEysqKOi6N5q76G4XnzCZzj7kCUKim1cF+EAA */
+export const storeMachine = setup({
 
-  id: 'store',
-
-  predictableActionArguments: true,
-  tsTypes: {} as import('./store.typegen').Typegen0,
-
-  schema: {
+  types: {
     context: {} as StoreContext,
+    input: {} as Partial<Pick<StoreContext, 'directusUrl'>>,
     events: {} as {
-      type: 'LOGIN' | 'UPDATE_PROFILE'
+      type: 'LOGIN'
+      profile: Collections.DirectusUser
+    } | {
+      type: 'UPDATE_PROFILE'
       profile: Collections.DirectusUser
     } | {
       type: 'LOGOUT'
@@ -41,24 +39,43 @@ export const storeMachine = createMachine({
       type: 'UPDATE_DIRECTUS_URL'
       directusUrl: string
     },
-    services: {} as {
-      connectToDirectus: {
-        data: {
-          directus: StoreContext['directus']
-          settings: StoreContext['settings']
-          isAuthenticated: boolean
-        }
-      }
-      watchProfile: {
-        data: void
-      }
-    },
   },
 
-  context: {
-    // directusUrl: import.meta.env.VITE_DIRECTUS_URL
-    directusUrl: 'localhost',
+  actors: {
+    fetchProfile: fromPromise(async ({ input }: { input: Directus }) => {
+      return await input.request(readMe()) as Collections.DirectusUser
+    }),
   },
+
+  actions: {
+    updateProfile: assign(({ context, event }) => produce(context, (draft) => {
+      draft.profile = 'profile' in event ? event.profile : undefined
+    })),
+
+    connectWebsocket: assign(({ context }) => produce(context, (draft) => {
+      context.directus?.connect()
+      draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
+        if (message.type !== 'notification')
+          return
+        console.log(message)
+      })
+    })),
+
+    disconnectWebsocket: assign(({ context }) => produce(context, (draft) => {
+      context.directus?.disconnect()
+      context.websocketEventHandlerRemover?.()
+      delete draft.websocketEventHandlerRemover
+    })),
+
+  },
+
+}).createMachine({
+
+  id: 'store',
+
+  context: ({ input }) => ({
+    directusUrl: input.directusUrl ?? 'localhost',
+  }),
 
   states: {
     init: {
@@ -69,16 +86,109 @@ export const storeMachine = createMachine({
 
     connecting: {
       invoke: {
-        src: 'connectToDirectus',
-        onError: 'offline',
+        input: ({ context }) => ({
+          directusUrl: context.directusUrl,
+        }),
+        src: fromPromise(async ({ input }: {
+          input: {
+            directusUrl: string
+          }
+        }) => {
+          const makeBaseClient = () => {
+            return createDirectus<Schema>(input.directusUrl)
+              .with(rest({
+                onRequest: (fetchOptions) => {
+                  let timeout = 3000
+                  if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
+                    const timeoutHeader = fetchOptions.headers['X-Timeout']
+                    if (typeof timeoutHeader === 'string') {
+                      const converted = Number.parseInt(timeoutHeader)
+                      if (!Number.isNaN(converted))
+                        timeout = converted
+                    }
+                  }
+                  const abortController = new AbortController()
+                  const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
+                  fetchOptions.signal = abortController.signal
+                  fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
+                  return fetchOptions
+                },
+                onResponse: (_result, fetchOptions) => {
+                  if (fetchOptions.signal?.aborted === false)
+                    fetchOptions.signal.dispatchEvent(new Event('abort'))
+                  return _result
+                },
+              }))
+              .with(realtime({
+                authMode: 'handshake',
+                reconnect: {
+                  delay: 1000,
+                  retries: 10,
+                },
+                heartbeat: true,
+              }))
+          }
 
-        onDone: [{
-          target: 'online.connected',
-          cond: 'isAuthenticated',
-        }, 'online.anonymous'],
+          const baseClient = makeBaseClient()
+
+          const client = baseClient.with(authentication('cookie', {
+            credentials: 'include', // TODO What do this does ?
+          }))
+
+          const health = await client.request(serverHealth())
+
+          if (health.status !== 'ok')
+            throw new Error('Could not connect to Directus')
+
+          const settings = await client.request(readSettings())
+
+          try {
+            const auth = await client.refresh()
+            if (auth.access_token !== null) {
+              return {
+                directus: client,
+                settings,
+                isAuthenticated: true,
+              }
+            }
+          }
+          catch (e) {
+            // console.error(e)
+          }
+
+          return {
+            directus: baseClient,
+            settings,
+            isAuthenticated: false,
+          }
+        }),
+
+        onError: {
+          target: 'offline',
+          actions: assign(({ context }) => produce(context, (draft) => {
+            draft.directus = undefined
+            draft.settings = undefined
+          })),
+        },
+        onDone: [
+          {
+            target: 'online.connected',
+            guard: ({ event }) => event.output.isAuthenticated === true,
+            actions: assign(({ context, event }) => produce(context, (draft) => {
+              draft.directus = event.output.directus
+              draft.settings = event.output.settings
+            })),
+          },
+          {
+            target: 'online.anonymous',
+            actions: assign(({ context, event }) => produce(context, (draft) => {
+              draft.directus = event.output.directus
+              draft.settings = event.output.settings
+            })),
+          },
+        ],
+
       },
-
-      exit: 'useDirectus',
     },
 
     online: {
@@ -98,16 +208,17 @@ export const storeMachine = createMachine({
               target: 'anonymous',
               actions: 'updateProfile',
             },
-
             UPDATE_PROFILE: {
-              target: 'connected',
-              internal: true,
-              actions: 'updateProfile',
+              actions: assign({ profile: ({ event }) => event.profile }),
             },
           },
 
           invoke: {
-            src: 'watchProfile',
+            input: ({ context }) => context.directus!,
+            src: 'fetchProfile',
+            onDone: {
+              actions: raise(({ event }) => ({ type: 'UPDATE_PROFILE', profile: event.output })),
+            },
           },
 
           entry: 'connectWebsocket',
@@ -127,131 +238,12 @@ export const storeMachine = createMachine({
     UPDATE_DIRECTUS_URL: {
       target: '.connecting',
       actions: [
-        'updateDirectusUrl',
-        'saveAppSettings',
+        assign(({ context, event }) => produce(context, (draft) => {
+          draft.directusUrl = event.directusUrl
+        })),
+        sendTo(({ system }) => system.get('app'), { type: 'SAVE_SETTINGS' }),
       ],
     },
   },
-}, {
-  actions: {
-    useDirectus: assign((context, event) => produce(context, (draft) => {
-      if (event.type === 'done.invoke.store.connecting:invocation[0]') {
-        // TODO fix this, the type is not correct but it's working
-        draft.directus = event.data.directus as any
-        draft.settings = event.data.settings
-      }
-      else {
-        draft.directus = undefined
-        draft.settings = undefined
-      }
-    })),
 
-    updateProfile: assign((context, event) => produce(context, (draft) => {
-      draft.profile = 'profile' in event ? event.profile : undefined
-    })),
-
-    updateDirectusUrl: assign((context, event) => produce(context, (draft) => {
-      draft.directusUrl = event.directusUrl
-    })),
-
-    saveAppSettings: sendParent('SAVE_SETTINGS'),
-
-    connectWebsocket: assign(context => produce(context, (draft) => {
-      context.directus?.connect()
-      draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
-        if (message.type !== 'notification')
-          return
-        console.log(message)
-      })
-    })),
-
-    disconnectWebsocket: assign(context => produce(context, (draft) => {
-      context.directus?.disconnect()
-      context.websocketEventHandlerRemover?.()
-      delete draft.websocketEventHandlerRemover
-    })),
-
-  },
-  guards: {
-    isAuthenticated: (context, event) => event.data.isAuthenticated === true,
-  },
-  services: {
-    connectToDirectus: async (context, event) => {
-      const makeBaseClient = () => {
-        return createDirectus<Schema>(context.directusUrl)
-          .with(rest({
-            onRequest: (fetchOptions) => {
-              let timeout = 3000
-              if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
-                const timeoutHeader = fetchOptions.headers['X-Timeout']
-                if (typeof timeoutHeader === 'string') {
-                  const converted = Number.parseInt(timeoutHeader)
-                  if (!Number.isNaN(converted))
-                    timeout = converted
-                }
-              }
-              const abortController = new AbortController()
-              const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
-              fetchOptions.signal = abortController.signal
-              fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
-              return fetchOptions
-            },
-            onResponse: (_result, fetchOptions) => {
-              if (fetchOptions.signal?.aborted === false)
-                fetchOptions.signal.dispatchEvent(new Event('abort'))
-              return _result
-            },
-          }))
-          .with(realtime({
-            authMode: 'handshake',
-            reconnect: {
-              delay: 1000,
-              retries: 10,
-            },
-            heartbeat: true,
-          }))
-      }
-
-      const baseClient = makeBaseClient()
-
-      const client = baseClient.with(authentication('cookie', {
-        credentials: 'include', // TODO What do this does ?
-      }))
-
-      const health = await client.request(serverHealth())
-
-      if (health.status !== 'ok')
-        throw new Error('Could not connect to Directus')
-
-      const settings = await client.request(readSettings())
-
-      try {
-        const auth = await client.refresh()
-        if (auth.access_token !== null) {
-          return {
-            directus: client,
-            settings,
-            isAuthenticated: true,
-          }
-        }
-      }
-      catch (e) {
-        // console.error(e)
-      }
-
-      return {
-        directus: baseClient,
-        settings,
-        isAuthenticated: false,
-      }
-    },
-
-    watchProfile: context => async (sendBack) => {
-      const profile = await context.directus?.request(readMe())
-      if (profile)
-        sendBack({ type: 'UPDATE_PROFILE', profile })
-      // TODO get updated profile with websocket
-    },
-
-  },
 })

@@ -7,19 +7,26 @@ const baseURL = computed(() => {
   return `/gateway/${route.params.gateway}`
 })
 
-const gateway = useAppMachine('gateway', computed(() => ({ id: route.params.gateway as string })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: route.params.gateway as string })))
+
+const scope = getCurrentScope()
+if (!scope)
+  throw new Error('no scope')
 
 const devices = computed(() => {
-  const devices: { name: string; id: string; type: string }[] = []
+  const devices: { name: string, id: string, type: string }[] = []
 
   if (gateway.state) {
-    objectKeys(gateway.state.context.devices).forEach((id) => {
-      const device = useAppMachine('device', computed(() => ({ gateway: route.params.gateway as string, id })))
-      /*
+    Array.from(gateway.state.context.devices.keys()).forEach((id) => {
+      const device = machines.use('device', computed(() => ({ gateway: route.params.gateway as string, id })))
+
+      if (!device)
+        return
+
       // Hide empty devices like the gateway itself
       if (device.state?.context.data?.name === undefined)
         return
-      */
 
       devices.push({
         name: device.state?.context.data?.name ?? id,

@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { produce } from 'immer'
 import { objectEntries } from 'ts-extras'
 
 const props = defineProps<{
   gateway: string
 }>()
 
-const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
 const search = ref('')
 
 const { state, isLoading, execute } = useAsyncState(async () => {
@@ -46,10 +48,15 @@ async function deleteKey(key: string) {
     },
   })
 
-  // Workaround for https://github.com/dresden-elektronik/deconz-rest-plugin/issues/7216
-  await client.updateConfig({
-    unlock: 1,
-  })
+  if (gateway.state.context.credentials.apiKey === key) {
+    gateway.send({
+      type: 'UPDATE_CREDENTIALS',
+      data: produce(gateway.state.context.credentials, (draft) => {
+        draft.apiKey = ''
+      }),
+    })
+    return
+  }
 
   execute()
 }

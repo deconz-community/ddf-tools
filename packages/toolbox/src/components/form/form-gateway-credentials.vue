@@ -16,9 +16,9 @@ const { cloned: credentials, sync: resetCredentials } = useCloned(
 )
 
 /*
-const canConnect = computed(() => state.value?.can('CONNECT'))
-const cantPrevious = computed(() => !state.can('PREVIOUS'))
-const cantNext = computed(() => !state.can('NEXT'))
+const canConnect = computed(() => state.value?.can({type:'CONNECT'}))
+const cantPrevious = computed(() => !state.can({type:'PREVIOUS'}))
+const cantNext = computed(() => !state.can({type:'NEXT'}))
 */
 
 async function fetchKey() {
@@ -66,12 +66,17 @@ function save() {
     data: JSON.parse(JSON.stringify(credentials.value)),
   })
 }
+
+onScopeDispose(() => {
+  if (props.gateway.state?.matches({ offline: 'editing' }))
+    props.gateway.send({ type: 'CONNECT' })
+})
 </script>
 
 <template>
   <template v-if="credentials && gateway.state">
     <v-card variant="outlined">
-      <template v-if="gateway.state.matches('offline.editing.address')">
+      <template v-if="gateway.state.matches({ offline: { editing: 'address' } })">
         <v-card-title>
           Editing address
         </v-card-title>
@@ -88,7 +93,7 @@ function save() {
           </template>
         </v-card-text>
       </template>
-      <template v-else-if="gateway.state.matches('offline.editing.apiKey')">
+      <template v-else-if="gateway.state.matches({ offline: { editing: 'apiKey' } })">
         <v-card-title>
           Editing API Key
         </v-card-title>
@@ -100,18 +105,18 @@ function save() {
           </v-btn>
         </v-card-text>
       </template>
-      <v-card-actions v-if="gateway.state.matches('offline.editing')">
+      <v-card-actions v-if="gateway.state.matches({ offline: 'editing' })">
         <v-btn
           elevation="2"
-          :disabled="gateway.state.can('PREVIOUS') !== true"
-          @click="gateway.send('PREVIOUS')"
+          :disabled="gateway.state.can({ type: 'PREVIOUS' }) !== true"
+          @click="gateway.send({ type: 'PREVIOUS' })"
         >
           Previous
         </v-btn>
         <v-btn
           elevation="2"
-          :disabled="gateway.state.can('NEXT') !== true"
-          @click="gateway.send('NEXT')"
+          :disabled="gateway.state.can({ type: 'NEXT' }) !== true"
+          @click="gateway.send({ type: 'NEXT' })"
         >
           Next
         </v-btn>

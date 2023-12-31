@@ -3,14 +3,20 @@ const props = defineProps<{
   gateway: string
 }>()
 
-const gateway = useAppMachine('gateway', computed(() => ({ id: props.gateway })))
+const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
 
 const credentials = computed(() => {
   return gateway.state?.context.credentials
 })
+
 const devices = computed(() => {
-  return Object.keys(gateway.state?.context.devices ?? [])
+  if (!gateway.state?.context.devices)
+    return []
+
+  return Array.from(gateway.state.context.devices.keys())
 })
+
 /*
 const gateways = useGatewaysStore()
 
@@ -20,7 +26,7 @@ if (!gateway)
   throw new Error('no gateway')
 const { state, machine } = gateway
 
-const canFixIssue = useSelector(machine, state => state.can('EDIT_CREDENTIALS'))
+const canFixIssue = useSelector(machine, state => state.can({ type: 'EDIT_CREDENTIALS' }))
 
 const gateway = gateways.gateways[props.gateway]
 
@@ -33,6 +39,7 @@ function send(event: string) {
   gateway.machine.send(event)
 }
 */
+
 const drawer = ref(false)
 onMounted(() => setTimeout(() => drawer.value = true, 0))
 </script>
@@ -69,7 +76,7 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
       <json-viewer :value="state.toStrings().pop()" />
       <json-viewer :value="state.context" />
 
-      <v-btn :disabled="!state.can('Fix issue')" @click="machine.send('Fix issue')">
+      <v-btn :disabled="!state.can({type: 'Fix issue'})" @click="machine.send({type: 'Fix issue'})">
         Fix issue
       </v-btn>
       -->
@@ -80,7 +87,7 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
       <!--
       <json-viewer :value="state.context" />
 
-      <v-btn v-if="state.can('Fix issue')" @click="gateway.machine.send('Fix issue')">
+      <v-btn v-if="state.can({type: 'Fix issue'})" @click="gateway.machine.send({type: 'Fix issue'})">
         Fix issue
       </v-btn>
 

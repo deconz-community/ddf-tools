@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import CardGateway from '~/components/card/card-gateway.vue'
 
-const app = useAppMachine('app')
-
-const discovery = useAppMachine('discovery')
+const machines = createUseAppMachine()
+const app = machines.use('app')
+const discovery = machines.use('discovery')
 
 const discoveryUri = ref<string>(JSON.parse(import.meta.env.VITE_GATEWAY_DISCOVERY_URI).join(','))
 
@@ -13,7 +13,7 @@ const newList = computed(() => {
   const discoveredGateway = discovery.state ? Array.from(discovery.state.context.results.values()) : []
   // console.log(discoveredGateway)
 
-  const existingGateway = app.state ? Array.from(app.state.context.machine.gateways.keys()) : []
+  const existingGateway = app.state ? Array.from(app.state.context.gateways.keys()) : []
 
   list.push(...existingGateway)
 
@@ -28,6 +28,7 @@ const newList = computed(() => {
 </script>
 
 <template>
+  {{ discovery.state }}
   <v-card class="ma-3">
     <v-card-title>
       Scan for gateways
@@ -42,8 +43,8 @@ const newList = computed(() => {
     </v-card-text>
     <v-card-actions>
       <v-btn
-        :disabled="discovery.state?.matches('scanning')"
-        @click="discovery.send({ type: 'START_SCAN', uri: discoveryUri.split(',') })"
+        :disabled="discovery.state?.can({ type: 'START_SCAN' }) === false"
+        @click="discovery.send({ type: 'START_SCAN', uris: discoveryUri.split(',') })"
       >
         Scan
       </v-btn>

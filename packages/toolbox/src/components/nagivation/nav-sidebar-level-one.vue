@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const app = useAppMachine('app')
+const machines = createUseAppMachine()
+const app = machines.use('app')
+
 const store = useStore()
 
 type Link = ({ icon: string, title: string, to: string } | 'divider' | { gateway: string })
@@ -10,17 +12,19 @@ const links = computed(() => {
   list.push({ icon: 'mdi-home', title: 'Home', to: '/' })
   list.push({ icon: 'mdi-folder-zip', title: 'Bundler', to: '/bundler' })
   list.push({ icon: 'mdi-api', title: 'REST Client', to: '/rest-client' })
+
   if (store.state?.matches('online')) {
     list.push({ icon: 'mdi-view-list', title: 'Bundle list', to: '/store/search' })
     list.push({ icon: 'mdi-upload', title: 'Upload', to: '/store/upload' })
   }
+
   if (import.meta.env.VITE_DEBUG === 'true')
     list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
 
   list.push('divider')
 
   if (app.state) {
-    const gateways = Array.from(app.state.context.machine.gateways.keys())
+    const gateways = Array.from(app.state.context.gateways.keys())
     if (gateways.length > 0) {
       gateways.forEach((gatewayId) => {
         list.push({ gateway: gatewayId })

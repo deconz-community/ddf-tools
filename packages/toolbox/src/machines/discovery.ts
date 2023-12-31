@@ -1,115 +1,43 @@
 import { Discovery, Gateway } from '@deconz-community/rest-client'
 import { produce } from 'immer'
-import { assign, createMachine } from 'xstate'
+import type { ActorRef } from 'xstate'
+import { assertEvent, assign, fromPromise, setup } from 'xstate'
 
 export interface DiscoveryResult {
   id: string
   name: string
   version: string
-  uri: string[]
+  uris: string[]
 }
 
 export interface DiscoveryContext {
   results: Map<string, DiscoveryResult>
 }
 
-export const discoveryMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQJawMYHsBuYBOAngHQoQA2YAxAMoAuAhnrQAQb0B2A2gAwC6ioAA6ZYKWikzsBIAB6IAtADYArIqIAOAOzKALOvUBmAJybFARkMAaEAUSaDRAEz2dOzZp0Gdu5WYC+ftaoGDj4xGzs7CjsUJQQkmAk7NiYANaJwVi4hEQRUTEI0Sno9OKSPLwV0sKiZVJIsgqKOmZERopGjq7t6r4W1rYI8g7cZprq3DodOqOKio6OAUFoWWG5JZHRsXSYgqwbVQ01YhL1oHJDzdxO9kbcRp6q3AYDiGZGDmbGytyTY9yKAzqIxLECZUI5PJbSgAMUwAFd2BBmFBSmAAO70AiHIQiE6SaQXeRjHREbiORT2ey6IzKXrqV4Iew3LxuDxeHwGAKBEDsTAQODScHZQa42qnQkKYFGMlTLTKRnyO5EXzuLSOEmaWn+HnCtakCjVPF1SVDXqtSaKeWM9qgvWQjb5KBG8UEhpEzzXVSKbhaQEGK3GRnKGU-X6jZTuZ7AxTcvxAA */
+interface FoundEvent {
+  type: 'GATEWAY_FOUND'
+  uri: string
+  id: string
+  name: string
+  version: string
+}
 
-  id: 'discovery',
-
-  predictableActionArguments: true,
-  tsTypes: {} as import('./discovery.typegen').Typegen0,
-
-  schema: {
+export const discoveryMachine = setup({
+  types: {
     context: {} as DiscoveryContext,
     events: {} as {
       type: 'START_SCAN'
-      uri?: string | string[]
+      uris?: string | string[]
     } | {
       type: 'STOP_SCAN'
-    } | {
-      type: 'GATEWAY_FOUND'
-      uri: string
-      id: string
-      name: string
-      version: string
-    },
+    } | FoundEvent,
   },
 
-  context: (): DiscoveryContext => ({
-    results: new Map(),
-  }),
-
-  states: {
-    idle: {
-      on: {
-        START_SCAN: {
-          target: 'scanning',
-          actions: 'cleanupResults',
-        },
-      },
-    },
-
-    scanning: {
-      invoke: {
-        src: 'scan',
-        onDone: 'idle',
-      },
-
-      on: {
-        STOP_SCAN: 'idle',
-
-        GATEWAY_FOUND: {
-          target: 'scanning',
-          internal: true,
-          actions: 'saveGatewayResult',
-        },
-      },
-
-      entry: 'cleanupResults',
-    },
-  },
-
-  initial: 'idle',
-
-}, {
-  actions: {
-    cleanupResults: assign({
-      results: context => produce(context.results, (draft) => {
-        draft.clear()
-      }),
-    }),
-
-    saveGatewayResult: assign({
-      results: (context, { id, name, version, uri }) => produce(context.results, (draft) => {
-        if (draft.has(id)) {
-          const result = draft.get(id)!
-          result.name = name
-          result.uri.push(uri)
-        }
-        else {
-          draft.set(id, { id, name, version, uri: [uri] })
-        }
-      }),
-    }),
-
-    /*
-    setEditing: assign({
-      editing: (context, event) => 'id' in event ? context.results.get(event.id) : undefined,
-    }),
-
-    updateURI: assign({
-      editing: (context, event) => produce(context.editing, (draft) => {
-        if (!draft)
-          throw new Error('Error while editing, no editing context')
-        draft.uri = event.data
-      }),
-    }),
-    */
-  },
-  services: {
-    scan: (context, event) => async (callback) => {
+  actors: {
+    scanner: fromPromise(async ({ input }: { input: {
+      uris: string | string[] | undefined
+      discoveryMachine: ActorRef<any, FoundEvent>
+    } }) => {
       const guesses = [
         'http://localhost',
         'http://localhost:443',
@@ -118,7 +46,7 @@ export const discoveryMachine = createMachine({
         'http://core-deconz.local.hass.io:40850',
       ]
 
-      const uris = event.uri ? Array.isArray(event.uri) ? event.uri : [event.uri] : []
+      const uris = input.uris ? Array.isArray(input.uris) ? input.uris : [input.uris] : []
 
       uris.forEach((uri) => {
         if (!guesses.includes(uri))
@@ -137,11 +65,12 @@ export const discoveryMachine = createMachine({
         console.error(error)
       }
 
-      return Promise.allSettled(guesses.map(async (uri) => {
+      await Promise.allSettled(guesses.map(async (uri) => {
         const client = Gateway(uri, '<nouser>', { timeout: 1500 })
         const config = await client.getConfig()
         if (config.success) {
-          callback({
+          input.discoveryMachine.send({
+            // TODO Typing for that
             type: 'GATEWAY_FOUND',
             id: config.success.bridgeid,
             name: config.success.name,
@@ -150,6 +79,75 @@ export const discoveryMachine = createMachine({
           })
         }
       }))
+    }),
+  },
+}).createMachine({
+
+  id: 'discovery',
+
+  context: (): DiscoveryContext => ({
+    results: new Map(),
+  }),
+
+  initial: 'idle',
+
+  states: {
+    idle: {
+      on: {
+        START_SCAN: {
+          target: 'scanning',
+          actions: 'cleanupResults',
+        },
+      },
     },
+
+    scanning: {
+      invoke: {
+        src: 'scanner',
+        input: ({ event, self }) => {
+          assertEvent(event, 'START_SCAN')
+          return {
+            uris: event.uris,
+            discoveryMachine: self,
+          }
+        },
+        onDone: 'idle',
+      },
+
+      on: {
+        STOP_SCAN: 'idle',
+
+        GATEWAY_FOUND: {
+          actions: assign({
+            results: ({ context, event }) => produce(context.results, (draft) => {
+              const { id, name, version, uri } = event
+              if (draft.has(id)) {
+                const result = draft.get(id)!
+                result.name = name
+                result.uris.push(uri)
+              }
+              else {
+                draft.set(id, { id, name, version, uris: [uri] })
+              }
+            }),
+          }),
+        },
+      },
+
+      entry: 'cleanupResults',
+    },
+  },
+
+}).provide({
+  actions: {
+    cleanupResults: assign({
+      results: ({ context }) => produce(context.results, (draft) => {
+        draft.clear()
+      }),
+    }),
+
+    /*
+    saveGatewayResult:
+    */
   },
 })

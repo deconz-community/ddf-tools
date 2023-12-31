@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const App = useAppStore()
 const route = useRoute()
 
 const showLevelTowSidebar = computed(() => route.meta.hideLevelTwoSidebar !== true)
+const isGatewayRoute = computed(() => route.params.gateway !== undefined)
 </script>
 
 <template>
@@ -11,7 +11,7 @@ const showLevelTowSidebar = computed(() => route.meta.hideLevelTwoSidebar !== tr
     <nav-sidebar-level-one />
 
     <v-navigation-drawer v-model="showLevelTowSidebar" width="240" permanent>
-      <nav-sidebar-level-two-gateway v-if="App.isGatewayRoute" />
+      <nav-sidebar-level-two-gateway v-if="isGatewayRoute" />
       <nav-sidebar-level-two v-else />
     </v-navigation-drawer>
 
