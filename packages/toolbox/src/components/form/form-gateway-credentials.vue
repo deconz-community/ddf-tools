@@ -66,6 +66,11 @@ function save() {
     data: JSON.parse(JSON.stringify(credentials.value)),
   })
 }
+
+onScopeDispose(() => {
+  if (props.gateway.state?.matches({ offline: 'editing' }))
+    props.gateway.send({ type: 'CONNECT' })
+})
 </script>
 
 <template>

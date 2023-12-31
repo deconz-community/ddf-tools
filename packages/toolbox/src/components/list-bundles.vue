@@ -20,7 +20,7 @@ watch(totalItems, (value) => {
 const loading = ref(false)
 
 const serverItems = ref<any[]>([])
-async function loadItems(options: { page: number; itemsPerPage: number }) {
+async function loadItems(options: { page: number, itemsPerPage: number }) {
   // console.log(options)
 
   loading.value = true
