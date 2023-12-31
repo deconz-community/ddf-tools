@@ -40,9 +40,6 @@ export const appMachine = setup({
       type: 'ADD_GATEWAY'
       credentials: GatewayCredentials
     } | {
-      type: 'UPDATE_GATEWAY'
-      credentials: GatewayCredentials
-    } | {
       type: 'REMOVE_GATEWAY'
       id: string
     } | {
