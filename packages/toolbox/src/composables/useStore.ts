@@ -1,6 +1,8 @@
 import type { RestCommand } from '@directus/sdk'
 import type { UseAsyncStateOptions } from '@vueuse/core'
-import type { MaybeRef } from 'vue'
+import type { MaybeRef, UnwrapNestedRefs } from 'vue'
+
+import type { UseAppMachine } from './useAppMachine'
 import type { Collections, Schema } from '~/interfaces/store'
 
 export type RequestOptions<Output extends object | unknown> = {
@@ -88,5 +90,10 @@ export function useStore() {
     profile,
     request,
     getUserByKey,
-  })
+  }) as UnwrapNestedRefs<UseAppMachine<'store'> & {
+    client: typeof client
+    profile: typeof profile
+    request: typeof request
+    getUserByKey: typeof getUserByKey
+  }>
 }
