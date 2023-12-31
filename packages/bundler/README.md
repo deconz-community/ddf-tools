@@ -28,7 +28,7 @@ The file can be see as a tree structure.
 
 Visual representation of the DDF split by chunks
 
-![image](https://user-images.githubusercontent.com/845225/223543840-9da9a33d-776b-40d2-ad27-a0ce4df5bbbd.png)
+![DDF_bundle_format.png](DDF_bundle_format.png)
 
 ## Chunks
 
