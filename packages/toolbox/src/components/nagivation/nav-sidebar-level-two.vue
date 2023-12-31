@@ -1,16 +1,19 @@
 <script setup lang="ts">
-const App = useAppStore()
+const isGatewayRoute = computed(() => {
+  // TODO Fix this
+  return false
+})
 </script>
 
 <template>
-  <v-toolbar height="48" :title="App.navigationTitle" />
+  <v-toolbar height="48" title="-->Titre<--" />
 
   <portal-target name="sidebar-level-two">
     Portal taget
   </portal-target>
 
   <v-list id="#nav-level-two-list">
-    <nav-sidebar-level-two-gateway v-if="App.isGatewayRoute" />
+    <nav-sidebar-level-two-gateway v-if="isGatewayRoute" />
     <v-list-item>
       <v-list-item-title># Settings</v-list-item-title>
     </v-list-item>

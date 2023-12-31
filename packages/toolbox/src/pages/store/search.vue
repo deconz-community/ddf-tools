@@ -5,10 +5,6 @@ import type { Schema } from '~/interfaces/store'
 
 const store = useStore()
 
-const App = useAppStore()
-
-App.navigationTitle = 'Home'
-
 const page = useRouteQuery('page', '1', { transform: Number })
 const product = useRouteQuery('product', '')
 const manufacturer = useRouteQuery('manufacturer', '')

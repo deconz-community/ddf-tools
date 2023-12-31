@@ -46,8 +46,6 @@
     "immer": "^10.0.3",
     "markdown-vue": "^1.0.3",
     "monaco-editor": "^0.45.0",
-    "pinia": "^2.1.7",
-    "pinia-plugin-persistedstate": "^3.2.1",
     "portal-vue": "^3.0.0",
     "ts-extras": "^0.11.0",
     "ts-results-es": "^4.0.0",
