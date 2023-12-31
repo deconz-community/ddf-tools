@@ -93,8 +93,20 @@ export const appMachine = setup({
       }
     },
 
-    saveSettings: () => {
-      console.log('saveSettings')
+    saveSettings: ({ system, context }) => {
+      const data: StorageSchema = {
+        storeUrl: system.get('store').getSnapshot()?.context.directusUrl,
+        credentials: {},
+      }
+
+      context.gateways.forEach((machine: ActorRefFrom<typeof gatewayMachine>) => {
+        const snapshot = machine.getSnapshot()
+        if (!snapshot)
+          return undefined
+        data.credentials[snapshot.context.credentials.id] = snapshot.context.credentials
+      })
+
+      localStorage.setItem(storageKey, JSON.stringify(data))
     },
 
     spawnGateway: assign({
