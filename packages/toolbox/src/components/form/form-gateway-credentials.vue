@@ -71,7 +71,7 @@ function save() {
 <template>
   <template v-if="credentials && gateway.state">
     <v-card variant="outlined">
-      <template v-if="gateway.state.matches('offline.editing.address')">
+      <template v-if="gateway.state.matches({ offline: { editing: 'address' } })">
         <v-card-title>
           Editing address
         </v-card-title>
@@ -88,7 +88,7 @@ function save() {
           </template>
         </v-card-text>
       </template>
-      <template v-else-if="gateway.state.matches('offline.editing.apiKey')">
+      <template v-else-if="gateway.state.matches({ offline: { editing: 'apiKey' } })">
         <v-card-title>
           Editing API Key
         </v-card-title>
@@ -100,7 +100,7 @@ function save() {
           </v-btn>
         </v-card-text>
       </template>
-      <v-card-actions v-if="gateway.state.matches('offline.editing')">
+      <v-card-actions v-if="gateway.state.matches({ offline: 'editing' })">
         <v-btn
           elevation="2"
           :disabled="gateway.state.can({ type: 'PREVIOUS' }) !== true"

@@ -81,12 +81,12 @@ function removeGateway() {
         </template>
 
         <template v-if="gateway.state!.matches('offline')">
-          <template v-if="gateway.state!.matches('offline.error')">
+          <template v-if="gateway.state!.matches({ offline: 'error' })">
             <v-alert type="error" title="Error while connecting to the gateway">
-              <template v-if="gateway.state!.matches('offline.error.unreachable')">
+              <template v-if="gateway.state!.matches({ offline: { error: 'unreachable' } })">
                 The gateway is unreachable.
               </template>
-              <template v-else-if="gateway.state!.matches('offline.error.invalidApiKey')">
+              <template v-else-if="gateway.state!.matches({ offline: { error: 'invalidApiKey' } })">
                 The API key is invalid.
               </template>
               <template v-else>
@@ -95,7 +95,7 @@ function removeGateway() {
             </v-alert>
           </template>
 
-          <template v-else-if="gateway.state!.matches('offline.disabled')">
+          <template v-else-if="gateway.state!.matches({ offline: 'disabled' })">
             <v-alert type="info" title="Info">
               The gateway is disabled.
               <v-btn v-if="gateway.state!.can({ type: 'CONNECT' })" @click="gateway.send({ type: 'CONNECT' })">
@@ -104,7 +104,7 @@ function removeGateway() {
             </v-alert>
           </template>
 
-          <template v-if="gateway.state!.matches('offline.editing')">
+          <template v-if="gateway.state!.matches({ offline: 'editing' })">
             <form-gateway-credentials :gateway="gateway" />
           </template>
         </template>
