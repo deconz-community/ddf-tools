@@ -1,8 +1,7 @@
 <script setup lang="ts">
-const isGatewayRoute = computed(() => {
-  // TODO Fix this
-  return false
-})
+const route = useRoute()
+
+const isGatewayRoute = computed(() => route.params.gateway !== undefined)
 </script>
 
 <template>

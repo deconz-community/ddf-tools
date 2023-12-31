@@ -2,10 +2,7 @@
 const route = useRoute()
 
 const showLevelTowSidebar = computed(() => route.meta.hideLevelTwoSidebar !== true)
-const isGatewayRoute = computed(() => {
-  // TODO Fix this
-  return false
-})
+const isGatewayRoute = computed(() => route.params.gateway !== undefined)
 </script>
 
 <template>
