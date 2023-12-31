@@ -73,19 +73,19 @@ export const deviceMachine = setup({
 
                 if (state) {
                   objectEntries(state).forEach(([key, value]) => {
-                    if (subdevice.state[key]) {
+                    if (subdevice?.state?.[key]) {
                       subdevice.state[key].value = value
                       if (state.lastupdated)
-                        subdevice.state[key].lastupdated = state.lastupdated
+                        subdevice.state[key].lastupdated = state.lastupdated as any
                     }
                   })
                 }
                 if (config) {
                   objectEntries(config).forEach(([key, value]) => {
-                    if (subdevice.config[key]) {
+                    if (subdevice?.config?.[key]) {
                       subdevice.config[key].value = value
                       if (state?.lastupdated)
-                        subdevice.config[key].lastupdated = state.lastupdated
+                        subdevice.config[key].lastupdated = state.lastupdated as any
                     }
                   })
                 }
