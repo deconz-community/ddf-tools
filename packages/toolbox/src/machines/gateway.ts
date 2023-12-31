@@ -1,12 +1,12 @@
-import type { ActorRefFrom } from 'xstate'
-import { assign, enqueueActions, fromPromise, sendTo, setup } from 'xstate'
-import { FindGateway, type Gateway, type Response } from '@deconz-community/rest-client'
+import type { ActorRefFrom, AnyEventObject } from 'xstate'
+import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
+import { type Response, findGateway, type gateway } from '@deconz-community/rest-client'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
 export interface gatewayContext {
   credentials: GatewayCredentials
-  gateway?: ReturnType<typeof Gateway>
+  gateway?: ReturnType<typeof gateway>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config: Response<'getConfig'>['success']
 }
@@ -32,6 +32,11 @@ export const gatewayMachine = setup({
     } | {
       type: 'UPDATE_CREDENTIALS'
       data: GatewayCredentials
+    } | {
+      type: 'WEBSOCKET_CONNECT'
+      uri: string
+    } | {
+      type: 'WEBSOCKET_ERROR'
     },
     input: {} as {
       credentials: GatewayCredentials
@@ -48,11 +53,45 @@ export const gatewayMachine = setup({
         expectedBridgeID: string
       }
     }) => {
-      return FindGateway(input.URIs, input.apiKey, input.expectedBridgeID)
+      return findGateway(input.URIs, input.apiKey, input.expectedBridgeID)
     }),
+
+    connectToGatewayWebsocket: fromCallback<AnyEventObject, { gatewayID: string, uri: string }>(({ sendBack, input, system }) => {
+      const scope = effectScope(true)
+
+      scope.run(() => {
+        const { data } = useWebSocket(input.uri, {
+          autoReconnect: {
+            retries: 3,
+            delay: 1000,
+            onFailed() {
+              sendBack({ type: 'WEBSOCKET_ERROR' })
+            },
+          },
+        })
+
+        watchImmediate(data, (data: unknown) => {
+          if (typeof data !== 'string')
+            return
+
+          const decoded = JSON.parse(data) as unknown
+
+          if (typeof decoded !== 'object' || decoded === null)
+            return console.error('The event is not an object', decoded)
+
+          if ('t' in decoded && decoded.t !== 'event')
+            return console.error('Event', decoded)
+
+          console.log(input, decoded)
+        })
+      })
+
+      return () => scope.stop()
+    }),
+
     fetchDevices: fromPromise(async ({ input }: {
       input: {
-        gateway: ReturnType<typeof Gateway>
+        gateway: ReturnType<typeof gateway>
       }
     }) => {
       return input.gateway.getDevices()
@@ -98,12 +137,16 @@ export const gatewayMachine = setup({
               if (!event.output.isOk() || result.code !== 'ok')
                 throw new Error('Invalid state')
 
-              // console.log(result.config.websocketport)
-
               enqueue.assign({
                 gateway: result.gateway,
               })
+
               enqueue.raise({ type: 'REFRESH_DEVICES' })
+
+              const websocketURI = new URL(result.uri)
+              websocketURI.protocol = 'ws:'
+              websocketURI.port = (result.config.websocketport).toString()
+              enqueue.raise({ type: 'WEBSOCKET_CONNECT', uri: websocketURI.toString() })
             }),
           },
           {
@@ -193,16 +236,27 @@ export const gatewayMachine = setup({
         },
         websocket: {
 
-          initial: 'connecting',
+          initial: 'disabled',
           states: {
-            ready: {
-
-            },
-            connecting: {
-
+            running: {
+              invoke: {
+                input: ({ event, context }) => {
+                  assertEvent(event, 'WEBSOCKET_CONNECT')
+                  return {
+                    gatewayID: context.credentials.id,
+                    uri: event.uri,
+                  }
+                },
+                src: 'connectToGatewayWebsocket',
+              },
+              on: {
+                WEBSOCKET_ERROR: 'error',
+              },
             },
             disabled: {
-
+              on: {
+                WEBSOCKET_CONNECT: 'running',
+              },
             },
             error: {
 
@@ -220,6 +274,8 @@ export const gatewayMachine = setup({
     },
 
     offline: {
+      initial: 'disabled',
+
       states: {
         disabled: {},
 
@@ -246,33 +302,21 @@ export const gatewayMachine = setup({
         },
 
         editing: {
+          initial: 'address',
           states: {
             address: {
               on: {
                 NEXT: 'apiKey',
               },
             },
-
             apiKey: {
               on: {
                 PREVIOUS: 'address',
-                NEXT: 'websocket',
               },
             },
-
-            websocket: {
-              on: {
-                PREVIOUS: 'apiKey',
-              },
-            },
-
           },
-
-          initial: 'address',
         },
       },
-
-      initial: 'disabled',
 
       on: {
         CONNECT: 'connecting',

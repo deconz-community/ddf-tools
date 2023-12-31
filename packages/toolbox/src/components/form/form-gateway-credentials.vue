@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BodyParams } from '@deconz-community/rest-client'
-import { FindGateway } from '@deconz-community/rest-client'
+import { findGateway } from '@deconz-community/rest-client'
 import hmacSHA256 from 'crypto-js/hmac-sha256'
 import type { UseAppMachine } from '~/composables/useAppMachine'
 
@@ -19,7 +19,7 @@ async function fetchKey() {
   if (!credentials.value)
     throw new Error('No credentials')
 
-  const result = await FindGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
+  const result = await findGateway(credentials.value.URIs.api, credentials.value.apiKey, credentials.value.id)
 
   if (result.isErr()) {
     console.error(result.error)
@@ -59,11 +59,6 @@ function save() {
     type: 'UPDATE_CREDENTIALS',
     data: JSON.parse(JSON.stringify(credentials.value)),
   })
-}
-
-function findWebsocket() {
-  console.log('findWebsocket')
-  console.log(credentials.value)
 }
 
 onScopeDispose(() => {
@@ -107,26 +102,6 @@ onMounted(async () => {
           <v-btn @click="fetchKey()">
             Fetch API key
           </v-btn>
-        </v-card-text>
-      </template>
-      <template v-else-if="gateway.state.matches({ offline: { editing: 'websocket' } })">
-        <v-card-title>
-          Editing Websocket address
-        </v-card-title>
-        <v-card-text>
-          <v-btn @click="credentials.URIs.websocket.push('')">
-            Add
-          </v-btn>
-          <v-btn @click="findWebsocket()">
-            Find
-          </v-btn>
-          <template v-for="address, index of credentials.URIs.websocket" :key="index">
-            <v-text-field
-              v-model="credentials.URIs.websocket[index]"
-              append-inner-icon="mdi-close"
-              @click:append-inner="credentials.URIs.websocket.splice(index, 1)"
-            />
-          </template>
         </v-card-text>
       </template>
       <v-card-actions v-if="gateway.state.matches({ offline: 'editing' })">

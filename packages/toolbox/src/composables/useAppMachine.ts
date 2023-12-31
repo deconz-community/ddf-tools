@@ -74,7 +74,7 @@ function getMachine<Type extends AppMachine['type']>(
   if (isRef(_query))
     watchSources.push(_query)
 
-  watch(watchSources, () => {
+  watchImmediate(watchSources, () => {
     const getMachine = () => {
       switch (type) {
         case 'app':
@@ -106,7 +106,7 @@ function getMachine<Type extends AppMachine['type']>(
     const newActor = getMachine()
     if (newActor !== actorRef.value)
       actorRef.value = newActor
-  }, { immediate: true })
+  })
 
   const logEvent = (event: unknown) => {
     console.error('Event lost', event)
@@ -116,7 +116,7 @@ function getMachine<Type extends AppMachine['type']>(
   const sendRef = shallowRef<ExtractMachine<Type>['actor']['send']>(logEvent as any)
   const send = (event: any) => sendRef.value(event)
 
-  watch(actorRef, (newActor, _, onCleanup) => {
+  watchImmediate(actorRef, (newActor, _, onCleanup) => {
     if (!newActor) {
       stateRef.value = undefined
       sendRef.value = logEvent as any
@@ -135,7 +135,7 @@ function getMachine<Type extends AppMachine['type']>(
       }),
     })
     onCleanup(() => unsubscribe())
-  }, { immediate: true })
+  })
 
   return reactive({
     state: stateRef,

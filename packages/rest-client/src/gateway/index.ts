@@ -12,7 +12,7 @@ import { groupsEndpoints } from './endpoints/groupsEndpoints'
 import { lightsEndpoints } from './endpoints/lightsEndpoints'
 import { sensorsEndpoints } from './endpoints/sensorsEndpoints'
 
-export function Gateway(address: string, apiKey: string, axiosConfig: AxiosRequestConfig = {}) {
+export function gateway(address: string, apiKey: string, axiosConfig: AxiosRequestConfig = {}) {
   const client = new Zodios(
     address,
     [
@@ -42,7 +42,7 @@ export function Gateway(address: string, apiKey: string, axiosConfig: AxiosReque
   return client
 }
 
-export type Api = ApiOf<ReturnType<typeof Gateway>>
+export type Api = ApiOf<ReturnType<typeof gateway>>
 
 export type BodyParams<Alias extends string> = ZodiosBodyByAlias<Api, Alias>
 export type QueryParams<Alias extends string> = ZodiosQueryParamsByAlias<Api, Alias>
@@ -50,7 +50,7 @@ export type HeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<Api, 
 export type Response<Alias extends string> = ZodiosResponseByAlias<Api, Alias>
 
 interface GatewayInfo {
-  gateway: ReturnType<typeof Gateway>
+  gateway: ReturnType<typeof gateway>
   uri: string
   apiKey: string
   bridgeID: string
@@ -73,13 +73,13 @@ export type FindGatewayResult = Result<
   } & Partial<Pick<GatewayInfo, 'uri' | 'apiKey'>>
 >
 
-export function FindGateway(URIs: string[], apiKey = '', expectedBridgeID = ''): Promise<FindGatewayResult> {
+export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''): Promise<FindGatewayResult> {
   return new Promise((resolve) => {
     let resolved = false
 
     const queries = URIs.map(async (uri) => {
       try {
-        const gateway = Gateway(uri, apiKey)
+        const gateway = gateway(uri, apiKey)
         const config = await gateway.getConfig()
 
         if (!config.success)

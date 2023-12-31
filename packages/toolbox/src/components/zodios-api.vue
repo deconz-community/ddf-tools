@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { isErrorFromAlias } from '@zodios/core'
 import type { ApiOf } from '@zodios/core'
-import type { Gateway } from '@deconz-community/rest-client'
+import type { gateway } from '@deconz-community/rest-client'
 import { useForm } from '@vorms/core'
 import { zodResolver } from '@vorms/resolvers/zod'
 import init from 'zod-empty'
 import { z } from 'zod'
 
-type Client = ReturnType<typeof Gateway>
+type Client = ReturnType<typeof gateway>
 
 const props = defineProps<{
   client: Client
