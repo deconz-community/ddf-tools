@@ -12,7 +12,7 @@ const challengeResult = computed(() => {
   return hmacSHA256(challenge.value, installCode.value.toLowerCase())
 })
 
-const discoveryResult = computed(() => discoveryClient())
+const discovery = computed(() => discoveryClient())
 
 const gateway = computed(() => gatewayClient(apiUrl.value, apiKey.value))
 
@@ -44,8 +44,8 @@ test()
 
     <template #text>
       <zodios-api
-        v-for="api in discoveryResult.api" :key="api.path"
-        :api="api" :client="discoveryResult" :api-key="apiKey"
+        v-for="api in discovery.api" :key="api.path"
+        :api="api" :client="discovery" :api-key="apiKey"
       />
     </template>
   </v-card>

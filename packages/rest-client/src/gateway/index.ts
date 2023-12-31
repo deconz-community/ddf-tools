@@ -42,7 +42,7 @@ export function gatewayClient(address: string, apiKey: string, axiosConfig: Axio
   return client
 }
 
-export type Api = ApiOf<ReturnType<typeof gateway>>
+export type Api = ApiOf<ReturnType<typeof gatewayClient>>
 
 export type BodyParams<Alias extends string> = ZodiosBodyByAlias<Api, Alias>
 export type QueryParams<Alias extends string> = ZodiosQueryParamsByAlias<Api, Alias>
@@ -50,7 +50,7 @@ export type HeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<Api, 
 export type Response<Alias extends string> = ZodiosResponseByAlias<Api, Alias>
 
 interface GatewayInfo {
-  gateway: ReturnType<typeof gateway>
+  gateway: ReturnType<typeof gatewayClient>
   uri: string
   apiKey: string
   bridgeID: string
@@ -79,7 +79,7 @@ export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
 
     const queries = URIs.map(async (uri) => {
       try {
-        const gateway = gateway(uri, apiKey)
+        const gateway = gatewayClient(uri, apiKey)
         const config = await gateway.getConfig()
 
         if (!config.success)
