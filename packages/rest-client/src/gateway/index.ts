@@ -60,7 +60,7 @@ export type FindGatewayResult = Result<
   (
     {
       code: 'ok'
-      config: Response<'getConfig'>['success']
+      config: Extract<Response<'getConfig'>['success'], { whitelist: any }>
     } |
     {
       code: 'bridge_id_mismatch' | 'invalid_api_key'

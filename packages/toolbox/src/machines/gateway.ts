@@ -92,9 +92,16 @@ export const gatewayMachine = setup({
           {
             target: 'online',
             guard: ({ event }) => event.output.isOk() && event.output.unwrap().code === 'ok',
-            actions: enqueueActions(({ enqueue }) => {
+            actions: enqueueActions(({ enqueue, event }) => {
+              const result = event.output.unwrap()
+
+              if (!event.output.isOk() || result.code !== 'ok')
+                throw new Error('Invalid state')
+
+              // console.log(result.config.websocketport)
+
               enqueue.assign({
-                gateway: ({ event }) => event.output.unwrap().gateway,
+                gateway: result.gateway,
               })
               enqueue.raise({ type: 'REFRESH_DEVICES' })
             }),

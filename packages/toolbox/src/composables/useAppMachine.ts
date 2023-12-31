@@ -184,9 +184,12 @@ export function createAppMachine() {
                 // @ts-expect-error The key is valid
                 machineTree.value[type] = snapshot.actorRef as ExtractMachine<typeof type>['actor']
 
-                snapshot.actorRef.subscribe(() => {}, undefined, () => {
-                  machineTree.value[type] = undefined
+                snapshot.actorRef.subscribe({
+                  complete: () => {
+                    machineTree.value[type] = undefined
+                  },
                 })
+
                 break
 
               case 'gateway':
@@ -194,8 +197,10 @@ export function createAppMachine() {
                 const systemID = snapshot.actorRef.options.systemId as string
                 machineTree.value[`${type}s`].set(systemID, snapshot.actorRef as any)
 
-                snapshot.actorRef.subscribe(() => {}, undefined, () => {
-                  machineTree.value[`${type}s`].delete(systemID)
+                snapshot.actorRef.subscribe({
+                  complete: () => {
+                    machineTree.value[`${type}s`].delete(systemID)
+                  },
                 })
 
                 break
