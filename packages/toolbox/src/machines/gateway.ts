@@ -90,10 +90,13 @@ export const gatewayMachine = setup({
         }),
         onDone: [
           {
-            target: 'online.poolingDevices',
+            target: 'online',
             guard: ({ event }) => event.output.isOk() && event.output.unwrap().code === 'ok',
-            actions: assign({
-              gateway: ({ event }) => event.output.unwrap().gateway,
+            actions: enqueueActions(({ enqueue }) => {
+              enqueue.assign({
+                gateway: ({ event }) => event.output.unwrap().gateway,
+              })
+              enqueue.raise({ type: 'REFRESH_DEVICES' })
             }),
           },
           {
@@ -113,59 +116,76 @@ export const gatewayMachine = setup({
 
     online: {
 
-      initial: 'idle',
+      type: 'parallel',
 
       states: {
-        idle: {
-          on: {
-            REFRESH_DEVICES: 'poolingDevices',
-          },
+        api: {
 
-          after: {
-            10000000: 'poolingDevices',
-          },
-        },
+          initial: 'idle',
 
-        poolingDevices: {
-          invoke: {
-            src: 'fetchDevices',
-            input: ({ context }) => ({ gateway: context.gateway! }),
-            onDone: {
-              target: 'idle',
+          states: {
+            idle: {
+              on: {
+                REFRESH_DEVICES: 'poolingDevices',
+              },
 
-              actions: enqueueActions(({ enqueue, context, event }) => {
-                const { devices } = context
+              after: {
+                10000000: 'poolingDevices',
+              },
+            },
 
-                const newList = event.output.success ?? []
-                const oldList = Array.from(devices.keys())
+            poolingDevices: {
+              invoke: {
+                src: 'fetchDevices',
+                input: ({ context }) => ({ gateway: context.gateway! }),
+                onDone: {
+                  target: 'idle',
 
-                const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))
-                const removedUUIDs = oldList.filter(uuid => !newList.includes(uuid))
+                  actions: enqueueActions(({ enqueue, context, event }) => {
+                    const { devices } = context
 
-                removedUUIDs.forEach((uuid) => {
-                  enqueue.stopChild(devices.get(uuid)!)
-                  devices.delete(uuid)
-                })
+                    const newList = event.output.success ?? []
+                    const oldList = Array.from(devices.keys())
 
-                enqueue.assign({
-                  devices: ({ context, spawn }) => {
-                    addedUUIDs.forEach((uuid) => {
-                      devices.set(uuid, spawn('deviceMachine', {
-                        id: 'device',
-                        systemId: `${context.credentials.id}-${uuid}`,
-                        input: {
-                          deviceID: uuid,
-                          gatewayClient: context.gateway!,
-                        },
-                      }))
+                    const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))
+                    const removedUUIDs = oldList.filter(uuid => !newList.includes(uuid))
+
+                    removedUUIDs.forEach((uuid) => {
+                      enqueue.stopChild(devices.get(uuid)!)
+                      devices.delete(uuid)
                     })
-                    return devices
-                  },
-                })
-              }),
 
+                    enqueue.assign({
+                      devices: ({ context, spawn }) => {
+                        addedUUIDs.forEach((uuid) => {
+                          devices.set(uuid, spawn('deviceMachine', {
+                            id: 'device',
+                            systemId: `${context.credentials.id}-${uuid}`,
+                            input: {
+                              deviceID: uuid,
+                              gatewayClient: context.gateway!,
+                            },
+                          }))
+                        })
+                        return devices
+                      },
+                    })
+                  }),
+
+                },
+              },
             },
           },
+
+          exit: enqueueActions(({ enqueue, context }) => {
+            const { devices } = context
+            devices.forEach(device => enqueue.stopChild(device))
+            enqueue.assign({ devices: new Map() })
+          }),
+
+        },
+        websocket: {
+
         },
       },
 
