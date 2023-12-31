@@ -12,6 +12,10 @@ const device = machines.use('device', computed(() => ({ gateway: props.gateway, 
   <v-card v-if="device.state && device.state.context.data" class="ma-3">
     <v-card-title>
       {{ device.state.context.data.name }}
+
+      <v-btn :disabled="device.state.matches('fetching') === true" @click="device.send({ type: 'REFRESH' })">
+        REFRESH
+      </v-btn>
     </v-card-title>
     <v-card-subtitle>
       {{ device.state.context.data.manufacturername }} - {{ device.state.context.data.modelid }}
@@ -21,11 +25,6 @@ const device = machines.use('device', computed(() => ({ gateway: props.gateway, 
         <pre>{{ device.state.context.data }}</pre>
       </v-sheet>
     </v-card-text>
-    <v-card-actions>
-      <v-btn :disabled="device.state.matches('fetching') === true" @click="device.send({ type: 'REFRESH' })">
-        REFRESH
-      </v-btn>
-    </v-card-actions>
   </v-card>
   <v-card v-else class="ma-3">
     <v-card-title>
