@@ -73,28 +73,7 @@ const editName = useDialogAction(() => {
       {{ config.bridgeid }}
     </template>
     <template #text>
-      <pre>{{ { config } }}</pre>
-      <!--
-      <json-viewer :value="state.toStrings().pop()" />
-      <json-viewer :value="state.context" />
-
-      <v-btn :disabled="!state.can({type: 'Fix issue'})" @click="machine.send({type: 'Fix issue'})">
-        Fix issue
-      </v-btn>
-      -->
-      <!--
-      <form-gateway-credentials :gateway="gateway" />
-      -->
-
-      <!--
-      <json-viewer :value="state.context" />
-
-      <v-btn v-if="state.can({type: 'Fix issue'})" @click="gateway.machine.send({type: 'Fix issue'})">
-        Fix issue
-      </v-btn>
-
-      <p>Is offline : {{ state.matches("offline") }}</p>
-      -->
+      <json-viewer :value="config" />
     </template>
   </v-card>
 </template>
