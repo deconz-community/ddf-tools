@@ -34,10 +34,18 @@ export const devicesEndpoints = [
     description: 'Get the data type of the respective resource item as well as its defined values/boundaries or other relevant data.',
     method: 'get',
     path: '/api/:apiKey/devices/:deviceUniqueID/:item/introspect',
-    response: prepareResponse(z.union([
-      introspectGenericItemSchema,
+    response: prepareResponse(z.preprocess((data: any) => {
+      if (typeof data !== 'object' || data === null)
+        return data
+      if ('buttons' in data)
+        data.format = 'buttons'
+      else
+        data.format = 'generic'
+      return data
+    }, z.discriminatedUnion('format', [
       introspectButtonEventItemSchema,
-    ])),
+      introspectGenericItemSchema,
+    ]))),
     parameters: [
       globalParameters.apiKey,
       globalParameters.deviceUniqueID,

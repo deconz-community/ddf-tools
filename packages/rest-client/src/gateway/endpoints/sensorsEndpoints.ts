@@ -8,9 +8,9 @@ export const sensorsEndpoints = [
 
   makeEndpoint({
     alias: 'createSensor',
-    description: 'Returns the sensor with the specified id.',
+    description: 'Create a new CLIP sensor.',
     method: 'post',
-    path: '/api/:apiKey/sensors',
+    path: '/api/:apiKey/sensors?_query=create',
     response: prepareResponse(
       z.strictObject({ id: z.coerce.number() }),
     ),
@@ -36,6 +36,70 @@ export const sensorsEndpoints = [
           }),
         }),
       },
+    ],
+  }),
+
+  makeEndpoint({
+    alias: 'findSensor',
+    description: 'Find a new sensor.',
+    method: 'post',
+    path: '/api/:apiKey/sensors?_query=find',
+    response: prepareResponse(
+      z.object({
+        duration: z.number(),
+      }),
+      {
+        removePrefix: /^\/sensors\//,
+      },
+    ),
+    parameters: [
+      globalParameters.apiKey,
+      {
+        name: 'body',
+        type: 'Body',
+        schema: z.strictObject({}),
+      },
+    ],
+  }),
+
+  makeEndpoint({
+    alias: 'getSensorFindResult',
+    description: 'Returns recently added sensors.',
+    method: 'get',
+    path: '/api/:apiKey/sensors/new',
+    response: prepareResponse(
+      z.preprocess((data: unknown) => {
+        if (typeof data !== 'object' || data === null || !('lastscan' in data))
+          return data
+        const { lastscan, ...rest } = data
+        const devices: { name: string, id: number }[] = []
+        const sensors = z.record(z.object({ name: z.string() })).safeParse(rest)
+        if (sensors.success) {
+          Object.entries(sensors.data).forEach(([id, sensor]) => {
+            devices.push({ name: sensor.name, id: Number(id) })
+          })
+        }
+        return {
+          lastscan,
+          devices,
+        }
+      }, z.object({
+        devices: z.array(z.object({
+          id: z.coerce.number(),
+          name: z.string(),
+        })),
+        lastscan: z.union([
+          z.literal('none'),
+          z.literal('active'),
+          z.string().transform(value => new Date(value)),
+        ]),
+      })),
+      {
+        removePrefix: /^\/sensors\//,
+      },
+    ),
+    parameters: [
+      globalParameters.apiKey,
     ],
   }),
 

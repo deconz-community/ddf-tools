@@ -26,6 +26,7 @@ export const deviceSchema = z.object({
 }).passthrough()
 
 export const introspectGenericItemSchema = z.object({
+  format: z.literal('generic'),
   type: z.enum([
     'unknown',
     'bool',
@@ -47,10 +48,11 @@ export const introspectGenericItemSchema = z.object({
 })
 
 export const introspectButtonEventItemSchema = introspectGenericItemSchema.extend({
-  buttons: z.record(z.number(), z.object({
+  format: z.literal('buttons'),
+  buttons: z.record(z.coerce.number(), z.object({
     name: z.string(),
   })),
-  values: z.record(z.number(), z.object({
+  values: z.record(z.coerce.number(), z.object({
     button: z.number(),
     action: z.enum([
       'INITIAL_PRESS',
