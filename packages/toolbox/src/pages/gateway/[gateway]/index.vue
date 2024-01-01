@@ -73,7 +73,7 @@ const editName = useDialogAction(() => {
       {{ config.bridgeid }}
     </template>
     <template #text>
-      <json-viewer :value="config" />
+      <pre>{{ config }}</pre>
     </template>
   </v-card>
 </template>
