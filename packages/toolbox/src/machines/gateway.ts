@@ -28,6 +28,8 @@ export const gatewayMachine = setup({
     } | {
       type: 'CONNECT'
     } | {
+      type: 'REFRESH_CONFIG'
+    } | {
       type: 'REFRESH_DEVICES'
     } | {
       type: 'UPDATE_CREDENTIALS'
@@ -60,7 +62,7 @@ export const gatewayMachine = setup({
       gatewayID: string
       uri: string
       gateway: ActorRef<any, any>
-    }>(({ sendBack, input, system, self }) => {
+    }>(({ sendBack, input }) => {
       const scope = effectScope(true)
       const schema = websocketSchema()
 
@@ -102,6 +104,14 @@ export const gatewayMachine = setup({
       })
 
       return () => scope.stop()
+    }),
+
+    fetchConfig: fromPromise(async ({ input }: {
+      input: {
+        gateway: ReturnType<typeof gatewayClient>
+      }
+    }) => {
+      return input.gateway.getConfig()
     }),
 
     fetchDevices: fromPromise(async ({ input }: {
@@ -184,22 +194,78 @@ export const gatewayMachine = setup({
       type: 'parallel',
 
       states: {
-        api: {
 
-          initial: 'idle',
-
+        config: {
+          initial: 'init',
           states: {
+            init: {
+              after: {
+                50: 'pooling',
+              },
+            },
             idle: {
               on: {
-                REFRESH_DEVICES: 'poolingDevices',
+                REFRESH_CONFIG: 'pooling',
               },
-
               after: {
-                10000000: 'poolingDevices',
+                [60 * 1000]: 'pooling',
               },
             },
 
-            poolingDevices: {
+            pooling: {
+              invoke: {
+                src: 'fetchConfig',
+                input: ({ context }) => ({ gateway: context.gateway! }),
+                onDone: {
+                  target: 'idle',
+                  actions: enqueueActions(({ enqueue, event, context }) => {
+                    const config = event.output.success
+                    if (!config)
+                      return
+
+                    enqueue.assign({
+                      config,
+                    })
+
+                    if (config.name !== context.credentials.name) {
+                      enqueue.raise({ type: 'UPDATE_CREDENTIALS', data: {
+                        ...context.credentials,
+                        name: config.name,
+                      } })
+                    }
+                  }),
+                },
+              },
+            },
+          },
+
+          exit: enqueueActions(({ enqueue, context }) => {
+            const { devices } = context
+            devices.forEach(device => enqueue.stopChild(device))
+            enqueue.assign({ devices: new Map() })
+          }),
+
+        },
+
+        devices: {
+          initial: 'init',
+
+          states: {
+            init: {
+              after: {
+                100: 'pooling',
+              },
+            },
+            idle: {
+              on: {
+                REFRESH_DEVICES: 'pooling',
+              },
+              after: {
+                [60 * 1000]: 'pooling',
+              },
+            },
+
+            pooling: {
               invoke: {
                 src: 'fetchDevices',
                 input: ({ context }) => ({ gateway: context.gateway! }),

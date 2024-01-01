@@ -206,13 +206,14 @@ const deprecation_message = computed(() => {
 
 async function deprecate(type: 'bundle' | 'version') {
   const input = ref('')
+  const textArea = ref<VTextarea>()
 
   const rules = [
     (v: string) => !!v || 'Message is required',
     (v: string) => (v && v.length >= 10) || 'Message must be more than 10 characters',
   ]
 
-  const isConfirmed = await createConfirm({
+  const isConfirmed = createConfirm({
     title: `This will mark this ${type} as deprecated`,
     contentComponent: VTextarea,
     contentComponentProps: {
@@ -220,6 +221,7 @@ async function deprecate(type: 'bundle' | 'version') {
       'model-value': input,
       'rules': rules,
       'placeholder': `Don't use this ${type} anymore because...`,
+      'ref': textArea,
     },
     confirmationText: 'Deprecate',
     confirmationButtonProps: {
@@ -231,7 +233,9 @@ async function deprecate(type: 'bundle' | 'version') {
     },
   })
 
-  if (!isConfirmed)
+  textArea.value?.focus()
+
+  if (!await isConfirmed)
     return
 
   for (const rule of rules) {

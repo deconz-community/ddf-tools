@@ -10,29 +10,18 @@ const machines = createUseAppMachine()
 const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
 const search = ref('')
 
-const { state, isLoading, execute } = useAsyncState(async () => {
-  if (!gateway.state?.matches('online'))
+const config = computed(() => gateway.state?.context.config)
+
+const keys = computed(() => {
+  if (!config.value || !('whitelist' in config.value))
     return []
-
-  const client = gateway.state.context.gateway
-  if (!client)
-    return []
-
-  const config = await client.getConfig()
-
-  if (config.success === undefined || !('whitelist' in config.success))
-    return []
-
-  // TODO disable if deleting used key / or add warning
-  return objectEntries(config.success.whitelist).map(([key, value]) => ({
+  return objectEntries(config.value.whitelist).map(([key, value]) => ({
     key,
     name: value.name,
     created: value['create date'],
     lastUsed: value['last use date'],
   }))
-}, [])
-
-watch(() => gateway.state, () => execute())
+})
 
 async function deleteKey(key: string) {
   if (!gateway.state?.matches('online'))
@@ -58,16 +47,21 @@ async function deleteKey(key: string) {
     return
   }
 
-  execute()
+  gateway.send({ type: 'REFRESH_CONFIG' })
 }
+
+const isLoading = refDebounced(
+  computed(() => !gateway.state?.matches({ online: { config: 'idle' } })),
+  50,
+)
 </script>
 
 <template>
-  <v-card class="ma-3">
+  <v-card class="ma-2">
     <v-card-title>
       Manage API Keys
 
-      <v-btn @click="execute()">
+      <v-btn @click="gateway.send({ type: 'REFRESH_CONFIG' })">
         Refresh
       </v-btn>
       <v-spacer />
@@ -105,7 +99,7 @@ async function deleteKey(key: string) {
           key: 'created',
           order: 'desc',
         }]"
-        :items="state"
+        :items="keys"
         item-value="key"
       >
         <!-- eslint-disable-next-line vue/valid-v-slot -->

@@ -1,47 +1,75 @@
 <script setup lang="ts">
+import { useConfirm } from 'vuetify-use-dialog'
+import { VTextField } from 'vuetify/components'
+
+import { toast } from 'vuetify-sonner'
+
 const props = defineProps<{
   gateway: string
 }>()
 
 const machines = createUseAppMachine()
-const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const createConfirm = useConfirm()
 
-const credentials = computed(() => {
-  return gateway.state?.context.credentials
-})
-
-const devices = computed(() => {
-  if (!gateway.state?.context.devices)
-    return []
-
-  return Array.from(gateway.state.context.devices.keys())
-})
-
-/*
-const gateways = useGatewaysStore()
-
-const gateway = await gateways.getGateway(props.gateway)
-
-if (!gateway)
-  throw new Error('no gateway')
-const { state, machine } = gateway
-
-const canFixIssue = useSelector(machine, state => state.can({ type: 'EDIT_CREDENTIALS' }))
-
-const gateway = gateways.gateways[props.gateway]
-
-console.log(gateway)
-
-const state = computed(() => state)
-
-function send(event: string) {
-  console.log('sending event', event)
-  gateway.machine.send(event)
-}
-*/
+const gatewayMachine = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const config = computed(() => gatewayMachine.state?.context.config)
+const gateway = computed(() => gatewayMachine.state?.context.gateway)
 
 const drawer = ref(false)
 onMounted(() => setTimeout(() => drawer.value = true, 0))
+
+async function editName() {
+  const input = ref(config.value?.name)
+  const textField = ref<VTextField>()
+
+  const rules = [
+    (v: string) => !!v || 'Name is required',
+    (v: string) => (v && v.length < 16) || 'Name must be less than 16 characters',
+  ]
+
+  const isConfirmed = createConfirm({
+    title: 'Update gateway name',
+    contentComponent: VTextField,
+    contentComponentProps: {
+      'label': 'Name',
+      'model-value': input,
+      'rules': rules,
+      'placeholder': config.value?.name,
+      'ref': textField,
+    },
+    confirmationText: 'Save',
+    dialogProps: {
+      width: 600,
+    },
+  })
+
+  textField.value?.focus()
+
+  if (!await isConfirmed)
+    return
+
+  for (const rule of rules) {
+    const result = rule(input.value ?? '')
+    if (typeof result === 'string') {
+      return toast('Error updating the gateway name.', {
+        description: result,
+        duration: 5000,
+        cardProps: {
+          color: 'error',
+        },
+      })
+    }
+  }
+
+  if (input.value === config.value?.name)
+    return
+
+  await gateway.value?.updateConfig({
+    name: input.value,
+  })
+
+  gatewayMachine.send({ type: 'REFRESH_CONFIG' })
+}
 </script>
 
 <template>
@@ -65,13 +93,16 @@ onMounted(() => setTimeout(() => drawer.value = true, 0))
     -->
   </portal>
 
-  <v-card class="ma-2">
+  <v-card v-if="config" class="ma-2">
     <template #title>
-      Gateway Page
+      {{ config.name }}
+      <v-btn icon="mdi-pencil" density="comfortable" @click="editName()" />
+    </template>
+    <template #subtitle>
+      {{ config.bridgeid }}
     </template>
     <template #text>
-      <pre>{{ credentials }}</pre>
-      <pre>{{ devices }}</pre>
+      <pre>{{ { config } }}</pre>
       <!--
       <json-viewer :value="state.toStrings().pop()" />
       <json-viewer :value="state.context" />

@@ -143,7 +143,7 @@ export const configEndpoints = [
   }),
 
   makeEndpoint({
-    alias: 'updateSoftwate',
+    alias: 'updateSoftware',
     description: 'Starts the update if available (only on Raspberry Pi).',
     method: 'post',
     path: '/api/:apiKey/config/update',
@@ -211,10 +211,8 @@ export const configEndpoints = [
     parameters: [
       globalParameters.apiKey,
       {
-        /*
-        Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
-        Content-Type: application/octet-stream
-        */
+        // Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
+        // Content-Type: application/octet-stream
         name: 'file',
         type: 'Body',
         schema: z.instanceof(FormData),

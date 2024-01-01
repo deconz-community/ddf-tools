@@ -20,8 +20,10 @@ export const configSchema = z.strictObject({
   'runmode': z.enum([
     'normal',
     'shellscript',
-    'systemd/gui', 'systemd/headless',
-    'docker', 'docker/hassio',
+    'systemd/gui',
+    'systemd/headless',
+    'docker',
+    'docker/hassio',
   ]).default('normal')
     .describe('How the Gateway software is running.'),
 

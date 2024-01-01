@@ -9,7 +9,7 @@ const device = machines.use('device', computed(() => ({ gateway: props.gateway, 
 </script>
 
 <template>
-  <v-card v-if="device.state && device.state.context.data" class="ma-3">
+  <v-card v-if="device.state && device.state.context.data" class="ma-2">
     <v-card-title>
       {{ device.state.context.data.name }}
       <v-btn :disabled="device.state.matches('fetching') === true" @click="device.send({ type: 'REFRESH' })">
