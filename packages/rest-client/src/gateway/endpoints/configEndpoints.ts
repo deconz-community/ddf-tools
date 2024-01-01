@@ -213,9 +213,11 @@ export const configEndpoints = [
       {
         // Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
         // Content-Type: application/octet-stream
-        name: 'file',
+        name: 'body',
         type: 'Body',
-        schema: z.instanceof(FormData),
+        schema: z.object({
+          file: z.instanceof(File),
+        }),
       },
     ],
   }),

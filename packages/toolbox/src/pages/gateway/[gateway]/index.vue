@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { useConfirm } from 'vuetify-use-dialog'
-import { VTextField } from 'vuetify/components'
-
-import { toast } from 'vuetify-sonner'
+import type { ZodObject } from 'zod'
 
 const props = defineProps<{
   gateway: string
 }>()
 
 const machines = createUseAppMachine()
-const createConfirm = useConfirm()
-
 const gatewayMachine = machines.use('gateway', computed(() => ({ id: props.gateway })))
 const config = computed(() => gatewayMachine.state?.context.config)
 const gateway = computed(() => gatewayMachine.state?.context.gateway)
@@ -18,58 +13,34 @@ const gateway = computed(() => gatewayMachine.state?.context.gateway)
 const drawer = ref(false)
 onMounted(() => setTimeout(() => drawer.value = true, 0))
 
-async function editName() {
-  const input = ref(config.value?.name)
-  const textField = ref<VTextField>()
+const editName = useDialogAction(() => {
+  if (!gateway.value || !config.value)
+    return
 
-  const rules = [
-    (v: string) => !!v || 'Name is required',
-    (v: string) => (v && v.length < 16) || 'Name must be less than 16 characters',
-  ]
-
-  const isConfirmed = createConfirm({
+  const { parameters } = gateway.value.api.find(e => e.alias === 'updateConfig') as { parameters: { name: string, schema: ZodObject<any> }[] }
+  const schema = parameters.find(p => p.name === 'body')?.schema?.shape.name
+  const currentName = config.value.name
+  return {
     title: 'Update gateway name',
-    contentComponent: VTextField,
     contentComponentProps: {
-      'label': 'Name',
-      'model-value': input,
-      'rules': rules,
-      'placeholder': config.value?.name,
-      'ref': textField,
+      label: 'Name',
+      placeholder: currentName,
     },
+    defaultValue: currentName,
     confirmationText: 'Save',
-    dialogProps: {
-      width: 600,
-    },
-  })
+    schema,
+    onSubmit: async (value) => {
+      if (value === currentName)
+        return
 
-  textField.value?.focus()
-
-  if (!await isConfirmed)
-    return
-
-  for (const rule of rules) {
-    const result = rule(input.value ?? '')
-    if (typeof result === 'string') {
-      return toast('Error updating the gateway name.', {
-        description: result,
-        duration: 5000,
-        cardProps: {
-          color: 'error',
-        },
+      await gateway.value?.updateConfig({
+        name: value,
       })
-    }
+
+      gatewayMachine.send({ type: 'REFRESH_CONFIG' })
+    },
   }
-
-  if (input.value === config.value?.name)
-    return
-
-  await gateway.value?.updateConfig({
-    name: input.value,
-  })
-
-  gatewayMachine.send({ type: 'REFRESH_CONFIG' })
-}
+})
 </script>
 
 <template>
