@@ -173,6 +173,56 @@ export const configEndpoints = [
   }),
 
   makeEndpoint({
+    alias: 'exportConfig',
+    description: 'Create a backup of the system. The exported file can be downloaded at http://[gateway]/deCONZ.tar.gz',
+    method: 'post',
+    path: '/api/:apiKey/config/export',
+    response: prepareResponse(
+      z.strictObject({ export: z.literal('success') }).transform(result => result.export)
+        .describe('The result of the operation'),
+      { removePrefix: /^\/config\// },
+    ),
+    parameters: [
+      globalParameters.apiKey,
+    ],
+  }),
+
+  makeEndpoint({
+    alias: 'importConfig',
+    description: 'Restore the backup of the system. The file need to be uploaded before with endpoint /api/fileupload',
+    method: 'post',
+    path: '/api/:apiKey/config/import',
+    response: prepareResponse(
+      z.strictObject({ import: z.literal('success') }).transform(result => result.import)
+        .describe('The result of the operation'),
+      { removePrefix: /^\/config\// },
+    ),
+    parameters: [
+      globalParameters.apiKey,
+    ],
+  }),
+
+  makeEndpoint({
+    alias: 'uploadConfig',
+    description: 'Upload a backup of the system.',
+    method: 'post',
+    path: '/api/fileupload',
+    response: z.never(),
+    parameters: [
+      globalParameters.apiKey,
+      {
+        /*
+        Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
+        Content-Type: application/octet-stream
+        */
+        name: 'file',
+        type: 'Body',
+        schema: z.instanceof(FormData),
+      },
+    ],
+  }),
+
+  makeEndpoint({
     alias: 'resetGateway',
     description: 'Reset the gateway network settings to factory new and/or delete the deCONZ database (config, lights, scenes, groups, schedules, devices, rules).',
     method: 'post',
