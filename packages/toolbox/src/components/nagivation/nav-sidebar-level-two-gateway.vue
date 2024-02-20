@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { EffectScope } from 'vue'
+
 const route = useRoute()
 
 const baseURL = computed(() => {
@@ -14,37 +16,57 @@ const scope = getCurrentScope()
 if (!scope)
   throw new Error('no scope')
 
-const devices = computed(() => {
-  const devices: { name: string, id: string, type: string }[] = []
+const devices = ref(new Map<string, {
+  name: string
+  id: string
+  type: string
+}>())
 
-  if (gateway.state) {
-    Array.from(gateway.state.context.devices.keys()).forEach((id) => {
-      const device = machines.use('device', computed(() => ({ gateway: route.params.gateway as string, id })))
-
-      if (!device)
-        return
-
-      // Hide empty devices like the gateway itself
-      if (device.state?.context.data?.name === undefined)
-        return
-
-      devices.push({
-        name: device.state?.context.data?.name ?? id,
-        id,
-        type: device.state?.context.data?.subdevices[0]?.type ?? 'Unknown',
-      })
-    })
-  }
-
-  devices.sort((a, b) => {
+const sortedDevices = computed(() => {
+  return Array.from(devices.value.values()).sort((a, b) => {
     const typeCompare = a.type.localeCompare(b.type)
     if (typeCompare !== 0)
       return typeCompare
     return a.name.localeCompare(b.name)
   })
-
-  return devices
 })
+
+// Update devices list
+{
+  const devicesIds = computed(() => gateway.state ? Array.from(gateway.state.context.devices.keys()) : [])
+  const devicesScopes = ref(new Map<string, EffectScope>())
+  watchArray(devicesIds, (newList, oldList, added, removed) => {
+    added.forEach((id) => {
+      const scope = effectScope(true)
+      devicesScopes.value.set(id, scope)
+
+      scope.run(() => {
+        const device = machines.use('device', computed(() => ({ gateway: route.params.gateway as string, id })))
+
+        watchImmediate(() => device.state, (state) => {
+          if (!state || state.context.data?.name === undefined) {
+            devices.value.delete(id)
+            return
+          }
+
+          devices.value.set(id, {
+            name: state.context.data?.name ?? id,
+            id,
+            type: state.context.data?.subdevices[0]?.type ?? 'Unknown',
+          })
+        })
+      })
+    })
+
+    removed?.forEach((id) => {
+      if (devicesScopes.value.has(id) === false)
+        return
+
+      devicesScopes.value.get(id)?.stop()
+      devicesScopes.value.delete(id)
+    })
+  }, { immediate: true })
+}
 </script>
 
 <template>
@@ -69,7 +91,7 @@ const devices = computed(() => {
       <v-btn icon="mdi-refresh" size="small" class="ma-2" @click="gateway.send({ type: 'REFRESH_DEVICES' })" />
     </v-list-subheader>
     <v-list-item
-      v-for="device in devices" :key="device.id"
+      v-for="device in sortedDevices" :key="device.id"
       :title="device.name"
       :subtitle="device.type"
       :to="`${baseURL}/device/${device.id}`"
