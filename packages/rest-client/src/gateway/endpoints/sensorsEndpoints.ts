@@ -162,7 +162,7 @@ export const sensorsEndpoints = [
     response: prepareResponse(
       z.object({}).passthrough(),
       {
-        removePrefix: /^\/sensors\/\d+\/config\//,
+        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/config/`),
       },
     ),
     parameters: [
@@ -186,7 +186,7 @@ export const sensorsEndpoints = [
     response: prepareResponse(
       z.object({}).passthrough(),
       {
-        removePrefix: /^\/sensors\/\d+\/state\//,
+        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/state/`),
       },
     ),
     parameters: [
@@ -214,7 +214,7 @@ export const sensorsEndpoints = [
         reset: z.boolean(),
       }).partial(),
       {
-        removePrefix: /^\/sensors\/\d+\//,
+        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/`),
       },
     ),
     parameters: [
