@@ -6,11 +6,7 @@ interface PrepareResponseOptions {
   removePrefix?: RegExp
 }
 
-interface PrepareNewResponseOptions {
-  removePrefix?: RegExp
-}
-
-export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, options: PrepareNewResponseOptions = {}) {
+export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, options: PrepareResponseOptions = {}) {
   function getString(string: string) {
     if (options.removePrefix === undefined)
       return string
