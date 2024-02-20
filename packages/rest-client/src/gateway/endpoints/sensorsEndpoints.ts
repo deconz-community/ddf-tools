@@ -1,6 +1,6 @@
 import { makeEndpoint } from '@zodios/core'
 import { z } from 'zod'
-import { globalParameters } from '../parameters'
+import { globalParameters, globalParametersRegex } from '../parameters'
 import { prepareResponse } from '../utils'
 import { sensorSchema, sensorsSchema } from '../schemas/sensorSchema'
 
@@ -138,7 +138,7 @@ export const sensorsEndpoints = [
     response: prepareResponse(
       sensorSchema.pick({ name: true }),
       {
-        removePrefix: /^\/sensors\/\d+\//,
+        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/`),
       },
     ),
     parameters: [

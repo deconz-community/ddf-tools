@@ -53,7 +53,7 @@ export const groupsEndpoints = [
     ),
     parameters: [
       globalParameters.apiKey,
-      globalParameters.deviceId,
+      globalParameters.groupId,
     ],
   }),
 
@@ -69,7 +69,7 @@ export const groupsEndpoints = [
       },
     ),
     parameters: [
-      globalParameters.deviceId,
+      globalParameters.apiKey,
       {
         name: 'body',
         type: 'Body',
@@ -97,7 +97,7 @@ export const groupsEndpoints = [
       },
     ),
     parameters: [
-      globalParameters.deviceId,
+      globalParameters.groupId,
       {
         name: 'body',
         type: 'Body',
@@ -118,7 +118,7 @@ export const groupsEndpoints = [
       },
     ),
     parameters: [
-      globalParameters.deviceId,
+      globalParameters.groupId,
     ],
   }),
 

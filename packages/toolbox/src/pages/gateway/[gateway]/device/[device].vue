@@ -6,6 +6,25 @@ const props = defineProps<{
 
 const machines = createUseAppMachine()
 const device = machines.use('device', computed(() => ({ gateway: props.gateway, id: props.device })))
+const { cloned: deviceName, sync: syncName } = useCloned(() => device.state?.context.data?.name ?? '')
+
+async function updateDeviceName() {
+  const client = device.state?.context.gatewayClient
+  const deviceId = device.state?.context.data?.subdevices[0].uniqueid
+  if (!client || !deviceId)
+    return
+
+  try {
+    const result = await client.updateSensor({ name: deviceName.value }, { params: { sensorId: deviceId } })
+
+    console.log(result)
+  }
+  catch (e) {
+    console.error(e)
+  }
+
+  // syncName()
+}
 </script>
 
 <template>
@@ -20,6 +39,13 @@ const device = machines.use('device', computed(() => ({ gateway: props.gateway, 
       {{ device.state.context.data.manufacturername }} - {{ device.state.context.data.modelid }}
     </v-card-subtitle>
     <v-card-text>
+      <v-text-field
+        v-model="deviceName"
+        label="Name"
+        append-icon="mdi-content-save"
+        @click:append="updateDeviceName"
+      />
+
       <v-sheet elevation="10">
         <pre>{{ device.state.context.data }}</pre>
       </v-sheet>

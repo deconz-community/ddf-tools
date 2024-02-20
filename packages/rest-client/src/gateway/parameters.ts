@@ -9,9 +9,9 @@ export const globalParameters = makeParametersObject({
     type: 'Path',
     schema: z.string().optional(),
   },
-  deviceId: {
+  groupId: {
     name: 'groupId',
-    description: 'Sensor ID',
+    description: 'Device ID',
     type: 'Path',
     schema: z.number().default(1),
   },
@@ -34,6 +34,17 @@ export const globalParameters = makeParametersObject({
     schema: z.string().default('00:1f:ee:00:00:00:08:bb-01-1000'),
   },
 })
+
+const IDRegex = /\d+/
+const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-\d{2}-\d{4}/
+const IDorUniqueIDRegex = new RegExp(`((${IDRegex.source})|(${uniqueIDRegex.source}))`)
+
+export const globalParametersRegex = {
+  groupId: IDRegex,
+  sensorId: IDorUniqueIDRegex,
+  alarmSystemId: IDRegex,
+  deviceUniqueID: uniqueIDRegex,
+} as const
 
 export function getParameters(...name: (keyof typeof globalParameters)[]) {
   return name.map(code => globalParameters[code])
