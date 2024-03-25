@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.16.0
+
+### Minor Changes
+
+- 65675dc: Update dependencies
+
 ## 0.15.1
 
 ### Patch Changes
