@@ -12,4 +12,6 @@ export default defineConfig({
   install: true,
   // override with different bumping mode for each package
   packageMode: {},
+  // include locked and dev dependencies in the result
+  includeLocked: true,
 })

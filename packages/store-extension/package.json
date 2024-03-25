@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@directus/api": "^18.2.1",
-    "@directus/extensions-sdk": "10.1.14",
+    "@directus/extensions-sdk": "11.0.1",
     "@directus/types": "^11.0.7",
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.11.30",
