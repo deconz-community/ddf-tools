@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.27.0
+
+### Minor Changes
+
+- 65675dc: Update dependencies
+
 ## 2.26.0
 
 ### Minor Changes
