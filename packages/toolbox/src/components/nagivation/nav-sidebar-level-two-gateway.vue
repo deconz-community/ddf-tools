@@ -86,6 +86,11 @@ const sortedDevices = computed(() => {
       title="API Keys"
       :to="`${baseURL}/config/whitelist`"
     />
+    <v-list-item
+      prepend-icon="mdi-shovel"
+      title="Sandbox"
+      :to="`${baseURL}/sandbox`"
+    />
     <v-list-subheader>
       Devices
       <v-btn icon="mdi-refresh" size="small" class="ma-2" @click="gateway.send({ type: 'REFRESH_DEVICES' })" />
