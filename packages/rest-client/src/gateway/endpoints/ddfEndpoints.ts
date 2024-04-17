@@ -48,6 +48,23 @@ export const ddfEndpoints = [
   }),
 
   makeEndpoint({
+    alias: 'getDDFBundle',
+    description: 'Get DDF bundle file',
+    method: 'get',
+    path: '/api/:apiKey/ddf/bundles/:hash',
+    response: prepareResponse(z.instanceof(Blob)),
+    parameters: [
+      globalParameters.apiKey,
+      {
+        name: 'hash',
+        description: 'The hash of the bundle to get',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+  }),
+
+  makeEndpoint({
     alias: 'uploadDDFBundle',
     description: 'Uploads a DDF bundle so it can be used by DDF system.',
     method: 'post',

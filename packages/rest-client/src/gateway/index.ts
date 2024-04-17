@@ -4,7 +4,7 @@ import { Zodios } from '@zodios/core'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
 import type { AxiosRequestConfig } from 'axios'
-import { pluginAuth, pluginTransformResponse } from './plugins'
+import { pluginAuth, pluginBlobResponse, pluginTransformResponse } from './plugins'
 import { devicesEndpoints } from './endpoints/devicesEndpoints'
 import { configEndpoints } from './endpoints/configEndpoints'
 import { ddfEndpoints } from './endpoints/ddfEndpoints'
@@ -40,6 +40,7 @@ export function gatewayClient(address: string, apiKey: string, axiosConfig: Axio
 
   client.use(pluginAuth(() => apiKey))
   client.use(pluginTransformResponse())
+  client.use(pluginBlobResponse())
 
   return client
 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { decode } from '@deconz-community/ddf-bundler'
+
 const props = defineProps<{
   gateway: string
 }>()
@@ -52,6 +54,31 @@ async function fetchNext() {
   data.value = response.success.descriptors
   next.value = response.success.next
 }
+
+const bundles = computed(() => {
+  return Object.entries(data.value).map(([hash, value]) => {
+    return {
+      hash,
+      ...value,
+    }
+  })
+})
+
+const isActive = ref(false)
+const bundleRef = ref<any>()
+async function inspect(hash: string) {
+  const client = gatewayMachine.state?.context.gateway
+  if (!client)
+    console.error('No client found')
+
+  const bundle = await client?.getDDFBundle({ params: { hash } })
+
+  if (!bundle?.success)
+    return console.error('No bundle found')
+
+  bundleRef.value = await decode(bundle.success)
+  isActive.value = true
+}
 </script>
 
 <template>
@@ -72,9 +99,42 @@ async function fetchNext() {
       <v-btn @click="fetchNext()">
         {{ next ? `Fetch next (${next})` : 'Fetch first' }}
       </v-btn>
-      <pre>{{ data }}</pre>
     </template>
   </v-card>
+
+  <v-card v-for="bundle in bundles" :key="bundle.hash" class="ma-2">
+    <template #title>
+      {{ bundle.product }}
+      <v-btn @click="() => inspect(bundle.hash)">
+        Inspect
+      </v-btn>
+    </template>
+
+    <template #text>
+      <pre>{{ bundle }}</pre>
+    </template>
+  </v-card>
+
+  <v-dialog v-model="isActive">
+    <template #default>
+      <v-card title="Inspect Bundle">
+        <v-card-text>
+          <bundle-editor
+            v-if="bundleRef" v-model="bundleRef" variant="outlined" class="ma-2"
+          />
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+
+          <v-btn
+            text="Close Dialog"
+            @click="isActive = false"
+          />
+        </v-card-actions>
+      </v-card>
+    </template>
+  </v-dialog>
 </template>
 
 <route lang="json">

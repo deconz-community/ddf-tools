@@ -84,6 +84,10 @@ export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, opti
             // Because null is an object
             result.success.value = null
           }
+          else if (item.success instanceof Blob) {
+            // Because a Blob is an object
+            result.success.value = item.success
+          }
           else if (typeof item.success === 'object') {
             // Loop for probably only one item
             for (const [key, value] of Object.entries(item.success ?? {}))

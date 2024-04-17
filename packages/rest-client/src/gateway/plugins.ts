@@ -19,8 +19,6 @@ export function pluginTransformResponse(): ZodiosPlugin {
   return {
     name: 'pluginPatchResponse',
     response: async (_api, config, response) => {
-      // console.log({ _api, config, response })
-
       if (response.data === '' || (Array.isArray(response.data) && response.data.length === 0)) {
         switch (response.status) {
           case 200: {
@@ -71,8 +69,39 @@ export function pluginTransformResponse(): ZodiosPlugin {
       else
         response.headers['content-type'] = 'application/json'
 
-      // console.log('Plugin response', response)
       return response
+    },
+  }
+}
+
+export function pluginBlobResponse(): ZodiosPlugin {
+  // From https://github.com/ecyrbe/zodios/issues/390#issuecomment-1479389725
+  const exampleBlobResponse = [{ success: new Blob() }]
+
+  return {
+    name: 'pluginBlobResponse',
+    request: async (api, config) => {
+      const endpoint = api.find(e => e.method === config.method && e.path === config.url)
+
+      if (!endpoint)
+        return config
+
+      // We have to guess whether the response schema is `z.instanceof(Blob)` because the info is not reflected
+      let isLikelyInstanceOfBlob = false
+
+      try {
+        if (endpoint.response.safeParse(exampleBlobResponse).success)
+          isLikelyInstanceOfBlob = true
+      }
+      catch (e) {}
+
+      if (!isLikelyInstanceOfBlob)
+        return config
+
+      return {
+        ...config,
+        responseType: 'blob',
+      }
     },
   }
 }
