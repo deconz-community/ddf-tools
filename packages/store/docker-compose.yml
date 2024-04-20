@@ -1,7 +1,7 @@
 version: '3'
 services:
   directus:
-    container_name: directus
+    container_name: ddf-store
     build:
       context: .
       dockerfile: Dockerfile
