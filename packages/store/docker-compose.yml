@@ -7,8 +7,8 @@ services:
     ports:
       - 8055:8055
     volumes:
-      - ddf-store-database:/directus/database
-      - ddf-store-uploads:/directus/uploads
+      - database:/directus/database
+      - uploads:/directus/uploads
     env_file:
       - .env
     environment:
@@ -27,5 +27,5 @@ services:
     stdin_open: true
     tty: true
 volumes:
-  ddf-store-database:
-  ddf-store-uploads:
+  database:
+  uploads:
