@@ -11,6 +11,7 @@ RUN corepack enable && corepack prepare
 USER node
 RUN pnpm install @deconz-community/directus-extension-ddf-store@0.10.0
 
+RUN groupmod -g 1001 node && usermod -u 1001 -g 1001 node
 
 # ddf-store
 # https://github.com/deconz-community/ddf-tools
