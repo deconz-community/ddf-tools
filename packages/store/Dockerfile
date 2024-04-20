@@ -10,6 +10,9 @@ RUN corepack enable && corepack prepare
 
 # RUN apk --no-cache add shadow && groupmod --gid 1001 node && usermod --uid 1001 --gid 1001 node && apk del shadow
 
+RUN chown node:node -R /directus/database
+RUN chown node:node -R /directus/uploads
+
 USER node
 RUN pnpm install @deconz-community/directus-extension-ddf-store@0.10.0
 
