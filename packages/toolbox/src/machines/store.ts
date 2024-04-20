@@ -1,3 +1,4 @@
+import { log } from 'node:console'
 import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
@@ -28,16 +29,17 @@ export const storeMachine = setup({
     context: {} as StoreContext,
     input: {} as Partial<Pick<StoreContext, 'directusUrl'>>,
     events: {} as {
-      type: 'LOGIN'
-      profile: Collections.DirectusUser
-    } | {
-      type: 'UPDATE_PROFILE'
+      type: 'LOGIN' | 'UPDATE_PROFILE'
       profile: Collections.DirectusUser
     } | {
       type: 'LOGOUT'
     } | {
       type: 'UPDATE_DIRECTUS_URL'
       directusUrl: string
+    } | {
+      type: 'START_POPUP_LOGIN' | 'STOP_POPUP_LOGIN'
+    } | {
+      type: 'WEBSOCKET_CONNECT' | 'WEBSOCKET_DISCONNECT'
     },
   },
 
@@ -53,6 +55,8 @@ export const storeMachine = setup({
     })),
 
     connectWebsocket: assign(({ context }) => produce(context, (draft) => {
+      console.log('connectWebsocket')
+
       context.directus?.connect()
       draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
         if (message.type !== 'notification')
@@ -62,8 +66,12 @@ export const storeMachine = setup({
     })),
 
     disconnectWebsocket: assign(({ context }) => produce(context, (draft) => {
-      context.directus?.disconnect()
+      console.log('disconnectWebsocket')
+
       context.websocketEventHandlerRemover?.()
+      context.directus?.disconnect()
+
+      console.log(context.directus)
       delete draft.websocketEventHandlerRemover
     })),
 
@@ -120,11 +128,15 @@ export const storeMachine = setup({
                 },
               }))
               .with(realtime({
-                authMode: 'handshake',
+                authMode: 'public',
+                reconnect: false,
+                // https://discord.com/channels/725371605378924594/1141759949400195122/1231346150397972561
+                /*
                 reconnect: {
                   delay: 1000,
                   retries: 10,
                 },
+                */
                 heartbeat: true,
               }))
           }
@@ -172,7 +184,7 @@ export const storeMachine = setup({
         },
         onDone: [
           {
-            target: 'online.connected',
+            target: 'online.auth.connected',
             guard: ({ event }) => event.output.isAuthenticated === true,
             actions: assign(({ context, event }) => produce(context, (draft) => {
               draft.directus = event.output.directus
@@ -180,7 +192,7 @@ export const storeMachine = setup({
             })),
           },
           {
-            target: 'online.anonymous',
+            target: 'online.auth.anonymous',
             actions: assign(({ context, event }) => produce(context, (draft) => {
               draft.directus = event.output.directus
               draft.settings = event.output.settings
@@ -192,41 +204,83 @@ export const storeMachine = setup({
     },
 
     online: {
+
+      type: 'parallel',
+
       states: {
-        anonymous: {
-          on: {
-            LOGIN: {
-              target: 'connected',
-              actions: 'updateProfile',
+
+        auth: {
+
+          initial: 'anonymous',
+          states: {
+            anonymous: {
+              initial: 'idle',
+              states: {
+                idle: {
+                  on: {
+                    START_POPUP_LOGIN: 'loggingIn',
+                  },
+                },
+                loggingIn: {
+                  entry: raise(() => ({ type: 'WEBSOCKET_CONNECT' })),
+                  exit: raise(() => ({ type: 'WEBSOCKET_DISCONNECT' })),
+                  on: {
+                    STOP_POPUP_LOGIN: 'idle',
+                  },
+                },
+              },
+              on: {
+                LOGIN: {
+                  target: 'connected',
+                  actions: 'updateProfile',
+                },
+              },
+            },
+
+            connected: {
+              entry: raise(() => ({ type: 'WEBSOCKET_CONNECT' })),
+              exit: raise(() => ({ type: 'WEBSOCKET_DISCONNECT' })),
+              on: {
+                LOGOUT: {
+                  target: 'anonymous',
+                  actions: 'updateProfile',
+                },
+                UPDATE_PROFILE: {
+                  actions: assign({ profile: ({ event }) => event.profile }),
+                },
+              },
+
+              invoke: {
+                input: ({ context }) => context.directus!,
+                src: 'fetchProfile',
+                onDone: {
+                  actions: raise(({ event }) => ({ type: 'UPDATE_PROFILE', profile: event.output })),
+                },
+              },
             },
           },
+
         },
 
-        connected: {
-          on: {
-            LOGOUT: {
-              target: 'anonymous',
-              actions: 'updateProfile',
+        websocket: {
+          initial: 'idle',
+          states: {
+            idle: {
+              on: {
+                WEBSOCKET_CONNECT: 'connected',
+              },
             },
-            UPDATE_PROFILE: {
-              actions: assign({ profile: ({ event }) => event.profile }),
-            },
-          },
-
-          invoke: {
-            input: ({ context }) => context.directus!,
-            src: 'fetchProfile',
-            onDone: {
-              actions: raise(({ event }) => ({ type: 'UPDATE_PROFILE', profile: event.output })),
+            connected: {
+              entry: 'connectWebsocket',
+              exit: 'disconnectWebsocket',
+              on: {
+                WEBSOCKET_DISCONNECT: 'idle',
+              },
             },
           },
-
-          entry: 'connectWebsocket',
-          exit: 'disconnectWebsocket',
         },
       },
 
-      initial: 'anonymous',
     },
 
     offline: {},

@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+const { exec } = require('node:child_process')
+const watch = require('node-watch')
+
+const filePath = '../store/package.json'
+
+const extensions = [
+  'store-extension',
+  'oauth-pop-up',
+]
+
+watch(extensions.map(extension => [
+    `../${extension}/dist/`,
+]).flat(), {
+  recursive: true,
+}, (evt, name) => {
+  exec(`touch ${filePath}`, (error) => {
+    if (error) {
+      console.error(`Error executing command: ${error}`)
+      return
+    }
+
+    extensions.filter(extension => name.includes(extension)).forEach((extension) => {
+      console.log(`Extension ${extension} changed.`)
+    })
+  })
+})

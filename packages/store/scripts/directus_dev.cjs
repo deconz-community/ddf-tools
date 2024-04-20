@@ -6,11 +6,21 @@ concurrently([
   {
     command: 'pnpm start',
     name: 'directus',
-    prefixColor: 'yellow.bold',
+    prefixColor: '#f39c12',
   },
   {
     command: 'pnpm --dir ../store-extension run dev',
     name: 'extensions',
-    prefixColor: 'cyan.bold',
+    prefixColor: '#3498db',
+  },
+  {
+    command: 'pnpm --dir ../oauth-pop-up run dev',
+    name: 'oauth-pop-up',
+    prefixColor: '#2ecc71',
+  },
+  {
+    command: 'node scripts/propagate_watcher.cjs',
+    name: 'watcher',
+    prefixColor: '#34495e',
   },
 ])
