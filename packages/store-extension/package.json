@@ -45,9 +45,9 @@
     "pako": "^2.1.0"
   },
   "devDependencies": {
-    "@directus/api": "^19.0.0",
-    "@directus/extensions-sdk": "11.0.2",
-    "@directus/types": "^11.0.8",
+    "@directus/api": "^19.0.2",
+    "@directus/extensions-sdk": "11.0.3",
+    "@directus/types": "^11.1.0",
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.12.7",
     "express": "^4.19.2",
