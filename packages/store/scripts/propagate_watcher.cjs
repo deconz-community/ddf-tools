@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// See https://github.com/directus/directus/issues/21745#issuecomment-2067801020
+
 const { exec } = require('node:child_process')
 const watch = require('node-watch')
 
