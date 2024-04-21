@@ -6,38 +6,43 @@ const props = defineProps<{
 }>()
 
 const machines = createUseAppMachine()
-const gatewayMachine = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const search = ref('')
+const inputUploadBundle = ref<File[]>([])
 
-const files = ref<File[]>([])
+const isLoading = refDebounced(
+  computed(() => !gateway.state?.matches({ online: { config: 'idle' } })),
+  50,
+)
 
 async function upload() {
-  const client = gatewayMachine.state?.context.gateway
+  const client = gateway.state?.context.gateway
   if (!client) {
     console.error('No client found')
     return
   }
 
-  if (files.value.length === 0) {
+  if (inputUploadBundle.value.length === 0) {
     console.error('You should upload at least one bundle')
     return
   }
 
-  console.log('uploading', files.value)
-
-  files.value.map(async (file) => {
+  await Promise.all(inputUploadBundle.value.map(async (file) => {
     const formData = new FormData()
     formData.append('ddfbundle', file)
 
     const result = await client?.uploadDDFBundle(formData)
 
     console.log('result', result)
-  })
+  }))
+
+  gateway.send({ type: 'REFRESH_BUNDLES' })
 }
 
 const isActive = ref(false)
 const bundleRef = ref<any>()
 async function inspect(hash: string) {
-  const client = gatewayMachine.state?.context.gateway
+  const client = gateway.state?.context.gateway
   if (!client)
     console.error('No client found')
 
@@ -51,18 +56,28 @@ async function inspect(hash: string) {
 }
 
 const bundles = computed(() => {
-  return Array.from(gatewayMachine.state?.context.bundles.entries() || [])
+  return Array.from(gateway.state?.context.bundles.entries() || []).map(([hash, bundle]) => ({
+    hash,
+    product: bundle.product,
+    last_modified: new Date(bundle.last_modified),
+  }))
+})
+
+onMounted(() => {
+  setTimeout(() => {
+    gateway.send({ type: 'REFRESH_BUNDLES' })
+  }, 200)
 })
 </script>
 
 <template>
   <v-card class="ma-2">
     <template #title>
-      Sandbox
+      Upload bundle to the gateway
     </template>
     <template #text>
       <v-file-input
-        v-model="files"
+        v-model="inputUploadBundle"
         multiple
         label="Open .ddf bundle from disk"
         accept=".ddf"
@@ -70,23 +85,83 @@ const bundles = computed(() => {
       <v-btn @click="upload()">
         Upload
       </v-btn>
-      <v-btn :disabled="!gatewayMachine.state?.can({ type: 'REFRESH_BUNDLES' })" @click="gatewayMachine.send({ type: 'REFRESH_BUNDLES' })">
-        Refresh
-      </v-btn>
     </template>
   </v-card>
 
-  <v-card v-for="[hash, bundle] in bundles" :key="hash" class="ma-2">
-    <template #title>
-      {{ bundle.product }}
-      <v-btn @click="() => inspect(hash)">
-        Inspect
+  <v-card class="ma-2">
+    <v-card-title>
+      Manage Bundles
+      <v-btn
+        class="ma-2"
+        :disabled="!gateway.state?.can({ type: 'REFRESH_BUNDLES' })"
+        @click="gateway.send({ type: 'REFRESH_BUNDLES' })"
+      >
+        Refresh
       </v-btn>
-    </template>
+      <v-spacer />
+      <v-text-field
+        v-model="search"
+        placeholder="Search"
+        append-inner-icon="mdi-close"
+        label="Search"
+        single-line
+        hide-details
+        @click:append-inner="search = ''"
+      />
+    </v-card-title>
+    <v-card-text>
+      <v-data-table
+        :loading="isLoading"
+        :search="search"
+        :headers="[{
+          title: 'Hash',
+          key: 'hash',
+        }, {
+          title: 'Product',
+          key: 'product',
+        }, {
+          title: 'Last Modified',
+          key: 'last_modified',
+        }, {
+          title: 'Actions',
+          key: 'actions',
+        }]"
+        :sort-by="[{
+          key: 'last_modified',
+          order: 'desc',
+        }]"
+        :items="bundles"
+        item-value="hash"
+      >
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.hash="{ item }">
+          <v-chip class="ma-2" color="grey">
+            {{ item.hash.slice(-10) }}
+          </v-chip>
+        </template>
 
-    <template #text>
-      <pre>{{ bundle }}</pre>
-    </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.last_modified="{ item }">
+          <v-tooltip :text="`${item.last_modified.toLocaleDateString()} ${item.last_modified.toLocaleTimeString()}`">
+            <template #activator="{ props: localProps }">
+              <p v-bind="localProps">
+                <UseTimeAgo v-slot="{ timeAgo }" :time="item.last_modified">
+                  {{ timeAgo }}
+                </UseTimeAgo>
+              </p>
+            </template>
+          </v-tooltip>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.actions="{ item }">
+          <v-tooltip text="Inspect">
+            <template #activator="{ props: localProps }">
+              <v-btn v-bind="localProps" icon="mdi-magnify" size="small" @click="inspect(item.hash)" />
+            </template>
+          </v-tooltip>
+        </template>
+      </v-data-table>
+    </v-card-text>
   </v-card>
 
   <v-dialog v-model="isActive">

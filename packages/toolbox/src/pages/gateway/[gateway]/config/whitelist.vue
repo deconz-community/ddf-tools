@@ -60,8 +60,11 @@ const isLoading = refDebounced(
   <v-card class="ma-2">
     <v-card-title>
       Manage API Keys
-
-      <v-btn @click="gateway.send({ type: 'REFRESH_CONFIG' })">
+      <v-btn
+        class="ma-2"
+        :disabled="!gateway.state?.can({ type: 'REFRESH_CONFIG' })"
+        @click="gateway.send({ type: 'REFRESH_CONFIG' })"
+      >
         Refresh
       </v-btn>
       <v-spacer />
