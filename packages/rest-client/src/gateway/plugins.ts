@@ -76,8 +76,6 @@ export function pluginTransformResponse(): ZodiosPlugin {
 
 export function pluginBlobResponse(): ZodiosPlugin {
   // From https://github.com/ecyrbe/zodios/issues/390#issuecomment-1479389725
-  const exampleBlobResponse = [{ success: new Blob() }]
-
   return {
     name: 'pluginBlobResponse',
     request: async (api, config) => {
@@ -86,22 +84,14 @@ export function pluginBlobResponse(): ZodiosPlugin {
       if (!endpoint)
         return config
 
-      // We have to guess whether the response schema is `z.instanceof(Blob)` because the info is not reflected
-      let isLikelyInstanceOfBlob = false
-
-      try {
-        if (endpoint.response.safeParse(exampleBlobResponse).success)
-          isLikelyInstanceOfBlob = true
+      if ('reponseFormat' in endpoint && endpoint.reponseFormat === 'blob') {
+        return {
+          ...config,
+          responseType: 'blob',
+        }
       }
-      catch (e) {}
 
-      if (!isLikelyInstanceOfBlob)
-        return config
-
-      return {
-        ...config,
-        responseType: 'blob',
-      }
+      return config
     },
   }
 }

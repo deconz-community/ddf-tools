@@ -53,6 +53,7 @@ export const ddfEndpoints = [
     method: 'get',
     path: '/api/:apiKey/ddf/bundles/:hash',
     response: prepareResponse(z.instanceof(Blob)),
+    reponseFormat: 'blob',
     parameters: [
       globalParameters.apiKey,
       {
