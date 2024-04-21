@@ -33,7 +33,7 @@ async function logout() {
 </script>
 
 <template>
-  <template v-if="store.state?.matches({ online: 'connected' }) && store.profile">
+  <template v-if="store.state?.matches({ online: { auth: 'connected' } }) && store.profile">
     <v-menu
       width="200"
     >
@@ -70,7 +70,7 @@ async function logout() {
       </v-list>
     </v-menu>
   </template>
-  <template v-else-if="store.state?.matches({ online: 'anonymous' })">
+  <template v-else-if="store.state?.matches({ online: { auth: 'anonymous' } })">
     <v-btn
       prepend-icon="mdi-login"
       :href="loginUrl"
