@@ -88,8 +88,8 @@ const sortedDevices = computed(() => {
     />
     <v-list-item
       prepend-icon="mdi-shovel"
-      title="Sandbox"
-      :to="`${baseURL}/sandbox`"
+      title="Bundles"
+      :to="`${baseURL}/bundles`"
     />
     <v-list-subheader>
       Devices

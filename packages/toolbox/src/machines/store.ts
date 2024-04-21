@@ -308,7 +308,7 @@ export const storeMachine = setup({
               exit: 'disconnectWebsocket',
               invoke: {
                 input: ({ context }) => context.directus!,
-                src: fromCallback<EventObject, Directus >(({ sendBack, input }) => {
+                src: fromCallback<EventObject, Directus>(({ sendBack, input }) => {
                   const stoppers: (() => void)[] = []
 
                   stoppers.push(input.onWebSocket('open', () => {

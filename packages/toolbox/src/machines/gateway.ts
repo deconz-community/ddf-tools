@@ -1,6 +1,8 @@
 import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
-import { type Response, findGateway, type gatewayClient, websocketSchema } from '@deconz-community/rest-client'
+import type { FindGatewayResult, Response, gatewayClient } from '@deconz-community/rest-client'
+import { findGateway, websocketSchema } from '@deconz-community/rest-client'
+
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
@@ -11,7 +13,7 @@ export interface gatewayContext {
   gateway?: ReturnType<typeof gatewayClient>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config: Response<'getConfig'>['success']
-  bundle: Map<string, BundleDescriptor>
+  bundles: Map<string, BundleDescriptor>
 }
 
 export const gatewayMachine = setup({
@@ -29,7 +31,7 @@ export const gatewayMachine = setup({
     } | {
       type: 'CONNECT'
     } | {
-      type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLE'
+      type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
     } | {
       type: 'UPDATE_CREDENTIALS'
       data: GatewayCredentials
@@ -47,13 +49,11 @@ export const gatewayMachine = setup({
 
   actors: {
     deviceMachine,
-    connectToGateway: fromPromise(({ input }: {
-      input: {
-        URIs: string[]
-        apiKey: string
-        expectedBridgeID: string
-      }
-    }) => {
+    connectToGateway: fromPromise<FindGatewayResult, {
+      URIs: string[]
+      apiKey: string
+      expectedBridgeID: string
+    }>(({ input }) => {
       return findGateway(input.URIs, input.apiKey, input.expectedBridgeID)
     }),
 
@@ -105,21 +105,51 @@ export const gatewayMachine = setup({
       return () => scope.stop()
     }),
 
-    fetchConfig: fromPromise(async ({ input }: {
-      input: {
-        gateway: ReturnType<typeof gatewayClient>
-      }
-    }) => {
+    fetchConfig: fromPromise<Response<'getConfig'>, {
+      gateway: ReturnType<typeof gatewayClient>
+    }>(async ({ input }) => {
       return input.gateway.getConfig()
     }),
 
-    fetchDevices: fromPromise(async ({ input }: {
-      input: {
-        gateway: ReturnType<typeof gatewayClient>
-      }
-    }) => {
+    fetchDevices: fromPromise<Response<'getDevices'>, {
+      gateway: ReturnType<typeof gatewayClient>
+    }>(async ({ input }) => {
       return input.gateway.getDevices()
     }),
+
+    fetchBundles: fromPromise<gatewayContext['bundles'], {
+      gateway: ReturnType<typeof gatewayClient>
+    }>(async ({ input }) => {
+      const { gateway } = input
+      const newList = new Map<string, BundleDescriptor>()
+
+      let hasMore = true
+      let next
+
+      while (hasMore) {
+        const result = await gateway.getDDFBundleDescriptors({
+          queries: { next },
+        })
+
+        const data = result?.success
+
+        if (!data)
+          throw new Error('Failed to fetch bundle')
+
+        for (const [key, value] of Object.entries(data.descriptors))
+          newList.set(key, value)
+
+        if (data.next) {
+          next = data.next
+        }
+        else {
+          next = undefined
+          hasMore = false
+        }
+      }
+      return newList
+    }),
+
   },
 
 }).createMachine({
@@ -131,7 +161,7 @@ export const gatewayMachine = setup({
     gateway: undefined,
     devices: new Map(),
     config: undefined,
-    bundle: new Map(),
+    bundles: new Map(),
   }),
 
   initial: 'init',
@@ -346,15 +376,27 @@ export const gatewayMachine = setup({
           },
         },
 
-        bundle: {
+        bundles: {
           initial: 'idle',
           states: {
             idle: {
               on: {
-                REFRESH_BUNDLE: 'fetching',
+                REFRESH_BUNDLES: 'fetching',
               },
             },
             fetching: {
+              invoke: {
+                input: ({ context }) => ({ gateway: context.gateway! }),
+                src: 'fetchBundles',
+                onDone: {
+                  target: 'idle',
+                  actions: [
+                    assign({ bundles: ({ event }) => event.output }),
+                  ],
+                },
+                // TODO Display an error message
+                onError: 'idle',
+              },
             },
           },
         },

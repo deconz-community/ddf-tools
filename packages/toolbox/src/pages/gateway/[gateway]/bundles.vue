@@ -34,36 +34,6 @@ async function upload() {
   })
 }
 
-const data = ref<any>({})
-const next = ref<string | number | undefined>('')
-
-async function fetchNext() {
-  const client = gatewayMachine.state?.context.gateway
-  if (!client)
-    console.error('No client found')
-
-  const queries = next.value ? { next: next.value } : undefined
-
-  const response = await client?.getDDFBundleDescriptors({
-    queries,
-  })
-
-  if (!response)
-    return console.error('No response found')
-
-  data.value = response.success.descriptors
-  next.value = response.success.next
-}
-
-const bundles = computed(() => {
-  return Object.entries(data.value).map(([hash, value]) => {
-    return {
-      hash,
-      ...value,
-    }
-  })
-})
-
 const isActive = ref(false)
 const bundleRef = ref<any>()
 async function inspect(hash: string) {
@@ -79,6 +49,10 @@ async function inspect(hash: string) {
   bundleRef.value = await decode(bundle.success)
   isActive.value = true
 }
+
+const bundles = computed(() => {
+  return Array.from(gatewayMachine.state?.context.bundles.entries() || [])
+})
 </script>
 
 <template>
@@ -96,16 +70,16 @@ async function inspect(hash: string) {
       <v-btn @click="upload()">
         Upload
       </v-btn>
-      <v-btn @click="fetchNext()">
-        {{ next ? `Fetch next (${next})` : 'Fetch first' }}
+      <v-btn :disabled="!gatewayMachine.state?.can({ type: 'REFRESH_BUNDLES' })" @click="gatewayMachine.send({ type: 'REFRESH_BUNDLES' })">
+        Refresh
       </v-btn>
     </template>
   </v-card>
 
-  <v-card v-for="bundle in bundles" :key="bundle.hash" class="ma-2">
+  <v-card v-for="[hash, bundle] in bundles" :key="hash" class="ma-2">
     <template #title>
       {{ bundle.product }}
-      <v-btn @click="() => inspect(bundle.hash)">
+      <v-btn @click="() => inspect(hash)">
         Inspect
       </v-btn>
     </template>
