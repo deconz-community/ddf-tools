@@ -21,7 +21,7 @@ export default defineHook(({ action, init, env }, context) => {
       return
 
     if (message.type === 'oauth-pop-up/whoami')
-      client.send(JSON.stringify({ type: 'oauth-pop-up/whoami', whoami: client.uid }))
+      client.send(JSON.stringify({ type: 'oauth-pop-up/whoami', data: { whoami: client.uid } }))
 
     /*
     websocketService.clients().forEach((client: WebSocketClient) => {

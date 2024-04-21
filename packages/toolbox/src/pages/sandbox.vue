@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { readSettings } from '@directus/sdk'
+import { createDirectus, readMe, readSettings, rest } from '@directus/sdk'
 
 const store = useStore()
 
@@ -13,14 +13,16 @@ function stopPopupLogin() {
   console.log('stopPopupLogin')
   store.send({ type: 'STOP_POPUP_LOGIN' })
 }
-function test() {
+async function test() {
   const client = store.client
   if (!client) {
     console.log('client not found')
     return
   }
 
-  console.log(client)
+  console.log(await client.request(readMe({
+    fields: ['*'],
+  })))
 }
 </script>
 

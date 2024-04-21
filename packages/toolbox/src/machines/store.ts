@@ -21,6 +21,7 @@ export interface StoreContext {
   profile?: Collections.DirectusUser
   settings?: Pick<Collections.DirectusSettings, PublicSettingsKeys>
   websocketEventHandlerRemover?: () => void
+  websocketWhoami?: string
 }
 
 export const storeMachine = setup({
@@ -42,8 +43,8 @@ export const storeMachine = setup({
       type: 'WEBSOCKET_CONNECT' | 'WEBSOCKET_DISCONNECT'
     } | {
       type: 'WEBSOCKET_MESSAGE'
-      subject: string
-      data: any
+      subject: 'oauth-pop-up/whoami'
+      data: { whoami: string }
     },
   },
 
@@ -230,6 +231,34 @@ export const storeMachine = setup({
                   exit: raise(() => ({ type: 'WEBSOCKET_DISCONNECT' })),
                   on: {
                     STOP_POPUP_LOGIN: 'idle',
+                    WEBSOCKET_MESSAGE: {
+                      guard: ({ event }) => event.subject === 'oauth-pop-up/whoami',
+                      actions: [
+                        assign(({ context, event }) => produce(context, (draft) => {
+                          draft.websocketWhoami = event.data.whoami
+                        })),
+                        ({ context, event }) => {
+                          console.log('whoami=', event.data.whoami)
+
+                          const url = new URL(`${context.directusUrl}/auth/login/github`)
+                          const callbackUrl = new URL(`${context.directusUrl}/oauth-pop-up/callback`)
+                          callbackUrl.search = new URLSearchParams({
+                            whoami: event.data.whoami,
+                          }).toString()
+
+                          url.search = new URLSearchParams({
+                            redirect: callbackUrl.toString(),
+                          }).toString()
+
+                          const height = 600
+                          const width = 800
+                          const left = (screen.width - width) / 2
+                          const top = (screen.height - height) / 2
+
+                          const newWindow = window.open(url.toString(), 'oauth-pop-up', `resizable = yes, width=${width}, height=${height}, top=${top}, left=${left}`)
+                        },
+                      ],
+                    },
                   },
                 },
               },
@@ -280,18 +309,16 @@ export const storeMachine = setup({
               invoke: {
                 input: ({ context }) => context.directus!,
                 src: fromCallback<EventObject, Directus >(({ sendBack, input }) => {
-                  console.log(input)
-
                   const stoppers: (() => void)[] = []
 
                   stoppers.push(input.onWebSocket('open', () => {
                     input.sendMessage({ type: 'oauth-pop-up/whoami' })
                   }))
 
-                  stoppers.push(input.onWebSocket('message', ({ subject, data }) => {
+                  stoppers.push(input.onWebSocket('message', ({ type, data }) => {
                     sendBack({
                       type: 'WEBSOCKET_MESSAGE',
-                      subject,
+                      subject: type,
                       data,
                     })
                   }))
