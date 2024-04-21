@@ -4,11 +4,14 @@ import { type Response, findGateway, type gatewayClient, websocketSchema } from 
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
+type BundleDescriptor = Extract<Response<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
+
 export interface gatewayContext {
   credentials: GatewayCredentials
   gateway?: ReturnType<typeof gatewayClient>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config: Response<'getConfig'>['success']
+  bundle: Map<string, BundleDescriptor>
 }
 
 export const gatewayMachine = setup({
@@ -20,17 +23,13 @@ export const gatewayMachine = setup({
     } | {
       type: 'DONE'
     } | {
-      type: 'NEXT'
-    } | {
-      type: 'PREVIOUS'
+      type: 'NEXT' | 'PREVIOUS'
     } | {
       type: 'SAVE'
     } | {
       type: 'CONNECT'
     } | {
-      type: 'REFRESH_CONFIG'
-    } | {
-      type: 'REFRESH_DEVICES'
+      type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLE'
     } | {
       type: 'UPDATE_CREDENTIALS'
       data: GatewayCredentials
@@ -132,6 +131,7 @@ export const gatewayMachine = setup({
     gateway: undefined,
     devices: new Map(),
     config: undefined,
+    bundle: new Map(),
   }),
 
   initial: 'init',
@@ -342,6 +342,19 @@ export const gatewayMachine = setup({
             },
             error: {
 
+            },
+          },
+        },
+
+        bundle: {
+          initial: 'idle',
+          states: {
+            idle: {
+              on: {
+                REFRESH_BUNDLE: 'fetching',
+              },
+            },
+            fetching: {
             },
           },
         },

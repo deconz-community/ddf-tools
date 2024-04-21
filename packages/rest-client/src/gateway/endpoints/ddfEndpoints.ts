@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { makeEndpoint } from '@zodios/core'
 import { prepareResponse } from '../utils'
 import { globalParameters } from '../parameters'
+import { ddfdDescriptorSchema } from '../schemas/ddfSchema'
 
 export const ddfEndpoints = [
 
@@ -25,15 +26,7 @@ export const ddfEndpoints = [
         }
       }, z.strictObject({
         next: z.optional(z.union([z.string(), z.number()])),
-        descriptors: z.record(z.string(), z.strictObject({
-          uuid: z.string(),
-          product: z.string(),
-          version_deconz: z.string(),
-          last_modified: z.string(),
-          device_identifiers: z.array(
-            z.tuple([z.string(), z.string()]),
-          ),
-        })),
+        descriptors: z.record(z.string(), ddfdDescriptorSchema),
       })),
     ),
     parameters: [
