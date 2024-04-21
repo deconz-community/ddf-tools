@@ -25,6 +25,8 @@
 	  "skipLibCheck": true
   },
   "include": [
-	  "./src/**/*.ts"
+	  "./src/**/*.ts",
+	  "@directus/api/dist/services/index.d.ts",
+	  "@directus/api/dist/websocket/types.d.ts"
   ]
 }

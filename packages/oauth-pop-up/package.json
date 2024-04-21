@@ -1,7 +1,7 @@
 {
   "name": "oauth-pop-up",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Authenticate users using a pop-up window",
   "author": {
@@ -32,6 +32,7 @@
     "dist"
   ],
   "directus:extension": {
+    "host": "^10.10.0",
     "type": "bundle",
     "path": {
       "app": "dist/app.js",
@@ -40,11 +41,15 @@
     "entries": [
       {
         "type": "hook",
-        "name": "websocket",
-        "source": "src/websocket/index.ts"
+        "name": "Websocket",
+        "source": "src/hook/websocket.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "Callback",
+        "source": "src/endpoint/callback.ts"
       }
-    ],
-    "host": "^10.10.0"
+    ]
   },
   "scripts": {
     "build": "directus-extension build",
@@ -55,6 +60,7 @@
   "devDependencies": {
     "@directus/extensions-sdk": "11.0.3",
     "@types/node": "^20.12.7",
+    "@types/ws": "^8.5.10",
     "typescript": "^5.4.5"
   }
 }

@@ -13,6 +13,15 @@ function stopPopupLogin() {
   console.log('stopPopupLogin')
   store.send({ type: 'STOP_POPUP_LOGIN' })
 }
+function test() {
+  const client = store.client
+  if (!client) {
+    console.log('client not found')
+    return
+  }
+
+  console.log(client)
+}
 </script>
 
 <template>
@@ -31,6 +40,9 @@ function stopPopupLogin() {
       </v-btn>
       <v-btn @click="stopPopupLogin">
         Stop
+      </v-btn>
+      <v-btn @click="test">
+        test
       </v-btn>
     </template>
   </v-card>

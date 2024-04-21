@@ -1,5 +1,5 @@
-import { log } from 'node:console'
-import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
+import type { EventObject } from 'xstate'
+import { assign, fromCallback, fromPromise, raise, sendTo, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient, WebSocketClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, readSettings, realtime, rest, serverHealth } from '@directus/sdk'
@@ -40,6 +40,10 @@ export const storeMachine = setup({
       type: 'START_POPUP_LOGIN' | 'STOP_POPUP_LOGIN'
     } | {
       type: 'WEBSOCKET_CONNECT' | 'WEBSOCKET_DISCONNECT'
+    } | {
+      type: 'WEBSOCKET_MESSAGE'
+      subject: string
+      data: any
     },
   },
 
@@ -273,6 +277,30 @@ export const storeMachine = setup({
             connected: {
               entry: 'connectWebsocket',
               exit: 'disconnectWebsocket',
+              invoke: {
+                input: ({ context }) => context.directus!,
+                src: fromCallback<EventObject, Directus >(({ sendBack, input }) => {
+                  console.log(input)
+
+                  const stoppers: (() => void)[] = []
+
+                  stoppers.push(input.onWebSocket('open', () => {
+                    input.sendMessage({ type: 'oauth-pop-up/whoami' })
+                  }))
+
+                  stoppers.push(input.onWebSocket('message', ({ subject, data }) => {
+                    sendBack({
+                      type: 'WEBSOCKET_MESSAGE',
+                      subject,
+                      data,
+                    })
+                  }))
+
+                  return () => {
+                    stoppers.forEach(stop => stop())
+                  }
+                }),
+              },
               on: {
                 WEBSOCKET_DISCONNECT: 'idle',
               },
