@@ -8,7 +8,7 @@ import { deviceMachine } from './device'
 
 type BundleDescriptor = Extract<Response<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
 
-export interface gatewayContext {
+export interface GatewayContext {
   credentials: GatewayCredentials
   gateway?: ReturnType<typeof gatewayClient>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
@@ -19,7 +19,7 @@ export interface gatewayContext {
 export const gatewayMachine = setup({
 
   types: {
-    context: {} as gatewayContext,
+    context: {} as GatewayContext,
     events: {} as | {
       type: 'EDIT_CREDENTIALS'
     } | {
@@ -90,7 +90,7 @@ export const gatewayMachine = setup({
           if (!uniqueid)
             return
 
-          const devices = input.gateway.getSnapshot().context.devices as gatewayContext['devices']
+          const devices = input.gateway.getSnapshot().context.devices as GatewayContext['devices']
 
           devices.forEach((device) => {
             const { context } = device.getSnapshot()
@@ -117,7 +117,7 @@ export const gatewayMachine = setup({
       return input.gateway.getDevices()
     }),
 
-    fetchBundles: fromPromise<gatewayContext['bundles'], {
+    fetchBundles: fromPromise<GatewayContext['bundles'], {
       gateway: ReturnType<typeof gatewayClient>
     }>(async ({ input }) => {
       const { gateway } = input

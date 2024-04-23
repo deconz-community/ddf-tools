@@ -21,10 +21,14 @@ const version = computed(() =>
   ?? discovery.state?.context.results.get(props.id)?.version,
 )
 
+/*
+const deviceCount = computed(() => gateway.state?.context.devices.size ?? 0)
+
 const devices = computed(() => {
   const result = Array.from(gateway.state?.context.devices.keys() ?? [])
   return result
 })
+*/
 
 function addGateway() {
   const credentials = discovery.state?.context.results.get(props.id)
@@ -75,8 +79,8 @@ onMounted(async () => {
           </v-alert>
           <!--
           <pre>{{ gateway.state?.context.credentials }}</pre>
+          <pre>Devices count : {{ deviceCount }}</pre>
           -->
-          <pre>Devices count : {{ devices.length }}</pre>
         </template>
 
         <template v-if="gateway.state!.matches('connecting')">
@@ -125,6 +129,9 @@ onMounted(async () => {
           Remove
         </v-btn>
         <btn-event elevation="2" :machine="gateway" :event="{ type: 'EDIT_CREDENTIALS' }" />
+        <v-btn elevation="2" :to="`gateway/${props.id}`">
+          Open
+        </v-btn>
       </v-card-actions>
     </v-card-item>
   </v-card>

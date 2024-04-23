@@ -20,7 +20,7 @@ export function bundlerCommand() {
     .requiredOption('-g, --generic <path>', 'Generic directory path')
     .option('-o, --output <path>', 'Output directory path')
     .option('--no-validate', 'Disable validation of the DDF file')
-    .option('--private-key <privateKey>', 'Private key to sign the bundle with')
+    .option('--private-key <privateKey>', 'Comma seperated list of private key to sign the bundle with')
     .option('--upload', 'Upload the bundle to the store after creating it')
     .option('--store-url <url>', 'Store URL')
     .option('--store-token <token>', 'Authentication token')
@@ -163,8 +163,10 @@ export function bundlerCommand() {
 
         let encoded = encode(bundle)
 
-        if (privateKey)
-          encoded = await sign(encoded, [{ key: hexToBytes(privateKey) }])
+        if (privateKey) {
+          for (const key of privateKey.split(','))
+            encoded = await sign(encoded, [{ key: hexToBytes(key) }])
+        }
 
         if (output) {
           const outputPath = path.join(output, bundle.data.name)

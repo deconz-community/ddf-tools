@@ -20,7 +20,7 @@ const state = computed<{
     return { color: 'gray', text: 'Loading...' }
 
   if (state.matches('online'))
-    return { color: 'green', text: 'Online', tooltip: `${Object.keys(state.context.devices).length} devices` }
+    return { color: 'green', text: 'Online', tooltip: `${state.context.devices.size} devices` }
 
   if ((['connecting', 'init'] as const).some(s => state.matches(s)))
     return { color: 'blue', text: 'Connecting' }

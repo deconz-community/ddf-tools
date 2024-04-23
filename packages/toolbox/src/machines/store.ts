@@ -60,23 +60,23 @@ export const storeMachine = setup({
     })),
 
     connectWebsocket: assign(({ context }) => produce(context, (draft) => {
-      console.log('connectWebsocket')
+      // console.log('connectWebsocket')
 
       context.directus?.connect()
       draft.websocketEventHandlerRemover = context.directus?.onWebSocket('message', (message) => {
         if (message.type !== 'notification')
           return
-        console.log(message)
+        // console.log(message)
       })
     })),
 
     disconnectWebsocket: assign(({ context }) => produce(context, (draft) => {
-      console.log('disconnectWebsocket')
+      // console.log('disconnectWebsocket')
 
       context.websocketEventHandlerRemover?.()
       context.directus?.disconnect()
 
-      console.log(context.directus)
+      // console.log(context.directus)
       delete draft.websocketEventHandlerRemover
     })),
 

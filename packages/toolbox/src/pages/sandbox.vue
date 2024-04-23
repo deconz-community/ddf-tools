@@ -2,28 +2,6 @@
 import { createDirectus, readMe, readSettings, rest } from '@directus/sdk'
 
 const store = useStore()
-
-const settings = store.request(computed(() => readSettings()))
-
-function startPopupLogin() {
-  console.log('startPopupLogin')
-  store.send({ type: 'START_POPUP_LOGIN' })
-}
-function stopPopupLogin() {
-  console.log('stopPopupLogin')
-  store.send({ type: 'STOP_POPUP_LOGIN' })
-}
-async function test() {
-  const client = store.client
-  if (!client) {
-    console.log('client not found')
-    return
-  }
-
-  console.log(await client.request(readMe({
-    fields: ['*'],
-  })))
-}
 </script>
 
 <template>
@@ -37,15 +15,6 @@ async function test() {
       <pre>{{ store.state?.value }}</pre>
       <pre>{{ settings.state }}</pre>
       -->
-      <v-btn @click="startPopupLogin">
-        Start
-      </v-btn>
-      <v-btn @click="stopPopupLogin">
-        Stop
-      </v-btn>
-      <v-btn @click="test">
-        test
-      </v-btn>
     </template>
   </v-card>
 </template>

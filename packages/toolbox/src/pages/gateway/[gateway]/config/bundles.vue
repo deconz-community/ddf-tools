@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { Bundle } from '@deconz-community/ddf-bundler'
 import { decode } from '@deconz-community/ddf-bundler'
+import type { GatewayContext } from '~/machines/gateway'
 
 const props = defineProps<{
   gateway: string
@@ -40,7 +42,8 @@ async function upload() {
 }
 
 const isActive = ref(false)
-const bundleRef = ref<any>()
+const bundleRef = ref<ReturnType<typeof Bundle> | undefined>()
+
 async function inspect(hash: string) {
   const client = gateway.state?.context.gateway
   if (!client)
@@ -52,14 +55,17 @@ async function inspect(hash: string) {
     return console.error('No bundle found')
 
   bundleRef.value = await decode(bundle.success)
+  bundleRef.value.data.name = `${hash}.ddf`
   isActive.value = true
 }
 
 const bundles = computed(() => {
   return Array.from(gateway.state?.context.bundles.entries() || []).map(([hash, bundle]) => ({
     hash,
+    uuid: bundle.uuid,
     product: bundle.product,
     last_modified: new Date(bundle.last_modified),
+    used_by: [],
   }))
 })
 
