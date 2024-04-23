@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.9.0
+
+### Minor Changes
+
+- b37b4ba: Allow multiple privates keys in the --private-key bundler option
+
 ## 1.8.0
 
 ### Minor Changes
