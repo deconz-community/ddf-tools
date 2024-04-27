@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.11.0
+
+### Minor Changes
+
+- bdd8dfb: Add generate UUID endpoint
+
 ## 0.10.0
 
 ### Minor Changes
