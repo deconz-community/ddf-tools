@@ -71,7 +71,7 @@ export default defineEndpoint({
       }
     }
 
-    router.get('/search', asyncHandler(async (req, res, next) => {
+    router.get('/search', asyncHandler(async (req, res) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
       const serviceOptions = { schema, knex: context.database, accountability }
 
@@ -182,7 +182,7 @@ export default defineEndpoint({
       res.json({ items, totalCount })
     }))
 
-    router.post('/upload', (req, res, next) => {
+    router.post('/upload', (req, _res, next) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
       if (typeof accountability?.user !== 'string')
@@ -192,7 +192,7 @@ export default defineEndpoint({
         throw new ForbiddenError()
 
       next()
-    }, asyncHandler(multipartHandler), asyncHandler(async (req, res, next) => {
+    }, asyncHandler(multipartHandler), asyncHandler(async (req, res, _next) => {
       // @ts-expect-error - The middleware above ensures that this is defined
       const accountability = req.accountability as Accountability
       const userId = accountability.user!
@@ -372,7 +372,7 @@ export default defineEndpoint({
       res.json({ result })
     }))
 
-    router.get('/download/:id', asyncHandler(async (req, res, next) => {
+    router.get('/download/:id', asyncHandler(async (req, res) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
       const serviceOptions = { schema, knex: context.database, accountability }
@@ -405,7 +405,7 @@ export default defineEndpoint({
       readStream.pipe(res)
     }))
 
-    router.get('/userinfo', asyncHandler(async (req, res, next) => {
+    router.get('/userinfo', asyncHandler(async (req, res) => {
       const serviceOptions = {
         schema,
         knex: context.database,
@@ -450,7 +450,7 @@ export default defineEndpoint({
       res.json(user)
     }))
 
-    router.post('/sign/:id', asyncHandler(async (req, res, next) => {
+    router.post('/sign/:id', asyncHandler(async (req, res) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
       if (typeof accountability?.user !== 'string')
@@ -599,7 +599,7 @@ export default defineEndpoint({
       res.json({ success: true, type, state })
     }))
 
-    router.post('/deprecate', asyncHandler(async (req, res, next) => {
+    router.post('/deprecate', asyncHandler(async (req, res) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
       const userId = accountability?.user
@@ -669,10 +669,10 @@ export default defineEndpoint({
         deprecation_message: message === 'null' ? null : message as string,
       })
 
-      res.json({ success: true })
+      return res.json({ success: true })
     }))
 
-    router.get('/generateUUID', asyncHandler(async (req, res, next) => {
+    router.get('/generateUUID', asyncHandler(async (req, res, _next) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
       if (typeof accountability?.user !== 'string')
