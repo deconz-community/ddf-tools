@@ -688,9 +688,7 @@ export default defineEndpoint({
       const UUIDService = new services.ItemsService<Collections.DdfUuids>('ddf_uuids', serviceOptions)
 
       const expire_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7 * 3) // 3 weeks
-      const uuid = await UUIDService.createOne({
-        expire_at,
-      })
+      const uuid = await UUIDService.createOne({ expire_at })
 
       res.json({ uuid, expire_at })
     }))
