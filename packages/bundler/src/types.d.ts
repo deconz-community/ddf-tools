@@ -53,6 +53,8 @@ export type ValidationResult = ({
   errors: {
     message: string
     path: (string | number)[]
+    line?: number
+    column?: number
   }[]
 }) & {
   version: string
