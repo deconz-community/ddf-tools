@@ -1,5 +1,5 @@
 version: 1
-directus: 14.1.2
+directus: 10.10.7
 vendor: sqlite
 collections:
   - collection: bundles
@@ -157,7 +157,7 @@ collections:
       collapse: open
       collection: signatures
       color: null
-      display_template: '{{signature}}'
+      display_template: '{{type}} - {{key}}'
       group: bundles
       hidden: false
       icon: null
@@ -197,6 +197,354 @@ collections:
     schema:
       name: sub_devices
 fields:
+  - collection: bundles
+    field: id
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: null
+      display_options: null
+      field: id
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: id
+      table: bundles
+      data_type: char
+      default_value: null
+      max_length: 64
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: user_created
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 5
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: bundles
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: bundles
+    field: date_created
+    type: timestamp
+    meta:
+      collection: bundles
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_created
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 6
+      special:
+        - cast-timestamp
+        - date-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_created
+      table: bundles
+      data_type: datetime
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: user_updated
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 7
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_updated
+      table: bundles
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: bundles
+    field: date_updated
+    type: timestamp
+    meta:
+      collection: bundles
+      conditions: null
+      display: datetime
+      display_options:
+        relative: true
+      field: date_updated
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: true
+      required: false
+      sort: 8
+      special:
+        - cast-timestamp
+        - date-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: date_updated
+      table: bundles
+      data_type: datetime
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: product
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: raw
+      display_options: null
+      field: product
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: product
+      table: bundles
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: version_deconz
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: raw
+      display_options: null
+      field: version_deconz
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: version_deconz
+      table: bundles
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: device_identifiers
+    type: alias
+    meta:
+      collection: bundles
+      conditions: null
+      display: null
+      display_options: null
+      field: device_identifiers
+      group: null
+      hidden: false
+      interface: list-m2m
+      note: null
+      options:
+        template: >-
+          {{device_identifiers_id.manufacturer}} -
+          {{device_identifiers_id.model}}
+      readonly: false
+      required: false
+      sort: 9
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: bundles
+    field: sub_devices
+    type: alias
+    meta:
+      collection: bundles
+      conditions: null
+      display: null
+      display_options: null
+      field: sub_devices
+      group: null
+      hidden: false
+      interface: list-m2m
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 10
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: bundles
+    field: signatures
+    type: alias
+    meta:
+      collection: bundles
+      conditions: null
+      display: null
+      display_options: null
+      field: signatures
+      group: null
+      hidden: false
+      interface: list-o2m
+      note: null
+      options: {}
+      readonly: false
+      required: false
+      sort: 11
+      special:
+        - o2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
   - collection: bundles
     field: content
     type: text
@@ -274,34 +622,31 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: bundles
-    field: date_created
-    type: timestamp
+    field: file_count
+    type: integer
     meta:
       collection: bundles
       conditions: null
-      display: datetime
-      display_options:
-        relative: true
-      field: date_created
+      display: null
+      display_options: null
+      field: file_count
       group: null
       hidden: false
-      interface: datetime
+      interface: input
       note: null
       options: null
-      readonly: true
+      readonly: false
       required: false
-      sort: 6
-      special:
-        - cast-timestamp
-        - date-created
+      sort: 14
+      special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
-      name: date_created
+      name: file_count
       table: bundles
-      data_type: datetime
+      data_type: integer
       default_value: null
       max_length: null
       numeric_precision: null
@@ -315,36 +660,33 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: bundles
-    field: date_updated
-    type: timestamp
+    field: deprecation_message
+    type: string
     meta:
       collection: bundles
       conditions: null
-      display: datetime
-      display_options:
-        relative: true
-      field: date_updated
+      display: null
+      display_options: null
+      field: deprecation_message
       group: null
       hidden: false
-      interface: datetime
+      interface: input
       note: null
       options: null
-      readonly: true
+      readonly: false
       required: false
-      sort: 8
-      special:
-        - cast-timestamp
-        - date-updated
+      sort: 15
+      special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
-      name: date_updated
+      name: deprecation_message
       table: bundles
-      data_type: datetime
+      data_type: varchar
       default_value: null
-      max_length: null
+      max_length: 255
       numeric_precision: null
       numeric_scale: null
       is_nullable: true
@@ -394,347 +736,42 @@ fields:
       has_auto_increment: false
       foreign_key_table: ddf_uuids
       foreign_key_column: id
-  - collection: bundles
-    field: deprecation_message
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: deprecation_message
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 15
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: deprecation_message
-      table: bundles
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles
-    field: device_identifiers
-    type: alias
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: device_identifiers
-      group: null
-      hidden: false
-      interface: list-m2m
-      note: null
-      options:
-        template: >-
-          {{device_identifiers_id.manufacturer}} -
-          {{device_identifiers_id.model}}
-      readonly: false
-      required: false
-      sort: 9
-      special:
-        - m2m
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-  - collection: bundles
-    field: file_count
+  - collection: bundles_device_identifiers
+    field: id
     type: integer
     meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: file_count
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 14
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: file_count
-      table: bundles
-      data_type: integer
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles
-    field: id
-    type: string
-    meta:
-      collection: bundles
+      collection: bundles_device_identifiers
       conditions: null
       display: null
       display_options: null
       field: id
       group: null
-      hidden: false
-      interface: input
+      hidden: true
+      interface: null
       note: null
       options: null
       readonly: false
-      required: true
+      required: false
       sort: 1
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
       name: id
-      table: bundles
-      data_type: char
+      table: bundles_device_identifiers
+      data_type: integer
       default_value: null
-      max_length: 64
+      max_length: null
       numeric_precision: null
       numeric_scale: null
       is_nullable: false
-      is_unique: true
+      is_unique: false
       is_primary_key: true
       is_generated: false
       generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles
-    field: product
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: raw
-      display_options: null
-      field: product
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 3
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: product
-      table: bundles
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles
-    field: signatures
-    type: alias
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: signatures
-      group: null
-      hidden: false
-      interface: list-o2m
-      note: null
-      options:
-        template: '{{signature}}'
-      readonly: false
-      required: false
-      sort: 11
-      special:
-        - o2m
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-  - collection: bundles
-    field: sub_devices
-    type: alias
-    meta:
-      collection: bundles
-      conditions: null
-      display: null
-      display_options: null
-      field: sub_devices
-      group: null
-      hidden: false
-      interface: list-m2m
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 10
-      special:
-        - m2m
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-  - collection: bundles
-    field: user_created
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: user
-      display_options: null
-      field: user_created
-      group: null
-      hidden: false
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
-      readonly: true
-      required: false
-      sort: 5
-      special:
-        - user-created
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: user_created
-      table: bundles
-      data_type: char
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: directus_users
-      foreign_key_column: id
-  - collection: bundles
-    field: user_updated
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: user
-      display_options: null
-      field: user_updated
-      group: null
-      hidden: false
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
-      readonly: true
-      required: false
-      sort: 7
-      special:
-        - user-updated
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: user_updated
-      table: bundles
-      data_type: char
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: directus_users
-      foreign_key_column: id
-  - collection: bundles
-    field: version_deconz
-    type: string
-    meta:
-      collection: bundles
-      conditions: null
-      display: raw
-      display_options: null
-      field: version_deconz
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 4
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: version_deconz
-      table: bundles
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
+      has_auto_increment: true
       foreign_key_table: null
       foreign_key_column: null
   - collection: bundles_device_identifiers
@@ -813,11 +850,11 @@ fields:
       has_auto_increment: false
       foreign_key_table: device_identifiers
       foreign_key_column: id
-  - collection: bundles_device_identifiers
+  - collection: bundles_sub_devices
     field: id
     type: integer
     meta:
-      collection: bundles_device_identifiers
+      collection: bundles_sub_devices
       conditions: null
       display: null
       display_options: null
@@ -837,7 +874,7 @@ fields:
       width: full
     schema:
       name: id
-      table: bundles_device_identifiers
+      table: bundles_sub_devices
       data_type: integer
       default_value: null
       max_length: null
@@ -890,44 +927,6 @@ fields:
       foreign_key_table: bundles
       foreign_key_column: id
   - collection: bundles_sub_devices
-    field: id
-    type: integer
-    meta:
-      collection: bundles_sub_devices
-      conditions: null
-      display: null
-      display_options: null
-      field: id
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 1
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: id
-      table: bundles_sub_devices
-      data_type: integer
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: true
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: true
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: bundles_sub_devices
     field: sub_devices_type
     type: string
     meta:
@@ -966,28 +965,84 @@ fields:
       foreign_key_table: sub_devices
       foreign_key_column: type
   - collection: ddf_uuids
-    field: bundles
-    type: alias
+    field: id
+    type: uuid
     meta:
       collection: ddf_uuids
       conditions: null
-      display: related-values
+      display: null
       display_options: null
-      field: bundles
+      field: id
       group: null
       hidden: false
-      interface: list-o2m
+      interface: input
       note: null
       options: null
       readonly: false
-      required: false
-      sort: 9
+      required: true
+      sort: 1
       special:
-        - o2m
+        - uuid
       translations: null
       validation: null
       validation_message: null
       width: full
+    schema:
+      name: id
+      table: ddf_uuids
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: true
+      is_primary_key: true
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: ddf_uuids
+    field: user_created
+    type: string
+    meta:
+      collection: ddf_uuids
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: false
+      required: false
+      sort: 2
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: ddf_uuids
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
   - collection: ddf_uuids
     field: date_created
     type: timestamp
@@ -1005,7 +1060,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 4
+      sort: 3
       special:
         - cast-timestamp
         - date-created
@@ -1030,6 +1085,46 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: ddf_uuids
+    field: user_updated
+    type: string
+    meta:
+      collection: ddf_uuids
+      conditions: null
+      display: user
+      display_options: null
+      field: user_updated
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      sort: 4
+      special:
+        - user-updated
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_updated
+      table: ddf_uuids
+      data_type: char
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
+  - collection: ddf_uuids
     field: date_updated
     type: timestamp
     meta:
@@ -1046,7 +1141,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 6
+      sort: 5
       special:
         - cast-timestamp
         - date-updated
@@ -1109,45 +1204,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: ddf_uuids
-    field: id
-    type: uuid
-    meta:
-      collection: ddf_uuids
-      conditions: null
-      display: null
-      display_options: null
-      field: id
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 1
-      special:
-        - uuid
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: id
-      table: ddf_uuids
-      data_type: char
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: true
-      is_primary_key: true
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: ddf_uuids
     field: maintainers
     type: alias
     meta:
@@ -1171,111 +1227,66 @@ fields:
       validation_message: null
       width: full
   - collection: ddf_uuids
-    field: user_created
-    type: string
-    meta:
-      collection: ddf_uuids
-      conditions: null
-      display: user
-      display_options: null
-      field: user_created
-      group: null
-      hidden: false
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
-      readonly: false
-      required: false
-      sort: 3
-      special:
-        - user-created
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: user_created
-      table: ddf_uuids
-      data_type: char
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: directus_users
-      foreign_key_column: id
-  - collection: ddf_uuids
-    field: user_updated
-    type: string
-    meta:
-      collection: ddf_uuids
-      conditions: null
-      display: user
-      display_options: null
-      field: user_updated
-      group: null
-      hidden: true
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
-      readonly: true
-      required: false
-      sort: 5
-      special:
-        - user-updated
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: user_updated
-      table: ddf_uuids
-      data_type: char
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: directus_users
-      foreign_key_column: id
-  - collection: device_identifiers
     field: bundles
     type: alias
     meta:
-      collection: device_identifiers
+      collection: ddf_uuids
       conditions: null
       display: related-values
-      display_options:
-        template: '{{bundles_id.product}}'
+      display_options: null
       field: bundles
       group: null
       hidden: false
-      interface: list-m2m
+      interface: list-o2m
       note: null
-      options:
-        enableLink: true
-        template: null
+      options: null
       readonly: false
       required: false
-      sort: 4
+      sort: 9
       special:
-        - m2m
+        - o2m
       translations: null
       validation: null
       validation_message: null
       width: full
+  - collection: ddf_uuids
+    field: expire_at
+    type: dateTime
+    meta:
+      collection: ddf_uuids
+      conditions: null
+      display: null
+      display_options: null
+      field: expire_at
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: expire_at
+      table: ddf_uuids
+      data_type: datetime
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: device_identifiers
     field: id
     type: uuid
@@ -1392,44 +1403,32 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
-  - collection: directus_settings
-    field: private_key_beta
-    type: string
+  - collection: device_identifiers
+    field: bundles
+    type: alias
     meta:
-      collection: directus_settings
+      collection: device_identifiers
       conditions: null
-      display: null
-      display_options: null
-      field: private_key_beta
+      display: related-values
+      display_options:
+        template: '{{bundles_id.product}}'
+      field: bundles
       group: null
       hidden: false
-      interface: input
+      interface: list-m2m
       note: null
-      options: null
+      options:
+        enableLink: true
+        template: null
       readonly: false
       required: false
-      sort: 3
-      special: null
+      sort: 4
+      special:
+        - m2m
       translations: null
       validation: null
       validation_message: null
-      width: half
-    schema:
-      name: private_key_beta
-      table: directus_settings
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
+      width: full
   - collection: directus_settings
     field: private_key_stable
     type: string
@@ -1454,44 +1453,6 @@ fields:
       width: half
     schema:
       name: private_key_stable
-      table: directus_settings
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: directus_settings
-    field: public_key_beta
-    type: string
-    meta:
-      collection: directus_settings
-      conditions: null
-      display: null
-      display_options: null
-      field: public_key_beta
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 4
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: public_key_beta
       table: directus_settings
       data_type: varchar
       default_value: null
@@ -1544,6 +1505,82 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: directus_settings
+    field: private_key_beta
+    type: string
+    meta:
+      collection: directus_settings
+      conditions: null
+      display: null
+      display_options: null
+      field: private_key_beta
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: private_key_beta
+      table: directus_settings
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: directus_settings
+    field: public_key_beta
+    type: string
+    meta:
+      collection: directus_settings
+      conditions: null
+      display: null
+      display_options: null
+      field: public_key_beta
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: public_key_beta
+      table: directus_settings
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: directus_users
     field: avatar_url
     type: string
@@ -1568,6 +1605,82 @@ fields:
       width: full
     schema:
       name: avatar_url
+      table: directus_users
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: directus_users
+    field: public_key
+    type: string
+    meta:
+      collection: directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: public_key
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: public_key
+      table: directus_users
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: directus_users
+    field: private_key
+    type: string
+    meta:
+      collection: directus_users
+      conditions: null
+      display: null
+      display_options: null
+      field: private_key
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: private_key
       table: directus_users
       data_type: varchar
       default_value: null
@@ -1684,80 +1797,42 @@ fields:
       validation: null
       validation_message: null
       width: full
-  - collection: directus_users
-    field: private_key
-    type: string
+  - collection: maintainers
+    field: id
+    type: integer
     meta:
-      collection: directus_users
+      collection: maintainers
       conditions: null
       display: null
       display_options: null
-      field: private_key
+      field: id
       group: null
-      hidden: false
-      interface: input
+      hidden: true
+      interface: null
       note: null
       options: null
       readonly: false
       required: false
-      sort: 4
+      sort: 1
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: half
+      width: full
     schema:
-      name: private_key
-      table: directus_users
-      data_type: varchar
+      name: id
+      table: maintainers
+      data_type: integer
       default_value: null
-      max_length: 255
+      max_length: null
       numeric_precision: null
       numeric_scale: null
-      is_nullable: true
+      is_nullable: false
       is_unique: false
-      is_primary_key: false
+      is_primary_key: true
       is_generated: false
       generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: directus_users
-    field: public_key
-    type: string
-    meta:
-      collection: directus_users
-      conditions: null
-      display: null
-      display_options: null
-      field: public_key
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 3
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: public_key
-      table: directus_users
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
+      has_auto_increment: true
       foreign_key_table: null
       foreign_key_column: null
   - collection: maintainers
@@ -1799,44 +1874,6 @@ fields:
       foreign_key_table: ddf_uuids
       foreign_key_column: id
   - collection: maintainers
-    field: id
-    type: integer
-    meta:
-      collection: maintainers
-      conditions: null
-      display: null
-      display_options: null
-      field: id
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 1
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: id
-      table: maintainers
-      data_type: integer
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: true
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: true
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: maintainers
     field: user
     type: string
     meta:
@@ -1873,46 +1910,6 @@ fields:
       generation_expression: null
       has_auto_increment: false
       foreign_key_table: directus_users
-      foreign_key_column: id
-  - collection: signatures
-    field: bundle
-    type: string
-    meta:
-      collection: signatures
-      conditions: null
-      display: null
-      display_options: null
-      field: bundle
-      group: null
-      hidden: false
-      interface: select-dropdown-m2o
-      note: null
-      options:
-        template: '{{product}} - {{version}} - {{tag}}'
-      readonly: false
-      required: false
-      sort: 2
-      special:
-        - m2o
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: bundle
-      table: signatures
-      data_type: varchar
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: bundles
       foreign_key_column: id
   - collection: signatures
     field: id
@@ -1992,6 +1989,46 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: signatures
+    field: bundle
+    type: string
+    meta:
+      collection: signatures
+      conditions: null
+      display: null
+      display_options: null
+      field: bundle
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{product}} - {{version}} - {{tag}}'
+      readonly: false
+      required: false
+      sort: 2
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: bundle
+      table: signatures
+      data_type: varchar
+      default_value: null
+      max_length: 36
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: bundles
+      foreign_key_column: id
+  - collection: signatures
     field: type
     type: string
     meta:
@@ -2021,110 +2058,6 @@ fields:
     schema:
       name: type
       table: signatures
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: sub_devices
-    field: bundles
-    type: alias
-    meta:
-      collection: sub_devices
-      conditions: null
-      display: null
-      display_options: null
-      field: bundles
-      group: null
-      hidden: false
-      interface: list-m2m
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 5
-      special:
-        - m2m
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-  - collection: sub_devices
-    field: endpoint
-    type: string
-    meta:
-      collection: sub_devices
-      conditions: null
-      display: null
-      display_options: null
-      field: endpoint
-      group: null
-      hidden: false
-      interface: select-dropdown
-      note: null
-      options:
-        choices:
-          - text: Sensor
-            value: /sensors
-          - text: Lights
-            value: /lights
-      readonly: false
-      required: false
-      sort: 4
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: endpoint
-      table: sub_devices
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: sub_devices
-    field: name
-    type: string
-    meta:
-      collection: sub_devices
-      conditions: null
-      display: null
-      display_options: null
-      field: name
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      sort: 2
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: name
-      table: sub_devices
       data_type: varchar
       default_value: null
       max_length: 255
@@ -2176,28 +2109,111 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
-relations:
-  - collection: bundles
-    field: ddf_uuid
-    related_collection: ddf_uuids
+  - collection: sub_devices
+    field: name
+    type: string
     meta:
-      junction_field: null
-      many_collection: bundles
-      many_field: ddf_uuid
-      one_allowed_collections: null
-      one_collection: ddf_uuids
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: bundles
-      sort_field: null
+      collection: sub_devices
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
     schema:
-      table: bundles
-      column: ddf_uuid
-      foreign_key_table: ddf_uuids
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: CASCADE
+      name: name
+      table: sub_devices
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: sub_devices
+    field: endpoint
+    type: string
+    meta:
+      collection: sub_devices
+      conditions: null
+      display: null
+      display_options: null
+      field: endpoint
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: Sensor
+            value: /sensors
+          - text: Lights
+            value: /lights
+      readonly: false
+      required: false
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: endpoint
+      table: sub_devices
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: sub_devices
+    field: bundles
+    type: alias
+    meta:
+      collection: sub_devices
+      conditions: null
+      display: null
+      display_options: null
+      field: bundles
+      group: null
+      hidden: false
+      interface: list-m2m
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special:
+        - m2m
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+relations:
   - collection: bundles
     field: user_created
     related_collection: directus_users
@@ -2240,23 +2256,23 @@ relations:
       constraint_name: null
       on_update: NO ACTION
       on_delete: NO ACTION
-  - collection: bundles_device_identifiers
-    field: bundles_id
-    related_collection: bundles
+  - collection: bundles
+    field: ddf_uuid
+    related_collection: ddf_uuids
     meta:
-      junction_field: device_identifiers_id
-      many_collection: bundles_device_identifiers
-      many_field: bundles_id
+      junction_field: null
+      many_collection: bundles
+      many_field: ddf_uuid
       one_allowed_collections: null
-      one_collection: bundles
+      one_collection: ddf_uuids
       one_collection_field: null
       one_deselect_action: nullify
-      one_field: device_identifiers
+      one_field: bundles
       sort_field: null
     schema:
-      table: bundles_device_identifiers
-      column: bundles_id
-      foreign_key_table: bundles
+      table: bundles
+      column: ddf_uuid
+      foreign_key_table: ddf_uuids
       foreign_key_column: id
       constraint_name: null
       on_update: NO ACTION
@@ -2282,21 +2298,21 @@ relations:
       constraint_name: null
       on_update: NO ACTION
       on_delete: CASCADE
-  - collection: bundles_sub_devices
+  - collection: bundles_device_identifiers
     field: bundles_id
     related_collection: bundles
     meta:
-      junction_field: sub_devices_type
-      many_collection: bundles_sub_devices
+      junction_field: device_identifiers_id
+      many_collection: bundles_device_identifiers
       many_field: bundles_id
       one_allowed_collections: null
       one_collection: bundles
       one_collection_field: null
-      one_deselect_action: delete
-      one_field: sub_devices
+      one_deselect_action: nullify
+      one_field: device_identifiers
       sort_field: null
     schema:
-      table: bundles_sub_devices
+      table: bundles_device_identifiers
       column: bundles_id
       foreign_key_table: bundles
       foreign_key_column: id
@@ -2324,6 +2340,27 @@ relations:
       constraint_name: null
       on_update: NO ACTION
       on_delete: CASCADE
+  - collection: bundles_sub_devices
+    field: bundles_id
+    related_collection: bundles
+    meta:
+      junction_field: sub_devices_type
+      many_collection: bundles_sub_devices
+      many_field: bundles_id
+      one_allowed_collections: null
+      one_collection: bundles
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: sub_devices
+      sort_field: null
+    schema:
+      table: bundles_sub_devices
+      column: bundles_id
+      foreign_key_table: bundles
+      foreign_key_column: id
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: CASCADE
   - collection: ddf_uuids
     field: user_created
     related_collection: directus_users
@@ -2366,39 +2403,18 @@ relations:
       constraint_name: null
       on_update: NO ACTION
       on_delete: NO ACTION
-  - collection: directus_settings
-    field: public_favicon
-    related_collection: directus_files
+  - collection: directus_webhooks
+    field: migrated_flow
+    related_collection: directus_flows
     meta: null
     schema:
-      table: directus_settings
-      column: public_favicon
-      foreign_key_table: directus_files
+      table: directus_webhooks
+      column: migrated_flow
+      foreign_key_table: directus_flows
       foreign_key_column: id
       constraint_name: null
       on_update: NO ACTION
-      on_delete: NO ACTION
-  - collection: maintainers
-    field: ddf_uuid
-    related_collection: ddf_uuids
-    meta:
-      junction_field: user
-      many_collection: maintainers
-      many_field: ddf_uuid
-      one_allowed_collections: null
-      one_collection: ddf_uuids
-      one_collection_field: null
-      one_deselect_action: delete
-      one_field: maintainers
-      sort_field: null
-    schema:
-      table: maintainers
-      column: ddf_uuid
-      foreign_key_table: ddf_uuids
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: CASCADE
+      on_delete: SET NULL
   - collection: maintainers
     field: user
     related_collection: directus_users
@@ -2416,6 +2432,27 @@ relations:
       table: maintainers
       column: user
       foreign_key_table: directus_users
+      foreign_key_column: id
+      constraint_name: null
+      on_update: NO ACTION
+      on_delete: CASCADE
+  - collection: maintainers
+    field: ddf_uuid
+    related_collection: ddf_uuids
+    meta:
+      junction_field: user
+      many_collection: maintainers
+      many_field: ddf_uuid
+      one_allowed_collections: null
+      one_collection: ddf_uuids
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: maintainers
+      sort_field: null
+    schema:
+      table: maintainers
+      column: ddf_uuid
+      foreign_key_table: ddf_uuids
       foreign_key_column: id
       constraint_name: null
       on_update: NO ACTION

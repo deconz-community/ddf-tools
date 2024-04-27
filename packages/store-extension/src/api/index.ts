@@ -671,5 +671,28 @@ export default defineEndpoint({
 
       res.json({ success: true })
     }))
+
+    router.get('/generateUUID', asyncHandler(async (req, res, next) => {
+      const accountability = 'accountability' in req ? req.accountability as Accountability : null
+
+      if (typeof accountability?.user !== 'string')
+        throw new ForbiddenError()
+
+      const adminAccountability = structuredClone({
+        ...accountability,
+        admin: true,
+      })
+
+      const serviceOptions = { schema, knex: context.database, accountability: adminAccountability }
+
+      const UUIDService = new services.ItemsService<Collections.DdfUuids>('ddf_uuids', serviceOptions)
+
+      const expire_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7 * 3) // 3 weeks
+      const uuid = await UUIDService.createOne({
+        expire_at,
+      })
+
+      res.json({ uuid, expire_at })
+    }))
   },
 })

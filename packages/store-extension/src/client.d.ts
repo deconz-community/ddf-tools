@@ -50,6 +50,7 @@ export namespace Types {
   // Others
   export type UUID = string;
   export type Boolean = boolean;
+  export type Enum = string;
 }
 
 /**
@@ -200,9 +201,9 @@ export namespace Collections {
     date_created: Types.Optional<Types.DateTime>;
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
-    device_identifiers: Collections.BundlesDeviceIdentifiers;
-    sub_devices: Collections.BundlesSubDevices;
-    signatures: Collections.Signatures;
+    device_identifiers: Collections.BundlesDeviceIdentifiers[];
+    sub_devices: Collections.BundlesSubDevices[];
+    signatures: Collections.Signatures[];
     content: Types.Optional<Types.String>;
     content_size: Types.Optional<Types.Integer>;
     file_count: Types.Optional<Types.Integer>;
@@ -238,9 +239,10 @@ export namespace Collections {
     date_created: Types.Optional<Types.DateTime>;
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
+    expire_at: Types.Optional<Types.DateTime>;
     deprecation_message: Types.Optional<Types.String>;
-    maintainers: Collections.Maintainers;
-    bundles: Collections.Bundles;
+    maintainers: Collections.Maintainers[];
+    bundles: Collections.Bundles[];
   }
 
   /**
@@ -250,7 +252,7 @@ export namespace Collections {
     id: Types.String;
     manufacturer: Types.Optional<Types.String>;
     model: Types.Optional<Types.String>;
-    bundles: Collections.BundlesDeviceIdentifiers;
+    bundles: Collections.BundlesDeviceIdentifiers[];
   }
 
   /**
@@ -279,7 +281,7 @@ export namespace Collections {
     type: Types.String;
     name: Types.String;
     endpoint: Types.Optional<"/lights" | "/sensors" | Types.String>;
-    bundles: Collections.BundlesSubDevices;
+    bundles: Collections.BundlesSubDevices[];
   }
 }
 
@@ -369,7 +371,7 @@ export interface System {
     public_key: Types.Optional<Types.String>;
     private_key: Types.Optional<Types.String>;
     can_sign_with_system_keys: Types.Boolean;
-    ddf_uuids: Collections.Maintainers;
+    ddf_uuids: Collections.Maintainers[];
   }[];
 
   /**
