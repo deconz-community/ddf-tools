@@ -1,5 +1,12 @@
 # @deconz-community/cli
 
+## 1.9.3
+
+### Patch Changes
+
+- Updated dependencies [608cb03]
+  - @deconz-community/ddf-bundler@0.18.1
+
 ## 1.9.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.18.1
+
+### Patch Changes
+
+- 608cb03: Fix getLastModified method
+
 ## 0.18.0
 
 ### Minor Changes
