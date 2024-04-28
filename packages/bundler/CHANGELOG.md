@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.17.0
+
+### Minor Changes
+
+- 81d4fb9: Update ValidationResult type definition
+
 ## 0.16.0
 
 ### Minor Changes

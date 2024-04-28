@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.27.1
+
+### Patch Changes
+
+- 795d4b9: Fix type import
+
 ## 2.27.0
 
 ### Minor Changes
