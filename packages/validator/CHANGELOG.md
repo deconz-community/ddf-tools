@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.27.2
+
+### Patch Changes
+
+- 189f8e3: Fix exports
+
 ## 2.27.1
 
 ### Patch Changes
