@@ -155,7 +155,7 @@ export async function buildFromFiles(
     bundle.data.files.push({
       type: fileToAdd.type,
       data,
-      last_modified: await getLastModified(fileToAdd.path),
+      last_modified: await getLastModified(fileToAdd.url),
       path: fileToAdd.path,
     })
   }),
