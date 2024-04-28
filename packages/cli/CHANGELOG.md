@@ -1,5 +1,16 @@
 # @deconz-community/cli
 
+## 1.10.0
+
+### Minor Changes
+
+- 6ce07b3: Rework ValidationError schema
+
+### Patch Changes
+
+- Updated dependencies [6ce07b3]
+  - @deconz-community/ddf-bundler@0.19.0
+
 ## 1.9.4
 
 ### Patch Changes
