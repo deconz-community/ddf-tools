@@ -38,14 +38,8 @@
   ],
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/ddf-validator.d.ts",
-        "defaut": "./dist/ddf-validator.mjs"
-      },
-      "require": {
-        "types": "./dist/ddf-validator.d.ts",
-        "defaut": "./dist/ddf-validator.cjs"
-      }
+      "import": "./dist/ddf-validator.mjs",
+      "require": "./dist/ddf-validator.cjs"
     }
   },
   "main": "./dist/ddf-validator.cjs",
