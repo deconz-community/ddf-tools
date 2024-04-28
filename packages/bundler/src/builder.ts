@@ -6,11 +6,14 @@ export async function buildFromFiles(
   genericDirectory: string,
   ddfPath: string,
   getFile: (path: string) => Promise<Blob>,
+  getLastModified: (path: string) => Promise<Date> = async () => new Date(),
 ) {
   const bundle = Bundle()
 
   bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
   bundle.data.ddfc = await (await getFile(ddfPath)).text()
+  bundle.data.desc.last_modified = await getLastModified(ddfPath)
+
   const ddfc: Record<string, unknown> = JSON.parse(bundle.data.ddfc)
 
   // Build a list of used constants to only include them in the bundle from the constants.json file
@@ -152,7 +155,7 @@ export async function buildFromFiles(
     bundle.data.files.push({
       type: fileToAdd.type,
       data,
-      last_modified: new Date(),
+      last_modified: await getLastModified(fileToAdd.path),
       path: fileToAdd.path,
     })
   }),
@@ -176,7 +179,7 @@ export async function buildFromFiles(
     return a.path.localeCompare(b.path)
   })
 
-  bundle.generateDESC()
+  bundle.generateDESC(true)
 
   return bundle
 }
