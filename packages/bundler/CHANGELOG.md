@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.19.0
+
+### Minor Changes
+
+- 6ce07b3: Rework ValidationError schema
+
 ## 0.18.1
 
 ### Patch Changes
