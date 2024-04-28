@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.18.0
+
+### Minor Changes
+
+- 1f37211: Add getLastModified param to builder
+
 ## 0.17.0
 
 ### Minor Changes
