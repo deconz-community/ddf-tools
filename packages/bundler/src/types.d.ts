@@ -46,16 +46,24 @@ export interface BinaryFile extends FileMeta {
   data: Blob
 }
 
+export type ValidationError = {
+  type: 'simple'
+  message: string
+  file?: string
+} | {
+  type: 'code'
+  message: string
+  file: string
+  path: (string | number)[]
+  line?: number
+  column?: number
+}
+
 export type ValidationResult = ({
   result: 'success' | 'skipped'
 } | {
   result: 'error'
-  errors: {
-    message: string
-    path: (string | number)[]
-    line?: number
-    column?: number
-  }[]
+  errors: ValidationError[]
 }) & {
   version: string
 }

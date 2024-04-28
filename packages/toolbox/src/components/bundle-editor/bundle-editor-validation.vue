@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Bundle } from '@deconz-community/ddf-bundler'
+import type { Bundle, ValidationError } from '@deconz-community/ddf-bundler'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
@@ -56,24 +56,24 @@ function validate() {
     return
   }
 
-  const errors: {
-    message: string
-    path: (string | number)[]
-  }[] = []
+  const errors: ValidationError[] = []
 
   validationResult.forEach(({ path, error }) => {
     if (error instanceof ZodError) {
       fromZodError(error).details.forEach((detail) => {
         errors.push({
-          path: [path, ...detail.path],
+          type: 'code',
           message: detail.message,
+          file: path,
+          path: detail.path,
         })
       })
     }
     else {
       errors.push({
-        path: [path],
+        type: 'simple',
         message: error.toString(),
+        file: path,
       })
     }
   })

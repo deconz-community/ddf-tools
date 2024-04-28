@@ -204,12 +204,24 @@ If there is no errors the `errors` property is omitted.
   "version": "2.20.0",
   "errors": [
     {
-      "message": "Unrecognized key(s) in object: 'cl'",
-      "path": ["generic/items/state_airquality_item.json", "subdevices", 0, "items", 6, "parse"]
+      "type": "simple",
+      "message": "Missing file 'warning.md'."
     },
     {
+      "type": "validation",
       "message": "Unrecognized key(s) in object: 'cl'",
-      "path": ["ddf.json", "subdevices", 0, "items", 9, "parse"]
+      "path": ["subdevices", 0, "items", 6, "parse"],
+      "file": "generic/items/state_airquality_item.json",
+      "line": 40,
+      "column": 5
+    },
+    {
+      "type": "validation",
+      "message": "Unrecognized key(s) in object: 'cl'",
+      "file": "ddf.json",
+      "path": ["subdevices", 0, "items", 9, "parse"],
+      "line": 40,
+      "column": 5
     }
   ]
 }

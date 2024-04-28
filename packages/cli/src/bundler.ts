@@ -3,6 +3,7 @@ import path from 'node:path'
 import fs from 'node:fs/promises'
 import { program } from '@commander-js/extra-typings'
 import glob from 'fast-glob'
+import type { ValidationError } from '@deconz-community/ddf-bundler'
 import { buildFromFiles, encode, sign } from '@deconz-community/ddf-bundler'
 import { hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
@@ -131,24 +132,24 @@ export function bundlerCommand() {
             }
           }
           else {
-            const errors: {
-              message: string
-              path: (string | number)[]
-            }[] = []
+            const errors: ValidationError[] = []
 
             validationResult.forEach(({ path, error }) => {
               if (error instanceof ZodError) {
                 fromZodError(error).details.forEach((detail) => {
                   errors.push({
-                    path: [path, ...detail.path],
+                    type: 'code',
                     message: detail.message,
+                    file: path,
+                    path: detail.path,
                   })
                 })
               }
               else {
                 errors.push({
-                  path: [path],
+                  type: 'simple',
                   message: error.toString(),
+                  file: path,
                 })
               }
             })
