@@ -1,5 +1,14 @@
 # @deconz-community/cli
 
+## 1.9.1
+
+### Patch Changes
+
+- Updated dependencies [81d4fb9]
+- Updated dependencies [795d4b9]
+  - @deconz-community/ddf-bundler@0.17.0
+  - @deconz-community/ddf-validator@2.27.1
+
 ## 1.9.0
 
 ### Minor Changes
