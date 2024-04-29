@@ -20,9 +20,12 @@ import { multipartHandler } from './multipart-handler'
 
 // TODO migrate to @deconz-community/types
 type UploadResponse = Record<string, {
-  success: boolean
-  createdId?: PrimaryKey
-  message?: string
+  success: true
+  createdId: PrimaryKey
+} | {
+  success: false
+  code: string
+  message: string
 }>
 
 export default defineEndpoint({
@@ -345,26 +348,36 @@ export default defineEndpoint({
           })
         }
         catch (error) {
-          const message = () => {
+          const errorDetails = () => {
             if (isDirectusError<typeof RecordNotUniqueError['prototype']['extensions']>(error, ErrorCode.RecordNotUnique)) {
               switch (error.extensions.collection) {
                 case 'bundles':
                   switch (error.extensions.field) {
                     case 'id':
-                      return 'Bundle with same hash already exists'
+                      return {
+                        code: 'bundle_hash_already_exists',
+                        message: 'Bundle with same hash already exists',
+                      }
                   }
               }
             }
 
-            if (error instanceof Error)
-              return error.message
+            if (error instanceof Error) {
+              return {
+                code: 'unknown',
+                message: error.message,
+              }
+            }
 
-            return 'Unknown Error'
+            return {
+              code: 'unknown',
+              message: 'Unknown Error',
+            }
           }
 
           result[uuid] = {
             success: false,
-            message: message(),
+            ...errorDetails(),
           }
         }
       }))
