@@ -2,29 +2,8 @@ import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, readSettings, rest, serverHealth } from '@directus/sdk'
-import type { toast as vuetifyToast } from '@neoncoder/vuetify-sonner'
 import type { Collections, Schema } from '~/interfaces/store'
 import { toastError } from '~/lib/handleError'
-
-// No idea why I need dynamic import here but not in other files
-// const { toast } = await import(`@neoncoder/vuetify-sonner`)
-
-// Don't look at this, it's a hack to make the linter happy
-function nothing() {}
-let toast: typeof vuetifyToast = Object.assign(nothing, {
-  success: nothing,
-  error: nothing,
-  warning: nothing,
-  info: nothing,
-  primary: nothing,
-  secondary: nothing,
-  dismiss: nothing,
-  toastOriginal: nothing,
-}) as any
-
-(async () => {
-  toast = (await import(`@neoncoder/vuetify-sonner`)).toast
-})()
 
 export type Directus = DirectusClient<Schema>
   & RestClient<Schema>

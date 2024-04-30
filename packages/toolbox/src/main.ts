@@ -22,4 +22,6 @@ app.use(router)
 Object.values(import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eager: true }))
   .forEach(i => i.install?.({ app, router }))
 
+app.use(createAppMachine())
+
 app.mount('#app')
