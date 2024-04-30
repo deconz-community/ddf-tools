@@ -9,7 +9,6 @@ const filePath = '../store/package.json'
 
 const extensions = [
   'store-extension',
-  'oauth-pop-up',
 ]
 
 watch(extensions.map(extension => [
