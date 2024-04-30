@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.6",
   "description": "",
   "author": {
     "name": "Zehir",
@@ -67,27 +67,27 @@
     "@zodios/core": "^10.9.6",
     "axios": "^1.6.8",
     "ts-results-es": "^4.1.0",
-    "zod": "^3.22.5"
+    "zod": "^3.23.5"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.6",
     "@types/node": "^20.12.7",
     "@types/pako": "^2.0.3",
-    "@typescript-eslint/eslint-plugin": "^7.7.0",
-    "@typescript-eslint/parser": "^7.7.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
     "degit": "^2.8.4",
-    "eslint": "^9.1.0",
+    "eslint": "^9.1.1",
     "lint-staged": "^15.2.2",
     "rimraf": "^5.0.5",
-    "stylelint": "^16.3.1",
+    "stylelint": "^16.4.0",
     "stylelint-config-recommended": "^14.0.0",
     "stylelint-config-sass-guidelines": "^11.1.0",
-    "taze": "^0.13.6",
+    "taze": "^0.13.7",
     "typescript": "^5.4.5",
     "vite": "^5.2.10",
-    "vitest": "^1.5.0",
-    "zod-to-json-schema": "^3.22.5",
+    "vitest": "^1.5.3",
+    "zod-to-json-schema": "^3.23.0",
     "zod-to-ts": "^1.2.0",
-    "zod-validation-error": "^3.1.0"
+    "zod-validation-error": "^3.2.0"
   }
 }
