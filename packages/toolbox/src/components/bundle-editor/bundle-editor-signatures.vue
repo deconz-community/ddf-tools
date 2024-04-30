@@ -23,7 +23,7 @@ const createSnackbar = useSnackbar()
 const createConfirm = useConfirm()
 
 const canUseStore = computed(() => {
-  return store.state?.matches({ online: 'connected' })
+  return store.state?.matches({ online: { auth: 'connected' } })
 })
 
 const tableHeaders: VDataTable['headers'] = [

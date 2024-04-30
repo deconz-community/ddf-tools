@@ -58,7 +58,11 @@ async function upload() {
 
     if (goodResults.length > 0) {
       toast(`${goodResults.length} bundles uploaded successfully`, {
+        id: 'success-toast',
         duration: 5000,
+        onAutoClose: () => {},
+        onDismiss: () => {},
+        important: false,
         cardProps: {
           color: 'success',
         },
@@ -68,8 +72,12 @@ async function upload() {
     if (badResults.length > 0) {
       badResults.forEach(([key, value]) => {
         toast(formData.get(key)?.name ?? 'Bundle', {
+          id: 'success-toast',
           description: value.message,
           duration: 10000,
+          onAutoClose: () => {},
+          onDismiss: () => {},
+          important: false,
           cardProps: {
             color: 'error',
           },
