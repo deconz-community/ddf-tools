@@ -4,6 +4,7 @@ import { useRouteQuery } from '@vueuse/router'
 import { useConfirm } from 'vuetify-use-dialog'
 import { VTextarea } from 'vuetify/components'
 import { listBundles, readBundles, readDdfUuids } from '~/interfaces/store'
+import { toastError } from '~/lib/handleError'
 
 const props = defineProps<{
   bundle: string
@@ -168,17 +169,7 @@ async function updateState() {
       await bundle.execute()
   }
   catch (error) {
-    if (Array.isArray(error.errors)) {
-      error.errors.forEach((error: any) => {
-        toast(`Error`, {
-          description: error.message,
-          duration: 5000,
-          cardProps: {
-            color: 'error',
-          },
-        })
-      })
-    }
+    toastError(error)
   }
   finally {
     updatingState.value = false
@@ -271,26 +262,11 @@ async function deprecate(type: 'bundle' | 'version') {
     }))
     if (result && result.success) {
       await bundle.execute()
-      toast(`Deprecation message updated`, {
-        duration: 5000,
-        cardProps: {
-          color: 'success',
-        },
-      })
+      toast.success(`Deprecation message updated`)
     }
   }
   catch (error) {
-    if (Array.isArray(error.errors)) {
-      error.errors.forEach((error: any) => {
-        toast(`Error`, {
-          description: error.message,
-          duration: 5000,
-          cardProps: {
-            color: 'error',
-          },
-        })
-      })
-    }
+    toastError(error)
   }
 }
 
@@ -316,26 +292,11 @@ async function reinstate(type: 'bundle' | 'version') {
     }))
     if (result && result.success) {
       await bundle.execute()
-      toast(`Deprecation message updated`, {
-        duration: 5000,
-        cardProps: {
-          color: 'success',
-        },
-      })
+      toast.success(`Deprecation message updated`)
     }
   }
   catch (error) {
-    if (Array.isArray(error.errors)) {
-      error.errors.forEach((error: any) => {
-        toast(`Error`, {
-          description: error.message,
-          duration: 5000,
-          cardProps: {
-            color: 'error',
-          },
-        })
-      })
-    }
+    toastError(error)
   }
 }
 </script>

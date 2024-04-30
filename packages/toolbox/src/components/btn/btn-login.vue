@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { passwordRequest } from '@directus/sdk'
+import { toastError } from '~/lib/handleError'
 
 const store = useStore()
 
@@ -33,13 +34,7 @@ async function passwordReset() {
     toast.success('Email sent')
   }
   catch (error) {
-    if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors)) {
-      toast.error(error.errors[0].message)
-    }
-    else {
-      toast.error('Something went wrong')
-      console.error(error)
-    }
+    toastError(error)
   }
 }
 </script>

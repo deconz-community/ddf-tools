@@ -4,6 +4,7 @@ import { reactive } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { helpers, minLength, required, sameAs } from '@vuelidate/validators'
 import { passwordReset } from '@directus/sdk'
+import { toastError } from '~/lib/handleError'
 
 const store = useStore()
 
@@ -88,10 +89,7 @@ async function updatePassword() {
     toast.success('Password updated')
   }
   catch (error) {
-    if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors))
-      toast.error(error.errors[0].message)
-    else
-      console.error(error)
+    toastError(error)
   }
   finally {
     loading.value = false

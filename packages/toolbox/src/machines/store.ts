@@ -4,6 +4,7 @@ import type { AuthenticationClient, DirectusClient, RestClient } from '@directus
 import { authentication, createDirectus, readMe, readSettings, rest, serverHealth } from '@directus/sdk'
 import type { toast as vuetifyToast } from '@neoncoder/vuetify-sonner'
 import type { Collections, Schema } from '~/interfaces/store'
+import { toastError } from '~/lib/handleError'
 
 // No idea why I need dynamic import here but not in other files
 // const { toast } = await import(`@neoncoder/vuetify-sonner`)
@@ -128,8 +129,8 @@ export const storeMachine = setup({
           }
         }
       }
-      catch (e) {
-        // console.error(e)
+      catch (error) {
+        toastError(error)
       }
 
       return {
@@ -152,8 +153,8 @@ export const storeMachine = setup({
         await input.directus.login(input.email, input.password)
         toast.success('Logged in.')
       }
-      catch (e) {
-        console.error(e)
+      catch (error) {
+        toastError(error)
         return { success: false }
       }
       return { success: true }
@@ -166,8 +167,8 @@ export const storeMachine = setup({
         await input.directus.logout()
         toast.info('Logged out.')
       }
-      catch (e) {
-        console.error(e)
+      catch (error) {
+        toastError(error)
       }
     }),
 

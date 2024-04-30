@@ -1,6 +1,9 @@
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
-import type { GatewayCredentials } from '~/interfaces/deconz'
+import type { Response } from '@deconz-community/rest-client'
+import { DiscoveryURL, type GatewayCredentials } from '~/interfaces/deconz'
+
+type Config = Response<'getConfig'>['success']
 
 export interface PhosconDiscoveryEntry {
   id: string
@@ -57,7 +60,7 @@ export function useGatewayScanner() {
   async function runDiscovery() {
     discovering.value = true
     logs.value = 'Scanning gateways...'
-    const Guesses: { ip: string; port: number }[] = []
+    const Guesses: { ip: string, port: number }[] = []
 
     logs.value = `Fetching data from '${DiscoveryURL}'.`
     try {
@@ -125,7 +128,7 @@ export function useGatewayScanner() {
     return validAddresses
   }
 
-  function getURI(guess: { ip: string; port: number }): string {
+  function getURI(guess: { ip: string, port: number }): string {
     return `http://${guess.ip}:${guess.port}`
   }
 

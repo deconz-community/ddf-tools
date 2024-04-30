@@ -196,8 +196,9 @@ export function bundlerCommand() {
           for (const [uuid, { encoded }] of chunk)
             formData.append(uuid, encoded)
 
+          // TODO: use this : https://github.com/directus/directus/blob/main/sdk/src/rest/helpers/custom-endpoint.ts
           const { result } = await client.request<
-          // TODO import type from the store extension
+          // TODO: import type from the store extension
           { result: Record<string, {
             success: boolean
             createdId?: PrimaryKey | undefined

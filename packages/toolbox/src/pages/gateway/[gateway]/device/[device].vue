@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toastError } from '~/lib/handleError'
+
 const props = defineProps<{
   gateway: string
   device: string
@@ -16,11 +18,10 @@ async function updateDeviceName() {
 
   try {
     const result = await client.updateSensor({ name: deviceName.value }, { params: { sensorId: deviceId } })
-
-    console.log(result)
+    toast.success('Device name updated', { description: result.success?.name })
   }
-  catch (e) {
-    console.error(e)
+  catch (error) {
+    toastError(error)
   }
 
   // syncName()
