@@ -1,5 +1,12 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.12.0
+
+### Minor Changes
+
+- f461f59: Remove github auth
+- 6bfb6bc: Add error code for upload endpoint
+
 ## 0.11.4
 
 ### Patch Changes
