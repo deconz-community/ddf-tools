@@ -3,11 +3,7 @@ import { ZodError } from 'zod'
 import type { ValidationError } from '@deconz-community/ddf-bundler'
 
 export async function toastError(error: ZodError | Error | unknown) {
-  const errors = handleError(error)
-
-  const { toast } = await import(`@neoncoder/vuetify-sonner`)
-
-  errors.forEach((error) => {
+  handleError(error).forEach((error) => {
     toast.error(error.message)
   })
 }

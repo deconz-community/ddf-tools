@@ -56,8 +56,6 @@ export default defineConfig({
             'useConfirm',
           ],
         },
-        // Got a wierd issue with this, I need to use dynamic import for xstate machines
-        // const { toast } = await import(`@neoncoder/vuetify-sonner`)
         {
           '@neoncoder/vuetify-sonner': ['toast'],
         },
