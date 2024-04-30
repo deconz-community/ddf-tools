@@ -114,7 +114,7 @@ function copyUserKeyToClipboard() {
           v-if="user"
           :title="`${userName}'s profile`"
           prepend-icon="mdi-account"
-          :to="`/user/${user.id}`"
+          :to="`/store/user/${user.id}`"
         />
 
         <v-tooltip text="Copy signature key to clipboard" location="top">

@@ -1582,44 +1582,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: directus_users
-    field: avatar_url
-    type: string
-    meta:
-      collection: directus_users
-      conditions: null
-      display: null
-      display_options: null
-      field: avatar_url
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 2
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: avatar_url
-      table: directus_users
-      data_type: varchar
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: directus_users
     field: public_key
     type: string
     meta:
@@ -1711,7 +1673,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 5
+      sort: 2
       special:
         - cast-boolean
       translations: null
@@ -1790,7 +1752,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 6
+      sort: 5
       special:
         - m2m
       translations: null

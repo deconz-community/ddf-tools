@@ -23,11 +23,6 @@
     },
     "entries": [
       {
-        "type": "hook",
-        "name": "hook-auth",
-        "source": "src/hooks/auth.ts"
-      },
-      {
         "type": "endpoint",
         "name": "bundle",
         "source": "src/api/index.ts"

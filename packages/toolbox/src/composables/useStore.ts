@@ -12,7 +12,7 @@ export type RequestOptions<Output extends object | unknown> = {
   maxWait?: number
 } & Omit<UseAsyncStateOptions<true, Output | null>, 'shallow' | 'resetOnExecute'>
 
-export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar_url' | 'date_created' | 'public_key'>
+export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar' | 'date_created' | 'public_key'>
 
 export function useStore() {
   const machines = createUseAppMachine()

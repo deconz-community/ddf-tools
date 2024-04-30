@@ -24,7 +24,7 @@ type UploadResponse = Record<string, {
   createdId: PrimaryKey
 } | {
   success: false
-  code: string
+  code: 'bundle_hash_already_exists' | 'unknown'
   message: string
 }>
 
@@ -357,7 +357,7 @@ export default defineEndpoint({
                       return {
                         code: 'bundle_hash_already_exists',
                         message: 'Bundle with same hash already exists',
-                      }
+                      } as const
                   }
               }
             }
@@ -366,13 +366,13 @@ export default defineEndpoint({
               return {
                 code: 'unknown',
                 message: error.message,
-              }
+              } as const
             }
 
             return {
               code: 'unknown',
               message: 'Unknown Error',
-            }
+            } as const
           }
 
           result[uuid] = {
@@ -444,9 +444,9 @@ export default defineEndpoint({
           'id',
           'first_name',
           'last_name',
-          'avatar_url',
           'date_created',
           'public_key',
+          'avatar',
         ],
         // @ts-expect-error - I added this field don't worry
         filter,
@@ -459,6 +459,10 @@ export default defineEndpoint({
           reason: 'User not found',
         })
       }
+
+      user.avatar_url = user.avatar ? `${context.env.PUBLIC_URL}/assets/${user.avatar}` : undefined
+
+      delete user.avatar
 
       res.json(user)
     }))

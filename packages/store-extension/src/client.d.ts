@@ -367,10 +367,9 @@ export interface System {
    */
   directus_users: {
     date_created: Types.Optional<Types.DateTime>;
-    avatar_url: Types.Optional<Types.String>;
+    can_sign_with_system_keys: Types.Boolean;
     public_key: Types.Optional<Types.String>;
     private_key: Types.Optional<Types.String>;
-    can_sign_with_system_keys: Types.Boolean;
     ddf_uuids: Collections.Maintainers[];
   }[];
 
