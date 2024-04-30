@@ -7,7 +7,20 @@ import type { Collections, Schema } from '~/interfaces/store'
 
 // No idea why I need dynamic import here but not in other files
 // const { toast } = await import(`@neoncoder/vuetify-sonner`)
-let toast: typeof vuetifyToast
+
+// Don't look at this, it's a hack to make the linter happy
+function nothing() {}
+let toast: typeof vuetifyToast = Object.assign(nothing, {
+  success: nothing,
+  error: nothing,
+  warning: nothing,
+  info: nothing,
+  primary: nothing,
+  secondary: nothing,
+  dismiss: nothing,
+  toastOriginal: nothing,
+}) as any
+
 (async () => {
   toast = (await import(`@neoncoder/vuetify-sonner`)).toast
 })()
