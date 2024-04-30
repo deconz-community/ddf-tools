@@ -131,18 +131,6 @@ export default defineConfig({
 
     monacoEditorPlugin.default({}),
 
-    /*
-    {
-      name: 'html-inject-nonce-into-script-tag',
-      enforce: 'post',
-      transformIndexHtml(html: string) {
-        const regex = /<script(.*?)/gi
-        const replacement = '<script nonce="{SERVER-GENERATED-NONCE}"$1'
-        return html.replace(regex, replacement)
-      },
-    },
-    */
-
   ],
 
   ssr: {

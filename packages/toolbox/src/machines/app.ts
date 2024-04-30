@@ -58,7 +58,9 @@ export const appMachine = setup({
       store: ({ spawn }) => spawn('storeMachine', {
         id: 'store',
         systemId: 'store',
-        input: {},
+        input: {
+          directusUrl: import.meta.env.VITE_DIRECTUS_URL,
+        },
       }),
       gateways: new Map(),
     }),

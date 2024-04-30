@@ -129,14 +129,12 @@ export const storeMachine = setup({
       password: string
     }>(async ({ input }) => {
       try {
-        const auth = await input.directus.login(input.email, input.password)
-        console.log(auth)
+        await input.directus.login(input.email, input.password)
       }
       catch (e) {
         console.error(e)
         return { success: false }
       }
-
       return { success: true }
     }),
 
@@ -184,7 +182,7 @@ export const storeMachine = setup({
   id: 'store',
 
   context: ({ input }) => ({
-    directusUrl: input.directusUrl ?? 'localhost',
+    directusUrl: input.directusUrl ?? '',
   }),
 
   states: {

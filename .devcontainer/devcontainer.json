@@ -32,7 +32,8 @@
         "yoavbls.pretty-ts-errors",
         "ZixuanChen.vitest-explorer",
         "christian-kohler.npm-intellisense",
-        "MylesMurphy.prettify-ts"
+        "MylesMurphy.prettify-ts",
+        "sissel.shopify-liquid"
       ]
     }
   },

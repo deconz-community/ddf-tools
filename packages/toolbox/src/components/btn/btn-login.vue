@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSnackbar } from 'vuetify-use-dialog'
+import { passwordRequest } from '@directus/sdk'
 
 const store = useStore()
 const createSnackbar = useSnackbar()
@@ -23,6 +24,26 @@ const showPassword = ref(false)
 
 async function login() {
   store.send({ type: 'LOGIN_WITH_PASSWORD', email: loginEmail.value, password: loginPassword.value })
+}
+
+async function passwordReset() {
+  try {
+    await store.client?.request(passwordRequest(
+      loginEmail.value,
+      import.meta.env.VITE_DIRECTUS_PASSWORD_RESET_URL,
+    ))
+
+    createSnackbar({ text: 'Email sent', snackbarProps: { color: 'success' } })
+  }
+  catch (error) {
+    if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors)) {
+      createSnackbar({ text: error.errors[0].message, snackbarProps: { color: 'error' } })
+    }
+    else {
+      createSnackbar({ text: 'Something went wrong', snackbarProps: { color: 'error' } })
+      console.error(error)
+    }
+  }
 }
 </script>
 
@@ -69,13 +90,16 @@ async function login() {
       <template #activator="{ props: activatorProps }">
         <v-btn
           v-bind="activatorProps"
-          prepend-icon="mdi-login"
-          text="Login"
+          append-icon="mdi-login"
+          text="DDF Store Login"
+          variant="flat"
+          elevation="1"
+          color="primary"
         />
       </template>
 
       <template #default="{ isActive }">
-        <v-card title="Authenticate to the DDF Bundle store">
+        <v-card title="Enter your credentials for DDF bundle store">
           <v-form @submit.prevent="() => { login();isActive.value = false }">
             <v-card-text>
               <v-text-field
@@ -100,11 +124,22 @@ async function login() {
               <v-spacer />
               <v-btn
                 text="Cancel"
+                variant="flat"
+                color="error"
                 @click="isActive.value = false"
               />
               <v-btn
+                text="Password Reset"
+                variant="flat"
+                color="secondary"
+                @click="passwordReset()"
+              />
+              <v-btn
                 text="Login"
+                append-icon="mdi-login"
                 type="submit"
+                color="primary"
+                variant="flat"
               />
             </v-card-actions>
           </v-form>
