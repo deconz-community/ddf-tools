@@ -2,6 +2,7 @@ import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
 import { produce } from 'immer'
 import type { AuthenticationClient, DirectusClient, RestClient } from '@directus/sdk'
 import { authentication, createDirectus, readMe, readSettings, rest, serverHealth } from '@directus/sdk'
+// import type { toast as vuetifyToast } from '@neoncoder/vuetify-sonner'
 import type { Collections, Schema } from '~/interfaces/store'
 
 // No idea why I need dynamic import here but not in other files

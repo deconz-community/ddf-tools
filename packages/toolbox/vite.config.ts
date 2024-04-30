@@ -10,6 +10,7 @@ import Vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
 import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 export default defineConfig({
   base: '/ddf-tools/',
@@ -23,6 +24,13 @@ export default defineConfig({
   },
 
   plugins: [
+    topLevelAwait({
+      // The export name of top-level await promise for each chunk module
+      promiseExportName: '__tla',
+      // The function to generate import names of top-level await promise in each chunk module
+      promiseImportName: i => `__tla_${i}`,
+    }),
+
     VueMacros({
       plugins: {
         vue: Vue({
