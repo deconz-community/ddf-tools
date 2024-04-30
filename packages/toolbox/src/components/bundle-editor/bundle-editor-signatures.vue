@@ -19,7 +19,6 @@ const signatures = useVModel(props, 'modelValue', emit)
 const disabled = useVModel(props, 'disabled')
 const hash = useVModel(props, 'hash')
 const store = useStore()
-const createSnackbar = useSnackbar()
 const createConfirm = useConfirm()
 
 const canUseStore = computed(() => {
@@ -92,12 +91,12 @@ function generatePrivateKey() {
 async function signBundle() {
   let key: Uint8Array | undefined
   if (!hash.value)
-    return createSnackbar({ text: 'Error: Bundle don\'t have a hash', snackbarProps: { color: 'error' } })
+    return toast.error('Error: Bundle don\'t have a hash')
 
   if (canUseStore.value === true) {
     key = storeKey.value ? hexToBytes(storeKey.value) : undefined
     if (!key)
-      return createSnackbar({ text: 'Error: You don\'t have a private key. Please check your user profile.', snackbarProps: { color: 'error' } })
+      return toast.error('Error: You don\'t have a private key. Please check your user profile.')
   }
   else {
     key = privateKey.value
@@ -110,7 +109,7 @@ async function signBundle() {
   const existingSignature = signatures.value.find(signature => bytesToHex(signature.key) === publicKeyHex)
   if (existingSignature) {
     if (await verifySignature(hash.value, existingSignature.key, existingSignature.signature))
-      return createSnackbar({ text: 'Error: You already signed this bundle', snackbarProps: { color: 'error' } })
+      return toast.error('Error: You already signed this bundle')
     signatures.value.splice(signatures.value.indexOf(existingSignature), 1)
   }
 
@@ -119,7 +118,7 @@ async function signBundle() {
     signature,
   })
   emit('change')
-  createSnackbar({ text: `Signature ${existingSignature ? 'updated' : 'added'}`, snackbarProps: { color: 'success' } })
+  toast.success(`Signature ${existingSignature ? 'updated' : 'added'}`)
 }
 
 async function deleteSignature(index: number) {
@@ -133,7 +132,7 @@ async function deleteSignature(index: number) {
 
   signatures.value.splice(index, 1)
   emit('change')
-  createSnackbar({ text: 'Signature removed', snackbarProps: { color: 'success' } })
+  toast.success('Signature removed')
 }
 
 if (import.meta.env.VITE_DEBUG === 'true') {

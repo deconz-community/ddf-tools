@@ -9,7 +9,6 @@ const props = defineProps<{
 const menu = ref(false)
 
 const store = useStore()
-const createSnackbar = useSnackbar()
 
 const userKey = computed(() => {
   switch (typeof props.publicKey) {
@@ -47,13 +46,13 @@ const userName = computed(() => user.value
 
 function copyUserKeyToClipboard() {
   if (!userKey.value)
-    return createSnackbar({ text: 'No key to copy', snackbarProps: { color: 'error' } })
+    return toast.error('No key to copy')
   try {
     navigator.clipboard.writeText(userKey.value)
-    createSnackbar({ text: 'Key copied to clipboard', snackbarProps: { color: 'success' } })
+    toast.success('Key copied to clipboard')
   }
   catch (e) {
-    createSnackbar({ text: 'Error: Can\'t copy key to clipboard', snackbarProps: { color: 'error' } })
+    toast.error('Error: Can\'t copy key to clipboard')
   }
 }
 </script>

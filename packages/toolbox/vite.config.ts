@@ -54,8 +54,12 @@ export default defineConfig({
         {
           'vuetify-use-dialog': [
             'useConfirm',
-            'useSnackbar',
           ],
+        },
+        // Got a wierd issue with this, I need to use dynamic import for xstate machines
+        // const { toast } = await import(`@neoncoder/vuetify-sonner`)
+        {
+          '@neoncoder/vuetify-sonner': ['toast'],
         },
       ],
       dts: 'src/auto-imports.d.ts',

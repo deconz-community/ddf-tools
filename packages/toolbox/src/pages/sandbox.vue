@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { createDirectus, readMe, readSettings, rest } from '@directus/sdk'
-
 const store = useStore()
+const app = createUseAppMachine().use('app')
+
+function send() {
+  // app.send({ type: 'NOTIFICATION', text: 'sample text' })
+  toast('sample text')
+}
 </script>
 
 <template>
@@ -15,6 +19,9 @@ const store = useStore()
       <pre>{{ store.state?.value }}</pre>
       <pre>{{ settings.state }}</pre>
       -->
+      <v-btn @click="send()">
+        Test
+      </v-btn>
     </template>
   </v-card>
 </template>

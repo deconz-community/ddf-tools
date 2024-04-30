@@ -3,7 +3,6 @@ import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { useConfirm } from 'vuetify-use-dialog'
 import { VTextarea } from 'vuetify/components'
-import { toast } from 'vuetify-sonner'
 import { listBundles, readBundles, readDdfUuids } from '~/interfaces/store'
 
 const props = defineProps<{

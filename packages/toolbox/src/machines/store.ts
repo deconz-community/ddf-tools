@@ -4,6 +4,9 @@ import type { AuthenticationClient, DirectusClient, RestClient } from '@directus
 import { authentication, createDirectus, readMe, readSettings, rest, serverHealth } from '@directus/sdk'
 import type { Collections, Schema } from '~/interfaces/store'
 
+// No idea why I need dynamic import here but not in other files
+const { toast } = await import(`@neoncoder/vuetify-sonner`)
+
 export type Directus = DirectusClient<Schema>
   & RestClient<Schema>
   & AuthenticationClient<Schema>
@@ -46,7 +49,6 @@ export const storeMachine = setup({
   actors: {
     // #region fetchProfile
     fetchProfile: fromPromise(async ({ input }: { input: Directus }) => {
-      console.log('fetchProfile')
       return await input.request(readMe()) as Collections.DirectusUser
     }),
     // #endregion
@@ -130,6 +132,7 @@ export const storeMachine = setup({
     }>(async ({ input }) => {
       try {
         await input.directus.login(input.email, input.password)
+        toast.success('Logged in.')
       }
       catch (e) {
         console.error(e)
@@ -143,6 +146,7 @@ export const storeMachine = setup({
     }>(async ({ input }) => {
       try {
         await input.directus.logout()
+        toast.info('Logged out.')
       }
       catch (e) {
         console.error(e)

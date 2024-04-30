@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { useSnackbar } from 'vuetify-use-dialog'
 import { passwordRequest } from '@directus/sdk'
 
 const store = useStore()
-const createSnackbar = useSnackbar()
 
 const avatarSize = 50
 const avatarUrl = computed(() => store.profile?.avatar_url ?? '')
@@ -15,7 +13,6 @@ const userName = computed(() => {
 
 async function logout() {
   store.send({ type: 'LOGOUT' })
-  createSnackbar({ text: 'Logged out.' })
 }
 
 const loginEmail = ref('')
@@ -33,14 +30,14 @@ async function passwordReset() {
       import.meta.env.VITE_DIRECTUS_PASSWORD_RESET_URL,
     ))
 
-    createSnackbar({ text: 'Email sent', snackbarProps: { color: 'success' } })
+    toast.success('Email sent')
   }
   catch (error) {
     if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors)) {
-      createSnackbar({ text: error.errors[0].message, snackbarProps: { color: 'error' } })
+      toast.error(error.errors[0].message)
     }
     else {
-      createSnackbar({ text: 'Something went wrong', snackbarProps: { color: 'error' } })
+      toast.error('Something went wrong')
       console.error(error)
     }
   }

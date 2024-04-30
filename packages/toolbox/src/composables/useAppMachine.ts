@@ -59,7 +59,6 @@ export function createUseAppMachine() {
 
     return scope.run(() => getMachine(machineTree, args[0], args[1])) as any
   }
-
   return { use }
 }
 

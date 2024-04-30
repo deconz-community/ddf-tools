@@ -6,7 +6,6 @@ import { helpers, minLength, required, sameAs } from '@vuelidate/validators'
 import { passwordReset } from '@directus/sdk'
 
 const store = useStore()
-const createSnackbar = useSnackbar()
 
 const queryToken = useRouteQuery('token', '')
 const data = computed(() => {
@@ -86,11 +85,11 @@ async function updatePassword() {
       state.password,
     ))
     store.send({ type: 'LOGIN_WITH_PASSWORD', email: email.value, password: state.password })
-    createSnackbar({ text: 'Password updated', snackbarProps: { color: 'success' } })
+    toast.success('Password updated')
   }
   catch (error) {
     if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors))
-      createSnackbar({ text: error.errors[0].message, snackbarProps: { color: 'error' } })
+      toast.error(error.errors[0].message)
     else
       console.error(error)
   }

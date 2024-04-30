@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useConfirm, useSnackbar } from 'vuetify-use-dialog'
+import { useConfirm } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { updateMe } from '@directus/sdk'
@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const createConfirm = useConfirm()
-const createSnackbar = useSnackbar()
+
 const store = useStore()
 
 const settings = reactive({
@@ -56,10 +56,10 @@ async function saveKeys() {
   }
   catch (e) {
     console.error(e)
-    return createSnackbar({ text: 'Error while saving keys.', snackbarProps: { color: 'error' } })
+    return toast.error('Error while saving keys.')
   }
 
-  createSnackbar({ text: 'New keys has been saved.', snackbarProps: { color: 'success' } })
+  toast.success('New keys has been saved.')
 }
 
 // const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)

@@ -1,6 +1,5 @@
 import type { ZodTypeAny } from 'zod'
 import { VTextField, VTextarea } from 'vuetify/components'
-import { toast } from 'vuetify-sonner'
 import type { MaybeRef } from 'vue'
 
 type ConfirmParams = Parameters<ReturnType<typeof useConfirm>>[0]

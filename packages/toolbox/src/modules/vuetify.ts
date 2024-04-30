@@ -35,7 +35,6 @@ export const install: UserModule = ({ app }) => {
       },
     },
   })
-
   app.use(vuetify)
   app.use(VuetifyUseDialog)
 }
