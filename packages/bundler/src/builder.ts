@@ -2,17 +2,58 @@ import { Bundle } from './bundle'
 import type { TextFile } from './types'
 import { asArray } from './utils'
 
+export type SourceMetadata = {
+  path: string
+  last_modified: Date
+} & Record<string, unknown>
+
+export interface Source<Metadata extends SourceMetadata = SourceMetadata> {
+  metadata: Metadata
+  readonly rawData: Blob
+  readonly stringData: Promise<string>
+  readonly jsonData: Promise<Record<string, unknown>>
+}
+
+export function createSource<Metadata extends SourceMetadata>(rawData: Blob, metadata: Metadata): Source<Metadata> {
+  let stringData: string | undefined
+  let jsonData: Record<string, unknown> | undefined
+
+  return {
+    metadata,
+    get rawData() {
+      return rawData
+    },
+    get stringData() {
+      return (async () => {
+        if (stringData)
+          return stringData
+        stringData = await (this.rawData).text()
+        return stringData
+      })()
+    },
+    get jsonData() {
+      return (async () => {
+        if (jsonData)
+          return jsonData
+        jsonData = JSON.parse(await this.stringData) as Record<string, unknown>
+        return jsonData
+      })()
+    },
+  }
+}
+
 export async function buildFromFiles(
   genericDirectory: string,
   ddfPath: string,
-  getFile: (path: string) => Promise<Blob>,
-  getLastModified: (path: string) => Promise<Date> = async () => new Date(),
+  getSource: (path: string) => Promise<Source>,
 ) {
   const bundle = Bundle()
 
   bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
-  bundle.data.ddfc = await (await getFile(ddfPath)).text()
-  bundle.data.desc.last_modified = await getLastModified(ddfPath)
+
+  const ddfSource = await getSource(ddfPath)
+  bundle.data.ddfc = await ddfSource.stringData
+  bundle.data.desc.last_modified = ddfSource.metadata.last_modified
 
   const ddfc: Record<string, unknown> = JSON.parse(bundle.data.ddfc)
 
@@ -149,13 +190,14 @@ export async function buildFromFiles(
   })
 
   await Promise.all(uniquesFilesToAdd.map(async (fileToAdd) => {
-    let data = await (await getFile(fileToAdd.url)).text()
+    const source = await getSource(fileToAdd.url)
+    let data = await source.stringData
     if (fileToAdd.patch !== undefined)
       data = fileToAdd.patch(data)
     bundle.data.files.push({
       type: fileToAdd.type,
       data,
-      last_modified: await getLastModified(fileToAdd.url),
+      last_modified: source.metadata.last_modified,
       path: fileToAdd.path,
     })
   }),

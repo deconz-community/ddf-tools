@@ -291,13 +291,22 @@ const encoded = encode(bundle)
 
 ### Building a bundle from files
 ```typescript
-import { buildFromFiles } from '@deconz-community/ddf-bundler'
+import { buildFromFiles, createSource } from '@deconz-community/ddf-bundler'
 
-const bundle = await buildFromFiles(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
-  const result = await fetch(url)
-  if (result.status !== 200)
-    throw new Error(result.statusText)
-
-  return await result.blob()
-})
+const bundle = await buildFromFiles(
+  `file://${genericDirectoryPath}`,
+  `file://${inputFilePath}`,
+  async (path) => {
+    if (sources.has(path))
+      return sources.get(path)!
+    const filePath = path.replace('file://', '')
+    const data = await fs.readFile(filePath)
+    const source = createSource(new Blob([data]), {
+      path,
+      last_modified: (await fs.stat(filePath)).mtime,
+    })
+    sources.set(path, source)
+    return source
+  },
+)
 ```

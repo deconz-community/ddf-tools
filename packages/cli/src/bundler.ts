@@ -3,11 +3,11 @@ import path from 'node:path'
 import fs from 'node:fs/promises'
 import { program } from '@commander-js/extra-typings'
 import glob from 'fast-glob'
-import type { ValidationError } from '@deconz-community/ddf-bundler'
-import { buildFromFiles, encode, sign } from '@deconz-community/ddf-bundler'
+import type { Source, ValidationError } from '@deconz-community/ddf-bundler'
+import { buildFromFiles, createSource, encode, sign } from '@deconz-community/ddf-bundler'
 import { hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
-import { ZodError } from 'zod'
+import { ZodError, string } from 'zod'
 import { fromZodError } from 'zod-validation-error'
 import { createDirectus, rest, staticToken } from '@directus/sdk'
 import { v4 as uuidv4 } from 'uuid'
@@ -85,6 +85,8 @@ export function bundlerCommand() {
         encoded: Blob
       }> = {}
 
+      const sources = new Map<string, Source>()
+
       await Promise.all(inputFiles.map(async (inputFile) => {
         const inputFilePath = path.resolve(inputFile)
 
@@ -96,9 +98,18 @@ export function bundlerCommand() {
         const bundle = await buildFromFiles(
           `file://${genericDirectoryPath}`,
           `file://${inputFilePath}`,
-          async (filePath) => {
-            const data = await fs.readFile(filePath.replace('file://', ''))
-            return new Blob([data])
+          async (path) => {
+            if (sources.has(path))
+              return sources.get(path)!
+            const filePath = path.replace('file://', '')
+            const data = await fs.readFile(filePath)
+            const source = createSource(new Blob([data]), {
+              path,
+              // TODO: Implement last modified method with options
+              last_modified: (await fs.stat(filePath)).mtime,
+            })
+            sources.set(path, source)
+            return source
           },
         )
 

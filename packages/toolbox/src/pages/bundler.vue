@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { Bundle, buildFromFiles, decode, generateHash } from '@deconz-community/ddf-bundler'
+import type { Source } from '@deconz-community/ddf-bundler'
+import { Bundle, buildFromFiles, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
 
-// const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
-const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
+const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
+// const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
 
-// const genericDE = `${baseDEUrl}/generic`
-const devicesDC = `${baseDCUrl}/devices`
-const genericDC = `${devicesDC}/generic`
+const genericDE = `${baseDEUrl}/generic`
+// const devicesDC = `${baseDCUrl}/devices`
+// const genericDC = `${devicesDC}/generic`
 
 const sampleList = {
-  'STARKVIND Air purifier': [genericDC, `${devicesDC}/ikea/starkvind_air_purifier.json`],
-  'FYRTUR block-out roller blind': [genericDC, `${devicesDC}/ikea/fyrtur_block-out_roller_blind.json`],
-  'SYMFONISK sound remote gen2': [genericDC, `${devicesDC}/ikea/symfonisk_sound_remote_gen2.json`],
-  'Lutron Aurora': [genericDC, `${devicesDC}/lutron/lutron_aurora_foh.json`],
-  'Mijia open/close sensor MCCGQ01LM': [genericDC, `${devicesDC}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
-  'Mijia smart plug ZNCZ04LM': [genericDC, `${devicesDC}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
-  'Danalock V3': [genericDC, `${devicesDC}/danalock/danalock_v3.json`],
+  'STARKVIND Air purifier': [genericDE, `${baseDEUrl}/ikea/starkvind_air_purifier.json`],
+  'FYRTUR block-out roller blind': [genericDE, `${baseDEUrl}/ikea/fyrtur_block-out_roller_blind.json`],
+  'SYMFONISK sound remote gen2': [genericDE, `${baseDEUrl}/ikea/symfonisk_sound_remote_gen2.json`],
+  'Lutron Aurora': [genericDE, `${baseDEUrl}/lutron/lutron_aurora_foh.json`],
+  'Mijia open/close sensor MCCGQ01LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
+  'Mijia smart plug ZNCZ04LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
+  'Danalock V3': [genericDE, `${baseDEUrl}/danalock/danalock_v3.json`],
 } as const
 
 const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'
@@ -40,13 +41,70 @@ watch(files, async () => {
 async function buildFromGithub() {
   error.value = ''
 
+  const sources = new Map<string, Source>()
+
   try {
-    const newBundle = await buildFromFiles(genericDirectoryUrl.value, fileUrl.value, async (url: string) => {
-      const result = await fetch(url)
-      if (result.status !== 200)
-        throw new Error(result.statusText)
-      return await result.blob()
-    })
+    const newBundle = await buildFromFiles(
+      genericDirectoryUrl.value,
+      fileUrl.value,
+      async (path) => {
+        if (sources.has(path))
+          return sources.get(path)!
+
+        /*
+          // This is disabled because it's get API rate limited to quickly but it does work
+        try {
+          if (path.startsWith('https://raw.githubusercontent.com/')) {
+            const [
+              user,
+              repo,
+              branch,
+              ...paths
+            ] = path.replace('https://raw.githubusercontent.com/', '').split('/')
+            const url = `https://api.github.com/repos/${user}/${repo}/contents/${paths.join('/')}?ref=${branch}`
+            const result = await fetch(url)
+            if (result.status !== 200)
+              throw new Error(result.statusText)
+
+            const data = await result.json()
+            if (
+              typeof data !== 'object'
+              || data === null
+              || !('content' in data)
+              || typeof data.content !== 'string'
+              || !('encoding' in data)
+              || data.encoding !== 'base64'
+            )
+              throw new Error('Invalid data')
+
+            const source = createSource(new Blob([atob(data.content)]), {
+              path,
+              last_modified: new Date(result.headers.get('last-modified') ?? ''),
+            })
+
+            sources.set(path, source)
+            return source
+          }
+        }
+        catch (e) {
+          console.error(e)
+        }
+        */
+
+        const result = await fetch(path)
+        if (result.status !== 200)
+          throw new Error(result.statusText)
+        const data = await result.blob()
+
+        const source = createSource(data, {
+          path,
+          last_modified: new Date(),
+        })
+        sources.set(path, source)
+        return source
+      },
+    )
+
     newBundle.data.hash = await generateHash(newBundle.data)
     bundle.value = newBundle
   }
