@@ -1,5 +1,12 @@
 # @deconz-community/ddf-bundler
 
+## 0.20.0
+
+### Minor Changes
+
+- 8695f5d: Update buildFromFiles to use cache for sources
+- 15bf579: Update deps
+
 ## 0.19.0
 
 ### Minor Changes

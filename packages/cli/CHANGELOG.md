@@ -1,5 +1,19 @@
 # @deconz-community/cli
 
+## 1.11.0
+
+### Minor Changes
+
+- 8695f5d: Update buildFromFiles to use cache for sources
+- 15bf579: Update deps
+
+### Patch Changes
+
+- Updated dependencies [8695f5d]
+- Updated dependencies [15bf579]
+  - @deconz-community/ddf-bundler@0.20.0
+  - @deconz-community/ddf-validator@2.28.0
+
 ## 1.10.0
 
 ### Minor Changes
