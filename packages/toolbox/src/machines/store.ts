@@ -84,6 +84,7 @@ export const storeMachine = setup({
               return _result
             },
           }))
+          // TODO: Don't use cookie
           .with(authentication('cookie', {
             credentials: 'include', // TODO What do this does ?
           }))
@@ -161,7 +162,7 @@ export const storeMachine = setup({
         throw new Error(`Invalid event type = ${event.type}`)
       */
 
-      const profile = event.profile as Collections.DirectusUser | undefined
+      const profile = 'profile' in event ? event.profile : undefined as Collections.DirectusUser | undefined
 
       if (!profile) {
         draft.profile = undefined
