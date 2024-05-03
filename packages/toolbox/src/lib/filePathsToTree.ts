@@ -15,7 +15,7 @@ interface Node<Data> {
 /**
  * Takes a list of file paths and turns it into a tree. For each node you can attach own data using a callback.
  */
-export const filePathsToTree = <Data>(paths: string[], getData?: (node: Node<Data>) => Data) => {
+export function filePathsToTree<Data>(paths: string[], getData?: (node: Node<Data>) => Data) {
   const results: Node<Data>[] = []
 
   return paths.reduce((currentResults, currentPath) => {
@@ -48,7 +48,7 @@ export const filePathsToTree = <Data>(paths: string[], getData?: (node: Node<Dat
   }, results)
 }
 
-export const filePathsToUniqueTree = <Data>(paths: string[], getData?: (node: Node<Data>) => Data) => {
+export function filePathsToUniqueTree<Data>(paths: string[], getData?: (node: Node<Data>) => Data) {
   const results = filePathsToTree(paths, getData)
 
   const root: Node<Data> = {
@@ -71,7 +71,7 @@ export const filePathsToUniqueTree = <Data>(paths: string[], getData?: (node: No
 /**
  * Converts a list of `Node` to a flat list of printable strings.
  */
-export const treeToString = <Data>(nodes: Node<Data>[], level = 0, prefix = '') => {
+export function treeToString<Data>(nodes: Node<Data>[], level = 0, prefix = '') {
   const nodesCount = nodes.length - 1
   let results = ''
 
