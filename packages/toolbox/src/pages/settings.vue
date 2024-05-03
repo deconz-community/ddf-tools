@@ -2,45 +2,71 @@
 import { useRouteQuery } from '@vueuse/router'
 
 const store = useStore()
+const machines = createUseAppMachine()
+const app = machines.use('app')
 
 const storeUrl = useRouteQuery('storeUrl', '')
+
+if (storeUrl.value)
+  app.send({ type: 'UPDATE_SETTINGS', settings: { developerMode: true } })
 
 function updateStoreUrl() {
   store.send({ type: 'UPDATE_DIRECTUS_URL', directusUrl: storeUrl.value })
 }
+
+const developerMode = computed({
+  get: () => app.state?.context.settings?.developerMode ?? false,
+  set: (value) => {
+    app.send({ type: 'UPDATE_SETTINGS', settings: { developerMode: value } })
+  },
+})
 </script>
 
 <template>
-  <v-alert v-show="store.state?.matches('online')" class="ma-2" title="Connected" type="success">
-    Connected to DDF Store at {{ store.state?.context?.directusUrl }}
-  </v-alert>
-  <v-alert v-show="store.state?.matches('offline')" class="ma-2" title="Offline" type="error">
-    <template v-if="store.state?.context?.directusUrl">
-      The store at {{ store.state?.context?.directusUrl }} seems offline.
-    </template>
-    <template v-else>
-      No store url configured.
-    </template>
-  </v-alert>
-  <v-alert v-show="store.state?.matches('connecting')" class="ma-2" title="Connecting" type="info">
-    Connecting to the store at {{ store.state?.context?.directusUrl }}...
-  </v-alert>
-
   <v-card class="ma-2">
     <template #title>
-      Connect to DDF Store
+      Settings
     </template>
-
-    <template #text>
-      <v-text-field v-model="storeUrl" label="Directus URL" />
-    </template>
-
-    <template #actions>
-      <v-btn color="primary" @click="updateStoreUrl">
-        Connect
-      </v-btn>
-    </template>
+    <v-card-text>
+      <v-switch
+        v-model="developerMode"
+        label="Developper mode"
+        color="primary"
+      />
+    </v-card-text>
   </v-card>
+
+  <v-expand-transition>
+    <v-card v-show="developerMode" class="ma-2">
+      <template #title>
+        Connect to a custom DDF Store
+      </template>
+
+      <template #text>
+        <v-alert v-show="store.state?.matches('online')" class="mb-2" title="Connected" type="success">
+          Connected to DDF Store at {{ store.state?.context?.directusUrl }}
+        </v-alert>
+        <v-alert v-show="store.state?.matches('offline')" class="mb-2" title="Offline" type="error">
+          <template v-if="store.state?.context?.directusUrl">
+            The store at {{ store.state?.context?.directusUrl }} seems offline.
+          </template>
+          <template v-else>
+            No store url configured.
+          </template>
+        </v-alert>
+        <v-alert v-show="store.state?.matches('connecting')" class="mb-2" title="Connecting" type="info">
+          Connecting to the store at {{ store.state?.context?.directusUrl }}...
+        </v-alert>
+        <v-text-field v-model="storeUrl" label="Directus URL" />
+      </template>
+
+      <template #actions>
+        <v-btn color="primary" @click="updateStoreUrl">
+          Connect
+        </v-btn>
+      </template>
+    </v-card>
+  </v-expand-transition>
 </template>
 
 <route lang="json">

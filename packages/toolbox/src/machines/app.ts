@@ -12,7 +12,12 @@ enableMapSet()
 
 const storageKey = 'app'
 const storageSchema = z.object({
-  storeUrl: z.optional(z.string()),
+  store: z.optional(z.object({
+    url: z.string(),
+  })),
+  settings: z.optional(z.object({
+    developerMode: z.boolean().optional(),
+  })),
   credentials: z.record(z.object({
     id: z.string(),
     name: z.string(),
@@ -28,6 +33,7 @@ export type StorageSchema = z.output<typeof storageSchema>
 export type GatewayCredentials = StorageSchema['credentials'][string]
 
 export interface AppContext {
+  settings: StorageSchema['settings']
   discovery: ActorRefFrom<typeof discoveryMachine>
   store: ActorRefFrom<typeof storeMachine>
   gateways: Map<string, ActorRefFrom<typeof gatewayMachine>>
@@ -43,9 +49,10 @@ export const appMachine = setup({
       type: 'REMOVE_GATEWAY'
       id: string
     } | {
-      type: 'SAVE_SETTINGS'
+      type: 'SAVE_SETTINGS' | 'LOAD_SETTINGS'
     } | {
-      type: 'LOAD_SETTINGS'
+      type: 'UPDATE_SETTINGS'
+      settings: Exclude<Partial<AppContext['settings']>, undefined>
     },
   },
 
@@ -81,10 +88,13 @@ export const appMachine = setup({
             credentials,
           }))
 
-        if (data.storeUrl) {
+        if (data.settings)
+          self.send({ type: 'UPDATE_SETTINGS', settings: data.settings })
+
+        if (data.store?.url) {
           system.get('store').send({
             type: 'UPDATE_DIRECTUS_URL',
-            directusUrl: data.storeUrl,
+            directusUrl: data.store.url,
           })
         }
       }
@@ -95,7 +105,10 @@ export const appMachine = setup({
 
     saveSettings: ({ system, context }) => {
       const data: StorageSchema = {
-        storeUrl: system.get('store').getSnapshot()?.context.directusUrl,
+        settings: context.settings,
+        store: {
+          url: system.get('store').getSnapshot()?.context.directusUrl,
+        },
         credentials: {},
       }
 
@@ -174,6 +187,25 @@ export const appMachine = setup({
       }),
     },
 
+    UPDATE_SETTINGS: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue.assign({
+          settings: ({ context, event }) => produce(context.settings ?? {}, (draft) => {
+            Object.entries(event.settings).forEach(([key, value]) => {
+              switch (key) {
+                case 'developerMode':
+                  draft[key] = value
+                  break
+                default:
+                  console.warn(`Unknown setting key: ${key}`)
+              }
+            })
+            return draft
+          }),
+        })
+        enqueue.raise({ type: 'SAVE_SETTINGS' })
+      }),
+    },
   },
 
 })

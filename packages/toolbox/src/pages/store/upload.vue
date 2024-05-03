@@ -16,6 +16,7 @@ const sha = ref('')
 const bundles = ref<ReturnType<typeof Bundle>[]>([])
 const store = useStore()
 const files = ref<File[]>([])
+const defaultState = ref('alpha')
 
 watch(files, async () => {
   bundles.value = []
@@ -42,7 +43,7 @@ async function upload() {
   const result = await store.client?.request<{ result: UploadResponse }>(() => {
     return {
       method: 'POST',
-      path: '/bundle/upload',
+      path: `/bundle/upload/${defaultState.value}`,
       body: formData,
       headers: { 'Content-Type': 'multipart/form-data' },
     }
@@ -85,6 +86,36 @@ async function upload() {
       <v-btn @click="upload()">
         Upload
       </v-btn>
+    </template>
+    <template #actions>
+      <v-btn-toggle
+        v-model="defaultState"
+        mandatory
+        divided
+        variant="outlined"
+      >
+        <v-btn
+          value="alpha"
+          prepend-icon="mdi-tag-outline"
+          text="Alpha"
+          color="red"
+          :width="100"
+        />
+        <v-btn
+          value="beta"
+          prepend-icon="mdi-tag-outline"
+          text="Beta"
+          color="orange"
+          :width="100"
+        />
+        <v-btn
+          value="stable"
+          prepend-icon="mdi-tag-outline"
+          text="Stable"
+          color="green"
+          :width="100"
+        />
+      </v-btn-toggle>
     </template>
   </v-card>
 

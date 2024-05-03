@@ -185,7 +185,7 @@ export default defineEndpoint({
       res.json({ items, totalCount })
     }))
 
-    router.post('/upload', (req, _res, next) => {
+    router.post('/upload/:state', (req, _res, next) => {
       const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
       if (typeof accountability?.user !== 'string')
@@ -208,19 +208,41 @@ export default defineEndpoint({
 
       const { settings, userInfo } = await fetchUserContext(adminAccountability, userId)
 
-      if (!settings.public_key_beta || !settings.public_key_stable)
+      if (!settings.private_key_beta || !settings.private_key_stable || !settings.public_key_beta || !settings.public_key_stable)
         throw new InvalidQueryError({ reason: 'The server is missing the system keys, please contact an admin.' })
 
       if (!userInfo.public_key || !userInfo.private_key)
         throw new InvalidQueryError({ reason: 'You must setup your keys in your profil settings before uploading bundles.' })
 
-      const privateKey = hexToBytes(userInfo.private_key)
-
-      // TODO move this check on the update profil hook
-      // const privateKey = hexToBytes(userInfo.public_key)
-      const publicKey = secp256k1.getPublicKey(privateKey)
-      if (bytesToHex(publicKey) !== userInfo.public_key)
+      if (bytesToHex(secp256k1.getPublicKey(hexToBytes(userInfo.private_key))) !== userInfo.public_key)
         throw new InvalidQueryError({ reason: 'Your public key does not match your private key. Please check your user settings' })
+
+      const expectedKeys: [string, string][] = [
+        [userInfo.public_key, userInfo.private_key],
+      ]
+      const unExpectedPublicKeys: string[] = []
+
+      switch (req.params.state) {
+        case undefined:
+        case 'alpha':
+          req.params.state = 'alpha'
+          break
+        case 'beta':
+          expectedKeys.push([settings.public_key_beta, settings.private_key_beta])
+          unExpectedPublicKeys.push(settings.public_key_stable)
+          if (!userInfo.can_sign_with_system_keys)
+            throw new ForbiddenError()
+          break
+
+        case 'stable' :
+          expectedKeys.push([settings.public_key_stable, settings.private_key_stable])
+          unExpectedPublicKeys.push(settings.public_key_beta)
+          if (!userInfo.can_sign_with_system_keys)
+            throw new ForbiddenError()
+          break
+        default:
+          throw new InvalidQueryError({ reason: 'Invalid state' })
+      }
 
       await Promise.all(Object.entries(req.body as BlobsPayload).map(async ([uuid, item]) => {
         try {
@@ -247,12 +269,22 @@ export default defineEndpoint({
           if (!bundle.data.desc.version_deconz)
             throw new InvalidQueryError({ reason: 'The bundle is missing a supported deConz version, please add a "version_deconz" field to the DDF json file.' })
 
-          if (!bundle.data.signatures.some(signature => bytesToHex(signature.key) === userInfo.public_key)) {
-            const signature = createSignature(bundle.data.hash, privateKey)
-            bundle.data.signatures.push({
-              key: publicKey,
-              signature,
-            })
+          expectedKeys.forEach(([publicKey, privateKey]) => {
+            if (!bundle.data.signatures.some(signature => bytesToHex(signature.key) === publicKey)) {
+              const signature = createSignature(bundle.data.hash!, hexToBytes(privateKey))
+              bundle.data.signatures.push({
+                key: hexToBytes(publicKey),
+                signature,
+              })
+              dirty = true
+            }
+          })
+
+          const filtredSignatures = bundle.data.signatures
+            .filter(signature => !unExpectedPublicKeys.includes(bytesToHex(signature.key)))
+
+          if (filtredSignatures.length !== bundle.data.signatures.length) {
+            bundle.data.signatures = filtredSignatures
             dirty = true
           }
 
@@ -263,7 +295,7 @@ export default defineEndpoint({
           if (signatureChecks.includes(false))
             throw new InvalidQueryError({ reason: 'Some signature on the bundle are invalid, please remove them before uploading.' })
 
-          // TODO check for duplicate signatures by key
+          // TODO: check for duplicate signatures by key
 
           const bundleBuffer = await (dirty ? encode(bundle) : blob).arrayBuffer()
           const content = Buffer.from(pako.deflate(bundleBuffer)).toString('base64')

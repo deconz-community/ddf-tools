@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Bundle } from '@deconz-community/ddf-bundler'
 
+import { v4 as uuidv4 } from 'uuid'
+
 const props = defineProps<{
   bundle: ReturnType<typeof Bundle>
 }>()
@@ -30,6 +32,11 @@ const markdownFiles = computed(() => {
     return []
   return bundle.value.data.files.filter(file => objectKeys(markdownFilesTypes).includes(file.type as any))
 })
+
+function generateUUID() {
+  // TODO: Use the store endpoint if the store is online
+  bundle.value.data.desc.uuid = uuidv4()
+}
 </script>
 
 <template>
@@ -37,6 +44,8 @@ const markdownFiles = computed(() => {
     v-model="bundle.data.desc.uuid"
     readonly
     label="UUID"
+    append-icon="mdi-refresh"
+    @click:append="generateUUID()"
   />
 
   <template v-for="devices, manufacturer in supportedDevices" :key="manufacturer">
