@@ -37,7 +37,6 @@
     <script type="module" src="/src/main.ts"></script>
     <script>
       const refreshExecutedTimestamp = localStorage.getItem('refreshExecutedTimestamp');
-      
       if(refreshExecutedTimestamp) {
         const now = new Date().getTime();
         const timeDifference = now - Number(refreshExecutedTimestamp);
@@ -51,8 +50,7 @@
               const src = script.getAttribute('src');
               const isBrowserExtension = browserExtensions.some(extension => src.includes(extension));
               if (isBrowserExtension) return;
-          
-              // Add an 'error' event listener to each script tag
+
               script.addEventListener('error', () => {
                   console.error('Error 404: The script', src, 'could not be loaded. Reloading the page.');
                   localStorage.setItem('refreshExecutedTimestamp', new Date().getTime());
@@ -62,7 +60,6 @@
           });
         }
       }
-      
     </script>
     <noscript>
       This website requires JavaScript to function properly. Please enable
