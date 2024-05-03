@@ -44,25 +44,25 @@
         const timeDifferenceInSeconds = timeDifference / 1000;
         if(timeDifferenceInSeconds < 60) {
           console.log('The page was refreshed less than 60 seconds ago. No further action is required.');
-          return;
+        }else{
+          const scriptsWithSrc = document.querySelectorAll('script[src]');
+          const browserExtensions = ['chrome-extension://', 'moz-extension://'];
+          scriptsWithSrc.forEach(script => {
+              const src = script.getAttribute('src');
+              const isBrowserExtension = browserExtensions.some(extension => src.includes(extension));
+              if (isBrowserExtension) return;
+          
+              // Add an 'error' event listener to each script tag
+              script.addEventListener('error', () => {
+                  console.error('Error 404: The script', src, 'could not be loaded. Reloading the page.');
+                  localStorage.setItem('refreshExecutedTimestamp', new Date().getTime());
+                  location.reload(true);
+              });
+          
+          });
         }
       }
       
-      const scriptsWithSrc = document.querySelectorAll('script[src]');
-      const browserExtensions = ['chrome-extension://', 'moz-extension://'];
-      scriptsWithSrc.forEach(script => {
-          const src = script.getAttribute('src');
-          const isBrowserExtension = browserExtensions.some(extension => src.includes(extension));
-          if (isBrowserExtension) return;
-      
-          // Add an 'error' event listener to each script tag
-          script.addEventListener('error', () => {
-              console.error('Error 404: The script', src, 'could not be loaded. Reloading the page.');
-              localStorage.setItem('refreshExecutedTimestamp', new Date().getTime());
-              location.reload(true);
-          });
-      
-      });
     </script>
     <noscript>
       This website requires JavaScript to function properly. Please enable
