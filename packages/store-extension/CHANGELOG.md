@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.13.0
+
+### Minor Changes
+
+- 89f8df2: Add state param to the upload endpoint
+
 ## 0.12.1
 
 ### Patch Changes
