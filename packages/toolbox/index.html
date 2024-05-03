@@ -7,60 +7,16 @@
     <link rel="apple-touch-icon" href="/pwa-192x192.png">
     <meta name="msapplication-TileColor" content="#00aba9">
     <title>Deconz Toolbox</title>
-    <!-- Start Single Page Apps for GitHub Pages -->
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // MIT License
-      // https://github.com/rafgraph/spa-github-pages
-      // This script checks to see if a redirect is present in the query string,
-      // converts it back into the correct url and adds it to the
-      // browser's history using window.history.replaceState(...),
-      // which won't cause the browser to attempt to load the new url.
-      // When the single page app is loaded further down in this file,
-      // the correct url will be waiting in the browser's history for
-      // the single page app to route accordingly.
-      (function (l) {
-        if (l.search[1] === '/') {
-          const decoded = l.search.slice(1).split('&').map((s) => {
-            return s.replace(/~and~/g, '&')
-          }).join('?')
-          window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash,
-          )
-        }
-      }(window.location))
-    </script>
-    <!-- End Single Page Apps for GitHub Pages -->
   </head>
-  <body >
-    <div id="app"></div>
+  <body>
+    <div id="app">
+      <h1>Deconz Toolbox</h1>
+      <p>
+        If you see this page, it means that you have a browser cache issue.
+        Please clear your browser cache and try again.
+      </p>
+    </div>
     <script type="module" src="/src/main.ts"></script>
-    <script>
-      const refreshExecutedTimestamp = localStorage.getItem('refreshExecutedTimestamp');
-      if(refreshExecutedTimestamp) {
-        const now = new Date().getTime();
-        const timeDifference = now - Number(refreshExecutedTimestamp);
-        const timeDifferenceInSeconds = timeDifference / 1000;
-        if(timeDifferenceInSeconds < 60) {
-          console.log('The page was refreshed less than 60 seconds ago. No further action is required.');
-        }else{
-          const scriptsWithSrc = document.querySelectorAll('script[src]');
-          const browserExtensions = ['chrome-extension://', 'moz-extension://'];
-          scriptsWithSrc.forEach(script => {
-              const src = script.getAttribute('src');
-              const isBrowserExtension = browserExtensions.some(extension => src.includes(extension));
-              if (isBrowserExtension) return;
-
-              script.addEventListener('error', () => {
-                  console.error('Error 404: The script', src, 'could not be loaded. Reloading the page.');
-                  localStorage.setItem('refreshExecutedTimestamp', new Date().getTime());
-                  location.reload(true);
-              });
-          
-          });
-        }
-      }
-    </script>
     <noscript>
       This website requires JavaScript to function properly. Please enable
       JavaScript to continue.
