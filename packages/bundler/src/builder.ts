@@ -194,10 +194,16 @@ export async function buildFromFiles(
     let data = await source.stringData
     if (fileToAdd.patch !== undefined)
       data = fileToAdd.patch(data)
+
+    let last_modified = source.metadata.last_modified
+
+    if (fileToAdd.path === 'generic/constants_min.json')
+      last_modified = (await getSource(ddfPath)).metadata.last_modified
+
     bundle.data.files.push({
       type: fileToAdd.type,
       data,
-      last_modified: source.metadata.last_modified,
+      last_modified,
       path: fileToAdd.path,
     })
   }),
