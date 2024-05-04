@@ -1,5 +1,12 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.13.1
+
+### Patch Changes
+
+- Updated dependencies [6c6537b]
+  - @deconz-community/ddf-bundler@0.21.0
+
 ## 0.13.0
 
 ### Minor Changes
