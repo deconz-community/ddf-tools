@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.21.0
+
+### Minor Changes
+
+- 6c6537b: Use main modified date for constants file
+
 ## 0.20.0
 
 ### Minor Changes
