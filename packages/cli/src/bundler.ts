@@ -7,11 +7,12 @@ import type { Source, ValidationError } from '@deconz-community/ddf-bundler'
 import { buildFromFiles, createSource, encode, sign } from '@deconz-community/ddf-bundler'
 import { hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
-import { ZodError, string } from 'zod'
+import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
 import { createDirectus, rest, staticToken } from '@directus/sdk'
 import { v4 as uuidv4 } from 'uuid'
 import type { PrimaryKey } from '@directus/types'
+import { simpleGit } from 'simple-git'
 
 export function bundlerCommand() {
   program
@@ -23,45 +24,111 @@ export function bundlerCommand() {
     .option('--no-validate', 'Disable validation of the DDF file')
     .option('--private-key <privateKey>', 'Comma seperated list of private key to sign the bundle with')
     .option('--upload', 'Upload the bundle to the store after creating it')
-    .option('--store-url <url>', 'Store URL')
+    .option('--store-url <url>', 'Use a custom store URL instead of the default')
     .option('--store-token <token>', 'Authentication token')
+    .option('--store-bundle-status <status>', 'Status of the bundle (alpha, beta, stable)', 'alpha')
+    .option('--file-modified-method <method>', 'Method to use to get the last modified date of the files (gitlog, mtime, ctime)', 'gitlog')
     .action(async (input, options) => {
       const {
         generic,
         output,
         validate,
         privateKey,
-        upload = false,
+        upload,
         storeUrl,
         storeToken,
+        storeBundleStatus,
+        fileModifiedMethod,
       } = options
 
-      // Validate options
+      // #region Validate options
       if (upload && (!storeUrl || !storeToken)) {
-        console.log('You must provide both --store-url and --store-token when using --upload')
+        console.error('You must provide both --store-url and --store-token when using --upload')
         return
       }
 
       {
         const genericStat = await fs.stat(generic)
         if (!genericStat.isDirectory()) {
-          console.log('generic must be a directory')
+          console.error('generic must be a directory')
           return
         }
       }
 
       if (!upload && !output) {
-        console.log('You must provide either --upload or --output')
+        console.error('You must provide either --upload or --output')
         return
       }
 
       if (output) {
         const outputStat = await fs.stat(output)
         if (!outputStat.isDirectory()) {
-          console.log('output must be a directory')
+          console.error('output must be a directory')
           return
         }
       }
+
+      if (!['alpha', 'beta', 'stable'].includes(storeBundleStatus)) {
+        console.error('store-bundle-status must be either alpha, beta or stable')
+        return
+      }
+      // #endregion
+
+      // #region Utils methods
+      async function findGitDirectory(filePath: string): Promise<string | undefined> {
+        const directoryPath = path.dirname(filePath)
+
+        try {
+          await fs.access(path.join(directoryPath, '.git'))
+          return directoryPath
+        }
+        catch {
+          const parentDirectory = path.dirname(directoryPath)
+          if (parentDirectory === directoryPath)
+            return undefined
+
+          return findGitDirectory(directoryPath)
+        }
+      }
+
+      const getLastModified = async (filePath: string) => {
+        switch (fileModifiedMethod) {
+          case 'gitlog': {
+            const gitDirectory = await findGitDirectory(filePath)
+            if (gitDirectory === undefined) {
+              console.warn(`No .git directory found for ${filePath}. Using mtime instead.`)
+              return (await fs.stat(filePath)).mtime
+            }
+
+            const git = simpleGit(gitDirectory)
+            const log = await git.log({ file: filePath })
+
+            const status = await git.status()
+            if (status.modified.some(file => filePath.endsWith(file))) {
+              console.warn(`File modified since last commit for ${filePath}. Using mtime instead.`)
+              return (await fs.stat(filePath)).mtime
+            }
+
+            const latestCommit = log.latest
+            if (latestCommit === null) {
+              console.warn(`No commit found for ${filePath}. Using mtime instead.`)
+              return (await fs.stat(filePath)).mtime
+            }
+
+            return new Date(latestCommit.date)
+          }
+          case 'mtime': {
+            return (await fs.stat(filePath)).mtime
+          }
+          case 'ctime': {
+            return (await fs.stat(filePath)).atime
+          }
+        }
+
+        return new Date()
+      }
+
+      // #endregion
 
       // Generate input file list
       const inputFiles: string[] = []
@@ -105,8 +172,7 @@ export function bundlerCommand() {
             const data = await fs.readFile(filePath)
             const source = createSource(new Blob([data]), {
               path,
-              // TODO: Implement last modified method with options
-              last_modified: (await fs.stat(filePath)).mtime,
+              last_modified: await getLastModified(filePath),
             })
             sources.set(path, source)
             return source
@@ -218,7 +284,7 @@ export function bundlerCommand() {
           >(() => {
             return {
               method: 'POST',
-              path: '/bundle/upload',
+              path: `/bundle/upload/${storeBundleStatus}`,
               body: formData,
               headers: { 'Content-Type': 'multipart/form-data' },
             }

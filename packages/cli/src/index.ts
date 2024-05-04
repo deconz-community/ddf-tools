@@ -5,6 +5,7 @@ import { createRequire } from 'node:module'
 import { program } from '@commander-js/extra-typings'
 import { validator } from './validator'
 import { bundlerCommand } from './bundler'
+import { bulkCommand } from './bulk'
 
 const packageDefinition = createRequire(import.meta.url)('../package.json')
 
@@ -15,5 +16,6 @@ program
 
 validator()
 bundlerCommand()
+bulkCommand()
 
 program.parse(process.argv)

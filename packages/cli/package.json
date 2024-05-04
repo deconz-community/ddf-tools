@@ -46,7 +46,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "download:test-data": "rm -rf ./test-data && mkdir ./test-data && cd ./test-data && npx degit deconz-community/ddf",
+    "download:test-data": "rm -rf ./test-data && mkdir ./test-data && git clone https://github.com/dresden-elektronik/deconz-rest-plugin.git ./test-data",
     "preview": "vite-node ./src/index.ts"
   },
   "dependencies": {
@@ -60,6 +60,7 @@
     "commander": "^12.0.0",
     "fast-glob": "^3.3.2",
     "ora": "^8.0.1",
+    "simple-git": "^3.24.0",
     "zod": "^3.23.5",
     "zod-validation-error": "^3.2.0"
   },

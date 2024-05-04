@@ -734,12 +734,15 @@ export default defineEndpoint({
 
       const serviceOptions = { schema, knex: context.database, accountability: adminAccountability }
 
+      const uuidCount = req.query.count ?? 1
+
       const UUIDService = new services.ItemsService<Collections.DdfUuids>('ddf_uuids', serviceOptions)
 
       const expire_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7 * 3) // 3 weeks
-      const uuid = await UUIDService.createOne({ expire_at })
 
-      res.json({ uuid, expire_at })
+      const uuid = await UUIDService.createMany(Array.from({ length: Number(uuidCount) }, () => ({ expire_at })))
+
+      res.json({ expire_at, uuid })
     }))
   },
 })
