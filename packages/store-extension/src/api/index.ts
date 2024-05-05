@@ -734,13 +734,16 @@ export default defineEndpoint({
 
       const serviceOptions = { schema, knex: context.database, accountability: adminAccountability }
 
-      const uuidCount = req.query.count ?? 1
+      const uuidCount = Number(req.query.count ?? 1)
+
+      if (uuidCount > 100)
+        throw new InvalidQueryError({ reason: 'You can only generate 100 UUIDs at a time' })
 
       const UUIDService = new services.ItemsService<Collections.DdfUuids>('ddf_uuids', serviceOptions)
 
       const expire_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7 * 3) // 3 weeks
 
-      const uuid = await UUIDService.createMany(Array.from({ length: Number(uuidCount) }, () => ({ expire_at })))
+      const uuid = await UUIDService.createMany(Array.from({ length: uuidCount }, () => ({ expire_at })))
 
       res.json({ expire_at, uuid })
     }))
