@@ -1,5 +1,15 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.14.0
+
+### Minor Changes
+
+- 2a18bf8: Add count query option to generateUUID endpoint
+
+### Patch Changes
+
+- 4856df4: Limit generation UUID count to 100
+
 ## 0.13.1
 
 ### Patch Changes
