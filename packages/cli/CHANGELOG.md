@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.12.0
+
+### Minor Changes
+
+- 4856df4: Add bulk command to add UUIDs to DDF files
+
 ## 1.11.1
 
 ### Patch Changes
