@@ -79,6 +79,20 @@ export const discoveryMachine = setup({
           })
         }
       }))
+
+      toast.success('Scan complete', {
+        description: `Found ${input.discoveryMachine.getSnapshot().context.results.size} gateways.`,
+        id: 'scan-complete-toast',
+        duration: 5000,
+        onAutoClose: () => { },
+        onDismiss: () => { },
+        important: true,
+      })
+    }),
+  },
+  actions: {
+    cleanupResults: assign({
+      results: new Map(),
     }),
   },
 }).createMachine({
@@ -116,7 +130,6 @@ export const discoveryMachine = setup({
 
       on: {
         STOP_SCAN: 'idle',
-
         GATEWAY_FOUND: {
           actions: assign({
             results: ({ context, event }) => produce(context.results, (draft) => {
@@ -133,21 +146,7 @@ export const discoveryMachine = setup({
           }),
         },
       },
-
-      entry: 'cleanupResults',
     },
   },
 
-}).provide({
-  actions: {
-    cleanupResults: assign({
-      results: ({ context }) => produce(context.results, (draft) => {
-        draft.clear()
-      }),
-    }),
-
-    /*
-    saveGatewayResult:
-    */
-  },
 })

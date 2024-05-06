@@ -21,15 +21,6 @@ const version = computed(() =>
   ?? discovery.state?.context.results.get(props.id)?.version,
 )
 
-/*
-const deviceCount = computed(() => gateway.state?.context.devices.size ?? 0)
-
-const devices = computed(() => {
-  const result = Array.from(gateway.state?.context.devices.keys() ?? [])
-  return result
-})
-*/
-
 function addGateway() {
   const credentials = discovery.state?.context.results.get(props.id)
   if (credentials) {
@@ -59,80 +50,101 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-card class="ma-3">
-    <v-card-item>
-      <v-card-title>
-        {{ name }}
-        <v-chip v-if="version" class="ml-2">
-          {{ version }}
-        </v-chip>
-        <v-chip v-if="isNew" class="ml-2" color="info">
-          New
-        </v-chip>
-        <chip-gateway-state v-else :gateway="gateway" class="ml-2" />
-      </v-card-title>
-      <v-card-subtitle>{{ props.id }}</v-card-subtitle>
-      <v-card-text v-if="!isNew">
-        <template v-if="gateway.state!.matches('online')">
-          <v-alert type="success" title="Info">
-            You are connected to the gateway.
-          </v-alert>
-          <!--
+  <v-card class="d-flex flex-column">
+    <v-card-title>
+      {{ name }}
+      <v-chip v-if="version" class="ml-2">
+        {{ version }}
+      </v-chip>
+      <v-chip v-if="isNew" class="ml-2" color="info">
+        New
+      </v-chip>
+      <chip-gateway-state v-else :gateway="gateway" class="ml-2" />
+    </v-card-title>
+    <v-card-subtitle>{{ props.id }}</v-card-subtitle>
+    <v-card-text v-if="!isNew" class="flex-grow-1">
+      <template v-if="gateway.state!.matches('online')">
+        <v-alert type="success" title="Info">
+          You are connected to the gateway.
+        </v-alert>
+        <!--
           <pre>{{ gateway.state?.context.credentials }}</pre>
           <pre>Devices count : {{ deviceCount }}</pre>
           -->
-        </template>
+      </template>
 
-        <template v-if="gateway.state!.matches('connecting')">
-          <v-alert type="info" title="Info">
-            Connecting to the gateway...
+      <template v-if="gateway.state!.matches('connecting')">
+        <v-alert type="info" title="Info">
+          Connecting to the gateway...
+        </v-alert>
+      </template>
+
+      <template v-if="gateway.state!.matches('offline')">
+        <template v-if="gateway.state!.matches({ offline: 'error' })">
+          <v-alert type="error" title="Error while connecting to the gateway">
+            <template v-if="gateway.state!.matches({ offline: { error: 'unreachable' } })">
+              The gateway is unreachable.
+            </template>
+            <template v-else-if="gateway.state!.matches({ offline: { error: 'invalidApiKey' } })">
+              The API key is invalid.
+            </template>
+            <template v-else>
+              Something went wrong.
+            </template>
           </v-alert>
         </template>
 
-        <template v-if="gateway.state!.matches('offline')">
-          <template v-if="gateway.state!.matches({ offline: 'error' })">
-            <v-alert type="error" title="Error while connecting to the gateway">
-              <template v-if="gateway.state!.matches({ offline: { error: 'unreachable' } })">
-                The gateway is unreachable.
-              </template>
-              <template v-else-if="gateway.state!.matches({ offline: { error: 'invalidApiKey' } })">
-                The API key is invalid.
-              </template>
-              <template v-else>
-                Something went wrong.
-              </template>
-            </v-alert>
-          </template>
-
-          <template v-else-if="gateway.state!.matches({ offline: 'disabled' })">
-            <v-alert type="info" title="Info">
-              The gateway is disabled.
-              <v-btn v-if="gateway.state!.can({ type: 'CONNECT' })" @click="gateway.send({ type: 'CONNECT' })">
-                Connect
-              </v-btn>
-            </v-alert>
-          </template>
-
-          <template v-if="gateway.state!.matches({ offline: 'editing' })">
-            <form-gateway-credentials :gateway="gateway" />
-          </template>
+        <template v-else-if="gateway.state!.matches({ offline: 'disabled' })">
+          <v-alert type="info" title="Info">
+            The gateway is disabled.
+            <v-btn v-if="gateway.state!.can({ type: 'CONNECT' })" @click="gateway.send({ type: 'CONNECT' })">
+              Connect
+            </v-btn>
+          </v-alert>
         </template>
-      </v-card-text>
 
-      <v-card-actions v-if="isNew">
-        <v-btn elevation="2" @click="addGateway()">
-          Add
-        </v-btn>
-      </v-card-actions>
-      <v-card-actions v-else>
-        <v-btn elevation="2" @click="removeGateway()">
-          Remove
-        </v-btn>
-        <btn-event elevation="2" :machine="gateway" :event="{ type: 'EDIT_CREDENTIALS' }" />
-        <v-btn elevation="2" :to="`gateway/${props.id}`">
-          Open
-        </v-btn>
-      </v-card-actions>
-    </v-card-item>
+        <template v-if="gateway.state!.matches({ offline: 'editing' })">
+          <form-gateway-credentials :gateway="gateway" />
+        </template>
+      </template>
+    </v-card-text>
+
+    <v-card-text v-else class="flex-grow-1">
+      <v-alert type="info" title="Info">
+        This gateway is not yet added to the system.
+      </v-alert>
+    </v-card-text>
+
+    <v-card-actions v-if="isNew">
+      <v-btn
+        elevation="2"
+        color="success"
+        variant="flat"
+        append-icon="mdi-plus"
+        @click="addGateway()"
+      >
+        Add
+      </v-btn>
+    </v-card-actions>
+    <v-card-actions v-else>
+      <v-btn
+        elevation="2"
+        append-icon="mdi-delete"
+        color="error"
+        variant="flat"
+        @click="removeGateway()"
+      >
+        Remove
+      </v-btn>
+      <btn-event
+        elevation="2"
+        append-icon="mdi-pencil"
+        :machine="gateway"
+        :event="{ type: 'EDIT_CREDENTIALS' }"
+        label="Edit credentials"
+        color="secondary"
+        variant="flat"
+      />
+    </v-card-actions>
   </v-card>
 </template>
