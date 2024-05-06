@@ -2,6 +2,7 @@ import type { RestCommand } from '@directus/sdk'
 import type { UseAsyncStateOptions } from '@vueuse/core'
 import type { MaybeRef, UnwrapNestedRefs } from 'vue'
 
+import { customEndpoint } from '@directus/sdk'
 import type { UseAppMachine } from './useAppMachine'
 import type { Collections, Schema } from '~/interfaces/store'
 
@@ -14,9 +15,50 @@ export type RequestOptions<Output extends object | unknown> = {
 
 export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar' | 'date_created' | 'public_key'>
 
+export type BundleSignatureState = 'alpha' | 'beta' | 'stable'
+
+export function storeSignBundle(bundleId: string, state: BundleSignatureState = 'alpha') {
+  return customEndpoint<{
+    success: boolean
+    type: 'system'
+    state: BundleSignatureState
+  }>({
+    method: 'POST',
+    path: `/bundle/sign/${bundleId}`,
+    params: {
+      type: 'system',
+      state,
+    },
+  })
+}
+
+export type BundleDeprecateParams = {
+  ddf_uuid: string
+  message?: string
+} & (
+  {
+    type: 'bundle'
+  } | {
+    type: 'version'
+    bundle_id: string
+  }
+)
+
+export function storeDeprecateBundle(params: BundleDeprecateParams) {
+  return customEndpoint<{
+    success: boolean
+  }>({
+    method: 'POST',
+    path: `/bundle/deprecate`,
+    params: {
+      ...params,
+      message: params.message ?? 'null',
+    },
+  })
+}
+
 export function useStore() {
-  const machines = createUseAppMachine()
-  const store = machines.use('store')
+  const store = useAppMachine('store')
   const client = computed(() => store.state?.context.directus)
   const profile = computed(() => store.state?.context.profile)
 

@@ -3,6 +3,7 @@ import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { useConfirm } from 'vuetify-use-dialog'
 import { VTextarea } from 'vuetify/components'
+import type { BundleDeprecateParams, BundleSignatureState } from '~/composables/useStore'
 import { listBundles, readBundles, readDdfUuids } from '~/interfaces/store'
 import { toastError } from '~/lib/handleError'
 
@@ -10,12 +11,14 @@ const props = defineProps<{
   bundle: string
 }>()
 
+const app = useAppMachine('app')
 const store = useStore()
 const createConfirm = useConfirm()
 
 const activeTab = useRouteQuery('activeTab', 'readme')
 
 const isReady = computed(() => store.state?.matches('online') === true)
+const isDev = computed(() => app.state?.context.settings?.developerMode)
 
 const bundle = store.request(computed(() => readBundles(props.bundle, {
   fields: [
@@ -124,20 +127,21 @@ const settingsProps = computed(() => {
     },
   } as const
 
-  let state: keyof typeof settingsMap = 'alpha'
+  if (bundle.state.value.signatures === null)
+    return settingsMap.alpha
 
   if (bundle.state.value.signatures.some(s => s.key === settings.public_key_beta))
-    state = 'beta'
+    return settingsMap.beta
 
   if (bundle.state.value.signatures.some(s => s.key === settings.public_key_stable))
-    state = 'stable'
+    return settingsMap.stable
 
-  return settingsMap[state]
+  return settingsMap.alpha
 })
 
-const newState = ref('alpha')
+const newState = ref<BundleSignatureState>('alpha')
 watch(settingsProps, () => {
-  newState.value = settingsProps.value?.state.toLocaleLowerCase() ?? 'alpha'
+  newState.value = settingsProps.value?.state.toLocaleLowerCase() as BundleSignatureState ?? 'alpha'
 })
 const updatingState = ref(false)
 async function updateState() {
@@ -153,20 +157,18 @@ async function updateState() {
   updatingState.value = true
 
   try {
-    const result = await store.client?.request<{
-      success: boolean
-      type: 'system'
-      state: 'alpha' | 'beta' | 'stable'
-    }>(() => ({
-      method: 'POST',
-      path: `/bundle/sign/${bundle.state.value?.id}`,
-      params: {
-        type: 'system',
-        state: newState.value.toLocaleLowerCase(),
-      },
-    }))
-    if (result && result.success)
+    const bundleID = bundle.state.value?.id
+    if (!bundleID)
+      throw new Error('No bundle ID')
+
+    const result = await store.client?.request(
+      storeSignBundle(bundleID, newState.value.toLocaleLowerCase() as BundleSignatureState),
+    )
+
+    if (result && result.success) {
       await bundle.execute()
+      toast.success(`Bundle state updated to ${newState.value}`)
+    }
   }
   catch (error) {
     toastError(error)
@@ -230,36 +232,31 @@ async function deprecate(type: 'bundle' | 'version') {
 
   for (const rule of rules) {
     const result = rule(input.value)
-    if (typeof result === 'string') {
-      return toast(`Error while deprecating this ${type}.`, {
-        description: result,
-        duration: 5000,
-        cardProps: {
-          color: 'error',
-        },
-      })
-    }
+    if (typeof result === 'string')
+      return toast.error(`Error while deprecating this ${type}.`)
   }
 
   try {
-    const params: Record<string, any> = {
-      type,
-      message: input.value,
-      ddf_uuid: bundle.state.value?.ddf_uuid,
-    }
+    if (bundle.state.value === null)
+      throw new Error('No bundle')
 
-    if (type === 'version')
-      params.bundle_id = bundle.state.value?.id
+    const ddf_uuid = bundle.state.value.ddf_uuid as string
+    const bundle_id = bundle.state.value.id
 
-    const result = await store.client?.request<{
-      success: boolean
-      type: 'system'
-      state: 'alpha' | 'beta' | 'stable'
-    }>(() => ({
-      method: 'POST',
-      path: `/bundle/deprecate`,
-      params,
-    }))
+    const params: BundleDeprecateParams = type === 'bundle'
+      ? {
+          type: 'bundle',
+          message: input.value,
+          ddf_uuid,
+        }
+      : {
+          type: 'version',
+          message: input.value,
+          ddf_uuid,
+          bundle_id,
+        }
+
+    const result = await store.client?.request(storeDeprecateBundle(params))
     if (result && result.success) {
       await bundle.execute()
       toast.success(`Deprecation message updated`)
@@ -272,24 +269,26 @@ async function deprecate(type: 'bundle' | 'version') {
 
 async function reinstate(type: 'bundle' | 'version') {
   try {
-    const params: Record<string, any> = {
-      type,
-      message: 'null',
-      ddf_uuid: bundle.state.value?.ddf_uuid,
-    }
+    if (bundle.state.value === null)
+      throw new Error('No bundle')
 
-    if (type === 'version')
-      params.bundle_id = bundle.state.value?.id
+    const ddf_uuid = bundle.state.value.ddf_uuid as string
+    const bundle_id = bundle.state.value.id
 
-    const result = await store.client?.request<{
-      success: boolean
-      type: 'system'
-      state: 'alpha' | 'beta' | 'stable'
-    }>(() => ({
-      method: 'POST',
-      path: `/bundle/deprecate`,
-      params,
-    }))
+    const params: BundleDeprecateParams = type === 'bundle'
+      ? {
+          type: 'bundle',
+          message: 'null',
+          ddf_uuid,
+        }
+      : {
+          type: 'version',
+          message: 'null',
+          ddf_uuid,
+          bundle_id,
+        }
+
+    const result = await store.client?.request(storeDeprecateBundle(params))
     if (result && result.success) {
       await bundle.execute()
       toast.success(`Deprecation message updated`)
@@ -326,7 +325,7 @@ async function reinstate(type: 'bundle' | 'version') {
         <v-tab value="readme">
           Readme
         </v-tab>
-        <v-tab value="code">
+        <v-tab v-if="isDev" value="code">
           Code
         </v-tab>
         <v-tab value="versions">
@@ -538,6 +537,7 @@ async function reinstate(type: 'bundle' | 'version') {
 
         <v-sheet class="ma-2 pa-2" width="30%">
           <v-btn
+            v-if="isDev"
             block
             color="primary"
             prepend-icon="mdi-download"
@@ -584,7 +584,12 @@ async function reinstate(type: 'bundle' | 'version') {
               <chip-signatures :signatures="bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>
           </v-list>
-          <v-btn color="red" prepend-icon="mdi-flag" class="w-100">
+          <v-btn
+            v-if="isDev"
+            color="red"
+            prepend-icon="mdi-flag"
+            class="w-100"
+          >
             Report (TODO)
           </v-btn>
         </v-sheet>
@@ -594,10 +599,10 @@ async function reinstate(type: 'bundle' | 'version') {
 </template>
 
 <route lang="json">
-  {
-    "meta": {
-      "breadcrumbs": "none",
-      "hideLevelTwoSidebar": true
-    }
+{
+  "meta": {
+    "breadcrumbs": "none",
+    "hideLevelTwoSidebar": true
   }
-  </route>
+}
+</route>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const store = useStore()
-const app = createUseAppMachine().use('app')
+// const store = useStore()
 
 function send() {
   // app.send({ type: 'NOTIFICATION', text: 'sample text' })

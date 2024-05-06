@@ -62,6 +62,15 @@ export function createUseAppMachine() {
   return { use }
 }
 
+export function useAppMachine<Type extends AppMachine['type']>(
+  ...args: MachineQuery<Type> extends never
+    ? [type: Type]
+    : [type: Type, query: MaybeRef<MachineQuery<Type>>]
+): UseAppMachine<Type> {
+  const { use } = createUseAppMachine()
+  return use(...args)
+}
+
 function getMachine<Type extends AppMachine['type']>(
   machineTree: Ref<MachineTree>,
   type: Type,

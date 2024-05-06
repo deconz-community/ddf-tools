@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 
+const app = useAppMachine('app')
 const store = useStore()
-const machines = createUseAppMachine()
-const app = machines.use('app')
-
 const storeUrl = useRouteQuery('storeUrl', '')
 
 if (storeUrl.value)
