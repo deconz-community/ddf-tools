@@ -1,6 +1,6 @@
 import { makeEndpoint } from '@zodios/core'
 import { globalParameters } from '../parameters'
-import { lightsSchema } from '../schemas/lightSchema'
+import { lightSchema, lightsSchema } from '../schemas/lightSchema'
 import { prepareResponse } from '../utils'
 
 export const lightsEndpoints = [
@@ -34,8 +34,10 @@ export const lightsEndpoints = [
     ],
   }),
 
+  */
+
   makeEndpoint({
-    alias: 'updatelight',
+    alias: 'updateLight',
     description: 'Sets attributes of a light which are not related to its state.',
     method: 'put',
     path: '/api/:apiKey/lights/:lightId',
@@ -51,17 +53,18 @@ export const lightsEndpoints = [
         name: 'body',
         type: 'Body',
         schema: lightSchema.pick({
-          class: true,
+          // class: true,
           name: true,
-          hidden: true,
-          lights: true,
-          lightsequence: true,
-          multideviceids: true,
+        // hidden: true,
+        // lights: true,
+        // lightsequence: true,
+        // multideviceids: true,
         }),
       },
     ],
   }),
 
+  /*
   makeEndpoint({
     alias: 'updatelightState',
     description: 'Sets the state of a light.',

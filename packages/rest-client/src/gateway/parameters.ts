@@ -21,6 +21,13 @@ export const globalParameters = makeParametersObject({
     type: 'Path',
     schema: z.number().or(z.string()).default(10),
   },
+  lightId: {
+    name: 'lightId',
+    description: 'Light ID',
+    type: 'Path',
+    schema: z.number().or(z.string()).default(10),
+  },
+
   alarmSystemId: {
     name: 'alarmSystemId',
     description: 'Alarm system ID',
@@ -36,7 +43,7 @@ export const globalParameters = makeParametersObject({
 })
 
 const IDRegex = /\d+/
-const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-\d{2}-\d{4}/
+const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
 const IDorUniqueIDRegex = new RegExp(`((${IDRegex.source})|(${uniqueIDRegex.source}))`)
 
 export const globalParametersRegex = {

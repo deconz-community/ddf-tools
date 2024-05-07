@@ -10,8 +10,8 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit
 export function websocketSchema() {
   const firstProcess = z.object({
     t: z.literal('event'),
-    e: z.enum(['added', 'changed', 'deleted']),
-    r: z.enum(['sensors', 'lights', 'groups']).optional(),
+    e: z.enum(['scene-called', 'added', 'changed', 'deleted']),
+    r: z.enum(['alarmsystems', 'scenes', 'sensors', 'lights', 'groups']).optional(),
   }).passthrough()
 
   const initialSchema = z.preprocess((data) => {

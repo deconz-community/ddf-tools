@@ -13,12 +13,21 @@ const { cloned: deviceName, sync: syncName } = useCloned(() => device.state?.con
 async function updateDeviceName() {
   const client = device.state?.context.gatewayClient
   const deviceId = device.state?.context.data?.subdevices[0].uniqueid
-  if (!client || !deviceId)
-    return
+  const deviceType = device.state?.context.data?.subdevices[0].type
+  if (!client || !deviceId || !deviceType)
+    return toastError('Device not found')
 
   try {
-    const result = await client.updateSensor({ name: deviceName.value }, { params: { sensorId: deviceId } })
-    toast.success('Device name updated', { description: result.success?.name })
+    console.log(deviceType)
+    if (['Color temperature light'].includes(deviceType)) {
+      console.log('updateLight')
+      const result = await client.updateLight({ name: deviceName.value }, { params: { lightId: deviceId } })
+      toast.success('Device name updated', { description: result.success?.name })
+    }
+    else {
+      const result = await client.updateSensor({ name: deviceName.value }, { params: { sensorId: deviceId } })
+      toast.success('Device name updated', { description: result.success?.name })
+    }
   }
   catch (error) {
     toastError(error)

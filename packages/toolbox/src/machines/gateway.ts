@@ -61,7 +61,7 @@ export const gatewayMachine = setup({
       gatewayID: string
       uri: string
       gateway: ActorRef<any, any>
-    }>(({ sendBack, input }) => {
+    }>(({ sendBack, input, system }) => {
       const scope = effectScope(true)
       const schema = websocketSchema()
 
@@ -83,21 +83,23 @@ export const gatewayMachine = setup({
           const raw = JSON.parse(data)
 
           const message = schema.safeParse(raw)
-          console.log(message)
+
           if (!message.success) {
-            toast.error('Cant parse websocket message', {
-              duration: 3000,
-              id: '',
-              onAutoClose: () => {},
-              onDismiss: () => {},
-              important: false,
-            })
+            if (system.get('app')?.getSnapshot()?.context?.settings?.developerMode) {
+              toast.error('Cant parse websocket message', {
+                duration: 3000,
+                id: '',
+                onAutoClose: () => {},
+                onDismiss: () => {},
+                important: false,
+              })
+            }
             return console.error('Cant parse websocket message', raw, message.error)
           }
 
           if (message.data.e === 'added') {
             sendBack({ type: 'REFRESH_DEVICES' })
-            const description = message.data.sensor?.name ?? 'Unknown device'
+            const description = message.data.sensor?.name ?? message.data.light?.name ?? 'Unknown device'
             toast.info('Device added', {
               duration: 3000,
               onAutoClose: () => {},

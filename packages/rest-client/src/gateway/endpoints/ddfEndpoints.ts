@@ -7,6 +7,24 @@ import { ddfdDescriptorSchema } from '../schemas/ddfSchema'
 export const ddfEndpoints = [
 
   makeEndpoint({
+    alias: 'getDDFBundle',
+    description: 'Get DDF bundle file',
+    method: 'get',
+    path: '/api/:apiKey/ddf/bundles/:hash',
+    response: prepareResponse(z.instanceof(Blob)),
+    reponseFormat: 'blob',
+    parameters: [
+      globalParameters.apiKey,
+      {
+        name: 'hash',
+        description: 'The hash of the bundle to get',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+  }),
+
+  makeEndpoint({
     alias: 'getDDFBundleDescriptors',
     description: 'Get all DDF bundle descriptors',
     method: 'get',
@@ -40,13 +58,14 @@ export const ddfEndpoints = [
     ],
   }),
 
+  /*
+  // This endpoint is not implemented in the backend
   makeEndpoint({
-    alias: 'getDDFBundle',
-    description: 'Get DDF bundle file',
+    alias: 'getDDFBundleDescriptor',
+    description: 'Get DDF bundle descriptor',
     method: 'get',
-    path: '/api/:apiKey/ddf/bundles/:hash',
-    response: prepareResponse(z.instanceof(Blob)),
-    reponseFormat: 'blob',
+    path: '/api/:apiKey/ddf/descriptors/:hash',
+    response: z.never(),
     parameters: [
       globalParameters.apiKey,
       {
@@ -57,6 +76,7 @@ export const ddfEndpoints = [
       },
     ],
   }),
+  */
 
   makeEndpoint({
     alias: 'uploadDDFBundle',
