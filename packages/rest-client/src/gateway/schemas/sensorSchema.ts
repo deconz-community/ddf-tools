@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+const deconzDate = z.string().transform(result => new Date(result)).or(z.null())
+
 export const sensorSchema = z.object({
   name: z.string()
     .describe('The name of the sensor.'),
@@ -9,9 +11,13 @@ export const sensorSchema = z.object({
     .describe('The manufacturer name of the sensor.'),
   modelid: z.string().optional()
     .describe('The model id of the sensor.'),
-  config: z.object({}).passthrough().default({})
+  config: z.record(z.string(), z.unknown()).default({})
     .describe('The config of the sensor. Refer to Change sensor config for further details.'),
-  state: z.object({}).passthrough().default({})
+  state: z.object({
+    buttonevent: z.number().optional()
+      .describe('The button event of the sensor. Only available for dresden elektronik Scene Switch and dresden elektronik Wireless Light Switch.'),
+    lastupdated: deconzDate.optional(),
+  }).passthrough().default({})
     .describe('The state of the sensor. Refer to Change sensor state for further details.'),
   mode: z.number().optional()
     .describe('The mode of the sensor. 1 = Scenes mode 2 = Two groups mode 3 = Color temperature mode (only available for dresden elektronik Lighting Switch)'),
@@ -21,7 +27,9 @@ export const sensorSchema = z.object({
     .describe('The unique identifiers including the MAC address of the sensor.'),
   ep: z.number().optional()
     .describe('The Endpoint of the sensor.'),
-  lastseen: z.string().transform(result => new Date(result)).optional()
+  lastannounced: deconzDate.optional()
+    .describe('Timestamp representing the last time a message from the sensor was received. UTC with resolution of minutes.'),
+  lastseen: deconzDate.optional()
     .describe('Timestamp representing the last time a message from the sensor was received. UTC with resolution of minutes.'),
   swversion: z.string().optional()
     .describe('The software version of the sensor.'),

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // const store = useStore()
 
-function send() {
-  // app.send({ type: 'NOTIFICATION', text: 'sample text' })
+function test() {
   toast('sample text')
 }
 </script>
@@ -18,7 +17,7 @@ function send() {
       <pre>{{ store.state?.value }}</pre>
       <pre>{{ settings.state }}</pre>
       -->
-      <v-btn @click="send()">
+      <v-btn @click="test()">
         Test
       </v-btn>
     </template>

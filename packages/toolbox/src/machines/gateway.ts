@@ -81,9 +81,35 @@ export const gatewayMachine = setup({
             return
 
           const raw = JSON.parse(data)
+
           const message = schema.safeParse(raw)
-          if (!message.success)
+          console.log(message)
+          if (!message.success) {
+            toast.error('Cant parse websocket message', {
+              duration: 3000,
+              id: '',
+              onAutoClose: () => {},
+              onDismiss: () => {},
+              important: false,
+            })
             return console.error('Cant parse websocket message', raw, message.error)
+          }
+
+          if (message.data.e === 'added') {
+            sendBack({ type: 'REFRESH_DEVICES' })
+            const description = message.data.sensor?.name ?? 'Unknown device'
+            toast.info('Device added', {
+              duration: 3000,
+              onAutoClose: () => {},
+              onDismiss: () => {},
+              id: '',
+              important: false,
+              description: description as string,
+            })
+          }
+          else if (message.data.e === 'deleted') {
+            sendBack({ type: 'REFRESH_DEVICES' })
+          }
 
           const { uniqueid } = message.data
 

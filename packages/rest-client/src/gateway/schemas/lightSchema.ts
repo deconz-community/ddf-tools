@@ -28,7 +28,7 @@ export const lightSchema = z.object({
 
   uniqueid: z.string()
     .describe('The unique id of the light. It consists of the MAC address of the light '
-  + 'followed by a dash and an unique endpoint identifier in the range 01 to FF.'),
+    + 'followed by a dash and an unique endpoint identifier in the range 01 to FF.'),
 
   // OLD Ligne 289
 
@@ -38,7 +38,7 @@ export const lightSchema = z.object({
   modelid: z.string()
     .describe('An identifier unique to the product.'),
 
-  colorcapabilities: z.array(z.unknown()).optional()
+  colorcapabilities: z.array(z.unknown()).or(z.number()).optional()
     .describe('The color capabilities as reported by the light.'),
 
   capabilities: z.strictObject({
@@ -48,7 +48,7 @@ export const lightSchema = z.object({
         max: z.number(),
         min: z.number(),
       }),
-      effects: z.array(z.string()),
+      effects: z.array(z.string()).optional(),
       modes: z.array(z.enum([
         'gradient',
         'effect',
@@ -64,11 +64,11 @@ export const lightSchema = z.object({
     .describe('The minimum mired color temperature value a device supports.'),
   ctmax: z.number().optional()
     .describe('The maximum mired color temperature value a device supports.'),
-  hascolor: z.boolean()
+  hascolor: z.boolean().optional()
     .describe('Indicates if the light can change color. '
     + 'Deprecated - use state instead: if light has no color colormode, hue and xy will not be shown.'),
 
-  swversion: z.string().describe('Firmware version.'),
+  swversion: z.string().or(z.null()).describe('Firmware version.'),
 
   etag: z.string(),
 
