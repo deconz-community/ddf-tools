@@ -146,8 +146,8 @@ export function websocketSchema() {
     z.object({
       eventSchema: z.literal('/event/changed/sensors/config'),
       t: z.literal('event'),
-      r: z.literal('sensors'),
       e: z.literal('changed'),
+      r: z.literal('sensors'),
       id: z.string(),
       uniqueid: z.string(),
       config: sensorSchema.shape.config,
@@ -155,9 +155,10 @@ export function websocketSchema() {
 
     // Sensor deleted
     z.object({
-      eventSchema: z.literal('/event/deleted'),
+      eventSchema: z.literal('/event/sensors/deleted'),
       t: z.literal('event'),
       e: z.literal('deleted'),
+      r: z.literal('sensors'),
       id: z.string(),
     }),
     // #endregion
