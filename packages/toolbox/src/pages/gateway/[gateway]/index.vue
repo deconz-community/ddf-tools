@@ -15,35 +15,6 @@ const permitJoin = computed(() => config.value.permitjoin)
 const drawer = ref(false)
 onMounted(() => setTimeout(() => drawer.value = true, 0))
 
-const editName = useDialogAction(() => {
-  if (!gateway.value || !config.value)
-    return
-
-  const { parameters } = gateway.value.api.find(e => e.alias === 'updateConfig') as { parameters: { name: string, schema: ZodObject<any> }[] }
-  const schema = parameters.find(p => p.name === 'body')?.schema?.shape.name
-  const currentName = config.value.name
-  return {
-    title: 'Update gateway name',
-    contentComponentProps: {
-      label: 'Name',
-      placeholder: currentName,
-    },
-    defaultValue: currentName,
-    confirmationText: 'Save',
-    schema,
-    onSubmit: async (value) => {
-      if (value === currentName)
-        return
-
-      await gateway.value?.updateConfig({
-        name: value,
-      })
-
-      gatewayMachine.send({ type: 'REFRESH_CONFIG' })
-    },
-  }
-})
-
 async function openGateway() {
   if (!gateway.value)
     return
@@ -86,7 +57,6 @@ async function getResult() {
   <v-card v-if="config" class="ma-2">
     <template #title>
       {{ config.name }}
-      <v-btn icon="mdi-pencil" density="comfortable" @click="editName()" />
       <v-btn icon="mdi-refresh" density="comfortable" @click="gatewayMachine.send({ type: 'REFRESH_CONFIG' })" />
     </template>
     <template #subtitle>
