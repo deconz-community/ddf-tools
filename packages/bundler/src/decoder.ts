@@ -104,7 +104,9 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                   case 'EXTF' : {
                     const type = reader.tag()
                     const path = reader.text(reader.Uint16())
-                    const last_modified = new Date(reader.text(reader.Uint16()))
+
+                    const dateLength = reader.Uint16()
+                    const last_modified = dateLength > 0 ? new Date(reader.text(dateLength)) : undefined
                     if (isTextFileType(type)) {
                       const data = reader.text(reader.Uint32())
                       bundle.data.files.push({
