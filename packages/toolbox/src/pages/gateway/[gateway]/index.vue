@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { ZodObject } from 'zod'
-
 const props = defineProps<{
   gateway: string
 }>()
