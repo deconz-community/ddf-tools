@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-validator",
   "type": "module",
   "version": "2.28.0",
-  "packageManager": "pnpm@9.0.6",
+  "packageManager": "pnpm@9.1.0",
   "description": "Validating DDF files for deconz",
   "author": {
     "name": "Zehir",
@@ -66,27 +66,27 @@
     "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
   },
   "dependencies": {
-    "zod": "^3.23.5"
+    "zod": "^3.23.7"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.6",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.11",
     "@types/pako": "^2.0.3",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "degit": "^2.8.4",
-    "eslint": "^9.1.1",
+    "eslint": "^9.2.0",
     "fast-glob": "^3.3.2",
     "lint-staged": "^15.2.2",
     "rimraf": "^5.0.5",
-    "stylelint": "^16.4.0",
+    "stylelint": "^16.5.0",
     "stylelint-config-recommended": "^14.0.0",
     "stylelint-config-sass-guidelines": "^11.1.0",
-    "taze": "^0.13.7",
+    "taze": "^0.13.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
-    "vite": "^5.2.10",
-    "vitest": "^1.5.3",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0",
     "zod-to-json-schema": "^3.23.0",
     "zod-to-ts": "^1.2.0",
     "zod-validation-error": "^3.2.0"

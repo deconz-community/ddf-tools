@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
-    "@directus/errors": "^0.2.4",
+    "@directus/errors": "^0.3.0",
     "@noble/hashes": "^1.4.0",
     "@octokit/core": "^6.1.2",
     "@sindresorhus/slugify": "^2.2.1",
@@ -40,11 +40,11 @@
     "pako": "^2.1.0"
   },
   "devDependencies": {
-    "@directus/api": "^19.0.2",
-    "@directus/extensions-sdk": "11.0.3",
-    "@directus/types": "^11.1.0",
-    "@types/busboy": "^1.5.3",
-    "@types/node": "^20.12.7",
+    "@directus/api": "^19.1.0",
+    "@directus/extensions-sdk": "11.0.4",
+    "@directus/types": "^11.1.1",
+    "@types/busboy": "^1.5.4",
+    "@types/node": "^20.12.11",
     "express": "^4.19.2",
     "typescript": "^5.4.5"
   }
