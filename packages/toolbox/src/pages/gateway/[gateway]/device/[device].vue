@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toastError } from '~/lib/handleError'
+import type { BundleDescriptor } from '~/types/bundle'
 
 const props = defineProps<{
   gateway: string
@@ -7,6 +8,7 @@ const props = defineProps<{
 }>()
 
 const machines = createUseAppMachine()
+const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
 const device = machines.use('device', computed(() => ({ gateway: props.gateway, id: props.device })))
 const { cloned: deviceName, sync: syncName } = useCloned(() => device.state?.context.data?.name ?? '')
 
@@ -33,8 +35,30 @@ async function updateDeviceName() {
     toastError(error)
   }
 
+  // http://localhost:4000/ddf-tools/#/store/search?model=SOMRIG+shortcut+button&showNonStable=false&manufacturer=IKEA+of+Sweden
   // syncName()
 }
+
+const avaliableBundles = computed(() => {
+  const bundles = gateway.state?.context.bundles
+  const manufacturername = device.state?.context.data?.manufacturername
+  const modelid = device.state?.context.data?.modelid
+
+  if (!bundles || !manufacturername || !modelid)
+    return []
+
+  const avaliableBundles: BundleDescriptor & { hash: string } = []
+
+  bundles.forEach((bundle, hash) => {
+    if (bundle.device_identifiers.some((deviceIdentifier) => {
+      return deviceIdentifier[0] === manufacturername
+        && deviceIdentifier[1] === modelid
+    }))
+      avaliableBundles.push({ hash, ...bundle })
+  })
+
+  return avaliableBundles
+})
 </script>
 
 <template>
@@ -43,6 +67,18 @@ async function updateDeviceName() {
       {{ device.state.context.data.name }}
       <v-btn :disabled="device.state.matches('fetching') === true" @click="device.send({ type: 'REFRESH' })">
         REFRESH
+      </v-btn>
+      <v-btn
+        :to="{
+          path: '/store/search',
+          query: {
+            showStableOnly: 'false',
+            model: device.state.context.data.modelid,
+            manufacturer: device.state.context.data.manufacturername,
+          },
+        }"
+      >
+        Store
       </v-btn>
     </v-card-title>
     <v-card-subtitle>
@@ -56,6 +92,11 @@ async function updateDeviceName() {
         @click:append="updateDeviceName"
       />
 
+      avaliableBundles: {{ avaliableBundles }}
+
+      <v-btn @click="gateway.send({ type: 'REFRESH_BUNDLES' })">
+        Refresh Bundles
+      </v-btn>
       <v-sheet elevation="10">
         <pre>{{ device.state.context.data }}</pre>
       </v-sheet>

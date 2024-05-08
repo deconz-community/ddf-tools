@@ -9,7 +9,7 @@ const page = useRouteQuery('page', '1', { transform: Number })
 const product = useRouteQuery('product', '')
 const manufacturer = useRouteQuery('manufacturer', '')
 const model = useRouteQuery('model', '')
-const stableOnly = useRouteQuery('showNonStable', 'true', { transform: (v: string) => v === 'true' })
+const stableOnly = useRouteQuery('showStableOnly', 'true', { transform: (v: string) => v === 'true' })
 const showDeprecated = useRouteQuery('showDeprecated', 'false', { transform: (v: string) => v === 'true' })
 const itemsPerPage = ref(5)
 
