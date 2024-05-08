@@ -1,8 +1,8 @@
-import pako from 'pako'
 import { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 import { getHash } from './signer'
-import { isBinaryFileType, isTextFileType } from './utils'
+import { isTextFileType } from './utils'
+// import { isBinaryFileType} from './utils'
 
 export async function dataDecoder(file: File | Blob) {
   const view = new DataView(await file.arrayBuffer())
@@ -14,11 +14,8 @@ export async function dataDecoder(file: File | Blob) {
       return new Uint8Array(view.buffer.slice(currentOffset - size, currentOffset))
     }
 
-    const text = (size = 4, decompress = false) => {
-      let data = read(size)
-      if (decompress === true)
-        data = pako.inflate(data)
-      return textDecoder.decode(data)
+    const text = (size = 4) => {
+      return textDecoder.decode(read(size))
     }
 
     const Uint16 = () => {
@@ -96,11 +93,12 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                     bundle.data.desc = JSON.parse(reader.text(size))
                     if (bundle.data.desc.last_modified)
                       bundle.data.desc.last_modified = new Date(bundle.data.desc.last_modified)
+                    if (bundle.data.desc.ddfc_last_modified)
+                      bundle.data.desc.ddfc_last_modified = new Date(bundle.data.desc.ddfc_last_modified)
                     break
                   }
                   case 'DDFC' : {
-                    // TODO : check if it's compressed
-                    bundle.data.ddfc = reader.text(size, false)
+                    bundle.data.ddfc = reader.text(size)
                     break
                   }
                   case 'EXTF' : {
@@ -108,14 +106,15 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                     const path = reader.text(reader.Uint16())
                     const last_modified = new Date(reader.text(reader.Uint16()))
                     if (isTextFileType(type)) {
+                      const data = reader.text(reader.Uint32())
                       bundle.data.files.push({
                         type,
                         path,
                         last_modified,
-                        // TODO : check if it's compressed
-                        data: reader.text(reader.Uint32(), false),
+                        data,
                       })
                     }
+                    /*
                     else if (isBinaryFileType(type)) {
                       bundle.data.files.push({
                         type,
@@ -124,6 +123,7 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                         data: new Blob([reader.read(reader.Uint32())]),
                       })
                     }
+                    */
                     else {
                       throw new Error(`Unknown file type :${type}`)
                     }
@@ -131,7 +131,7 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                   }
                   case 'VALI' : {
                     // TODO : check if it's compressed
-                    bundle.data.validation = JSON.parse(reader.text(size, false))
+                    bundle.data.validation = JSON.parse(reader.text(size))
                     break
                   }
                 }

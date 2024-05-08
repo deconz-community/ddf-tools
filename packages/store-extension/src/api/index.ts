@@ -256,7 +256,7 @@ export default defineEndpoint({
 
           // Regenerate the desc to make sure that it matches the content
           const oldHash = bytesToHex(bundle.data.hash)
-          bundle.generateDESC(true)
+          bundle.generateDESC()
           bundle.data.hash = await generateHash(bundle.data)
           const hash = bytesToHex(bundle.data.hash)
 

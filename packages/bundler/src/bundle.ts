@@ -8,8 +8,9 @@ export function Bundle() {
     desc: {
       uuid: '',
       product: 'Unknown device',
-      version_deconz: '>2.23.1',
-      last_modified: new Date(),
+      version_deconz: '>2.27.0',
+      last_modified: new Date(0),
+      ddfc_last_modified: new Date(0),
       device_identifiers: [],
     },
     ddfc: '{}',
@@ -17,10 +18,19 @@ export function Bundle() {
     signatures: [],
   }
 
-  const generateDESC = (preserveDate = false) => {
+  const generateDESC = () => {
     const ddfc = JSON.parse(data.ddfc)
-    if (preserveDate === false)
-      data.desc.last_modified = new Date()
+
+    data.desc.last_modified = data.desc.ddfc_last_modified
+
+    data.files.forEach((file) => {
+      if (!file.last_modified)
+        return
+
+      if (file.last_modified > data.desc.last_modified)
+        data.desc.last_modified = file.last_modified
+    })
+
     data.desc.device_identifiers = []
 
     const keys = ['uuid', 'product', 'version_deconz'] as const

@@ -44,49 +44,27 @@ This is always the first chunk and allows fast indexing and matching without par
 
 ```json
 {
-  "source": "https://deconz-community.github.io/ddf-store/XXXX/XXXX",
-  "last_modified": "2023-01-08T17:24:24z",
-  "version_deconz": ">2.19.3",
-  "product": "acme 2000",
-  "links": [
-    "url-to-forum-entry",
-    "url-to-github-entry"
-  ],
+  "uuid": "331012bd-ce22-4a1b-9f4a-d092aa2cca92",
+  "product": "Hue white and color ambiance gradient light",
+  "version_deconz": ">2.27.0",
+  "last_modified": "2024-05-05T14:07:12.000Z",
   "device_identifiers": [
-    ["Philips", "acme 2000"],
-    ["Signify", "acme 200"]
+    [
+      "Signify Netherlands B.V.",
+      "LCX001"
+    ]
   ]
 }
 ```
 
-#### source (optional)
+#### uuid (required)
 
-The URL of the DDF page on the store, could be used to update DDF.
-
-##### Example
-
-```json
-"https://deconz-community.github.io/ddf-store/XXXX/XXXX"
-```
-
-#### last_modified (required)
-
-The last modified date of the bundle in a complete date plus hours ISO 8601 format.
+The UUID of the DDF, it's a unique identifier for the DDF.
 
 ##### Example
 
 ```json
-"2023-01-08T17:24:24z"
-```
-
-#### version_deconz (required)
-
-The minimum version for Deconz. It's using [Semantic Versioning](https://semver.org/) with version comparaison. See [Semver Calculator](https://semver.npmjs.com/) for example.
-
-##### Example
-
-```json
-">2.20.1"
+"331012bd-ce22-4a1b-9f4a-d092aa2cca92"
 ```
 
 #### product (required)
@@ -96,35 +74,27 @@ The english device commercial name of the device.
 ##### Example
 
 ```json
-"acme 2000"
+"Hue white and color ambiance gradient light"
 ```
 
-#### product_localised (optional)
+#### version_deconz (required)
 
-The device commercial name of the device localised indexed by the [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).
-
-Note that the "en" name it's on `product` property.
+The minimum version for Deconz. It's using [Semantic Versioning](https://semver.org/) with version comparaison. See [Semver Calculator](https://semver.npmjs.com/) for example.
 
 ##### Example
 
 ```json
-{
-  "de": "german product name",
-  "fr": "french product name"
-}
+">2.27.0"
 ```
 
-#### links (optional)
+#### last_modified (required)
 
-Any link usefull about this bundle, can be issue link, forum link, device official web page
+The lastest modified date of any file of the bundle in a complete date plus hours ISO 8601 format.
 
 ##### Example
 
 ```json
-[
-  "url-to-forum-entry",
-  "url-to-github-entry"
-]
+"2024-05-05T14:07:12.000Z"
 ```
 
 #### device_identifiers (required)
@@ -140,7 +110,7 @@ The list of device identifier, it's generated from each combinaison of `manufact
 ]
 ```
 
-### DDFB.DDFC - DDF JSON (compressed) - unique
+### DDFB.DDFC - DDF JSON - unique
 
 ```
 U32 'DDFC'
@@ -148,7 +118,7 @@ U32 Chunk Size
 Data[Size]
 ```
 
-Holds the base DDF compressed with zlib.
+Holds the base DDF JSON.
 
 ### DDFB.EXTF - External file - multiple
 
@@ -167,18 +137,18 @@ U8 Data[FileSize]
 
 FileType is a tag to know what kind of file the chunk contain.
 
-For Text file they are all compressed using zlib.
-
 | Tag  | Description                              | Data      | Format     |
 |------|------------------------------------------|-----------|------------|
 | SCJS | Javascript file for read, write or parse | Text file | javascript |
 | JSON | Generic files for items / constants      | Text file | json       |
-| BTNM | Button maps* WIP NOT USED                | Text file | json       |
 | CHLG | Changelog                                | Text file | markdown   |
 | NOTI | Informational note                       | Text file | markdown   |
 | NOTW | Warning note                             | Text file | markdown   |
 | KWIS | Know issue                               | Text file | markdown   |
+<!--
+| BTNM | Button maps* WIP NOT USED                | Text file | json       |
 | IMGP | Image in PNG can be used in UI           | Binary    | png        |
+-->
 
 ### DDFB.VALI - DDF Validation result - unique - optional
 
@@ -260,8 +230,8 @@ Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
 
 ### Decoding a bundle
 ```typescript
+import { readFile } from 'node:fs/promises'
 import { decode } from '@deconz-community/ddf-bundler'
-import { readFile } from 'fs/promises'
 
 const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddf'))
 const blob = new Blob([data])
@@ -279,6 +249,7 @@ const bundle = Bundle()
 bundle.data.name = 'sample.ddf'
 bundle.data.desc.product = 'Sample product'
 bundle.data.ddfc = '{"schema": "devcap1.schema.json"}'
+bundle.data.ddfc_last_modified = new Date()
 bundle.data.files.push({
   type: 'JSON',
   data: JSON.stringify({ foo: 'bar' }),

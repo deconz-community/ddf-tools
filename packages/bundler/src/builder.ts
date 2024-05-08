@@ -53,7 +53,7 @@ export async function buildFromFiles(
 
   const ddfSource = await getSource(ddfPath)
   bundle.data.ddfc = await ddfSource.stringData
-  bundle.data.desc.last_modified = ddfSource.metadata.last_modified
+  bundle.data.desc.ddfc_last_modified = ddfSource.metadata.last_modified
 
   const ddfc: Record<string, unknown> = JSON.parse(bundle.data.ddfc)
 
@@ -195,10 +195,10 @@ export async function buildFromFiles(
     if (fileToAdd.patch !== undefined)
       data = fileToAdd.patch(data)
 
-    let last_modified = source.metadata.last_modified
+    let last_modified: Date | undefined = source.metadata.last_modified
 
     if (fileToAdd.path === 'generic/constants_min.json')
-      last_modified = (await getSource(ddfPath)).metadata.last_modified
+      last_modified = undefined
 
     bundle.data.files.push({
       type: fileToAdd.type,
@@ -227,7 +227,7 @@ export async function buildFromFiles(
     return a.path.localeCompare(b.path)
   })
 
-  bundle.generateDESC(true)
+  bundle.generateDESC()
 
   return bundle
 }

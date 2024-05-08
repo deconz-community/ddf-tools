@@ -34,7 +34,6 @@ export default defineConfig({
       // deps that shouldn't be bundled
       external: [
         '@noble/secp256k1',
-        'pako',
       ],
     },
   },
