@@ -145,9 +145,7 @@ export const gatewayMachine = setup({
       return input.gateway.getDevices()
     }),
 
-    fetchBundles: fromPromise<GatewayContext['bundles'], {
-      gateway: ReturnType<typeof gatewayClient>
-    }>(async ({ input }) => {
+    fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: ReturnType<typeof gatewayClient> }>(async ({ input }) => {
       const { gateway } = input
       const newList = new Map<string, BundleDescriptor>()
 
@@ -176,6 +174,13 @@ export const gatewayMachine = setup({
         }
       }
       return newList
+    }),
+
+    updateConfig: fromPromise<Response<'updateConfig'>, {
+      gateway: ReturnType<typeof gatewayClient>
+      name: string
+    }>(async ({ input }) => {
+      return input.gateway.updateConfig({ name: input.name })
     }),
 
   },

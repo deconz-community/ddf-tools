@@ -80,16 +80,11 @@ const sortedDevices = computed(() => {
   <v-list>
     <v-list-item prepend-icon="mdi-home" title="Home" :to="`${baseURL}/`" />
     <v-divider />
-    <v-list-subheader>Config</v-list-subheader>
+    <v-list-subheader>Settings</v-list-subheader>
     <v-list-item
-      prepend-icon="mdi-key-chain"
-      title="API Keys"
-      :to="`${baseURL}/config/whitelist`"
-    />
-    <v-list-item
-      prepend-icon="mdi-shovel"
-      title="Bundles"
-      :to="`${baseURL}/config/bundles`"
+      prepend-icon="mdi-usb-flash-drive"
+      title="Gateway"
+      :to="`${baseURL}/settings/gateway`"
     />
     <v-list-subheader>
       Devices

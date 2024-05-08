@@ -65,6 +65,11 @@ export function prepareResponse<TS extends z.ZodTypeAny>(successSchema: TS, opti
         }).optional(),
       })).parse(data)
 
+      Object.defineProperty(result, 'rawData', {
+        value: data,
+        writable: false,
+      })
+
       // console.log('rawData', rawData)
 
       rawData.forEach((item) => {
