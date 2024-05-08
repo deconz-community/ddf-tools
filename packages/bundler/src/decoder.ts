@@ -132,7 +132,6 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                     break
                   }
                   case 'VALI' : {
-                    // TODO : check if it's compressed
                     bundle.data.validation = JSON.parse(reader.text(size))
                     break
                   }
