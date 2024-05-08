@@ -1,50 +1,77 @@
-import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
-import type { FindGatewayResult, Response, gatewayClient } from '@deconz-community/rest-client'
+import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
+
+import type { FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayHeaderParams, GatewayQueryParams, GatewayResponse } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
-type BundleDescriptor = Extract<Response<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
+type BundleDescriptor = Extract<GatewayResponse<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
 
 export interface GatewayContext {
   credentials: GatewayCredentials
-  gateway?: ReturnType<typeof gatewayClient>
+  gateway?: GatewayClient
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
-  config: Response<'getConfig'>['success']
+  config: GatewayResponse<'getConfig'>['success']
   bundles: Map<string, BundleDescriptor>
 }
 
-export const gatewayMachine = setup({
+export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent
 
+export type GatewayEvent = {
+  type: 'CONNECT' | 'DISCONNECT'
+} | {
+  type: 'UPDATE_CREDENTIALS'
+  data: GatewayCredentials
+}
+
+export type WebsocketEvent = {
+  type: 'WEBSOCKET_CONNECT'
+  uri: string
+} | {
+  type: 'WEBSOCKET_ERROR'
+} | {
+  type: 'WEBSOCKET_EVENT'
+  data: any
+}
+
+export interface RefreshEvent {
+  type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
+}
+
+export interface RequestEvent<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']> {
+  type: 'REQUEST'
+  alias: Alias
+  body: GatewayBodyParams<Alias>
+  onDone?: (response: GatewayResponse<Alias>) => void
+  onThrow?: (error: unknown) => void
+}
+
+export function gatewayRequest<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']>(
+  alias: Alias,
+  body: GatewayBodyParams<Alias>,
+  params?: {
+    onDone?: (response: GatewayResponse<Alias>) => void
+    onThrow?: (error: unknown) => void
+  },
+): RequestEvent<Alias> {
+  return {
+    type: 'REQUEST',
+    alias,
+    body,
+    onDone: params?.onDone,
+    onThrow: params?.onThrow,
+  }
+}
+
+export const gatewayMachine = setup({
   types: {
     context: {} as GatewayContext,
-    events: {} as | {
-      type: 'EDIT_CREDENTIALS'
-    } | {
-      type: 'DONE'
-    } | {
-      type: 'NEXT' | 'PREVIOUS'
-    } | {
-      type: 'SAVE'
-    } | {
-      type: 'CONNECT'
-    } | {
-      type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
-    } | {
-      type: 'UPDATE_CREDENTIALS'
-      data: GatewayCredentials
-    } | {
-      type: 'WEBSOCKET_CONNECT'
-      uri: string
-    } | {
-      type: 'WEBSOCKET_ERROR'
-    },
+    events: {} as AnyGatewayEvent,
     input: {} as {
       credentials: GatewayCredentials
     },
-
   },
 
   actors: {
@@ -133,19 +160,19 @@ export const gatewayMachine = setup({
       return () => scope.stop()
     }),
 
-    fetchConfig: fromPromise<Response<'getConfig'>, {
-      gateway: ReturnType<typeof gatewayClient>
+    fetchConfig: fromPromise<GatewayResponse<'getConfig'>, {
+      gateway: GatewayClient
     }>(async ({ input }) => {
       return input.gateway.getConfig()
     }),
 
-    fetchDevices: fromPromise<Response<'getDevices'>, {
-      gateway: ReturnType<typeof gatewayClient>
+    fetchDevices: fromPromise<GatewayResponse<'getDevices'>, {
+      gateway: GatewayClient
     }>(async ({ input }) => {
       return input.gateway.getDevices()
     }),
 
-    fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: ReturnType<typeof gatewayClient> }>(async ({ input }) => {
+    fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: GatewayClient }>(async ({ input }) => {
       const { gateway } = input
       const newList = new Map<string, BundleDescriptor>()
 
@@ -176,13 +203,16 @@ export const gatewayMachine = setup({
       return newList
     }),
 
-    updateConfig: fromPromise<Response<'updateConfig'>, {
-      gateway: ReturnType<typeof gatewayClient>
-      name: string
-    }>(async ({ input }) => {
-      return input.gateway.updateConfig({ name: input.name })
+    doRequest: fromPromise<void, { gateway: GatewayClient, event: RequestEvent }>(async ({ input, self }) => {
+      const { gateway, event } = input
+      try {
+        const result = await gateway[event.alias](event.body)
+        event.onDone?.(result)
+      }
+      catch (e) {
+        event.onThrow?.(e)
+      }
     }),
-
   },
 
 }).createMachine({
@@ -255,6 +285,22 @@ export const gatewayMachine = setup({
     online: {
 
       type: 'parallel',
+
+      on: {
+        DISCONNECT: 'offline.disabled',
+        REQUEST: {
+          actions: enqueueActions(({ enqueue, context, event }) => {
+            if (event.type !== 'REQUEST')
+              return
+            enqueue.spawnChild('doRequest', {
+              input: {
+                gateway: context.gateway!,
+                event,
+              },
+            })
+          }),
+        },
+      },
 
       states: {
 
@@ -445,51 +491,22 @@ export const gatewayMachine = setup({
 
     offline: {
       initial: 'disabled',
-
-      states: {
-        disabled: {},
-
-        error: {
-          states: {
-            unreachable: {
-              on: {
-                EDIT_CREDENTIALS: '#gateway.offline.editing.address',
-              },
-            },
-            invalidApiKey: {
-              on: {
-                EDIT_CREDENTIALS: '#gateway.offline.editing.apiKey',
-              },
-            },
-            unknown: {
-              on: {
-                EDIT_CREDENTIALS: '#gateway.offline.editing',
-              },
-            },
-          },
-
-          initial: 'unknown',
-        },
-
-        editing: {
-          initial: 'address',
-          states: {
-            address: {
-              on: {
-                NEXT: 'apiKey',
-              },
-            },
-            apiKey: {
-              on: {
-                PREVIOUS: 'address',
-              },
-            },
-          },
-        },
-      },
-
       on: {
         CONNECT: 'connecting',
+      },
+      states: {
+        disabled: {},
+        error: {
+          initial: 'unknown',
+          on: {
+            DISCONNECT: 'disabled',
+          },
+          states: {
+            unreachable: {},
+            invalidApiKey: {},
+            unknown: {},
+          },
+        },
       },
     },
 
@@ -503,8 +520,6 @@ export const gatewayMachine = setup({
         sendTo(({ system }) => system.get('app'), { type: 'SAVE_SETTINGS' }),
       ],
     },
-
-    EDIT_CREDENTIALS: '.offline.editing',
 
   },
 

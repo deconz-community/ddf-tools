@@ -4,6 +4,7 @@ import { Zodios } from '@zodios/core'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
 import type { AxiosRequestConfig } from 'axios'
+import type { ZodObject } from 'zod'
 import { pluginAuth, pluginBlobResponse, pluginTransformResponse } from './plugins'
 import { devicesEndpoints } from './endpoints/devicesEndpoints'
 import { configEndpoints } from './endpoints/configEndpoints'
@@ -45,15 +46,28 @@ export function gatewayClient(address: string, apiKey: string, axiosConfig: Axio
   return client
 }
 
-export type Api = ApiOf<ReturnType<typeof gatewayClient>>
+export function getParamZodSchema(alias: string, type: 'body', name: string): ZodObject<any> | undefined {
+  return [
+    ...configEndpoints,
+    ...ddfEndpoints,
+    ...alarmSystemsEndpoints,
+    ...devicesEndpoints,
+    ...sensorsEndpoints,
+    ...groupsEndpoints,
+    ...lightsEndpoints,
+  ].find(endpoint => endpoint.alias === alias)?.parameters?.find(p => p.name === type)?.schema?.shape[name]
+}
 
-export type BodyParams<Alias extends string> = ZodiosBodyByAlias<Api, Alias>
-export type QueryParams<Alias extends string> = ZodiosQueryParamsByAlias<Api, Alias>
-export type HeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<Api, Alias>
-export type Response<Alias extends string> = ZodiosResponseByAlias<Api, Alias>
+export type GatewayClient = ReturnType<typeof gatewayClient>
+export type GatewayApi = ApiOf<GatewayClient>
+
+export type GatewayBodyParams<Alias extends string> = ZodiosBodyByAlias<GatewayApi, Alias>
+export type GatewayQueryParams<Alias extends string> = ZodiosQueryParamsByAlias<GatewayApi, Alias>
+export type GatewayHeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<GatewayApi, Alias>
+export type GatewayResponse<Alias extends string> = ZodiosResponseByAlias<GatewayApi, Alias>
 
 interface GatewayInfo {
-  gateway: ReturnType<typeof gatewayClient>
+  gateway: GatewayClient
   uri: string
   apiKey: string
   bridgeID: string
@@ -63,7 +77,7 @@ export type FindGatewayResult = Result<
   (
     {
       code: 'ok'
-      config: Extract<Response<'getConfig'>['success'], { whitelist: any }>
+      config: Extract<GatewayResponse<'getConfig'>['success'], { whitelist: any }>
     } |
     {
       code: 'bridge_id_mismatch' | 'invalid_api_key'

@@ -17,7 +17,7 @@ export interface UseDialogActionParams {
   confirmationText?: string
   contentComponentProps?: ContentComponentProps
   dialogProps?: ConfirmParams['dialogProps']
-  onSubmit: (value: string) => Promise<void>
+  onSubmit: (value: string) => Promise<any>
 }
 
 export function useDialogAction(getParams: () => UseDialogActionParams | undefined) {
@@ -67,12 +67,13 @@ export function useDialogAction(getParams: () => UseDialogActionParams | undefin
     for (const rule of rules) {
       const result = rule(value)
       if (typeof result === 'string') {
-        return toast('Error', {
+        return toast.error('Error', {
           description: result,
           duration: 5000,
-          cardProps: {
-            color: 'error',
-          },
+          id: '',
+          onAutoClose: () => {},
+          onDismiss: () => {},
+          important: false,
         })
       }
     }

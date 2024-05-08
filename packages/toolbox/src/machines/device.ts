@@ -1,12 +1,12 @@
 import { assign, fromPromise, setup } from 'xstate'
-import type { Response, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
+import type { GatewayResponse, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
 import { produce } from 'immer'
 import { objectEntries } from 'ts-extras'
 
 export interface deviceContext {
   deviceID: string
   gatewayClient: ReturnType<typeof gatewayClient>
-  data?: Response<'getDevice'>['success']
+  data?: GatewayResponse<'getDevice'>['success']
 }
 
 export const deviceMachine = setup({

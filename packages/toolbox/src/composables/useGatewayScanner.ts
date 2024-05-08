@@ -1,9 +1,9 @@
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
-import type { Response } from '@deconz-community/rest-client'
+import type { GatewayResponse } from '@deconz-community/rest-client'
 import { DiscoveryURL, type GatewayCredentials } from '~/interfaces/deconz'
 
-type Config = Response<'getConfig'>['success']
+type Config = GatewayResponse<'getConfig'>['success']
 
 export interface PhosconDiscoveryEntry {
   id: string

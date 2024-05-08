@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BodyParams } from '@deconz-community/rest-client'
+import type { GatewayBodyParams } from '@deconz-community/rest-client'
 import { findGateway } from '@deconz-community/rest-client'
 import hmacSHA256 from 'crypto-js/hmac-sha256'
 import type { UseAppMachine } from '~/composables/useAppMachine'
@@ -28,7 +28,7 @@ async function fetchKey() {
 
   const gateway = result.unwrap().gateway
 
-  const params: BodyParams<'createAPIKey'> = {
+  const params: GatewayBodyParams<'createAPIKey'> = {
     devicetype: '@deconz-community/toolbox',
   }
 
