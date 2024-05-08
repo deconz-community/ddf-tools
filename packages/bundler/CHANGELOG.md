@@ -1,5 +1,17 @@
 # @deconz-community/ddf-bundler
 
+## 0.22.0
+
+### Minor Changes
+
+- 130ee4c: Added `ddfc_last_modified` property in the desc chunk. It's the raw JSON file modified date.
+- 130ee4c: Changed the `last_modified` calculation for desc chunk. It's now the latest modified file in the bundle.
+- 130ee4c: Update deps
+- 6abf6fa: Add test
+- 130ee4c: Removed pako dependency
+- 130ee4c: Removed unused file types
+- 6abf6fa: Add support for optional EXTF modification time
+
 ## 0.21.0
 
 ### Minor Changes
