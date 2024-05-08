@@ -40,7 +40,7 @@ const editName = useDialogAction(() => {
           }
           else {
             toast.error('Failed to update gateway name')
-            console.log('error', response)
+            console.error(response)
           }
         },
       }))
