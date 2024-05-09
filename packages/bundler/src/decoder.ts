@@ -93,12 +93,6 @@ export async function decode(file: File | Blob): Promise<ReturnType<typeof Bundl
                     bundle.data.desc = JSON.parse(reader.text(size))
                     if (bundle.data.desc.last_modified)
                       bundle.data.desc.last_modified = new Date(bundle.data.desc.last_modified)
-                    if (bundle.data.desc.ddfc_last_modified)
-                      bundle.data.desc.ddfc_last_modified = new Date(bundle.data.desc.ddfc_last_modified)
-                    break
-                  }
-                  case 'DDFC' : {
-                    bundle.data.ddfc = reader.text(size)
                     break
                   }
                   case 'EXTF' : {

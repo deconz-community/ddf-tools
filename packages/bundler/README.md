@@ -110,16 +110,6 @@ The list of device identifier, it's generated from each combinaison of `manufact
 ]
 ```
 
-### DDFB.DDFC - DDF JSON - unique
-
-```
-U32 'DDFC'
-U32 Chunk Size
-Data[Size]
-```
-
-Holds the base DDF JSON.
-
 ### DDFB.EXTF - External file - multiple
 
 ```
@@ -139,6 +129,7 @@ FileType is a tag to know what kind of file the chunk contain.
 
 | Tag  | Description                              | Data      | Format     |
 |------|------------------------------------------|-----------|------------|
+| DDFC | DDF JSON file (devcap1.schema.json)      | Text file | json       |
 | SCJS | Javascript file for read, write or parse | Text file | javascript |
 | JSON | Generic files for items / constants      | Text file | json       |
 | CHLG | Changelog                                | Text file | markdown   |
@@ -248,8 +239,12 @@ const bundle = Bundle()
 
 bundle.data.name = 'sample.ddf'
 bundle.data.desc.product = 'Sample product'
-bundle.data.ddfc = '{"schema": "devcap1.schema.json"}'
-bundle.data.ddfc_last_modified = new Date()
+bundle.data.files.push({
+  type: 'DDFC',
+  data: '{"schema": "devcap1.schema.json"}',
+  path: 'ddf.json',
+  last_modified: new Date(),
+})
 bundle.data.files.push({
   type: 'JSON',
   data: JSON.stringify({ foo: 'bar' }),

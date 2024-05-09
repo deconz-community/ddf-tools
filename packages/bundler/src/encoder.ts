@@ -82,7 +82,6 @@ export function dataEncoder(chunks: BufferData[] = []) {
 export function encodeDDFB(encoder: ReturnType<typeof dataEncoder>, data: ReturnType<typeof Bundle>['data']) {
   return encoder.chunk(DDF_BUNDLE_MAGIC, [
     encoder.chunk('DESC', encoder.text(JSON.stringify(data.desc))),
-    encoder.chunk('DDFC', encoder.text(data.ddfc)),
     data.files.map(file => encoder.chunk('EXTF', [
       encoder.text(file.type),
       encoder.withLength(encoder.text(file.path), encoder.Uint16),

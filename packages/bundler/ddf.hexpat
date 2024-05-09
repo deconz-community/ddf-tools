@@ -14,8 +14,6 @@ struct DDFBChunk {
 
     if (id == "DESC") {
         char text[length] [[name("DESC Content")]];
-    } else if (id == "DDFC") {
-        char text[length] [[name("DDFC Content")]];
     } else if (id == "EXTF") {
         Extf extf [[name("External file"), inline]];
     } else if (id == "VALI") {

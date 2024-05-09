@@ -24,9 +24,9 @@ const signatures = computed(() => bundle.value.data.signatures.map((signature) =
   }
 }))
 
-const tab = ref<'info' | 'ddf' | 'files' | 'validation' | 'signatures'>('info')
+const tab = ref<'info' | 'files' | 'validation' | 'signatures'>('info')
 const dirty = ref(false)
-const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
+
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
   clone: (data: typeof bundle.value.data.files) => {
     return [...data.map(item => produce(item, () => {}))]
@@ -34,7 +34,6 @@ const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.fil
 })
 
 async function save() {
-  bundle.value.data.ddfc = ddfc.value
   bundle.value.data.files = files.value
   bundle.value.generateDESC()
   bundle.value.data.hash = await generateHash(bundle.value.data)
@@ -42,13 +41,8 @@ async function save() {
 }
 
 watch(bundle, () => {
-  syncDDF()
   syncFiles()
   dirty.value = false
-})
-
-watch([ddfc, files], () => {
-  dirty.value = true
 })
 
 const hash = computed(() => {
@@ -85,10 +79,6 @@ function setDirty() {
         <v-icon size="x-large" icon="mdi-information" start />
         Info
       </v-tab>
-      <v-tab value="ddf">
-        <v-icon size="x-large" icon="mdi-file-code" start />
-        DDF
-      </v-tab>
       <v-tab value="files">
         <v-icon size="x-large" icon="mdi-file" start />
         {{ `${files.length} ${files.length > 1 ? 'Files' : 'File'}` }}
@@ -118,13 +108,6 @@ function setDirty() {
       <v-window v-model="tab">
         <v-window-item value="info">
           <bundle-editor-info :bundle="bundle" />
-        </v-window-item>
-
-        <v-window-item value="ddf">
-          <bundle-editor-ddfc
-            v-model="ddfc"
-            @change="setDirty()"
-          />
         </v-window-item>
 
         <v-window-item value="files">

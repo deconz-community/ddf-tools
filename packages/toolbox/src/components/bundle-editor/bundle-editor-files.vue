@@ -78,6 +78,7 @@ const tableItems = computed(() => {
 })
 
 const filesTypes = [
+  { type: 'DDFC', desc: 'JSON DDF File', format: 'json' },
   { type: 'SCJS', desc: 'Javascript file for read, write or parse', format: 'javascript' },
   { type: 'JSON', desc: 'Generic files for items / constants', format: 'json' },
   { type: 'CHLG', desc: 'Changelog', format: 'markdown' },
@@ -190,6 +191,7 @@ function selectDirectory(index: number) {
             theme="vs-dark"
             :language="filesTypes.find((type) => type.type === editedItem.type)?.format ?? 'plaintext'"
             height="300px"
+            @change="emit('change')"
           />
         </template>
       </v-card-text>
