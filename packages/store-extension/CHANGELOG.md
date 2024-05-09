@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.17.0
+
+### Minor Changes
+
+- 8a1330f: Use source_last_modified instead of date_created for bundle search
+
 ## 0.16.0
 
 ### Minor Changes
