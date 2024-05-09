@@ -9,6 +9,7 @@ async function test() {
 
   const result = await client.request('getConfig', {
     groupId: 3,
+    apiKey: 'foo',
   })
 
   if (result.isOk()) {

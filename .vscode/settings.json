@@ -14,7 +14,6 @@
         "unplugin",
         "pnpm"
     ],
-    "js/ts.implicitProjectConfig.checkJs": true,
     "cSpell.enabled": false,
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#2f7c47",

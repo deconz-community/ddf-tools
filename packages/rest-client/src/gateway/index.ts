@@ -1,10 +1,10 @@
 import axios from 'axios'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
+import type { EndpointAlias, ExtractFormatsSchemaForAlias, ExtractParamsForAlias } from '../core/helpers'
 import { getValue } from '../core/helpers'
 import type { MaybeLazy } from '../core/types'
 
-import type { EndpointAlias, ExtractFormatsSchemaForAlias, ExtractParamsForAlias } from './endpoints'
 import { endpoints } from './endpoints'
 
 const ERROR_MESSAGES = {
@@ -27,6 +27,13 @@ type RequestFunctionType = <
     ErrorMessages | ExtractFormatsSchemaForAlias<Alias, false>
   >
 >
+
+const client = gatewayClient(() => 'url.value', () => 'apiKey.value')
+
+const result = await client.request('getConfig', {
+  groupId: 4,
+  apiKey: 'foo',
+})
 
 export function gatewayClient(address: MaybeLazy<string>, apiKey: MaybeLazy<string>) {
   const request: RequestFunctionType = async function (alias, params) {
