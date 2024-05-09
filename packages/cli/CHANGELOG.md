@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.13.0
+
+### Minor Changes
+
+- bb6ec1b: Add more processing logs
+
 ## 1.12.2
 
 ### Patch Changes
