@@ -94,6 +94,8 @@ export function bundlerCommand() {
       }
 
       const getLastModified = async (filePath: string) => {
+        // return new Date(1683620885000) // Tue May 09 2023 10:28:05 GMT+0200
+        // return new Date()
         switch (fileModifiedMethod) {
           case 'gitlog': {
             const gitDirectory = await findGitDirectory(filePath)

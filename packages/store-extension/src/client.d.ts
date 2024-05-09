@@ -201,6 +201,7 @@ export namespace Collections {
     date_created: Types.Optional<Types.DateTime>;
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
+    source_last_modified: Types.DateTime;
     device_identifiers: Collections.BundlesDeviceIdentifiers[];
     sub_devices: Collections.BundlesSubDevices[];
     signatures: Collections.Signatures[];
