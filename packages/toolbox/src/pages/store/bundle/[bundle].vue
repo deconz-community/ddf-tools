@@ -26,7 +26,7 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
     'ddf_uuid',
     'product',
     'version_deconz',
-    'date_created',
+    'source_last_modified',
     'content_size',
     'file_count',
     'deprecation_message',
@@ -72,7 +72,7 @@ const otherVersions = store.request(computed(() => {
     fields: [
       'id',
       'version_deconz',
-      'date_created',
+      'source_last_modified',
       'deprecation_message',
       {
         signatures: [
@@ -86,7 +86,7 @@ const otherVersions = store.request(computed(() => {
         _eq: bundle.state.value.ddf_uuid,
       },
     },
-    sort: ['-date_created'],
+    sort: ['-source_last_modified'],
   })
 }))
 
@@ -314,7 +314,7 @@ async function reinstate(type: 'bundle' | 'version') {
     </v-card-title>
 
     <v-card-subtitle>
-      Published {{ useTimeAgo(bundle.state.value.date_created).value }}
+      Published {{ useTimeAgo(bundle.state.value.source_last_modified).value }}
     </v-card-subtitle>
 
     <v-card-text>
@@ -422,7 +422,7 @@ async function reinstate(type: 'bundle' | 'version') {
                       <chip-signatures v-else :signatures="version.signatures ?? []" only="system" class="ma-2" />
                     </td>
                     <td>{{ version.version_deconz }}</td>
-                    <td>{{ useTimeAgo(version.date_created).value }}</td>
+                    <td>{{ useTimeAgo(version.source_last_modified).value }}</td>
                     <td>
                       <v-btn :to="`/store/bundle/${version.id}`">
                         Open
@@ -561,7 +561,7 @@ async function reinstate(type: 'bundle' | 'version') {
               </v-chip>
             </v-list-item>
             <v-list-item title="Published">
-              {{ useTimeAgo(bundle.state.value.date_created).value }}
+              {{ useTimeAgo(bundle.state.value.source_last_modified).value }}
             </v-list-item>
             <v-list-item title="Version deconz">
               {{ bundle.state.value.version_deconz }}

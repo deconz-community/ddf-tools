@@ -133,7 +133,7 @@ const pageCount = computed(() => {
                 </v-chip>
               </v-card-title>
               <v-card-subtitle>
-                <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.date_created">
+                <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.source_last_modified">
                   Published {{ timeAgo }}
                 </UseTimeAgo>
               </v-card-subtitle>
