@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { Bundle } from './bundle'
 import type { TextFile } from './types'
 import { asArray } from './utils'
