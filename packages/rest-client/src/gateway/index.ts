@@ -1,4 +1,4 @@
-import type { ApiOf, ZodiosBodyByAlias, ZodiosHeaderParamsByAlias, ZodiosQueryParamsByAlias, ZodiosResponseByAlias } from '@zodios/core'
+import type { ApiOf, ZodiosBodyByAlias, ZodiosHeaderParamsByAlias, ZodiosPathParamByAlias, ZodiosQueryParamsByAlias, ZodiosResponseByAlias } from '@zodios/core'
 import { Zodios } from '@zodios/core'
 
 import type { Result } from 'ts-results-es'
@@ -13,6 +13,7 @@ import { alarmSystemsEndpoints } from './endpoints/alarmSystemsEndpoints'
 import { groupsEndpoints } from './endpoints/groupsEndpoints'
 import { lightsEndpoints } from './endpoints/lightsEndpoints'
 import { sensorsEndpoints } from './endpoints/sensorsEndpoints'
+import type { ddfdDescriptorSchema } from './schemas/ddfSchema'
 
 export function gatewayClient(address: string, apiKey: string, axiosConfig: AxiosRequestConfig = {}) {
   const client = new Zodios(
@@ -61,10 +62,13 @@ export function getParamZodSchema(alias: string, type: 'body', name: string): Zo
 export type GatewayClient = ReturnType<typeof gatewayClient>
 export type GatewayApi = ApiOf<GatewayClient>
 
+export type DDFDescriptor = z.infer<typeof ddfdDescriptorSchema>
+
 export type GatewayBodyParams<Alias extends string> = ZodiosBodyByAlias<GatewayApi, Alias>
-export type GatewayQueryParams<Alias extends string> = ZodiosQueryParamsByAlias<GatewayApi, Alias>
 export type GatewayHeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<GatewayApi, Alias>
+export type GatewayPathParam<Alias extends string> = ZodiosPathParamByAlias<GatewayApi, Alias>
 export type GatewayResponse<Alias extends string> = ZodiosResponseByAlias<GatewayApi, Alias>
+export type GatewayQueryParams<Alias extends string> = ZodiosQueryParamsByAlias<GatewayApi, Alias>
 
 interface GatewayInfo {
   gateway: GatewayClient

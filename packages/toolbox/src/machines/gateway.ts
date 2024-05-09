@@ -1,20 +1,20 @@
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
 import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 
-import type { FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayHeaderParams, GatewayQueryParams, GatewayResponse } from '@deconz-community/rest-client'
+import type { DDFDescriptor, FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayPathParam, GatewayResponse } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
-type BundleDescriptor = Extract<GatewayResponse<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
+// export type BundleDescriptor = Extract<GatewayResponse<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
 
 export interface GatewayContext {
   credentials: GatewayCredentials
   gateway?: GatewayClient
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config: GatewayResponse<'getConfig'>['success']
-  bundles: Map<string, BundleDescriptor>
+  bundles: Map<string, DDFDescriptor>
 }
 
 export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent
@@ -43,7 +43,10 @@ export interface RefreshEvent {
 export interface RequestEvent<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']> {
   type: 'REQUEST'
   alias: Alias
-  body: GatewayBodyParams<Alias>
+  request: {
+    body: GatewayBodyParams<Alias>
+    path: GatewayPathParam<Alias>
+  }
   onDone?: (response: GatewayResponse<Alias>) => void
   onThrow?: (error: unknown) => void
 }
@@ -51,6 +54,7 @@ export interface RequestEvent<Alias extends GatewayApi[number]['alias'] = Gatewa
 export function gatewayRequest<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']>(
   alias: Alias,
   body: GatewayBodyParams<Alias>,
+  path: GatewayPathParam<Alias>,
   params?: {
     onDone?: (response: GatewayResponse<Alias>) => void
     onThrow?: (error: unknown) => void
@@ -60,6 +64,7 @@ export function gatewayRequest<Alias extends GatewayApi[number]['alias'] = Gatew
     type: 'REQUEST',
     alias,
     body,
+    path,
     onDone: params?.onDone,
     onThrow: params?.onThrow,
   }
@@ -174,7 +179,7 @@ export const gatewayMachine = setup({
 
     fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: GatewayClient }>(async ({ input }) => {
       const { gateway } = input
-      const newList = new Map<string, BundleDescriptor>()
+      const newList = new Map<string, DDFDescriptor>()
 
       let hasMore = true
       let next
@@ -206,7 +211,11 @@ export const gatewayMachine = setup({
     doRequest: fromPromise<void, { gateway: GatewayClient, event: RequestEvent }>(async ({ input, self }) => {
       const { gateway, event } = input
       try {
-        const result = await gateway[event.alias](event.body)
+        const result = await gateway[event.alias](event.request.body, {
+          params: {
+            path: event.request.path,
+          },
+        })
         event.onDone?.(result)
       }
       catch (e) {

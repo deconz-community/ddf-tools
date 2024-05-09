@@ -9,3 +9,4 @@ export const ddfdDescriptorSchema = z.strictObject({
     z.tuple([z.string(), z.string()]),
   ),
 }).passthrough()
+

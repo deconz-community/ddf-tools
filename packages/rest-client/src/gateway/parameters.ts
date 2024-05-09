@@ -27,7 +27,6 @@ export const globalParameters = makeParametersObject({
     type: 'Path',
     schema: z.number().or(z.string()).default(10),
   },
-
   alarmSystemId: {
     name: 'alarmSystemId',
     description: 'Alarm system ID',

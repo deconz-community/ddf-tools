@@ -60,11 +60,11 @@
     "vuetify-use-dialog": "^0.6.11",
     "xstate": "^5.13.0",
     "xstate-ninja": "^2.1.0",
-    "zod": "^3.23.7",
+    "zod": "^3.23.8",
     "zod-empty": "^1.0.7"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.16.3",
+    "@antfu/eslint-config": "^2.17.0",
     "@directus/sdk": "^16.0.0",
     "@mdi/font": "^7.4.47",
     "@noble/curves": "^1.4.0",

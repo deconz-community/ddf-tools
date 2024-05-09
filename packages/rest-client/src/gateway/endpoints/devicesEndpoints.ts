@@ -117,13 +117,24 @@ export const devicesEndpoints = [
   }),
 
   makeEndpoint({
-    alias: 'setDDFPolicy',
+    alias: 'setDeviceDDFPolicy',
     description: 'Sets the device DDF policy and optional bundle hash to be pinned.',
     method: 'put',
-    path: '/api/:apiKey/devices/:deviceUniqueID/ddf_policy',
+    path: '/api/:apiKey/devices/:deviceUniqueID/ddf/policy',
     response: prepareResponse(
-      z.strictObject({ id: z.string() }).transform(result => result.id)
+      z.strictObject({
+        policy: z.enum([
+          'latest_prefer_stable',
+          'latest',
+          'raw_json',
+          'pin',
+        ]),
+        hash: z.string(),
+      })
         .describe('The uploaded Bundle Hash'),
+      {
+        removePrefix: /^\/alarmsystems\/\d+\/device\//,
+      },
     ),
     parameters: [
       globalParameters.apiKey,
@@ -131,8 +142,7 @@ export const devicesEndpoints = [
       {
         name: 'body',
         type: 'Body',
-        schema:
-        z.discriminatedUnion('policy', [
+        schema: z.discriminatedUnion('policy', [
           z.object({
             policy: z.enum([
               'latest_prefer_stable',

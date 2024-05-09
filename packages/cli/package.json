@@ -61,7 +61,7 @@
     "fast-glob": "^3.3.2",
     "ora": "^8.0.1",
     "simple-git": "^3.24.0",
-    "zod": "^3.23.7",
+    "zod": "^3.23.8",
     "zod-validation-error": "^3.2.0"
   },
   "devDependencies": {

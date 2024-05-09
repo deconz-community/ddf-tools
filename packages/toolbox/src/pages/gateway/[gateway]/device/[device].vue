@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { DDFDescriptor } from '@deconz-community/rest-client'
 import { toastError } from '~/lib/handleError'
-import type { BundleDescriptor } from '~/types/bundle'
+import { gatewayRequest } from '~/machines/gateway'
 
 const props = defineProps<{
   gateway: string
@@ -9,6 +10,19 @@ const props = defineProps<{
 
 const machines = createUseAppMachine()
 const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
+
+function test() {
+  gateway.state?.context.gateway?.setDeviceDDFPolicy({
+    hash: '64ff180d340c15bb3a5136d5f336d1ca5a216ed16b1369c8439d6952478e58ac',
+    policy: 'pin',
+
+  }, {
+    params: {
+      deviceUniqueID: props.device,
+    },
+  })
+}
+
 const device = machines.use('device', computed(() => ({ gateway: props.gateway, id: props.device })))
 const { cloned: deviceName, sync: syncName } = useCloned(() => device.state?.context.data?.name ?? '')
 
@@ -47,7 +61,7 @@ const avaliableBundles = computed(() => {
   if (!bundles || !manufacturername || !modelid)
     return []
 
-  const avaliableBundles: BundleDescriptor & { hash: string } = []
+  const avaliableBundles: (DDFDescriptor & { hash: string })[] = []
 
   bundles.forEach((bundle, hash) => {
     if (bundle.device_identifiers.some((deviceIdentifier) => {
@@ -91,12 +105,57 @@ const avaliableBundles = computed(() => {
         append-icon="mdi-content-save"
         @click:append="updateDeviceName"
       />
-
-      avaliableBundles: {{ avaliableBundles }}
+      <v-btn @click="test()">
+        Test
+      </v-btn>
 
       <v-btn @click="gateway.send({ type: 'REFRESH_BUNDLES' })">
         Refresh Bundles
       </v-btn>
+
+      <v-card v-for="bundle in avaliableBundles" :key="bundle.hash" class="ma-2">
+        <v-card-title>
+          {{ bundle.product }}
+          <v-chip class="ma-2" color="grey">
+            {{ bundle.hash.substring(bundle.hash.length - 10) }}
+          </v-chip>
+        </v-card-title>
+        <v-card-subtitle>
+          UUID : {{ bundle.uuid }}
+        </v-card-subtitle>
+        <v-card-text>
+          Published : {{ useTimeAgo(bundle.last_modified).value }}
+          <pre>{{ bundle }}</pre>
+        </v-card-text>
+        <v-card-actions>
+          <!--
+            gatewayRequest('updateConfig', { name }, {
+        onDone: (response) => {
+          if (response.success) {
+            toast.success('Gateway name updated')
+            gatewayMachine.send({ type: 'REFRESH_CONFIG' })
+          }
+          else {
+            toast.error('Failed to update gateway name')
+            console.error(response)
+          }
+        },
+      })
+
+          -->
+          <v-btn
+            @click="() => gateway.send(gatewayRequest('setDeviceDDFPolicy', {
+              policy: 'pin',
+              hash: bundle.hash,
+            }, {
+              deviceUniqueID: device.state.context.data.uniqueid,
+            }))"
+          >
+            Install
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
       <v-sheet elevation="10">
         <pre>{{ device.state.context.data }}</pre>
       </v-sheet>
