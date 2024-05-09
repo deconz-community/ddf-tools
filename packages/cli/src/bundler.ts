@@ -94,7 +94,8 @@ export function bundlerCommand() {
       }
 
       const getLastModified = async (filePath: string) => {
-        // return new Date(1683620885000) // Tue May 09 2023 10:28:05 GMT+0200
+        // return new Date(1675344959000) // Thu Feb 02 2023 14:35:59 GMT+0100
+        // return new Date(1696250159000) // Mon Oct 02 2023 14:35:59 GMT+0200
         // return new Date()
         switch (fileModifiedMethod) {
           case 'gitlog': {
@@ -208,12 +209,15 @@ export function bundlerCommand() {
                 }
               }),
             // DDF file
-            [
-              {
-                path: bundle.data.name,
-                data: JSON.parse(bundle.data.ddfc),
-              },
-            ],
+
+            bundle.data.files
+              .filter(file => file.type === 'DDFC')
+              .map((file) => {
+                return {
+                  path: file.path,
+                  data: JSON.parse(file.data as string),
+                }
+              }),
           )
 
           if (validationResult.length === 0) {
