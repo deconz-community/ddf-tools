@@ -87,7 +87,7 @@ export default defineEndpoint({
 
       const subquery = context.database('bundles')
         .select('bundles.ddf_uuid')
-        .max('bundles.date_created as max_date')
+        .max('bundles.source_last_modified as max_date')
         .orderBy('max_date', 'desc')
         .groupBy('ddf_uuid')
 
@@ -124,7 +124,7 @@ export default defineEndpoint({
         .from('bundles')
         .join(subquery.as('subquery'), function () {
           this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
-            .andOn('bundles.date_created', '=', 'subquery.max_date')
+            .andOn('bundles.source_last_modified', '=', 'subquery.max_date')
         })
 
       if (typeof req.query.limit === 'string' && req.query.limit !== '') {
@@ -134,7 +134,7 @@ export default defineEndpoint({
           query.offset(limit * (Number.parseInt(req.query.page) - 1))
       }
 
-      query.orderBy('bundles.date_created', 'desc')
+      query.orderBy('bundles.source_last_modified', 'desc')
 
       const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
       const items = await bundleService.readByQuery({
@@ -142,7 +142,7 @@ export default defineEndpoint({
           'id',
           'product',
           'ddf_uuid',
-          'date_created',
+          'source_last_modified',
           'device_identifiers.device_identifiers_id.manufacturer',
           'device_identifiers.device_identifiers_id.model',
           'signatures.key',
@@ -153,7 +153,7 @@ export default defineEndpoint({
             _in: (await query).map(item => item.id),
           },
         },
-        sort: ['-date_created'],
+        sort: ['-source_last_modified'],
       })
 
       let totalCount = Number.POSITIVE_INFINITY
@@ -170,7 +170,7 @@ export default defineEndpoint({
           .clear('join')
           .join(subquery.clone().as('subquery'), function () {
             this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
-              .andOn('bundles.date_created', '=', 'subquery.max_date')
+              .andOn('bundles.source_last_modified', '=', 'subquery.max_date')
           })
 
         if (showDeprecated === false)
