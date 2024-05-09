@@ -1,29 +1,33 @@
-import type { ZodType } from 'zod'
+import type { ZodType, ZodTypeAny } from 'zod'
 import type { LazyTypes, MaybeLazy } from './types'
 
-export interface ParameterDefinition<Output = any> {
-  name: string
+export interface ParameterDefinition<Format = any> {
   description: string
   type: 'path'
-  schema: ZodType<Output>
-  sample: Output
+  schema: ZodType<Format>
+  sample: Format
 }
 
-export interface EndpointDefinition<Alias extends string> {
-  alias: Alias
+export interface EndpointResponseFormat {
+  isOk: boolean
+  type: 'json' | 'jsonArray' | 'blob'
+  format: ZodTypeAny
+}
+
+export interface EndpointDefinition {
   description: string
   method: 'get' | 'post' | 'put' | 'delete'
   path: string
-  response: any
-  parameters: ParameterDefinition[]
+  responseFormats: Record<string, EndpointResponseFormat>
+  parameters: Record<string, ParameterDefinition>
 }
 
 export function makeParameter<Output = any>(endpoint: ParameterDefinition<Output>): ParameterDefinition<Output> {
   return endpoint as ParameterDefinition<Output>
 }
 
-export function makeEndpoint<Alias extends string, Endpoint extends EndpointDefinition<Alias>>(endpoint: Endpoint) {
-  return endpoint as Endpoint
+export function makeEndpoint<Endpoint extends EndpointDefinition>(endpoint: Endpoint): Endpoint {
+  return endpoint
 }
 
 export function getValue<T extends LazyTypes>(value: MaybeLazy<T>): T {

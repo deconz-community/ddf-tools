@@ -1,14 +1,20 @@
 import { z } from 'zod'
 import { type ParameterDefinition, makeParameter } from '../core/helpers'
 
-export const globalParameters: Record<string, ParameterDefinition> = {
+export const globalParameters = {
   // The API Key is optional because it's will be loaded by the API Key plugin
   apiKey: makeParameter<string>({
-    name: 'apiKey',
     description: 'API Key',
     type: 'path',
     schema: z.string(),
     sample: '12345ABCDE',
+  }),
+
+  groupId: makeParameter<number>({
+    description: 'groupId',
+    type: 'path',
+    schema: z.number(),
+    sample: 1234,
   }),
 
   /*

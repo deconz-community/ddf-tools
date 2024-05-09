@@ -1,8 +1,74 @@
+import type { ZodTypeAny } from 'zod'
 import { z } from 'zod'
-import { makeEndpoint } from '../core/helpers'
+import { makeEndpoint, makeParameter } from '../core/helpers'
 import { globalParameters } from './parameters'
-import { prepareResponse } from './utils'
 import { configSchema } from './schemas/configSchema'
+import { gatewayClient } from '.'
+
+// #region Utility types
+type ResolveZod<Input> = Input extends ZodTypeAny ? z.infer<Input> : never
+
+// https://www.youtube.com/watch?v=2lCCKiWGlC0
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {}
+
+// https://jobs.ataccama.com/blog/how-to-convert-object-props-with-undefined-type-to-optional-properties-in-typescript
+type GetMandatoryKeys<T> = {
+  [P in keyof T]: T[P] extends Exclude<T[P], undefined> ? P : never
+}[keyof T]
+
+type UndefinedToOptional<T> = Prettify<Partial<T> & Pick<T, GetMandatoryKeys<T>>>
+
+// #endregion
+
+export type EndpointAlias = keyof typeof endpoints
+
+type ResponseFormats<Alias extends EndpointAlias> = typeof endpoints[Alias]['responseFormats']
+type Parameters<Alias extends EndpointAlias> = typeof endpoints[Alias]['parameters']
+
+type ExtractFormatsKeys<Alias extends EndpointAlias, Ok extends true | false> = {
+  // @ts-expect-error isOk is defined
+  [K in keyof ResponseFormats<Alias>]: ResponseFormats<Alias>[K]['isOk'] extends Ok ? K : never;
+}[keyof ResponseFormats<Alias>]
+
+export type ExtractFormatsSchemaForAlias<Alias extends EndpointAlias, Ok extends true | false> =
+  // @ts-expect-error format is defined
+  ResolveZod<ResponseFormats<Alias>[ExtractFormatsKeys<Alias, Ok>]['format']>
+
+export type ExtractParamsNamesForAlias<Alias extends EndpointAlias> = keyof Parameters<Alias>
+
+export type ExtractParamsForAlias<Alias extends EndpointAlias> =
+UndefinedToOptional<{
+  // @ts-expect-error schema is defined
+  [K in ExtractParamsNamesForAlias<Alias>]: ResolveZod<Parameters<Alias>[K]['schema']>
+}>
+
+/*
+  type test = ExtractParamsNamesForAlias<'getConfig'>
+
+  type test2 = ExtractParamsForAlias<'getConfig'>
+
+const toto: test2 = {
+  apiKey: undefined,
+  groupId: 3,
+}
+
+const toto2: test2 = {
+  groupId: 3,
+}
+
+const toto3: test2 = {
+  groupId: 'fzfez',
+}
+
+console.log({ toto, toto2, toto3 })
+*/
+const client = gatewayClient(() => url.value, () => apiKey.value)
+
+const result = await client.request('getConfig', {
+  groupId: '3',
+})
 
 export const endpoints = {
 
@@ -252,33 +318,65 @@ export const endpoints = {
 
   */
   getConfig: makeEndpoint({
-    alias: 'getConfig',
     description: 'Get gateway configuration',
     method: 'get',
-    path: '/api/:apiKey/config',
-    response: prepareResponse(
-      z.union([
-        configSchema,
-        // For unauthenticated requests
-        configSchema.pick({
-          apiversion: true,
-          bridgeid: true,
-          datastoreversion: true,
-          devicename: true,
-          factorynew: true,
-          mac: true,
-          modelid: true,
-          name: true,
-          replacesbridgeid: true,
-          starterkitid: true,
-          swversion: true,
-        }),
-      ]),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    path: '/api/{:apiKey:}/config',
+    parameters: {
+      // globalParameters.apiKey,
+      apiKey: {
+        description: 'API Key',
+        type: 'path',
+        schema: z.string().optional(),
+        sample: '12345ABCDE',
+      },
+      groupId: {
+        description: 'groupId',
+        type: 'path',
+        schema: z.number(),
+        sample: 1234,
+      },
+    },
+    responseFormats: {
+      status_200: {
+        isOk: true,
+        type: 'json',
+        format: z.preprocess((data) => {
+          if (typeof data !== 'object' || data === null)
+            return data
+
+          console.log('whitelist' in data)
+          console.log(data)
+          return {
+            authenticated: 'whitelist' in data,
+            ...data,
+          }
+        }, z.discriminatedUnion('authenticated', [
+          configSchema.extend({
+            authenticated: z.literal(true),
+          }),
+          configSchema.pick({
+            apiversion: true,
+            bridgeid: true,
+            datastoreversion: true,
+            devicename: true,
+            factorynew: true,
+            mac: true,
+            modelid: true,
+            name: true,
+            replacesbridgeid: true,
+            starterkitid: true,
+            swversion: true,
+          }).extend({
+            authenticated: z.literal(false),
+          }),
+        ])),
+      },
+      status_404: {
+        isOk: false,
+        format: z.any(),
+        type: 'json',
+      },
+    },
   }),
 
   /*
