@@ -1,5 +1,13 @@
 # @deconz-community/cli
 
+## 1.12.2
+
+### Patch Changes
+
+- c8d3b3b: Validate store connection before uploading
+- Updated dependencies [c8d3b3b]
+  - @deconz-community/ddf-bundler@0.23.0
+
 ## 1.12.1
 
 ### Patch Changes

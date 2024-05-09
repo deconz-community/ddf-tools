@@ -1,7 +1,7 @@
 {
   "name": "@deconz-community/ddf-bundler",
   "type": "module",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "packageManager": "pnpm@9.1.0",
   "description": "Creating and editing DDF bundles for deconz",
   "author": {
