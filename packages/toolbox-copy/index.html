@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png">
+    <meta name="msapplication-TileColor" content="#00aba9">
+    <title>Deconz Toolbox</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      setTimeout(() => {
+        const app = document.getElementById('app')
+        if(app.hasAttribute('data-v-app')) return
+        app.innerHTML = `
+          <h1>Deconz Toolbox</h1>
+          <p>
+            If you see this page, it means that you have a browser cache issue.
+            Please clear your browser cache and try again.
+          </p>
+        `
+      }, 2000)
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+    <noscript>
+      This website requires JavaScript to function properly. Please enable
+      JavaScript to continue.
+    </noscript>
+  </body>
+</html>
