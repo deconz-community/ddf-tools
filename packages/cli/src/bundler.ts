@@ -28,6 +28,7 @@ export function bundlerCommand() {
     .option('--store-token <token>', 'Authentication token')
     .option('--store-bundle-status <status>', 'Status of the bundle (alpha, beta, stable)', 'alpha')
     .option('--file-modified-method <method>', 'Method to use to get the last modified date of the files (gitlog, mtime, ctime)', 'gitlog')
+    .option('--debug', 'Enable debug log')
     .action(async (input, options) => {
       const {
         generic,
@@ -39,6 +40,7 @@ export function bundlerCommand() {
         storeToken,
         storeBundleStatus,
         fileModifiedMethod,
+        debug,
       } = options
 
       // #region Validate options
@@ -100,6 +102,9 @@ export function bundlerCommand() {
               return (await fs.stat(filePath)).mtime
             }
 
+            if (debug)
+              console.log(`Finding git log datetime for file '${filePath}' in git directory '${gitDirectory}'`)
+
             const git = simpleGit(gitDirectory)
             const log = await git.log({ file: filePath })
 
@@ -114,6 +119,9 @@ export function bundlerCommand() {
               console.warn(`No commit found for ${filePath}. Using mtime instead.`)
               return (await fs.stat(filePath)).mtime
             }
+
+            if (debug)
+              console.log(`Found git log datetime for file '${filePath}' : '${latestCommit.date}'`)
 
             return new Date(latestCommit.date)
           }
@@ -147,6 +155,8 @@ export function bundlerCommand() {
       }
       const genericDirectoryPath = path.resolve(generic)
 
+      const fileToProcess = inputFiles.map(file => path.resolve(file)).filter(file => !file.startsWith(genericDirectoryPath))
+
       const bundleToUpload: Record<string, {
         name: string
         encoded: Blob
@@ -154,13 +164,15 @@ export function bundlerCommand() {
 
       const sources = new Map<string, Source>()
 
-      await Promise.all(inputFiles.map(async (inputFile) => {
-        const inputFilePath = path.resolve(inputFile)
+      if (debug)
+        console.log(`Processing ${fileToProcess.length} file(s)`)
 
-        if (inputFilePath.startsWith(genericDirectoryPath)) {
-          // console.log(`Skipping DDF file [${inputFile}] because it's inside the generic directory`)
-          return
-        }
+      for (const [index, inputFilePath] of fileToProcess.entries()) {
+        if (index % 10 === 0)
+          console.log(`Processing file #${index + 1}/${fileToProcess.length}`)
+
+        if (debug)
+          console.log(`Bundling file '${inputFilePath}'`)
 
         const bundle = await buildFromFiles(
           `file://${genericDirectoryPath}`,
@@ -257,7 +269,7 @@ export function bundlerCommand() {
             encoded,
           }
         }
-      }))
+      }
 
       if (upload) {
         const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest())
