@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.16.0
+
+### Minor Changes
+
+- b7a7927: Add source_last_modified field on bundle
+
 ## 0.15.1
 
 ### Patch Changes
