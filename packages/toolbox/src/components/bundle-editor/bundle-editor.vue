@@ -18,6 +18,12 @@ const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
 
+const signatures = computed(() => bundle.value.data.signatures.map((signature) => {
+  return {
+    key: bytesToHex(signature.key),
+  }
+}))
+
 const tab = ref<'info' | 'ddf' | 'files' | 'validation' | 'signatures'>('info')
 const dirty = ref(false)
 const { cloned: ddfc, sync: syncDDF } = useCloned(() => bundle.value.data.ddfc)
@@ -64,9 +70,7 @@ function setDirty() {
   <v-card v-bind="$attrs">
     <template #title>
       {{ bundle.data.desc.product }} {{ dirty ? '• Modified' : '' }}
-      <template v-for="signature in bundle.data.signatures" :key="signature.signature">
-        <chip-user :public-key="signature.key" class="ma-2" />
-      </template>
+      <chip-signatures :signatures="signatures" class="ma-2" />
     </template>
 
     <template #subtitle>

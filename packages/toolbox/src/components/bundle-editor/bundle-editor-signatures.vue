@@ -194,7 +194,7 @@ if (import.meta.env.VITE_DEBUG === 'true') {
       </v-toolbar>
     </template>
     <template #item.key="{ item }">
-      <chip-user :public-key="item.key" class="ma-2" />
+      <chip-signatures v-if="item" :no-alpha-tag="true" :signatures="[{ key: item.key }]" />
     </template>
     <template #item.signature="{ item }">
       <v-text-field
