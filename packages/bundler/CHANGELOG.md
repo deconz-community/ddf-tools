@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.23.0
+
+### Minor Changes
+
+- c8d3b3b: Add stable and beta public key
+
 ## 0.22.0
 
 ### Minor Changes
