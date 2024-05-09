@@ -9,7 +9,7 @@ import { hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
-import { createDirectus, rest, staticToken } from '@directus/sdk'
+import { createDirectus, rest, serverHealth, staticToken } from '@directus/sdk'
 import { v4 as uuidv4 } from 'uuid'
 import type { PrimaryKey } from '@directus/types'
 import { simpleGit } from 'simple-git'
@@ -261,6 +261,18 @@ export function bundlerCommand() {
 
       if (upload) {
         const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest())
+
+        try {
+          const health = await client.request(serverHealth())
+          if (health.status !== 'ok') {
+            console.error('Error while connecting to the store', health)
+            return
+          }
+        }
+        catch (error) {
+          console.error('Error while connecting to the store', error)
+          return
+        }
 
         const entries = Object.entries(bundleToUpload)
 

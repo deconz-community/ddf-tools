@@ -142,7 +142,7 @@ onMounted(() => {
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.hash="{ item }">
           <v-chip class="ma-2" color="grey">
-            {{ item.hash.slice(-10) }}
+            {{ item.hash.slice(0, 10) }}
           </v-chip>
         </template>
 

@@ -129,7 +129,7 @@ const pageCount = computed(() => {
                 {{ item.raw.product }}
                 <chip-signatures :signatures="item.raw.signatures" class="ma-2" />
                 <v-chip class="ma-2" color="grey">
-                  {{ item.raw.id.slice(-10) }}
+                  {{ item.raw.id.slice(0, 10) }}
                 </v-chip>
               </v-card-title>
               <v-card-subtitle>
