@@ -2,7 +2,6 @@ export interface BundleData {
   name: string
   hash?: Uint8Array
   desc: ChunkDESC
-  ddfc: string
   files: BundleFile[]
   validation?: ValidationResult
   signatures: ChunkSignature[]
@@ -12,7 +11,6 @@ export interface ChunkDESC {
   uuid: string
   version_deconz: string
   last_modified: Date
-  ddfc_last_modified: Date
   product: string
   links?: string[]
   device_identifiers: [string, string][]
@@ -22,13 +20,13 @@ export type BundleFile = TextFile // | BinaryFile
 export type TextFile = JSONFile | ScriptFile | MarkdownFile
 
 interface FileMeta {
-  type: 'SCJS' | 'JSON' /* | 'BTNM' */ | 'CHLG' | 'NOTI' | 'NOTW' | 'KWIS' /* | 'UBIN' | 'IMGP' */
+  type: 'SCJS' | 'JSON' | 'DDFC' /* | 'BTNM' */ | 'CHLG' | 'NOTI' | 'NOTW' | 'KWIS' /* | 'UBIN' | 'IMGP' */
   last_modified?: Date
   path: string
 }
 
 export interface JSONFile extends FileMeta {
-  type: 'JSON' // | 'BTNM'
+  type: 'JSON' | 'DDFC' // | 'BTNM'
   data: string
 }
 

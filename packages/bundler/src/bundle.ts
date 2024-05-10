@@ -10,18 +10,19 @@ export function Bundle() {
       product: 'Unknown device',
       version_deconz: '>2.27.0',
       last_modified: new Date(0),
-      ddfc_last_modified: new Date(0),
       device_identifiers: [],
     },
-    ddfc: '{}',
     files: [],
     signatures: [],
   }
 
   const generateDESC = () => {
-    const ddfc = JSON.parse(data.ddfc)
+    const ddfcSource = data.files.find(file => file.type === 'DDFC')
 
-    data.desc.last_modified = data.desc.ddfc_last_modified
+    if (!ddfcSource)
+      throw new Error('DDFC file not found')
+
+    const ddfc = JSON.parse(ddfcSource.data)
 
     data.files.forEach((file) => {
       if (!file.last_modified)

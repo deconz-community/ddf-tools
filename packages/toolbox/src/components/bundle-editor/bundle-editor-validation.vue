@@ -15,7 +15,23 @@ const bundle = useVModel(props, 'bundle', emit)
 function validate() {
   const validator = createValidator()
 
-  const ddfc = JSON.parse(bundle.value.data.ddfc)
+  const ddfcSource = bundle.value.data.files.find(file => file.type === 'DDFC')?.data
+
+  if (!ddfcSource) {
+    bundle.value.data.validation = {
+      result: 'error',
+      version: validator.version,
+      errors: [{
+        type: 'simple',
+        message: 'No DDFC file found.',
+      }],
+    }
+
+    emit('change')
+    return
+  }
+
+  const ddfc = JSON.parse(ddfcSource)
 
   if (ddfc.ddfvalidate === false) {
     bundle.value.data.validation = {
@@ -109,13 +125,21 @@ function validate() {
       :text="`${bundle.data.validation?.errors.length} errors found.`"
     />
 
-    <v-card
-      v-for="(error, index) in bundle.data.validation?.errors" :key="index"
-      class="ma-2"
-      variant="outlined"
-      :title="`File : ${error.path[0]}`"
-      :text="`${error.message} at ${error.path.slice(1).join(' ')}`"
-    />
+    <template v-for="(error, index) in bundle.data.validation?.errors" :key="index">
+      <v-card
+        v-if="error.type === 'simple'"
+        class="ma-2"
+        variant="outlined"
+        :text="error.message"
+      />
+      <v-card
+        v-if="error.type === 'code'"
+        class="ma-2"
+        variant="outlined"
+        :title="`File : ${error.file}`"
+        :text="`${error.message} at ${error.path.join('/')}`"
+      />
+    </template>
   </template>
 
   <v-alert

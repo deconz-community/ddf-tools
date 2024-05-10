@@ -52,10 +52,15 @@ export async function buildFromFiles(
   bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
 
   const ddfSource = await getSource(ddfPath)
-  bundle.data.ddfc = await ddfSource.stringData
-  bundle.data.desc.ddfc_last_modified = ddfSource.metadata.last_modified
 
-  const ddfc: Record<string, unknown> = JSON.parse(bundle.data.ddfc)
+  bundle.data.files = [{
+    data: await ddfSource.stringData,
+    path: ddfPath.substring(ddfPath.lastIndexOf('/') + 1),
+    type: 'DDFC',
+    last_modified: ddfSource.metadata.last_modified,
+  }]
+
+  const ddfc: Record<string, unknown> = await ddfSource.jsonData
 
   // Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
