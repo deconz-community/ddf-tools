@@ -1,7 +1,13 @@
 import { z } from 'zod'
-import { makeEndpoint, makeParameter } from '../core/helpers'
+import { Ok } from 'ts-results-es'
+import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
+
+export interface RequestData {
+  statusCode: number
+  data: unknown
+}
 
 const apiKey = makeParameter({
   description: 'API Key',
@@ -264,49 +270,38 @@ export const endpoints = {
     parameters: {
       apiKey: globalParameters.optionalApiKey,
     },
-    responseFormats: {
-      status_200: {
-        isOk: true,
-        type: 'json',
-        format: z.preprocess((data) => {
-          if (typeof data !== 'object' || data === null)
-            return data
+    response: {
+      format: 'json',
+      schema: z.preprocess((data, ctx) => {
+        if (typeof data !== 'object' || data === null)
+          return data
 
-          return {
-            authenticated: 'whitelist' in data,
-            ...data,
-          }
-        }, z.discriminatedUnion('authenticated', [
-          configSchema.extend({
-            authenticated: z.literal(true),
-          }),
-          configSchema.pick({
-            apiversion: true,
-            bridgeid: true,
-            datastoreversion: true,
-            devicename: true,
-            factorynew: true,
-            mac: true,
-            modelid: true,
-            name: true,
-            replacesbridgeid: true,
-            starterkitid: true,
-            swversion: true,
-          }).extend({
-            authenticated: z.literal(false),
-          }),
-        ])),
-      },
-      /*
-      status_404: {
-        isOk: false,
-        type: 'json',
-        format: z.object({
-          code: z.literal('UNAUTH'),
-          message: z.literal('You dont have access'),
+        assertStatusCode(200)(data, ctx)
+
+        return {
+          authenticated: 'whitelist' in data,
+          ...data,
+        }
+      }, z.discriminatedUnion('authenticated', [
+        configSchema.extend({
+          authenticated: z.literal(true),
         }),
-      },
-      */
+        configSchema.pick({
+          apiversion: true,
+          bridgeid: true,
+          datastoreversion: true,
+          devicename: true,
+          factorynew: true,
+          mac: true,
+          modelid: true,
+          name: true,
+          replacesbridgeid: true,
+          starterkitid: true,
+          swversion: true,
+        }).extend({
+          authenticated: z.literal(false),
+        }),
+      ])).transform(Ok),
     },
   }),
 
@@ -338,6 +333,7 @@ export const endpoints = {
 
   */
 
+  /*
   updateConfig: makeEndpoint({
     description: 'Modify configuration parameters.',
     method: 'put',
@@ -363,7 +359,15 @@ export const endpoints = {
       status_400: {
         isOk: false,
         type: 'jsonArray',
-        format: z.any(),
+        format: z.object({
+          errors: z.array(z.object({
+            address: z.string(),
+            code: z.string(),
+            description: z.string(),
+            type: z.number(),
+          })).optional(),
+          success: z.any().optional(),
+        }),
 
         /*
         [
@@ -375,8 +379,8 @@ export const endpoints = {
         }
       ]
         */
-      },
-      /*
+  // },
+  /*
       status_404: {
         isOk: false,
         type: 'json',
@@ -386,9 +390,11 @@ export const endpoints = {
         }),
       },
       */
+  /*
     },
   }),
 
+  */
   /*
   updateConfig: makeEndpoint({
     alias: 'updateConfig',

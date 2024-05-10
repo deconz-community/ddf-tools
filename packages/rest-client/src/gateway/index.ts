@@ -1,46 +1,14 @@
 import axios from 'axios'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
-import type { ZodError } from 'zod'
-import type { EndpointAlias, EndpointDefinition, EndpointResponseFormat, ExtractFormatsSchemaForAlias, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias } from '../core/helpers'
+import { z } from 'zod'
+import type { EndpointAlias, EndpointDefinition, ExtractErrorsForAlias, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, ExtractResponseSchemaForAlias } from '../core/helpers'
 import { getValue } from '../core/helpers'
 import type { MaybeLazy } from '../core/types'
 
+import type { CommonErrors } from '../core/errors'
+import { clientError, deconzError, zodError } from '../core/errors'
 import { endpoints } from './endpoints'
-
-const ERRORS = {
-  NO_FORMAT: {
-    code: 'NO_FORMAT',
-    message: 'No format for that response',
-  },
-  PARSE_FAILED: {
-    code: 'PARSE_FAILED',
-    message: 'Failed to parse data',
-  },
-  NOT_IMPLEMENTED: {
-    code: 'NOT_IMPLEMENTED',
-    message: 'Format not implemented',
-  },
-} as const
-
-function zodError(on: 'request' | 'response', error: ZodError) {
-  if (on === 'request') {
-    return {
-      code: 'VALIDATION_ERROR_REQUEST',
-      message: 'Invalid params provided',
-      error,
-    } as const
-  }
-  else {
-    return {
-      code: 'VALIDATION_ERROR_RESPONSE',
-      message: 'Invalid response from the gateway',
-      error,
-    } as const
-  }
-}
-
-export type CommonErrors = (typeof ERRORS)[keyof typeof ERRORS] | ReturnType<typeof zodError>
 
 type RequestFunctionType = <
   Alias extends EndpointAlias,
@@ -50,9 +18,9 @@ type RequestFunctionType = <
   params: Params
 ) => Promise<
   Result<
-    ExtractFormatsSchemaForAlias<Alias, true>,
-    CommonErrors | ExtractFormatsSchemaForAlias<Alias, false>
-  >
+    ExtractResponseSchemaForAlias<Alias>,
+    ExtractErrorsForAlias<Alias>
+  >[]
 >
 
 /*
@@ -100,13 +68,15 @@ export function gatewayClient(clientParams: ClientParams) {
       const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
 
       if (!parsed.success)
-        return Err(zodError('request', parsed.error))
+        return [Err(zodError('request', parsed.error))]
 
       switch (definition.type) {
         case 'path':
           url = url.replace(`{:${name}:}`, value)
-
           break
+
+        default:
+          return [clientError('PARAMS_PARSE_FAILED')]
       }
     }
     const { data, status } = await axios.request({
@@ -121,53 +91,155 @@ export function gatewayClient(clientParams: ClientParams) {
       },
     })
 
-    const statusKey = `status_${status}`
-    if (!(statusKey in endpoint.responseFormats))
-      return Err(ERRORS.NO_FORMAT)
+    const { format, deconzErrors, schema, removePrefix } = endpoint.response
 
-    const { format, isOk, type } = endpoint.responseFormats[statusKey]
+    function getString(string: string) {
+      if (removePrefix === undefined)
+        return string
+      return string.replace(removePrefix, '')
+    }
 
     try {
-      switch (type) {
+      switch (format) {
         case 'json': {
           const decoder = new TextDecoder('utf-8')
           const textData = decoder.decode(data)
           const jsonData = JSON.parse(textData)
-          const returnData = format.safeParse(jsonData)
-          if (!returnData.success)
-            return Err(zodError('request', returnData.error))
 
-          if (isOk)
-            return Ok(returnData.data) as any
-          else
-            return Err(returnData.data) as any
+          Object.defineProperty(jsonData, 'statusCode', {
+            value: status,
+            writable: false,
+            enumerable: false,
+          })
+
+          const returnData = schema.safeParse(jsonData)
+          if (returnData.success) {
+            if (Array.isArray(returnData.data))
+              return returnData.data
+            else
+              return [returnData.data]
+          }
+
+          return [Err(zodError('response', returnData.error))]
         }
 
         case 'jsonArray': {
-          console.log('coucou')
           const decoder = new TextDecoder('utf-8')
           const textData = decoder.decode(data)
           const jsonData = JSON.parse(textData)
 
-          /*
-          z.string()
-          .transform((val) => val.length)
-          .pipe(z.number().min(5))
-          */
+          Object.defineProperty(jsonData, 'statusCode', {
+            value: status,
+            writable: false,
+            enumerable: false,
+          })
 
-          return Err(ERRORS.NOT_IMPLEMENTED)
+          const rawData = z.array(z.object({
+            success: z.any().optional(),
+            error: z.object({
+              address: z.string(),
+              description: z.string(),
+              type: z.number(),
+            }).optional(),
+          })).safeParse(jsonData)
+
+          if (!rawData.success)
+            return Err(zodError('response', rawData.error))
+
+          const result: {
+            success?: any
+            errors?: CommonErrors<any>[]
+          } = {}
+
+          rawData.data.forEach((item) => {
+            if ('success' in item) {
+              if (Array.isArray(item.success)) {
+                result.success = item.success
+                return
+              }
+
+              if (result.success === undefined)
+                result.success = {}
+
+              if (typeof item.success === 'string') {
+                result.success.value = getString(item.success)
+              }
+              else if (item.success === null) {
+                // Because null is an object
+                result.success.value = null
+              }
+              else if (item.success instanceof Blob) {
+                // Because a Blob is an object
+                result.success.value = item.success
+              }
+              else if (typeof item.success === 'object') {
+                // Loop for probably only one item
+                for (const [key, value] of Object.entries(item.success ?? {}))
+                  result.success[getString(key)] = value
+              }
+              else {
+                result.success.value = item.success
+              }
+            }
+            if ('error' in item) {
+              if (result.errors === undefined)
+                result.errors = []
+              if (typeof item.error === 'string') {
+                throw new TypeError('Not Implemented')
+              }
+              else if (typeof item.error === 'object') {
+                const error = z.object({
+                  address: z.string(),
+                  description: z.string(),
+                  type: z.number(),
+                }).safeParse(item.error)
+
+                if (deconzErrors && error.data?.type && !deconzErrors.includes(error.data.type as any))
+                  console.warn('Unexpected error ', error.data.type)
+
+                if (error.success)
+                  result.errors.push(deconzError(error.data.type))
+                else
+                  result.errors.push(clientError('RESPONSE_PARSE_FAILED'))
+              }
+            }
+          })
+
+          const results: Result<any, any>[] = []
+
+          Object.defineProperty(result.success, 'statusCode', {
+            value: status,
+            writable: false,
+            enumerable: false,
+          })
+
+          const successData = schema.safeParse(result.success)
+
+          if (!successData.success)
+            return [Err(zodError('response', successData.error))]
+
+          if (Array.isArray(successData.data))
+            results.push(...successData.data)
+          else
+            results.push(successData.data)
+
+          result.errors?.forEach((error) => {
+            results.push(Err(error))
+          })
+
+          return results
         }
 
         default:
-          return Err(ERRORS.NOT_IMPLEMENTED)
+          return [Err(clientError('NOT_IMPLEMENTED'))]
       }
     }
     catch (error) {
       console.error(error)
-      return Err(ERRORS.PARSE_FAILED)
+      return [Err(clientError('RESPONSE_PARSE_FAILED'))]
     }
 
-    return Err(ERRORS.NOT_IMPLEMENTED)
+    return [Err(clientError('NOT_IMPLEMENTED'))]
   }
 
   return { request }

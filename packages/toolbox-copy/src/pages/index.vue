@@ -10,13 +10,18 @@ async function test() {
     apiKey: () => apiKey.value,
   })
 
-  const result = await client.request('updateConfig', {
-    config: {
-      name: 'New name',
-    },
-  })
+  const results = await client.request('getConfig', {})
 
-  console.log({ result })
+  results.forEach((result) => {
+    if (result.isOk()) {
+      const data = result.value
+
+      console.log(data)
+    }
+    else {
+      console.error(result)
+    }
+  })
 }
 </script>
 

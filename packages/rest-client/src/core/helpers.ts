@@ -1,6 +1,10 @@
-import type { ZodType, ZodTypeAny, z } from 'zod'
+import type { ZodType, ZodTypeAny } from 'zod'
+import { z } from 'zod'
+
+import type { Result } from 'ts-results-es'
 import type { endpoints } from '../gateway/endpoints'
 import type { LazyTypes, MaybeLazy } from './types'
+import type { CommonErrors, DeconzErrorCodes } from './errors'
 
 // #region Utility types
 export type ResolveZod<Input> = Input extends ZodTypeAny ? z.infer<Input> : never
@@ -22,18 +26,19 @@ export type UndefinedToOptional<T> = Partial<T> & Pick<T, GetMandatoryKeys<T>>
 
 export type EndpointAlias = keyof typeof endpoints
 
-type ResponseFormats<Alias extends EndpointAlias> = typeof endpoints[Alias]['responseFormats']
+type Response<Alias extends EndpointAlias> = typeof endpoints[Alias]['response']
 type Parameters<Alias extends EndpointAlias> = typeof endpoints[Alias]['parameters']
 
-type ExtractFormatsKeys<Alias extends EndpointAlias, Ok extends true | false> = {
-  // @ts-expect-error isOk is defined
-  [K in keyof ResponseFormats<Alias>]: ResponseFormats<Alias>[K]['isOk'] extends Ok ? K : never;
-}[keyof ResponseFormats<Alias>]
+export type ExtractResponseSchemaForAlias<Alias extends EndpointAlias> =
+  ResolveZod<Response<Alias>['schema']>
 
-export type ExtractFormatsSchemaForAlias<Alias extends EndpointAlias, Ok extends true | false> =
-  // @ts-expect-error format is defined
-  ResolveZod<ResponseFormats<Alias>[ExtractFormatsKeys<Alias, Ok>]['format']>
+export type ExtractErrorsForAlias<Alias extends EndpointAlias> =
+  ('deconzErrors' extends keyof Response<Alias>
+  // @ts-expect-error Yes I know I cheated again
+    ? CommonErrors<Response<Alias>['deconzErrors'][number]>
+    : CommonErrors<never>)
 
+// #region Params types
 export type ExtractParamsNamesForAlias<Alias extends EndpointAlias> = keyof Parameters<Alias>
 
 export type ExtractParamsForAlias<Alias extends EndpointAlias> =
@@ -44,7 +49,7 @@ Prettify<UndefinedToOptional<{
 export type ExtractParamsSchemaForAlias<
   Alias extends EndpointAlias,
   ParamName extends ExtractParamsNamesForAlias<Alias>,
-  // @ts-expect-error schema is defined
+    // @ts-expect-error schema is defined
 > = Parameters<Alias>[ParamName]['schema']
 
 export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
@@ -53,29 +58,19 @@ export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
   schema: Schema
   sample: z.infer<Schema>
 }
-
-// TODO: removePrefix is used only for json and jsonArray
-export type EndpointResponseFormat = {
-  isOk: true
-  type: 'json' | 'jsonArray' | 'blob'
-  removePrefix?: RegExp | string
-  format: ZodTypeAny
-} | {
-  isOk: false
-  type: 'json' | 'jsonArray' | 'blob'
-  removePrefix?: RegExp | string
-  format: ZodType<{
-    code: string
-    message: string
-  } & Record<string, any>>
-}
+// #endregion
 
 export interface EndpointDefinition {
   description: string
   method: 'get' | 'post' | 'put' | 'delete'
   path: string
-  responseFormats: Record<string, EndpointResponseFormat>
   parameters: Record<string, ParameterDefinition>
+  response: {
+    format: 'json' | 'jsonArray' | 'blob'
+    schema: ZodType<Result<any, any> | Result<any, any>[], any, any>
+    deconzErrors?: DeconzErrorCodes[]
+    removePrefix?: RegExp | string
+  }
 }
 
 export function makeParameter<Schema extends ZodTypeAny>(endpoint: ParameterDefinition<Schema>): ParameterDefinition<Schema> {
@@ -97,4 +92,23 @@ export function getValue<T extends LazyTypes>(value: MaybeLazy<T>): T {
     return value()
   else
     return value
+}
+
+export function assertStatusCode(expectedCode: number | undefined) {
+  return (data: unknown, ctx: z.RefinementCtx) => {
+    if (typeof data !== 'object' || data === null)
+      return data
+
+    const statusCode = 'statusCode' in data ? data.statusCode : undefined
+
+    if (expectedCode === undefined || statusCode === expectedCode)
+      return data
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Expected status code '${expectedCode}' but got '${statusCode}'`,
+    })
+
+    return data
+  }
 }
