@@ -1,12 +1,19 @@
 import { z } from 'zod'
-import { type ParameterDefinition, makeParameter } from '../core/helpers'
+import { makeParameter } from '../core/helpers'
 
 export const globalParameters = {
   // The API Key is optional because it's will be loaded by the API Key plugin
-  apiKey: makeParameter<string>({
+  requiredApiKey: makeParameter<string>({
     description: 'API Key',
     type: 'path',
     schema: z.string(),
+    sample: '12345ABCDE',
+  }),
+
+  optionalApiKey: makeParameter<string | undefined>({
+    description: 'API Key',
+    type: 'path',
+    schema: z.string().optional(),
     sample: '12345ABCDE',
   }),
 
@@ -14,7 +21,7 @@ export const globalParameters = {
     description: 'groupId',
     type: 'path',
     schema: z.number(),
-    sample: 1234,
+    sample: 12,
   }),
 
   /*

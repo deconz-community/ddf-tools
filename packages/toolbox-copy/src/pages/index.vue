@@ -5,18 +5,22 @@ const url = ref(import.meta.env.VITE_GATEWAY_URL)
 const apiKey = ref(import.meta.env.VITE_GATEWAY_KEY)
 
 async function test() {
-  const client = gatewayClient(() => url.value, () => apiKey.value)
-
-  const result = await client.request('getConfig', {
-    groupId: 3,
-    apiKey: 'foo',
+  const client = gatewayClient({
+    address: () => url.value,
+    apiKey: () => apiKey.value,
   })
 
+  const result = await client.request('getConfig', {})
+
   if (result.isOk()) {
+    console.log(`authenticated=${result.value.authenticated}`)
     if (result.value.authenticated)
       console.log(result.value.whitelist)
     else
-      console.log(`apiversion${result.value.apiversion}`)
+      console.log(`apiversion=${result.value.apiversion}`)
+  }
+  else {
+    console.log(result.error)
   }
 }
 </script>

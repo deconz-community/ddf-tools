@@ -1,6 +1,14 @@
 import { z } from 'zod'
-import { makeEndpoint } from '../core/helpers'
+import { makeEndpoint, makeParameter } from '../core/helpers'
 import { configSchema } from './schemas/configSchema'
+import { globalParameters } from './parameters'
+
+const apiKey = makeParameter({
+  description: 'API Key',
+  type: 'path',
+  schema: z.string().optional(),
+  sample: '12345ABCDE',
+})
 
 export const endpoints = {
 
@@ -254,19 +262,16 @@ export const endpoints = {
     method: 'get',
     path: '/api/{:apiKey:}/config',
     parameters: {
-      // globalParameters.apiKey,
-      apiKey: {
-        description: 'API Key',
-        type: 'path',
-        schema: z.string().optional(),
-        sample: '12345ABCDE',
-      },
+      apiKey: globalParameters.optionalApiKey,
+      // newApiKey: globalParameters.requiredApiKey,
+      /*
       groupId: {
         description: 'groupId',
         type: 'path',
         schema: z.number(),
         sample: 1234,
       },
+      */
     },
     responseFormats: {
       status_200: {
@@ -276,8 +281,6 @@ export const endpoints = {
           if (typeof data !== 'object' || data === null)
             return data
 
-          console.log('whitelist' in data)
-          console.log(data)
           return {
             authenticated: 'whitelist' in data,
             ...data,
@@ -305,8 +308,11 @@ export const endpoints = {
       },
       status_404: {
         isOk: false,
-        format: z.any(),
         type: 'json',
+        format: z.object({
+          code: z.literal('UNAUTH'),
+          message: z.literal('You dont have access'),
+        }),
       },
     },
   }),

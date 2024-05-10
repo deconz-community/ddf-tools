@@ -37,22 +37,30 @@ export type ExtractFormatsSchemaForAlias<Alias extends EndpointAlias, Ok extends
 export type ExtractParamsNamesForAlias<Alias extends EndpointAlias> = keyof Parameters<Alias>
 
 export type ExtractParamsForAlias<Alias extends EndpointAlias> =
-Prettify<{
+Prettify<UndefinedToOptional<{
   // @ts-expect-error schema is defined
   [K in ExtractParamsNamesForAlias<Alias>]: ResolveZod<Parameters<Alias>[K]['schema']>
-}>
+}>>
 
 export interface ParameterDefinition<Format = any> {
   description: string
   type: 'path'
+  config?: 'apiKey'
   schema: ZodType<Format>
   sample: Format
 }
 
-export interface EndpointResponseFormat {
-  isOk: boolean
+export type EndpointResponseFormat = {
+  isOk: true
   type: 'json' | 'jsonArray' | 'blob'
   format: ZodTypeAny
+} | {
+  isOk: false
+  type: 'json' | 'jsonArray' | 'blob'
+  format: ZodType<{
+    code: string
+    message: string
+  } & Record<string, any>>
 }
 
 export interface EndpointDefinition {
