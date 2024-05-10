@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.24.0
+
+### Minor Changes
+
+- 44f03b0: DDFC file is now in the EXTF chunk
+
 ## 0.23.0
 
 ### Minor Changes
