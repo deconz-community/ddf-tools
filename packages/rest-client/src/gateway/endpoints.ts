@@ -4,18 +4,6 @@ import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 
-export interface RequestData {
-  statusCode: number
-  data: unknown
-}
-
-const apiKey = makeParameter({
-  description: 'API Key',
-  type: 'path',
-  schema: z.string().optional(),
-  sample: '12345ABCDE',
-})
-
 export const endpoints = {
 
   // #region Alarm System endpoints
@@ -272,7 +260,6 @@ export const endpoints = {
     },
     response: {
       format: 'json',
-
       schema: z.preprocess((data, ctx) => {
         if (typeof data !== 'object' || data === null)
           return data
@@ -334,88 +321,29 @@ export const endpoints = {
 
   */
 
-  /*
   updateConfig: makeEndpoint({
     description: 'Modify configuration parameters.',
     method: 'put',
     path: '/api/{:apiKey:}/config',
     parameters: {
-      apiKey: globalParameters.neededApiKey,
+      apiKey: globalParameters.optionalApiKey,
       config: makeParameter({
         type: 'body',
-        description: '',
+        description: 'Properties of the gateway to update',
         schema: writableConfigSchema.partial(),
         sample: {
           name: 'New name',
         },
       }),
     },
-    responseFormats: {
-      status_200: {
-        isOk: true,
-        type: 'json',
-        format: writableConfigSchema.partial(),
-        removePrefix: /^\/config\//,
-      },
-      status_400: {
-        isOk: false,
-        type: 'jsonArray',
-        format: z.object({
-          errors: z.array(z.object({
-            address: z.string(),
-            code: z.string(),
-            description: z.string(),
-            type: z.number(),
-          })).optional(),
-          success: z.any().optional(),
-        }),
-
-        /*
-        [
-          {"error":{
-            "address":"",
-            "description":"body contains invalid JSON",
-            "type":2
-          }
-        }
-      ]
-        */
-  // },
-  /*
-      status_404: {
-        isOk: false,
-        type: 'json',
-        format: z.object({
-          code: z.literal('UNAUTH'),
-          message: z.literal('You dont have access'),
-        }),
-      },
-      */
-  /*
+    response: {
+      format: 'jsonArray',
+      schema: writableConfigSchema
+        .partial()
+        .transform(data => Ok(data)),
+      removePrefix: /^\/config\//,
     },
   }),
-
-  */
-  /*
-  updateConfig: makeEndpoint({
-    alias: 'updateConfig',
-    description: 'Modify configuration parameters.',
-    method: 'put',
-    path: '/api/:apiKey/config',
-    response: prepareResponse(
-      writableConfigSchema.partial(),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: writableConfigSchema.partial(),
-      },
-    ],
-  }),
-  */
 
   /*
   updateSoftware: makeEndpoint({

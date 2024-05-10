@@ -54,6 +54,7 @@ export type ExtractParamsSchemaForAlias<
 
 export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
   description: string
+  format?: 'json'
   type: 'path' | 'body'
   schema: Schema
   sample: z.infer<Schema>

@@ -10,6 +10,7 @@ async function test() {
     apiKey: () => apiKey.value,
   })
 
+  /*
   const results = await client.request('getConfig', {})
 
   results.forEach((result) => {
@@ -24,6 +25,21 @@ async function test() {
     else {
       console.error(result)
     }
+  })
+  */
+
+  const results = await client.request('updateConfig', {
+    config: {
+      name: 'foo',
+      permitjoin: 0,
+    },
+  })
+
+  results.forEach((result) => {
+    if (result.isOk())
+      console.log('ok=', result.value)
+    else
+      console.error(result)
   })
 }
 </script>

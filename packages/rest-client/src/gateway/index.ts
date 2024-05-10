@@ -61,6 +61,7 @@ export function gatewayClient(clientParams: ClientParams) {
       requestParams.apiKey = apiKey
 
     let url = endpoint.path
+    let requestData: any
 
     for (const [name, definition] of Object.entries(endpoint.parameters)) {
       const value = getValue(requestParams[name as keyof typeof requestParams])
@@ -75,14 +76,31 @@ export function gatewayClient(clientParams: ClientParams) {
           url = url.replace(`{:${name}:}`, value)
           break
 
+        case 'body':
+          switch (definition.format) {
+            case undefined:
+            case 'json':
+              // Let axios handle the serialization
+              requestData = value
+              break
+
+            default:
+              console.warn(`No parser for format of type body/${definition.format}`)
+              return [Err(clientError('PARAMS_PARSE_FAILED'))]
+          }
+
+          break
+
         default:
-          return [clientError('PARAMS_PARSE_FAILED')]
+          console.warn(`No parser for param of type ${definition.type}`)
+          return [Err(clientError('PARAMS_PARSE_FAILED'))]
       }
     }
-    const { data, status } = await axios.request({
+    const { data: responseData, status } = await axios.request({
       method: endpoint.method,
       baseURL: getValue(address),
       url,
+      data: requestData,
       timeout: 5000,
       validateStatus: () => true,
       responseType: 'arraybuffer',
@@ -103,7 +121,7 @@ export function gatewayClient(clientParams: ClientParams) {
       switch (format) {
         case 'json': {
           const decoder = new TextDecoder('utf-8')
-          const textData = decoder.decode(data)
+          const textData = decoder.decode(responseData)
           const jsonData = JSON.parse(textData)
 
           Object.defineProperty(jsonData, 'statusCode', {
@@ -125,7 +143,7 @@ export function gatewayClient(clientParams: ClientParams) {
 
         case 'jsonArray': {
           const decoder = new TextDecoder('utf-8')
-          const textData = decoder.decode(data)
+          const textData = decoder.decode(responseData)
           const jsonData = JSON.parse(textData)
 
           Object.defineProperty(jsonData, 'statusCode', {
@@ -144,7 +162,7 @@ export function gatewayClient(clientParams: ClientParams) {
           })).safeParse(jsonData)
 
           if (!rawData.success)
-            return Err(zodError('response', rawData.error))
+            return [Err(zodError('response', rawData.error))]
 
           const result: {
             success?: any
