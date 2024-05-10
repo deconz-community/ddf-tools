@@ -34,38 +34,46 @@ async function upload() {
 
   // TODO Check if bundle is part of a tree
 
-  const formData = new FormData()
-  files.value.forEach((file) => {
-    formData.append(uuidv4(), file)
-  })
+  const chunks: File[][] = []
 
-  // const result = await store.client?.request(uploadFiles(formData))
-  const result = await store.client?.request<{ result: UploadResponse }>(() => {
-    return {
-      method: 'POST',
-      path: `/bundle/upload/${defaultState.value}`,
-      body: formData,
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
-  })
+  for (let i = 0; i < files.value.length; i += 10)
+    chunks.push(files.value.slice(i, i + 10))
 
-  if (result) {
-    const results = Object.entries(result.result)
+  for (const chunk of chunks) {
+    const formData = new FormData()
+    chunk.forEach((file) => {
+      formData.append(uuidv4(), file)
+    })
 
-    const goodResults = results.filter(([_, value]) => value.success)
-    const badResults = results.filter(([_, value]) => !value.success)
+    // const result = await store.client?.request(uploadFiles(formData))
+    const result = await store.client?.request<{ result: UploadResponse }>(() => {
+      return {
+        method: 'POST',
+        path: `/bundle/upload/${defaultState.value}`,
+        body: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    })
 
-    if (goodResults.length > 0)
-      toast.success(`${goodResults.length} bundles uploaded successfully`)
+    if (result) {
+      const results = Object.entries(result.result)
 
-    if (badResults.length > 0) {
-      badResults.forEach(([key, value]) => {
-        toast.error(formData.get(key)?.name ?? 'Bundle', {
-          description: value.message,
+      const goodResults = results.filter(([_, value]) => value.success)
+      const badResults = results.filter(([_, value]) => !value.success)
+
+      if (goodResults.length > 0)
+        toast.success(`${goodResults.length} bundles uploaded successfully`)
+
+      if (badResults.length > 0) {
+        badResults.forEach(([key, value]) => {
+          toast.error(formData.get(key)?.name ?? 'Bundle', {
+            description: value.message,
+          })
         })
-      })
+      }
     }
   }
+
   // files.value = []
 }
 </script>
