@@ -38,7 +38,6 @@ declare module 'vue' {
     SpotGatewayState: typeof import('./components/spot/spot-gateway-state.vue')['default']
     TableCollection: typeof import('./components/table-collection.vue')['default']
     UseTimeAgo: typeof import('@vueuse/components')['UseTimeAgo']
-    VueMarkdown: typeof import('markdown-vue')['default']
     VueMonacoEditor: typeof import('@guolao/vue-monaco-editor')['VueMonacoEditor']
     ZodiosApi: typeof import('./components/zodios-api.vue')['default']
   }
