@@ -3,21 +3,29 @@ import { makeParameter } from '../core/helpers'
 
 export const globalParameters = {
   // The API Key is optional because it's will be loaded by the API Key plugin
-  requiredApiKey: makeParameter<string>({
+  requiredApiKey: makeParameter({
     description: 'API Key',
     type: 'path',
     schema: z.string(),
     sample: '12345ABCDE',
   }),
 
-  optionalApiKey: makeParameter<string | undefined>({
+  optionalApiKey: makeParameter({
     description: 'API Key',
     type: 'path',
     schema: z.string().optional(),
     sample: '12345ABCDE',
   }),
 
-  groupId: makeParameter<number>({
+  // TODO: Find a better way to handle that case, the key is needed but it's added by the client
+  neededApiKey: makeParameter({
+    description: 'API Key',
+    type: 'path',
+    schema: z.string().optional(),
+    sample: '12345ABCDE',
+  }),
+
+  groupId: makeParameter({
     description: 'groupId',
     type: 'path',
     schema: z.number(),

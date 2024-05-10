@@ -25,7 +25,7 @@ const editName = useDialogAction(() => {
     },
     defaultValue: currentName,
     confirmationText: 'Save',
-    schema: getParamZodSchema('updateConfig', 'body', 'name'),
+    schema: getParamZodSchema('updateConfig', 'body').shape.name,
     onSubmit: async (name) => {
       if (name === currentName)
         return toast.info('No changes made')

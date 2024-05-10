@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { makeEndpoint, makeParameter } from '../core/helpers'
-import { configSchema } from './schemas/configSchema'
+import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 
 const apiKey = makeParameter({
@@ -263,15 +263,6 @@ export const endpoints = {
     path: '/api/{:apiKey:}/config',
     parameters: {
       apiKey: globalParameters.optionalApiKey,
-      // newApiKey: globalParameters.requiredApiKey,
-      /*
-      groupId: {
-        description: 'groupId',
-        type: 'path',
-        schema: z.number(),
-        sample: 1234,
-      },
-      */
     },
     responseFormats: {
       status_200: {
@@ -306,6 +297,7 @@ export const endpoints = {
           }),
         ])),
       },
+      /*
       status_404: {
         isOk: false,
         type: 'json',
@@ -314,6 +306,7 @@ export const endpoints = {
           message: z.literal('You dont have access'),
         }),
       },
+      */
     },
   }),
 
@@ -343,6 +336,60 @@ export const endpoints = {
     ],
   }),
 
+  */
+
+  updateConfig: makeEndpoint({
+    description: 'Modify configuration parameters.',
+    method: 'put',
+    path: '/api/{:apiKey:}/config',
+    parameters: {
+      apiKey: globalParameters.neededApiKey,
+      config: makeParameter({
+        type: 'body',
+        description: '',
+        schema: writableConfigSchema.partial(),
+        sample: {
+          name: 'New name',
+        },
+      }),
+    },
+    responseFormats: {
+      status_200: {
+        isOk: true,
+        type: 'json',
+        format: writableConfigSchema.partial(),
+        removePrefix: /^\/config\//,
+      },
+      status_400: {
+        isOk: false,
+        type: 'jsonArray',
+        format: z.any(),
+
+        /*
+        [
+          {"error":{
+            "address":"",
+            "description":"body contains invalid JSON",
+            "type":2
+          }
+        }
+      ]
+        */
+      },
+      /*
+      status_404: {
+        isOk: false,
+        type: 'json',
+        format: z.object({
+          code: z.literal('UNAUTH'),
+          message: z.literal('You dont have access'),
+        }),
+      },
+      */
+    },
+  }),
+
+  /*
   updateConfig: makeEndpoint({
     alias: 'updateConfig',
     description: 'Modify configuration parameters.',
@@ -361,7 +408,9 @@ export const endpoints = {
       },
     ],
   }),
+  */
 
+  /*
   updateSoftware: makeEndpoint({
     alias: 'updateSoftware',
     description: 'Starts the update if available (only on Raspberry Pi).',

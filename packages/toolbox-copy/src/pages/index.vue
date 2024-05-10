@@ -10,18 +10,13 @@ async function test() {
     apiKey: () => apiKey.value,
   })
 
-  const result = await client.request('getConfig', {})
+  const result = await client.request('updateConfig', {
+    config: {
+      name: 'New name',
+    },
+  })
 
-  if (result.isOk()) {
-    console.log(`authenticated=${result.value.authenticated}`)
-    if (result.value.authenticated)
-      console.log(result.value.whitelist)
-    else
-      console.log(`apiversion=${result.value.apiversion}`)
-  }
-  else {
-    console.log(result.error)
-  }
+  console.log({ result })
 }
 </script>
 

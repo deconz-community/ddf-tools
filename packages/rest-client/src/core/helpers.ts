@@ -38,25 +38,32 @@ export type ExtractParamsNamesForAlias<Alias extends EndpointAlias> = keyof Para
 
 export type ExtractParamsForAlias<Alias extends EndpointAlias> =
 Prettify<UndefinedToOptional<{
-  // @ts-expect-error schema is defined
-  [K in ExtractParamsNamesForAlias<Alias>]: ResolveZod<Parameters<Alias>[K]['schema']>
+  [K in ExtractParamsNamesForAlias<Alias>]: ResolveZod<ExtractParamsSchemaForAlias<Alias, K>>
 }>>
 
-export interface ParameterDefinition<Format = any> {
+export type ExtractParamsSchemaForAlias<
+  Alias extends EndpointAlias,
+  ParamName extends ExtractParamsNamesForAlias<Alias>,
+  // @ts-expect-error schema is defined
+> = Parameters<Alias>[ParamName]['schema']
+
+export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
   description: string
-  type: 'path'
-  config?: 'apiKey'
-  schema: ZodType<Format>
-  sample: Format
+  type: 'path' | 'body'
+  schema: Schema
+  sample: z.infer<Schema>
 }
 
+// TODO: removePrefix is used only for json and jsonArray
 export type EndpointResponseFormat = {
   isOk: true
   type: 'json' | 'jsonArray' | 'blob'
+  removePrefix?: RegExp | string
   format: ZodTypeAny
 } | {
   isOk: false
   type: 'json' | 'jsonArray' | 'blob'
+  removePrefix?: RegExp | string
   format: ZodType<{
     code: string
     message: string
@@ -71,9 +78,15 @@ export interface EndpointDefinition {
   parameters: Record<string, ParameterDefinition>
 }
 
+export function makeParameter<Schema extends ZodTypeAny>(endpoint: ParameterDefinition<Schema>): ParameterDefinition<Schema> {
+  return endpoint
+}
+
+/*
 export function makeParameter<Output = any>(endpoint: ParameterDefinition<Output>): ParameterDefinition<Output> {
   return endpoint as ParameterDefinition<Output>
 }
+*/
 
 export function makeEndpoint<Endpoint extends EndpointDefinition>(endpoint: Endpoint): Endpoint {
   return endpoint

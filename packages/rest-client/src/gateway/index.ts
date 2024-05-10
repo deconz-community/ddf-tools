@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
 import type { ZodError } from 'zod'
-import type { EndpointAlias, ExtractFormatsSchemaForAlias, ExtractParamsForAlias } from '../core/helpers'
+import type { EndpointAlias, EndpointDefinition, EndpointResponseFormat, ExtractFormatsSchemaForAlias, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias } from '../core/helpers'
 import { getValue } from '../core/helpers'
 import type { MaybeLazy } from '../core/types'
 
@@ -40,8 +40,7 @@ function zodError(on: 'request' | 'response', error: ZodError) {
   }
 }
 
-export type CommonErrors =
-  (typeof ERRORS)[keyof typeof ERRORS] | ReturnType<typeof zodError>
+export type CommonErrors = (typeof ERRORS)[keyof typeof ERRORS] | ReturnType<typeof zodError>
 
 type RequestFunctionType = <
   Alias extends EndpointAlias,
@@ -86,7 +85,7 @@ export function gatewayClient(clientParams: ClientParams) {
   } = clientParams
 
   const request: RequestFunctionType = async function (alias, params) {
-    const endpoint = endpoints[alias]
+    const endpoint = endpoints[alias] as EndpointDefinition
 
     const requestParams: Record<string, any> = structuredClone(params)
 
@@ -126,7 +125,7 @@ export function gatewayClient(clientParams: ClientParams) {
     if (!(statusKey in endpoint.responseFormats))
       return Err(ERRORS.NO_FORMAT)
 
-    const { format, isOk, type } = endpoint.responseFormats[statusKey as keyof typeof endpoint.responseFormats]
+    const { format, isOk, type } = endpoint.responseFormats[statusKey]
 
     try {
       switch (type) {
@@ -144,6 +143,21 @@ export function gatewayClient(clientParams: ClientParams) {
             return Err(returnData.data) as any
         }
 
+        case 'jsonArray': {
+          console.log('coucou')
+          const decoder = new TextDecoder('utf-8')
+          const textData = decoder.decode(data)
+          const jsonData = JSON.parse(textData)
+
+          /*
+          z.string()
+          .transform((val) => val.length)
+          .pipe(z.number().min(5))
+          */
+
+          return Err(ERRORS.NOT_IMPLEMENTED)
+        }
+
         default:
           return Err(ERRORS.NOT_IMPLEMENTED)
       }
@@ -157,6 +171,18 @@ export function gatewayClient(clientParams: ClientParams) {
   }
 
   return { request }
+}
+
+export function getParamZodSchema<
+  Alias extends EndpointAlias,
+  ParamName extends ExtractParamsNamesForAlias<Alias>,
+>(
+  alias: Alias,
+  paramName: ParamName,
+) {
+  const { parameters } = endpoints[alias]
+  const parameter = parameters[paramName as keyof (typeof parameters)]
+  return parameter.schema as ExtractParamsSchemaForAlias<Alias, ParamName>
 }
 
 /*
