@@ -1,7 +1,7 @@
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
 import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 
-import type { DDFDescriptor, FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayPathParam, GatewayResponse } from '@deconz-community/rest-client'
+import type { DDFDescriptor, EndpointAlias, ExtractParamsForAlias, FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayPathParam, GatewayResponse, RequestResultForAlias } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import type { GatewayCredentials } from './app'
@@ -17,7 +17,7 @@ export interface GatewayContext {
   bundles: Map<string, DDFDescriptor>
 }
 
-export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent
+export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent<EndpointAlias>
 
 export type GatewayEvent = {
   type: 'CONNECT' | 'DISCONNECT'
@@ -40,33 +40,26 @@ export interface RefreshEvent {
   type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
 }
 
-export interface RequestEvent<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']> {
-  type: 'REQUEST'
-  alias: Alias
-  request: {
-    body: GatewayBodyParams<Alias>
-    path: GatewayPathParam<Alias>
-  }
-  onDone?: (response: GatewayResponse<Alias>) => void
-  onThrow?: (error: unknown) => void
+export interface RequestEventOptions<Alias extends EndpointAlias> {
+  onDone?: (responses: RequestResultForAlias<Alias>) => void
 }
 
-export function gatewayRequest<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']>(
-  alias: Alias,
-  body: GatewayBodyParams<Alias>,
-  path: GatewayPathParam<Alias>,
-  params?: {
-    onDone?: (response: GatewayResponse<Alias>) => void
-    onThrow?: (error: unknown) => void
-  },
+export interface DoRequestParams<Alias extends EndpointAlias> {
+  alias: Alias
+  params: ExtractParamsForAlias<Alias>
+  options?: RequestEventOptions<Alias>
+}
+
+export type RequestEvent<Alias extends EndpointAlias> = {
+  type: 'REQUEST'
+} & DoRequestParams<Alias>
+
+export function gatewayRequest<Alias extends EndpointAlias>(
+  request: DoRequestParams<Alias>,
 ): RequestEvent<Alias> {
   return {
     type: 'REQUEST',
-    alias,
-    body,
-    path,
-    onDone: params?.onDone,
-    onThrow: params?.onThrow,
+    ...request,
   }
 }
 
@@ -89,6 +82,7 @@ export const gatewayMachine = setup({
       return findGateway(input.URIs, input.apiKey, input.expectedBridgeID)
     }),
 
+    // #region connectToGatewayWebsocket
     connectToGatewayWebsocket: fromCallback<AnyEventObject, {
       gatewayID: string
       uri: string
@@ -165,17 +159,7 @@ export const gatewayMachine = setup({
       return () => scope.stop()
     }),
 
-    fetchConfig: fromPromise<GatewayResponse<'getConfig'>, {
-      gateway: GatewayClient
-    }>(async ({ input }) => {
-      return input.gateway.getConfig()
-    }),
-
-    fetchDevices: fromPromise<GatewayResponse<'getDevices'>, {
-      gateway: GatewayClient
-    }>(async ({ input }) => {
-      return input.gateway.getDevices()
-    }),
+    // #endregion
 
     fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: GatewayClient }>(async ({ input }) => {
       const { gateway } = input
@@ -185,9 +169,11 @@ export const gatewayMachine = setup({
       let next
 
       while (hasMore) {
-        const result = await gateway.getDDFBundleDescriptors({
-          queries: { next },
-        })
+        const result = await gateway.request('getDDFBundleDescriptors', { next })
+
+        console.log(result)
+
+        hasMore = false
 
         const data = result?.success
 
@@ -208,19 +194,11 @@ export const gatewayMachine = setup({
       return newList
     }),
 
-    doRequest: fromPromise<void, { gateway: GatewayClient, event: RequestEvent }>(async ({ input, self }) => {
-      const { gateway, event } = input
-      try {
-        const result = await gateway[event.alias](event.request.body, {
-          params: {
-            path: event.request.path,
-          },
-        })
-        event.onDone?.(result)
-      }
-      catch (e) {
-        event.onThrow?.(e)
-      }
+    doRequest: fromPromise<RequestResultForAlias<EndpointAlias>, { gateway: GatewayClient, request: DoRequestParams<EndpointAlias> }>(async ({ input }) => {
+      const { gateway, request } = input
+      const result = await gateway.request(request.alias, request.params)
+      request.options?.onDone?.(result)
+      return result
     }),
   },
 
@@ -261,7 +239,7 @@ export const gatewayMachine = setup({
             actions: enqueueActions(({ enqueue, event }) => {
               const result = event.output.unwrap()
 
-              if (!event.output.isOk() || result.code !== 'ok')
+              if (!event.output.isOk() || result.code !== 'ok' || result.config.authenticated === false)
                 throw new Error('Invalid state')
 
               enqueue.assign({
@@ -301,11 +279,14 @@ export const gatewayMachine = setup({
           actions: enqueueActions(({ enqueue, context, event }) => {
             if (event.type !== 'REQUEST')
               return
+
+            const params = {
+              gateway: context.gateway!,
+              ...event,
+            } as any
+
             enqueue.spawnChild('doRequest', {
-              input: {
-                gateway: context.gateway!,
-                event,
-              },
+              input: params,
             })
           }),
         },
@@ -332,25 +313,40 @@ export const gatewayMachine = setup({
 
             pooling: {
               invoke: {
-                src: 'fetchConfig',
-                input: ({ context }) => ({ gateway: context.gateway! }),
+                src: 'doRequest',
+                input: ({ context }) => ({
+                  gateway: context.gateway!,
+                  request: {
+                    alias: 'getConfig',
+                    params: {},
+                  },
+                }),
                 onDone: {
                   target: 'idle',
                   actions: enqueueActions(({ enqueue, event, context }) => {
-                    const config = event.output.success
-                    if (!config)
-                      return
+                    const output = event.output as RequestResultForAlias<'getConfig'>
 
-                    enqueue.assign({
-                      config,
+                    output.forEach((result) => {
+                      // event.output.forEach((result) => {
+                      if (!result.isOk())
+                        return console.warn('Something went wrong when refreshing config', result.error)
+
+                      const config = result.value
+
+                      enqueue.assign({
+                        config,
+                      })
+
+                      if (config.name !== context.credentials.name) {
+                        enqueue.raise({
+                          type: 'UPDATE_CREDENTIALS',
+                          data: {
+                            ...context.credentials,
+                            name: config.name,
+                          },
+                        })
+                      }
                     })
-
-                    if (config.name !== context.credentials.name) {
-                      enqueue.raise({ type: 'UPDATE_CREDENTIALS', data: {
-                        ...context.credentials,
-                        name: config.name,
-                      } })
-                    }
                   }),
                 },
               },
@@ -385,15 +381,48 @@ export const gatewayMachine = setup({
 
             pooling: {
               invoke: {
-                src: 'fetchDevices',
-                input: ({ context }) => ({ gateway: context.gateway! }),
+
+                /**
+                 *
+                 *          src: 'doRequest',
+                input: ({ context }) => ({
+                  gateway: context.gateway!,
+                  request: {
+                    alias: 'getConfig',
+                    params: {},
+                  },
+                }),
+                onDone: {
+                  target: 'idle',
+                  actions: enqueueActions(({ enqueue, event, context }) => {
+                    (event.output as RequestResultForAlias<'getConfig'>).forEach((result) => {
+
+
+                 */
+                src: 'doRequest',
+                input: ({ context }) => ({
+                  gateway: context.gateway!,
+                  request: {
+                    alias: 'getDevices',
+                    params: {},
+                  },
+                }),
                 onDone: {
                   target: 'idle',
 
-                  actions: enqueueActions(({ enqueue, context, event }) => {
+                  actions: enqueueActions(({ enqueue, event, context }) => {
+                    const output = event.output as RequestResultForAlias<'getDevices'>
                     const { devices } = context
 
-                    const newList = event.output.success ?? []
+                    const newList: string[] = []
+
+                    output.forEach((result) => {
+                      if (!result.isOk())
+                        return console.warn('Something went wrong when refreshing devices', result.error)
+
+                      newList.push(...result.value)
+                    })
+
                     const oldList = Array.from(devices.keys())
 
                     const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))

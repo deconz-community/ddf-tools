@@ -4,6 +4,7 @@ import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 import { deviceSchema } from './schemas/deviceSchema'
+import { ddfdDescriptorSchema } from './schemas/ddfSchema'
 
 export const endpoints = {
 
@@ -566,13 +567,24 @@ export const endpoints = {
     ],
   }),
 
+  */
+
   getDDFBundleDescriptors: makeEndpoint({
-    alias: 'getDDFBundleDescriptors',
     description: 'Get all DDF bundle descriptors',
     method: 'get',
-    path: '/api/:apiKey/ddf/descriptors',
-    response: prepareResponse(
-      z.preprocess((descriptors: any) => {
+    path: '/api/{:apiKey:}/ddf/descriptors',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+      next: {
+        type: 'path',
+        description: 'The token to get the next page of results',
+        schema: z.optional(z.union([z.string(), z.number()])),
+        sample: 3,
+      },
+    },
+    response: {
+      format: 'json',
+      schema: z.preprocess((descriptors: any) => {
         if (typeof descriptors !== 'object' || descriptors === null)
           return descriptors
 
@@ -587,20 +599,11 @@ export const endpoints = {
       }, z.strictObject({
         next: z.optional(z.union([z.string(), z.number()])),
         descriptors: z.record(z.string(), ddfdDescriptorSchema),
-      })),
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'next',
-        description: 'The token to get the next page of results',
-        type: 'Query',
-        schema: z.optional(z.union([z.string(), z.number()])),
-      },
-    ],
+      })).transform(data => Ok(data)),
+    },
+
   }),
 
-  */
   /*
   // This endpoint is not implemented in the backend
  getDDFBundleDescriptor: makeEndpoint({
@@ -646,21 +649,20 @@ export const endpoints = {
 
   // #region Devices endpoints
 
-  /*
   getDevices: makeEndpoint({
-    alias: 'getDevices',
     description: 'Returns a list of all devices. If there are no devices in the system an empty array [] is returned.',
     method: 'get',
-    path: '/api/:apiKey/devices',
-    response: prepareResponse(z.array(z.string())),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    path: '/api/{:apiKey:}/devices',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+    },
+    response: {
+      format: 'json',
+      schema: z.array(z.string()).transform(data => Ok(data)),
+    },
   }),
 
-  */
   getDevice: makeEndpoint({
-    alias: 'getDevice',
     description: 'Returns the group with the specified id.',
     method: 'get',
     path: '/api/{:apiKey:}/devices/{:deviceUniqueID:}',
