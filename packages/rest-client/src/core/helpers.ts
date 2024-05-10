@@ -1,13 +1,13 @@
-import type { ZodType, ZodTypeAny } from 'zod'
+import type { ZodAny, ZodType, ZodTypeAny } from 'zod'
 import { z } from 'zod'
 
-import type { Result } from 'ts-results-es'
+import type { Result, ResultOkType } from 'ts-results-es'
 import type { endpoints } from '../gateway/endpoints'
 import type { LazyTypes, MaybeLazy } from './types'
 import type { CommonErrors, DeconzErrorCodes } from './errors'
 
 // #region Utility types
-export type ResolveZod<Input> = Input extends ZodTypeAny ? z.infer<Input> : never
+export type ResolveZod<Input> = Input extends ZodType<any, any, any> ? z.infer<Input> : never
 
 // https://www.youtube.com/watch?v=2lCCKiWGlC0
 export type Prettify<T> = {
@@ -30,7 +30,7 @@ type Response<Alias extends EndpointAlias> = typeof endpoints[Alias]['response']
 type Parameters<Alias extends EndpointAlias> = typeof endpoints[Alias]['parameters']
 
 export type ExtractResponseSchemaForAlias<Alias extends EndpointAlias> =
-  ResolveZod<Response<Alias>['schema']>
+  ResultOkType<ResolveZod<Response<Alias>['schema']>>
 
 export type ExtractErrorsForAlias<Alias extends EndpointAlias> =
   ('deconzErrors' extends keyof Response<Alias>
@@ -94,14 +94,20 @@ export function getValue<T extends LazyTypes>(value: MaybeLazy<T>): T {
     return value
 }
 
+export function getStatusCode(data: unknown) {
+  if (typeof data !== 'object' || data === null)
+    return undefined
+
+  return 'statusCode' in data ? data.statusCode : undefined
+}
+
 export function assertStatusCode(expectedCode: number | undefined) {
   return (data: unknown, ctx: z.RefinementCtx) => {
-    if (typeof data !== 'object' || data === null)
+    if (expectedCode === undefined)
       return data
 
-    const statusCode = 'statusCode' in data ? data.statusCode : undefined
-
-    if (expectedCode === undefined || statusCode === expectedCode)
+    const statusCode = getStatusCode(data)
+    if (statusCode === expectedCode)
       return data
 
     ctx.addIssue({

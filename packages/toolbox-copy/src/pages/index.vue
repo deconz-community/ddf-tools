@@ -16,7 +16,10 @@ async function test() {
     if (result.isOk()) {
       const data = result.value
 
-      console.log(data)
+      if (data.authenticated)
+        console.log(data.whitelist)
+      else
+        console.log(data.apiversion)
     }
     else {
       console.error(result)

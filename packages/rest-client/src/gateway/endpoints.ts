@@ -272,6 +272,7 @@ export const endpoints = {
     },
     response: {
       format: 'json',
+
       schema: z.preprocess((data, ctx) => {
         if (typeof data !== 'object' || data === null)
           return data
@@ -301,7 +302,7 @@ export const endpoints = {
         }).extend({
           authenticated: z.literal(false),
         }),
-      ])).transform(Ok),
+      ])).transform(data => Ok(data)),
     },
   }),
 

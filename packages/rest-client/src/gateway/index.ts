@@ -240,7 +240,7 @@ export function gatewayClient(clientParams: ClientParams) {
     }
 
     return [Err(clientError('NOT_IMPLEMENTED'))]
-  }
+  } as RequestFunctionType
 
   return { request }
 }
