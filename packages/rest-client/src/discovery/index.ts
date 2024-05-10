@@ -1,4 +1,8 @@
-import { z } from 'zod'
+import type { Result } from 'ts-results-es'
+import { Err, Ok } from 'ts-results-es'
+import type { GatewayClient } from '../gateway'
+import { gatewayClient } from '../gateway'
+import type { ExtractResponseSchemaForAlias } from '../core/helpers'
 
 export function discoveryClient() {
   /*
@@ -28,27 +32,55 @@ export function discoveryClient() {
   return {}
 }
 
-/*
+interface GatewayInfo {
+  gateway: GatewayClient
+  uri: string
+  apiKey: string
+  bridgeID: string
+}
+
+export type FindGatewayResult = Result<
+  (
+    {
+      code: 'ok'
+      config: ExtractResponseSchemaForAlias<'getConfig'>
+    } |
+    {
+      code: 'bridge_id_mismatch' | 'invalid_api_key'
+      message: string
+    }
+  ) & GatewayInfo,
+  {
+    code: 'unreachable' | 'unknown'
+    message?: string
+  } & Partial<Pick<GatewayInfo, 'uri' | 'apiKey'>>
+>
+
 export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''): Promise<FindGatewayResult> {
   return new Promise((resolve) => {
     let resolved = false
 
     const queries = URIs.map(async (uri) => {
       try {
-        const gateway = gatewayClient(uri, apiKey)
-        const config = await gateway.getConfig()
+        const gateway = gatewayClient({
+          address: uri,
+          apiKey,
+        })
+        const results = await gateway.request('getConfig', {})
 
-        if (!config.success)
+        const config = results.find(result => result.isOk())
+
+        if (config === undefined || !config.isOk())
           throw new Error('No response from the gateway')
 
         const info: GatewayInfo = {
           gateway,
           uri,
           apiKey,
-          bridgeID: config.success.bridgeid,
+          bridgeID: config.value.bridgeid,
         }
 
-        if (expectedBridgeID.length > 0 && config.success.bridgeid !== expectedBridgeID) {
+        if (expectedBridgeID.length > 0 && config.value.bridgeid !== expectedBridgeID) {
           // Return error now but will be returned later in Ok state
           return Err({
             code: 'bridge_id_mismatch',
@@ -58,7 +90,7 @@ export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
           } as const)
         }
 
-        if (!('whitelist' in config.success)) {
+        if (config.value.authenticated === false) {
           // Return error now but will be returned later in Ok state
           return Err({
             code: 'invalid_api_key',
@@ -71,7 +103,7 @@ export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         resolved = true
         resolve(Ok({
           code: 'ok',
-          config: config.success,
+          config: config.value,
           ...info,
         }))
         return undefined
@@ -132,4 +164,3 @@ export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
     })
   })
 }
-*/

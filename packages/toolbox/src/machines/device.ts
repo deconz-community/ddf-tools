@@ -1,12 +1,12 @@
 import { assign, fromPromise, setup } from 'xstate'
-import type { GatewayResponse, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
+import type { ExtractResponseSchemaForAlias, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
 import { produce } from 'immer'
 import { objectEntries } from 'ts-extras'
 
 export interface deviceContext {
   deviceID: string
   gatewayClient: ReturnType<typeof gatewayClient>
-  data?: GatewayResponse<'getDevice'>['success']
+  data?: ExtractResponseSchemaForAlias<'getDevice'>
 }
 
 export const deviceMachine = setup({
@@ -28,10 +28,8 @@ export const deviceMachine = setup({
         deviceID: string
       }
     }) => {
-      return input.gateway.getDevice({
-        params: {
-          deviceUniqueID: input.deviceID,
-        },
+      return input.gateway.request('getDevice', {
+        deviceUniqueID: input.deviceID,
       })
     }),
 
@@ -55,6 +53,7 @@ export const deviceMachine = setup({
               if (!draft || event.data.e !== 'changed')
                 return
 
+              // TODO: Fix theses errors
               const { state, config, attr } = event.data
 
               if (state === undefined && config === undefined && attr === undefined)
@@ -112,7 +111,10 @@ export const deviceMachine = setup({
         onDone: {
           target: 'idle',
           actions: assign({
-            data: ({ event }) => event.output.success,
+            data: ({ event }) => event.output.reduce<ExtractResponseSchemaForAlias<'getDevice'> | undefined>(
+              (data, result) => result.isOk() ? result.value : data,
+              undefined,
+            ),
           }),
         },
 

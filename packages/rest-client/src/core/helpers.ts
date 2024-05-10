@@ -29,6 +29,11 @@ export type EndpointAlias = keyof typeof endpoints
 type Response<Alias extends EndpointAlias> = typeof endpoints[Alias]['response']
 type Parameters<Alias extends EndpointAlias> = typeof endpoints[Alias]['parameters']
 
+export type RequestResultForAlias<Alias extends EndpointAlias> = Result<
+ExtractResponseSchemaForAlias<Alias>,
+ExtractErrorsForAlias<Alias>
+>[]
+
 export type ExtractResponseSchemaForAlias<Alias extends EndpointAlias> =
   ResultOkType<ResolveZod<Response<Alias>['schema']>>
 
@@ -65,6 +70,7 @@ export interface EndpointDefinition {
   description: string
   method: 'get' | 'post' | 'put' | 'delete'
   path: string
+  baseURL?: string
   parameters: Record<string, ParameterDefinition>
   response: {
     format: 'json' | 'jsonArray' | 'blob'

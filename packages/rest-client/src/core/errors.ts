@@ -9,6 +9,10 @@ export type CommonErrors<DeconzCodes extends number | never> =
 
 // #region Client errors
 const ERRORS = {
+  NO_URL: {
+    code: 'NO_URL',
+    message: 'No url for the gateway provided',
+  },
   NO_FORMAT: {
     code: 'NO_FORMAT',
     message: 'No format for that response',

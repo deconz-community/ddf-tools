@@ -1,8 +1,8 @@
 import axios from 'axios'
 import type { Result } from 'ts-results-es'
-import { Err, Ok } from 'ts-results-es'
+import { Err } from 'ts-results-es'
 import { z } from 'zod'
-import type { EndpointAlias, EndpointDefinition, ExtractErrorsForAlias, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, ExtractResponseSchemaForAlias } from '../core/helpers'
+import type { EndpointAlias, EndpointDefinition, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, RequestResultForAlias } from '../core/helpers'
 import { getValue } from '../core/helpers'
 import type { MaybeLazy } from '../core/types'
 
@@ -16,12 +16,7 @@ type RequestFunctionType = <
 >(
   alias: Alias,
   params: Params
-) => Promise<
-  Result<
-    ExtractResponseSchemaForAlias<Alias>,
-    ExtractErrorsForAlias<Alias>
-  >[]
->
+) => Promise<RequestResultForAlias<Alias>>
 
 /*
 type IsEmptyObject<T> = keyof T extends never ? true : false
@@ -38,18 +33,21 @@ type RequestFunctionType = <
     ErrorMessages | ExtractFormatsSchemaForAlias<Alias, false>
   >
 >
-
 */
 
 export interface ClientParams {
-  address: MaybeLazy<string>
+  address?: MaybeLazy<string | undefined>
   apiKey?: MaybeLazy<string | undefined>
+  timeout?: number
 }
 
-export function gatewayClient(clientParams: ClientParams) {
+export type GatewayClient = ReturnType<typeof gatewayClient>
+
+export function gatewayClient(clientParams: ClientParams = {}) {
   const {
     address,
     apiKey,
+    timeout = 5000,
   } = clientParams
 
   const request: RequestFunctionType = async function (alias, params) {
@@ -57,51 +55,61 @@ export function gatewayClient(clientParams: ClientParams) {
 
     const requestParams: Record<string, any> = structuredClone(params)
 
-    if (endpoint.parameters.apiKey && requestParams.apiKey === undefined)
-      requestParams.apiKey = apiKey
-
     let url = endpoint.path
+    const baseURL = endpoint.baseURL ?? getValue(address)
+
+    if (baseURL === undefined)
+      return [Err(clientError('NO_URL'))]
+
     let requestData: any
 
-    for (const [name, definition] of Object.entries(endpoint.parameters)) {
-      const value = getValue(requestParams[name as keyof typeof requestParams])
+    // #region Handle parameters
+    if (endpoint.parameters) {
+      if (endpoint.parameters.apiKey && requestParams.apiKey === undefined)
+        requestParams.apiKey = apiKey
 
-      const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
+      for (const [name, definition] of Object.entries(endpoint.parameters)) {
+        const value = getValue(requestParams[name as keyof typeof requestParams])
 
-      if (!parsed.success)
-        return [Err(zodError('request', parsed.error))]
+        const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
 
-      switch (definition.type) {
-        case 'path':
-          url = url.replace(`{:${name}:}`, value)
-          break
+        if (!parsed.success)
+          return [Err(zodError('request', parsed.error))]
 
-        case 'body':
-          switch (definition.format) {
-            case undefined:
-            case 'json':
-              // Let axios handle the serialization
-              requestData = value
-              break
+        switch (definition.type) {
+          case 'path':
+            url = url.replace(`{:${name}:}`, value)
+            break
 
-            default:
-              console.warn(`No parser for format of type body/${definition.format}`)
-              return [Err(clientError('PARAMS_PARSE_FAILED'))]
-          }
+          case 'body':
+            switch (definition.format) {
+              case undefined:
+              case 'json':
+                // Let axios handle the serialization
+                requestData = value
+                break
 
-          break
+              default:
+                console.warn(`No parser for format of type body/${definition.format}`)
+                return [Err(clientError('PARAMS_PARSE_FAILED'))]
+            }
 
-        default:
-          console.warn(`No parser for param of type ${definition.type}`)
-          return [Err(clientError('PARAMS_PARSE_FAILED'))]
+            break
+
+          default:
+            console.warn(`No parser for param of type ${definition.type}`)
+            return [Err(clientError('PARAMS_PARSE_FAILED'))]
+        }
       }
     }
+    // #endregion
+
     const { data: responseData, status } = await axios.request({
       method: endpoint.method,
-      baseURL: getValue(address),
+      baseURL,
       url,
       data: requestData,
-      timeout: 5000,
+      timeout,
       validateStatus: () => true,
       responseType: 'arraybuffer',
       headers: {
@@ -270,61 +278,7 @@ export function getParamZodSchema<
   alias: Alias,
   paramName: ParamName,
 ) {
-  const { parameters } = endpoints[alias]
+  const { parameters } = endpoints[alias] as EndpointDefinition
   const parameter = parameters[paramName as keyof (typeof parameters)]
   return parameter.schema as ExtractParamsSchemaForAlias<Alias, ParamName>
 }
-
-/*
-export function getParamZodSchema(alias: string, type: 'body', name: string): ZodObject<any> | undefined {
-  return [
-    ...configEndpoints,
-    ...ddfEndpoints,
-    ...alarmSystemsEndpoints,
-    ...devicesEndpoints,
-    ...sensorsEndpoints,
-    ...groupsEndpoints,
-    ...lightsEndpoints,
-  ].find(endpoint => endpoint.alias === alias)?.parameters?.find(p => p.name === type)?.schema?.shape[name]
-}
-*/
-
-/*
-export type GatewayClient = ReturnType<typeof gatewayClient>
-export type GatewayApi = ApiOf<GatewayClient>
-
-export type DDFDescriptor = z.infer<typeof ddfdDescriptorSchema>
-
-export type GatewayBodyParams<Alias extends string> = ZodiosBodyByAlias<GatewayApi, Alias>
-export type GatewayHeaderParams<Alias extends string> = ZodiosHeaderParamsByAlias<GatewayApi, Alias>
-export type GatewayPathParam<Alias extends string> = ZodiosPathParamByAlias<GatewayApi, Alias>
-export type GatewayResponse<Alias extends string> = ZodiosResponseByAlias<GatewayApi, Alias>
-export type GatewayQueryParams<Alias extends string> = ZodiosQueryParamsByAlias<GatewayApi, Alias>
-
-*/
-
-/*
-interface GatewayInfo {
-  gateway: GatewayClient
-  uri: string
-  apiKey: string
-  bridgeID: string
-}
-
-export type FindGatewayResult = Result<
-  (
-    {
-      code: 'ok'
-      config: Extract<GatewayResponse<'getConfig'>['success'], { whitelist: any }>
-    } |
-    {
-      code: 'bridge_id_mismatch' | 'invalid_api_key'
-      message: string
-    }
-  ) & GatewayInfo,
-  {
-    code: 'unreachable' | 'unknown'
-    message?: string
-  } & Partial<Pick<GatewayInfo, 'uri' | 'apiKey'>>
->
-*/

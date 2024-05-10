@@ -57,13 +57,14 @@ export const globalParameters = {
     type: 'Path',
     schema: z.number().default(1),
   }),
-  deviceUniqueID: makeParameter({
-    name: 'deviceUniqueID',
-    description: 'Device unique ID',
-    type: 'Path',
-    schema: z.string().default('00:1f:ee:00:00:00:08:bb-01-1000'),
-  }),
   */
+
+  deviceUniqueID: makeParameter({
+    description: 'Device unique ID',
+    type: 'path',
+    schema: z.string(),
+    sample: '00:1f:ee:00:00:00:08:bb-01-1000',
+  }),
 } as const
 
 /*

@@ -3,8 +3,63 @@ import { Ok } from 'ts-results-es'
 import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
+import { deviceSchema } from './schemas/deviceSchema'
 
 export const endpoints = {
+
+  // #region Discovery
+
+  discover: makeEndpoint({
+    alias: 'discover',
+    description: 'Get discovered gateways from Phoscon API',
+    method: 'get',
+    path: '/discover',
+    baseURL: 'https://phoscon.de',
+    parameters: {},
+    response: {
+      format: 'json',
+      schema: z.array(
+        z.object({
+          id: z.string(),
+          internalipaddress: z.string().ip(),
+          macaddress: z.string(),
+          internalport: z.number(),
+          name: z.string(),
+          publicipaddress: z.string().ip(),
+        }),
+      ).transform(data => Ok(data)),
+    },
+  }),
+
+  /*
+
+  updateConfig: makeEndpoint({
+    description: 'Modify configuration parameters.',
+    method: 'put',
+    path: '/api/{:apiKey:}/config',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+      config: makeParameter({
+        type: 'body',
+        description: 'Properties of the gateway to update',
+        schema: writableConfigSchema.partial(),
+        sample: {
+          name: 'New name',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      schema: writableConfigSchema
+        .partial()
+        .transform(data => Ok(data)),
+      removePrefix: /^\/config\//,
+    },
+  }),
+
+  */
+
+  // #endregion
 
   // #region Alarm System endpoints
 
@@ -603,17 +658,23 @@ export const endpoints = {
     ],
   }),
 
+  */
   getDevice: makeEndpoint({
     alias: 'getDevice',
     description: 'Returns the group with the specified id.',
     method: 'get',
-    path: '/api/:apiKey/devices/:deviceUniqueID',
-    response: prepareResponse(deviceSchema),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-    ],
+    path: '/api/{:apiKey:}/devices/{:deviceUniqueID:}',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+      deviceUniqueID: globalParameters.deviceUniqueID,
+    },
+    response: {
+      format: 'json',
+      schema: deviceSchema.transform(data => Ok(data)),
+    },
   }),
+
+  /*
 
   getDeviceItemIntrospect: makeEndpoint({
     alias: 'getDeviceItemIntrospect',
