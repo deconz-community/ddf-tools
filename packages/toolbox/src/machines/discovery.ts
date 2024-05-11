@@ -98,11 +98,6 @@ export const discoveryMachine = setup({
 
       toast.success('Scan complete', {
         description: `Found ${input.discoveryMachine.getSnapshot().context.results.size} gateways.`,
-        id: 'scan-complete-toast',
-        duration: 5000,
-        onAutoClose: () => { },
-        onDismiss: () => { },
-        important: true,
       })
     }),
   },

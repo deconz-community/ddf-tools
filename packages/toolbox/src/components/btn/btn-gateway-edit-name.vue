@@ -71,11 +71,6 @@ const editName = useDialogAction(() => {
               console.error(response.error)
               toast.error('Failed to update gateway name', {
                 description: response.error.message,
-                id: 'error-toast',
-                duration: 5000,
-                onAutoClose: () => {},
-                onDismiss: () => {},
-                important: true,
               })
             }
           })

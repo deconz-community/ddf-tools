@@ -121,10 +121,6 @@ export const gatewayMachine = setup({
             if (system.get('app')?.getSnapshot()?.context?.settings?.developerMode) {
               toast.error('Cant parse websocket message', {
                 duration: 3000,
-                id: '',
-                onAutoClose: () => {},
-                onDismiss: () => {},
-                important: false,
               })
             }
             return console.error('Cant parse websocket message', raw, message.error)
@@ -146,11 +142,6 @@ export const gatewayMachine = setup({
 
               if (description) {
                 toast.info('Device added', {
-                  duration: 3000,
-                  onAutoClose: () => {},
-                  onDismiss: () => {},
-                  id: '',
-                  important: false,
                   description: description as string,
                 })
               }

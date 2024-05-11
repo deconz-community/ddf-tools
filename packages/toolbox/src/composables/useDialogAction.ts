@@ -66,16 +66,8 @@ export function useDialogAction(getParams: () => UseDialogActionParams | undefin
 
     for (const rule of rules) {
       const result = rule(value)
-      if (typeof result === 'string') {
-        return toast.error('Error', {
-          description: result,
-          duration: 5000,
-          id: '',
-          onAutoClose: () => {},
-          onDismiss: () => {},
-          important: false,
-        })
-      }
+      if (typeof result === 'string')
+        return toast.error('Error', { description: result })
     }
 
     params.onSubmit(value)
