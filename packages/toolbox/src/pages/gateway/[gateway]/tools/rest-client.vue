@@ -93,7 +93,7 @@ const gateway = useGateway(toRef(props, 'gateway'))
 
 const hasResponse = ref(false)
 const loading = ref(false)
-const params = ref({})
+const params = ref<Record<string, any>>({})
 
 const rawResponse = ref<any>(undefined)
 const statusCode = ref<number | undefined>(undefined)
@@ -175,17 +175,14 @@ async function send() {
                   None
                 </v-card-text>
                 <v-card-text v-else>
-                  <v-card v-for="([name, parameter], index) in endpointsParams" :key="index">
-                    <v-card-title>
-                      {{ name }}
-                    </v-card-title>
-                    <v-card-subtitle>
-                      {{ parameter.description }}
-                    </v-card-subtitle>
-                    <v-card-text v-if="parameter.knownParam === 'hidden'" />
-                  </v-card>
-
-                  <pre>{{ endpointsParams }}</pre>
+                  <input-rest-client-param
+                    v-for="([name, parameter], index) in endpointsParams"
+                    :key="index"
+                    v-model="params"
+                    :gateway="props.gateway"
+                    :name="name"
+                    :param="parameter"
+                  />
                 </v-card-text>
               </v-card>
             </v-card-text>

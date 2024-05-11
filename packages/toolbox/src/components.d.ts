@@ -24,6 +24,7 @@ declare module 'vue' {
     Drafter: typeof import('./components/drafter.vue')['default']
     FormGatewayCredentials: typeof import('./components/form/form-gateway-credentials.vue')['default']
     GatewayBadge: typeof import('./components/gateway-badge.vue')['default']
+    InputRestClientParam: typeof import('./components/form/input-rest-client-param.vue')['default']
     ListBundles: typeof import('./components/list-bundles.vue')['default']
     ListDevices: typeof import('./components/list/list-devices.vue')['default']
     ListItemDevice: typeof import('./components/list/list-item-device.vue')['default']
