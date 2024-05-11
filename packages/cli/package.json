@@ -62,7 +62,7 @@
     "ora": "^8.0.1",
     "simple-git": "^3.24.0",
     "zod": "^3.23.8",
-    "zod-validation-error": "^3.2.0"
+    "zod-validation-error": "^3.3.0"
   },
   "devDependencies": {
     "@directus/types": "^11.1.1",

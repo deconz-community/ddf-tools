@@ -10,7 +10,10 @@ const baseURL = computed(() => {
 })
 
 const machines = createUseAppMachine()
+const app = machines.use('app')
 const gateway = machines.use('gateway', computed(() => ({ id: route.params.gateway as string })))
+
+const isDevelopper = computed(() => app.state?.context.settings?.developerMode)
 
 const scope = getCurrentScope()
 if (!scope)
@@ -96,6 +99,18 @@ const sortedDevices = computed(() => {
       title="Bundles"
       :to="`${baseURL}/settings/gateway/bundles`"
     />
+
+    <template v-if="isDevelopper">
+      <v-list-subheader>
+        Dev Tools
+      </v-list-subheader>
+      <v-list-item
+        prepend-icon="mdi-api"
+        title="REST Client"
+        :to="`${baseURL}/tools/rest-client`"
+      />
+    </template>
+
     <v-list-subheader>
       Devices
       <v-btn icon="mdi-refresh" size="small" class="ma-2" @click="gateway.send({ type: 'REFRESH_DEVICES' })" />

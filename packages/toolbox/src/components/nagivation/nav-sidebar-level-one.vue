@@ -14,10 +14,9 @@ const links = computed(() => {
   if (store.state?.matches('online'))
     list.push({ icon: 'mdi-view-list', title: 'Bundle store', to: '/store/search' })
 
-  if (import.meta.env.VITE_DEBUG === 'true')
-    list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/sandbox' })
-
   list.push('divider')
+
+  list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
 
   if (app.state?.context.gateways) {
     const gateways = Array.from(app.state?.context.gateways.keys())
@@ -25,20 +24,24 @@ const links = computed(() => {
       gateways.forEach((gatewayId) => {
         list.push({ gateway: gatewayId })
       })
+
       list.push('divider')
     }
   }
 
-  list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
-
-  list.push({ icon: 'mdi-cog', title: 'App Settings', to: '/settings' })
-
   if (isDevelopper.value) {
     list.push('divider')
-    list.push({ icon: 'mdi-folder-zip', title: 'Bundler', to: '/bundler' })
-    list.push({ icon: 'mdi-api', title: 'REST Client', to: '/rest-client' })
+
+    list.push({ icon: 'mdi-folder-zip', title: 'Bundler', to: '/dev-tools/bundler' })
+    list.push({ icon: 'mdi-key-chain', title: 'Auth challenge', to: '/dev-tools/auth-challenge' })
+
+    if (import.meta.env.VITE_DEBUG === 'true')
+      list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/dev-tools/sandbox' })
+
     list.push('divider')
   }
+
+  list.push({ icon: 'mdi-cog', title: 'App Settings', to: '/settings' })
 
   return list
 })

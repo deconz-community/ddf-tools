@@ -3,6 +3,11 @@ import { endpoints, gatewayClient } from '@deconz-community/rest-client'
 import { useRouteQuery } from '@vueuse/router'
 
 import { VTreeview } from 'vuetify/labs/VTreeview'
+import { z } from 'zod'
+
+const props = defineProps<{
+  gateway: string
+}>()
 
 /*
 import hmacSHA256 from 'crypto-js/hmac-sha256'
@@ -19,15 +24,18 @@ const challengeResult = computed(() => {
 const apiUrl = ref<string>(import.meta.env.VITE_API_URL ?? 'http://localhost:80')
 const apiKey = ref<string>(import.meta.env.VITE_API_KEY ?? '')
 
-const path = useRouteQuery('path')
+// #region API Tree
+const selectedAlias = useRouteQuery('alias')
 
-interface TreeLeaf {
-  alias: string
+interface APITree {
   title: string
-  children?: TreeLeaf[]
+  children: {
+    alias: string
+    title: string
+  }[]
 }
 
-const apiTree: TreeLeaf[] = []
+const apiTree: APITree[] = []
 
 Object.entries(endpoints).forEach(([alias, api]) => {
   const path = api.path.replace('/api/{:apiKey:}', '')
@@ -46,7 +54,6 @@ Object.entries(endpoints).forEach(([alias, api]) => {
   }
   else {
     apiTree.push({
-      alias: '',
       title: categoryTitle,
       children: [{
         alias,
@@ -56,37 +63,43 @@ Object.entries(endpoints).forEach(([alias, api]) => {
   }
 })
 
-function onLeafClick(leaf) {
-  console.log(leaf)
+function selectAPI(params: unknown) {
+  const alias = z.array(z.string())
+    .length(1)
+    .transform(a => a[0])
+    .safeParse(params)
+
+  if (!alias.success)
+    return
+
+  selectedAlias.value = alias.data
 }
+
+// #endregion
+
+// #region Gateway
+const gateway = useGateway(toRef(props, 'gateway'))
+const apiUrl2 = computed(() => gateway.config)
+
+// #endregion
 </script>
 
 <template>
-  <portal to="sidebar-level-two">
-    <VTreeview
-      :items="apiTree"
-      density="compact"
-      activatable
-    />
-  </portal>
   <v-card width="100%" class="ma-2">
     <template #title>
-      Gateway
+      REST Client
     </template>
 
     <template #text>
-      <v-row>
-        <v-col cols="12" sm="6">
-          <v-text-field v-model="apiUrl" label="API Url" />
-        </v-col>
-        <v-col cols="12" sm="6">
-          <v-text-field v-model="apiKey" label="API Key" />
-        </v-col>
-      </v-row>
-
-      <v-text-field v-model="path" label="path" />
-
-      <pre>{{ apiTree }}</pre>
+      <VTreeview
+        active-strategy="single-independent"
+        mandatory
+        :items="apiTree"
+        density="compact"
+        activatable
+        item-value="alias"
+        @update:activated="selectAPI"
+      />
 
       <!--
       <v-expansion-panels>
