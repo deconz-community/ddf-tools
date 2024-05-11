@@ -57,10 +57,13 @@ export type ExtractParamsSchemaForAlias<
     // @ts-expect-error schema is defined
 > = Parameters<Alias>[ParamName]['schema']
 
+export type KnownParam = 'hidden' | 'apiKey' | 'group/id' | 'bundle/hash' | 'device/uuid'
+
 export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
   description: string
   format?: 'json'
   type: 'path' | 'body'
+  knownParam?: KnownParam
   schema: Schema
   sample: z.infer<Schema>
 }

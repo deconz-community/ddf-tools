@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { sensorSchema } from '../gateway/schemas/sensorSchema'
-import { lightSchema } from '../gateway/schemas/lightSchema'
-import { groupSchema } from '../gateway/schemas/groupSchema'
+import { sensorSchema } from './gateway/schemas/sensorSchema'
+import { lightSchema } from './gateway/schemas/lightSchema'
+import { groupSchema } from './gateway/schemas/groupSchema'
 
 export type WebsocketEvent = z.infer<ReturnType<typeof websocketSchema>>
 

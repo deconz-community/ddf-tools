@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { Err, Ok } from 'ts-results-es'
 import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
-import { customError, deconzError } from '../core/errors'
+import { customError } from '../core/errors'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 import { deviceSchema } from './schemas/deviceSchema'
@@ -292,10 +292,11 @@ export const endpoints = {
     method: 'delete',
     path: '/api/{:apiKey:}/config/whitelist/{:oldApiKey:}',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
       oldApiKey: makeParameter({
         type: 'path',
         description: 'Old API Key',
+        knownParam: 'apiKey',
         schema: z.string().min(10).max(40),
         sample: '12345ABCDE',
       }),
@@ -316,7 +317,7 @@ export const endpoints = {
     method: 'get',
     path: '/api/{:apiKey:}/config',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
     },
     response: {
       format: 'json',
@@ -386,7 +387,7 @@ export const endpoints = {
     method: 'put',
     path: '/api/{:apiKey:}/config',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
       config: makeParameter({
         type: 'body',
         description: 'Properties of the gateway to update',
@@ -578,7 +579,7 @@ export const endpoints = {
     method: 'get',
     path: '/api/{:apiKey:}/ddf/descriptors',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
       next: {
         type: 'path',
         description: 'The token to get the next page of results',
@@ -657,7 +658,7 @@ export const endpoints = {
     method: 'get',
     path: '/api/{:apiKey:}/devices',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
     },
     response: {
       format: 'json',
@@ -670,7 +671,7 @@ export const endpoints = {
     method: 'get',
     path: '/api/{:apiKey:}/devices/{:deviceUniqueID:}',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
       deviceUniqueID: globalParameters.deviceUniqueID,
     },
     response: {
@@ -1082,7 +1083,7 @@ export const endpoints = {
     method: 'post',
     path: '/api/{:apiKey:}/sensors',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
     },
     response: {
       format: 'jsonArray',
@@ -1098,7 +1099,7 @@ export const endpoints = {
     method: 'get',
     path: '/api/{:apiKey:}/sensors/new',
     parameters: {
-      apiKey: globalParameters.optionalApiKey,
+      apiKey: globalParameters.apiKey,
     },
     response: {
       format: 'json',

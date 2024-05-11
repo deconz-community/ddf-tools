@@ -7,24 +7,10 @@ const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
 
 export const globalParameters = {
   // The API Key is optional because it's will be loaded by the API Key plugin
-  requiredApiKey: makeParameter({
+  apiKey: makeParameter({
     description: 'API Key',
     type: 'path',
-    schema: z.string(),
-    sample: '12345ABCDE',
-  }),
-
-  optionalApiKey: makeParameter({
-    description: 'API Key',
-    type: 'path',
-    schema: z.string().optional(),
-    sample: '12345ABCDE',
-  }),
-
-  // TODO: Find a better way to handle that case, the key is needed but it's added by the client
-  neededApiKey: makeParameter({
-    description: 'API Key',
-    type: 'path',
+    knownParam: 'hidden',
     schema: z.string().optional(),
     sample: '12345ABCDE',
   }),
@@ -32,6 +18,7 @@ export const globalParameters = {
   groupId: makeParameter({
     description: 'groupId',
     type: 'path',
+    knownParam: 'group/id',
     schema: z.number(),
     sample: 12,
   }),
@@ -39,6 +26,7 @@ export const globalParameters = {
   bundleHash: makeParameter({
     description: 'Hash of the bundle',
     type: 'path',
+    knownParam: 'bundle/hash',
     schema: z.string().length(64),
     sample: '64ff180d340c15bb3a5136d5f336d1ca5a216ed16b1369c8439d6952478e58ac',
   }),
@@ -72,6 +60,7 @@ export const globalParameters = {
   deviceUniqueID: makeParameter({
     description: 'Device unique ID',
     type: 'path',
+    knownParam: 'device/uuid',
     schema: z.string().regex(uniqueIDRegex),
     sample: '00:1f:ee:00:00:00:08:bb-01-1000',
   }),
