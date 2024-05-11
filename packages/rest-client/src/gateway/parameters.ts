@@ -2,7 +2,11 @@ import { z } from 'zod'
 import { makeParameter } from '../core/helpers'
 
 // const IDRegex = /\d+/
-const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
+const deviceUUIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}/
+const subDeviceUUIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
+
+const deviceOrSubDeviceUUIDRegex = new RegExp(`((${deviceUUIDRegex.source})|(${subDeviceUUIDRegex.source}))`)
+
 // const IDorUniqueIDRegex = new RegExp(`((${IDRegex.source})|(${uniqueIDRegex.source}))`)
 
 export const globalParameters = {
@@ -61,8 +65,8 @@ export const globalParameters = {
     description: 'Device unique ID',
     type: 'path',
     knownParam: 'device/uuid',
-    schema: z.string().regex(uniqueIDRegex),
-    sample: '00:1f:ee:00:00:00:08:bb-01-1000',
+    schema: z.string().regex(deviceOrSubDeviceUUIDRegex),
+    sample: '00:1f:ee:00:00:00:08:bb',
   }),
 } as const
 

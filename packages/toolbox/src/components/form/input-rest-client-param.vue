@@ -19,7 +19,7 @@ const value = computed({
 const gateway = useGateway(props.gateway)
 const sampleValue = computed(() => props.param.sample)
 
-// #region API Keys
+// #region Gateway Data
 const apiKeys = computed(() => {
   if (!gateway.config || !gateway.config.authenticated)
     return []
@@ -31,28 +31,89 @@ const apiKeys = computed(() => {
   }))
 })
 
+const devicesUUID = computed(() => {
+  if (!gateway.devices)
+    return []
+
+  return Array.from(gateway.devices.keys()).map(uuid => ({
+    key: uuid,
+    /*
+    props: {
+      subtitle: `${value.name}`,
+    },
+    */
+  }))
+})
+
+// #endregion
+
+// #region Set default value
+switch (props.param.knownParam) {
+  case undefined:
+    value.value = sampleValue.value
+    break
+  case 'apiKey':
+    value.value = apiKeys.value[0]?.key
+    break
+  case 'device/uuid':
+    value.value = devicesUUID.value[0]?.key
+    break
+}
 // #endregion
 </script>
 
 <template>
-  <v-card v-if="props.param.knownParam !== 'hidden'">
-    <v-card-text v-if="props.param.knownParam === 'apiKey'">
-      <v-select
+  <template v-if="props.param.knownParam !== 'hidden'">
+    <pre>{{ props.param }}</pre>
+    <v-autocomplete
+      v-if="props.param.knownParam === 'apiKey'"
+      v-model="value"
+      auto-select-first
+      clearable
+      :label="props.param.description"
+      :items="apiKeys"
+      item-title="key"
+      item-value="key"
+      item-props="props"
+    />
+    <v-autocomplete
+      v-else-if="props.param.knownParam === 'device/uuid'"
+      v-model="value"
+      clearable
+      :label="props.param.description"
+      :items="devicesUUID"
+      item-title="key"
+      item-value="key"
+    />
+    <VTextField
+      v-else-if="typeof sampleValue === 'string'"
+      v-model="value"
+      :label="props.param.description"
+    />
+    <VTextField
+      v-else-if="typeof sampleValue === 'number'"
+      v-model.number="value"
+      type="number"
+      :label="props.param.description"
+    />
+    <VCheckbox
+      v-else-if="typeof sampleValue === 'boolean'"
+      v-model="value"
+      :label="props.param.description"
+    />
+    <template v-else-if="typeof sampleValue === 'object'">
+      <ObjectEditor
         v-model="value"
         :label="props.param.description"
-        :items="apiKeys"
-        item-title="key"
-        item-value="key"
-        item-props="props"
+        :error="false"
       />
-    </v-card-text>
-
-    <v-card-text v-else>
+    </template>
+    <template v-else>
       <v-alert
         type="error"
         text="WIP"
       />
       <pre>{{ props.param }}</pre>
-    </v-card-text>
-  </v-card>
+    </template>
+  </template>
 </template>
