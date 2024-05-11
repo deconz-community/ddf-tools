@@ -6,7 +6,6 @@ import { program } from '@commander-js/extra-typings'
 import { validator } from './validator'
 import { bundlerCommand } from './bundler'
 import { bulkCommand } from './bulk'
-import { testCommand } from './test'
 
 const packageDefinition = createRequire(import.meta.url)('../package.json')
 
@@ -18,6 +17,5 @@ program
 validator()
 bundlerCommand()
 bulkCommand()
-testCommand()
 
 program.parse(process.argv)
