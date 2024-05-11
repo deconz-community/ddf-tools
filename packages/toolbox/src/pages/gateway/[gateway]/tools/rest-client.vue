@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { EndpointAlias, RequestResultForAlias } from '@deconz-community/rest-client'
 import { endpoints, gatewayClient } from '@deconz-community/rest-client'
 import { useRouteQuery } from '@vueuse/router'
 
@@ -9,23 +10,7 @@ const props = defineProps<{
   gateway: string
 }>()
 
-/*
-import hmacSHA256 from 'crypto-js/hmac-sha256'
-
-const installCode = ref<string>(import.meta.env.VITE_INSTALL_CODE)
-const challenge = ref<string>('')
-const challengeResult = computed(() => {
-  if (challenge.value.length !== 64 || installCode.value.length !== 16)
-    return ''
-  return hmacSHA256(challenge.value, installCode.value.toLowerCase())
-})
-*/
-
-const apiUrl = ref<string>(import.meta.env.VITE_API_URL ?? 'http://localhost:80')
-const apiKey = ref<string>(import.meta.env.VITE_API_KEY ?? '')
-
 // #region API Tree
-const selectedAlias = useRouteQuery('alias')
 
 interface APITree {
   title: string
@@ -78,49 +63,189 @@ function selectAPI(params: unknown) {
 // #endregion
 
 // #region Gateway
-const gateway = useGateway(toRef(props, 'gateway'))
-const apiUrl2 = computed(() => gateway.config)
 
+const selectedAlias = useRouteQuery('alias', 'discover')
+
+const endpointAlias = computed(() => {
+  const alias = selectedAlias.value as keyof typeof endpoints
+  if (typeof alias !== 'string' || !(alias in endpoints))
+    return undefined
+
+  return alias
+})
+
+const endpoint = computed(() => {
+  if (!endpointAlias.value)
+    return undefined
+
+  return endpoints[endpointAlias.value]
+})
+
+const endpointsParams = computed(() => {
+  if (endpoint.value === undefined)
+    return []
+
+  return Object.entries(endpoint.value.parameters)
+    .filter(([name, parameter]) => parameter.knownParam !== 'hidden')
+})
+
+const gateway = useGateway(toRef(props, 'gateway'))
+
+const hasResponse = ref(false)
+const loading = ref(false)
+const params = ref({})
+
+const rawResponse = ref<any>(undefined)
+const statusCode = ref<number | undefined>(undefined)
+const clientResponse = ref<RequestResultForAlias<EndpointAlias>>([])
+
+watch(selectedAlias, () => {
+  hasResponse.value = false
+  loading.value = true
+  clientResponse.value = []
+  statusCode.value = undefined
+  rawResponse.value = undefined
+})
+
+async function send() {
+  if (!selectedAlias.value)
+    return toast.error('No endpoint selected')
+
+  if (!endpointAlias.value)
+    return toast.error('Invalid endpoint selected')
+
+  hasResponse.value = false
+  loading.value = true
+  clientResponse.value = []
+  statusCode.value = undefined
+  rawResponse.value = undefined
+
+  const response = await gateway.fetch(endpointAlias.value, toRaw(params.value))
+
+  hasResponse.value = true
+  loading.value = false
+  clientResponse.value = response
+
+  if ('statusCode' in response)
+    statusCode.value = response.statusCode as number
+
+  if ('rawResponse' in response)
+    rawResponse.value = response.rawResponse
+}
 // #endregion
 </script>
 
 <template>
-  <v-card width="100%" class="ma-2">
-    <template #title>
-      REST Client
-    </template>
+  <v-container>
+    <v-row>
+      <v-col cols="2" sm="4">
+        <v-card>
+          <v-card-title>
+            Endpoints
+          </v-card-title>
+          <v-card-text>
+            <VTreeview
+              :items="apiTree"
+              active-strategy="single-independent"
+              mandatory
+              density="compact"
+              activatable
+              item-value="alias"
+              @update:activated="selectAPI"
+            />
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="8" sm="8">
+        <v-card v-if="endpoint">
+          <v-form @submit.prevent="send()">
+            <v-card-title>
+              {{ endpoint.method.toLocaleUpperCase() }}
+              {{ ('baseURL' in endpoint ? endpoint.baseURL : '') + endpoint.path }}
+            </v-card-title>
+            <v-card-subtitle>
+              {{ endpoint.description }}
+            </v-card-subtitle>
+            <v-card-text>
+              <v-card elevation="3">
+                <v-card-title>
+                  Parameters
+                </v-card-title>
+                <v-card-text v-if="endpointsParams.length === 0">
+                  None
+                </v-card-text>
+                <v-card-text v-else>
+                  <v-card v-for="([name, parameter], index) in endpointsParams" :key="index">
+                    <v-card-title>
+                      {{ name }}
+                    </v-card-title>
+                    <v-card-subtitle>
+                      {{ parameter.description }}
+                    </v-card-subtitle>
+                    <v-card-text v-if="parameter.knownParam === 'hidden'" />
+                  </v-card>
 
-    <template #text>
-      <VTreeview
-        active-strategy="single-independent"
-        mandatory
-        :items="apiTree"
-        density="compact"
-        activatable
-        item-value="alias"
-        @update:activated="selectAPI"
-      />
+                  <pre>{{ endpointsParams }}</pre>
+                </v-card-text>
+              </v-card>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn type="submit" color="primary" variant="tonal" elevation="3" size="large">
+                Send request
+              </v-btn>
+            </v-card-actions>
+          </v-form>
+        </v-card>
+      </v-col>
+      <v-col v-show="hasResponse" cols="6" sm="6">
+        <v-card>
+          <v-card-title>
+            API Response
+          </v-card-title>
+          <v-card-text>
+            <v-card elevation="5">
+              <v-card-title>
+                <v-alert
+                  :text="`Status code: ${statusCode}`"
+                  :type="statusCode === 200 ? 'success' : 'error'"
+                />
+              </v-card-title>
+              <v-card-text>
+                <pre>{{ rawResponse }}</pre>
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col v-show="hasResponse" cols="6" sm="6">
+        <v-card>
+          <v-card-title>
+            JS Client :
+            {{ clientResponse.length }}
+            {{ clientResponse.length > 1 ? 'responses' : 'response' }}
+          </v-card-title>
+          <v-card-text>
+            <v-card v-for="(response, index) of clientResponse" :key="index" elevation="5">
+              <v-card-title>
+                <v-alert
+                  :text="`Response #${index + 1}`"
+                  :type="response.isOk() ? 'success' : 'error'"
+                />
+              </v-card-title>
 
-      <!--
-      <v-expansion-panels>
-        <v-expansion-panel title="Authentication Challenge">
-          <template #text>
-            <v-text-field v-model="installCode" label="Install code" />
-            <v-text-field v-model="challenge" label="Challenge" />
-            <v-text-field v-model="challengeResult" readonly label="Challenge result" />
-          </template>
-        </v-expansion-panel>
-      </v-expansion-panels>
-      -->
+              <v-card-text v-if="response.isOk()">
+                <pre>{{ response.value }}</pre>
+              </v-card-text>
 
-      <!--
-      <zodios-api
-        v-for="api in gateway.api" :key="api.path"
-        :api="api" :client="gateway" :api-key="apiKey"
-      />
-      -->
-    </template>
-  </v-card>
+              <v-card-text v-else>
+                <pre>{{ response.error }}</pre>
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <route lang="json">

@@ -104,6 +104,8 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     }
     // #endregion
 
+    const { format, deconzErrors, schema, removePrefix } = endpoint.response
+
     const { data: responseData, status } = await axios.request({
       method: endpoint.method,
       baseURL,
@@ -117,7 +119,51 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       },
     })
 
-    const { format, deconzErrors, schema, removePrefix } = endpoint.response
+    function packResponse<Data extends any[]>(value: Data): Data {
+      Object.defineProperty(value, 'statusCode', {
+        value: status,
+        writable: false,
+        enumerable: false,
+      })
+
+      switch (format) {
+        case 'json':
+        case 'jsonArray':{
+          let lastValue: any = responseData
+
+          try {
+            const decoder = new TextDecoder('utf-8')
+            lastValue = decoder.decode(responseData)
+            lastValue = JSON.parse(lastValue)
+          }
+          catch (e) { }
+
+          Object.defineProperty(value, 'rawResponse', {
+            value: lastValue,
+            writable: false,
+            enumerable: false,
+          })
+
+          break
+        }
+
+        case 'blob':{
+          Object.defineProperty(value, 'rawResponse', {
+            value: {
+              type: 'blob',
+              length: responseData.byteLength,
+              data: responseData,
+            },
+            writable: false,
+            enumerable: false,
+          })
+          break
+        }
+        default:
+      }
+
+      return value
+    }
 
     function getString(string: string) {
       if (removePrefix === undefined)
@@ -141,12 +187,12 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           const returnData = schema.safeParse(jsonData)
           if (returnData.success) {
             if (Array.isArray(returnData.data))
-              return returnData.data
+              return packResponse(returnData.data)
             else
-              return [returnData.data]
+              return packResponse([returnData.data])
           }
 
-          return [Err(zodError('response', returnData.error))]
+          return packResponse([Err(zodError('response', returnData.error))])
         }
 
         case 'jsonArray': {
@@ -170,7 +216,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           })).safeParse(jsonData)
 
           if (!rawData.success)
-            return [Err(zodError('response', rawData.error))]
+            return packResponse([Err(zodError('response', rawData.error))])
 
           const result: {
             success?: any
@@ -244,7 +290,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           const successData = schema.safeParse(result.success)
 
           if (!successData.success)
-            return [Err(zodError('response', successData.error))]
+            return packResponse([Err(zodError('response', successData.error))])
 
           if (Array.isArray(successData.data))
             results.push(...successData.data)
@@ -255,19 +301,19 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             results.push(Err(error))
           })
 
-          return results
+          return packResponse(results)
         }
 
         default:
-          return [Err(clientError('NOT_IMPLEMENTED'))]
+          return packResponse([Err(clientError('NOT_IMPLEMENTED'))])
       }
     }
     catch (error) {
       console.error(error)
-      return [Err(clientError('RESPONSE_PARSE_FAILED'))]
+      return packResponse([Err(clientError('RESPONSE_PARSE_FAILED'))])
     }
 
-    return [Err(clientError('NOT_IMPLEMENTED'))]
+    return packResponse([Err(clientError('NOT_IMPLEMENTED'))])
   } as RequestFunctionType
 
   return { request }
