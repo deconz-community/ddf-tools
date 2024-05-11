@@ -6,16 +6,14 @@ const props = defineProps<{
   gateway: string
 }>()
 
-const machines = createUseAppMachine()
-const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const gateway = useGateway(toRef(props, 'gateway'))
+
 const search = ref('')
 
-const config = computed(() => gateway.state?.context.config)
-
 const keys = computed(() => {
-  if (!config.value || !('whitelist' in config.value))
+  if (!gateway.config || !('whitelist' in gateway.config))
     return []
-  return objectEntries(config.value.whitelist).map(([key, value]) => ({
+  return objectEntries(gateway.config.whitelist).map(([key, value]) => ({
     key,
     name: value.name,
     created: value['create date'],
@@ -27,20 +25,18 @@ async function deleteKey(key: string) {
   if (!gateway.state?.matches('online'))
     return
 
-  const client = gateway.state.context.gateway
-  if (!client)
-    return
-
-  await client.deleteAPIKey(undefined, {
-    params: {
-      oldApiKey: key,
-    },
+  const results = await gateway.fetch('deleteAPIKey', { oldApiKey: key })
+  results.forEach((result) => {
+    if (result.isErr())
+      toast.error(result.error.message)
+    else
+      toast.success('API Key deleted')
   })
 
-  if (gateway.state.context.credentials.apiKey === key) {
+  if (gateway.credentials && gateway.credentials?.apiKey === key) {
     gateway.send({
       type: 'UPDATE_CREDENTIALS',
-      data: produce(gateway.state.context.credentials, (draft) => {
+      data: produce(gateway.credentials, (draft) => {
         draft.apiKey = ''
       }),
     })

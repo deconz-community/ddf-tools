@@ -110,7 +110,7 @@ declare global {
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
-  const toast: typeof import('@neoncoder/vuetify-sonner')['toast']
+  const toast: typeof import('vuetify-sonner')['toast']
   const triggerRef: typeof import('vue')['triggerRef']
   const tryOnBeforeMount: typeof import('@vueuse/core')['tryOnBeforeMount']
   const tryOnBeforeUnmount: typeof import('@vueuse/core')['tryOnBeforeUnmount']
@@ -189,6 +189,7 @@ declare global {
   const useFps: typeof import('@vueuse/core')['useFps']
   const useFullscreen: typeof import('@vueuse/core')['useFullscreen']
   const useGamepad: typeof import('@vueuse/core')['useGamepad']
+  const useGateway: typeof import('./composables/useGateway')['useGateway']
   const useGatewayScanner: typeof import('./composables/useGatewayScanner')['useGatewayScanner']
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useGithubAvatar: typeof import('./composables/useGithubAvatar')['useGithubAvatar']
@@ -422,7 +423,7 @@ declare module 'vue' {
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
-    readonly toast: UnwrapRef<typeof import('@neoncoder/vuetify-sonner')['toast']>
+    readonly toast: UnwrapRef<typeof import('vuetify-sonner')['toast']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>
@@ -501,6 +502,7 @@ declare module 'vue' {
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
+    readonly useGateway: UnwrapRef<typeof import('./composables/useGateway')['useGateway']>
     readonly useGatewayScanner: UnwrapRef<typeof import('./composables/useGatewayScanner')['useGatewayScanner']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGithubAvatar: UnwrapRef<typeof import('./composables/useGithubAvatar')['useGithubAvatar']>
@@ -727,7 +729,7 @@ declare module '@vue/runtime-core' {
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
-    readonly toast: UnwrapRef<typeof import('@neoncoder/vuetify-sonner')['toast']>
+    readonly toast: UnwrapRef<typeof import('vuetify-sonner')['toast']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>
@@ -806,6 +808,7 @@ declare module '@vue/runtime-core' {
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
+    readonly useGateway: UnwrapRef<typeof import('./composables/useGateway')['useGateway']>
     readonly useGatewayScanner: UnwrapRef<typeof import('./composables/useGatewayScanner')['useGatewayScanner']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGithubAvatar: UnwrapRef<typeof import('./composables/useGithubAvatar')['useGithubAvatar']>

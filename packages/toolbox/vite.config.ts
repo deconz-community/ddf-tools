@@ -57,7 +57,7 @@ export default defineConfig({
           ],
         },
         {
-          '@neoncoder/vuetify-sonner': ['toast'],
+          'vuetify-sonner': ['toast'],
         },
       ],
       dts: 'src/auto-imports.d.ts',
@@ -131,6 +131,7 @@ export default defineConfig({
       },
     }),
 
+    // @ts-expect-error It's how this plugin works
     monacoEditorPlugin.default({}),
 
   ],

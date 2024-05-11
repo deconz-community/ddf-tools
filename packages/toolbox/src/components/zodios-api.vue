@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { isErrorFromAlias } from '@zodios/core'
-import type { ApiOf } from '@zodios/core'
 import type { gatewayClient } from '@deconz-community/rest-client'
 import { useForm } from '@vorms/core'
 import { zodResolver } from '@vorms/resolvers/zod'

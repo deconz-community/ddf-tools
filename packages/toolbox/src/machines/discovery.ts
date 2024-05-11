@@ -1,4 +1,4 @@
-import { discoveryClient, gatewayClient } from '@deconz-community/rest-client'
+import { gatewayClient } from '@deconz-community/rest-client'
 import { produce } from 'immer'
 import type { ActorRef } from 'xstate'
 import { assertEvent, assign, fromPromise, setup } from 'xstate'
@@ -54,11 +54,17 @@ export const discoveryMachine = setup({
       })
 
       try {
-        const discoveryResult = await discoveryClient().discover()
-        discoveryResult.forEach((gateway) => {
-          const uri = `http://${gateway.internalipaddress}:${gateway.internalport}`
-          if (!guesses.includes(uri))
-            guesses.push(uri)
+        const discoveryResult = await gatewayClient().request('discover', {})
+
+        discoveryResult.forEach((result) => {
+          if (!result.isOk())
+            return
+
+          result.value.forEach((gateway) => {
+            const uri = `http://${gateway.internalipaddress}:${gateway.internalport}`
+            if (!guesses.includes(uri))
+              guesses.push(uri)
+          })
         })
       }
       catch (error) {
@@ -66,27 +72,32 @@ export const discoveryMachine = setup({
       }
 
       await Promise.allSettled(guesses.map(async (uri) => {
-        const client = gatewayClient(uri, '<nouser>', { timeout: 1500 })
-        const config = await client.getConfig()
-        if (config.success) {
+        const client = gatewayClient({
+          address: uri,
+          timeout: 1500,
+        })
+
+        const results = await client.request('getConfig', {})
+
+        results.forEach((result) => {
+          if (!result.isOk())
+            return
+
+          const config = result.value
+
           input.discoveryMachine.send({
             // TODO Typing for that
             type: 'GATEWAY_FOUND',
-            id: config.success.bridgeid,
-            name: config.success.name,
-            version: config.success.swversion,
+            id: config.bridgeid,
+            name: config.name,
+            version: config.swversion,
             uri,
           })
-        }
+        })
       }))
 
       toast.success('Scan complete', {
         description: `Found ${input.discoveryMachine.getSnapshot().context.results.size} gateways.`,
-        id: 'scan-complete-toast',
-        duration: 5000,
-        onAutoClose: () => { },
-        onDismiss: () => { },
-        important: true,
       })
     }),
   },

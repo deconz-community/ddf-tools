@@ -1,23 +1,26 @@
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
 import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 
-import type { DDFDescriptor, FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayPathParam, GatewayResponse } from '@deconz-community/rest-client'
+import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
-// export type BundleDescriptor = Extract<GatewayResponse<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
+export type BundleDescriptor = ExtractResponseSchemaForAlias<'getDDFBundleDescriptors'>['descriptors'][string]
 
 export interface GatewayContext {
   credentials: GatewayCredentials
   gateway?: GatewayClient
+  config?: ExtractResponseSchemaForAlias<'getConfig'>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
-  config: GatewayResponse<'getConfig'>['success']
-  bundles: Map<string, DDFDescriptor>
+  bundles: Map<string, BundleDescriptor>
 }
 
-export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent
+export type AnyGatewayEvent = GatewayEvent |
+  WebsocketEvent |
+  RefreshEvent |
+  RequestEvent<EndpointAlias>
 
 export type GatewayEvent = {
   type: 'CONNECT' | 'DISCONNECT'
@@ -40,34 +43,31 @@ export interface RefreshEvent {
   type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
 }
 
-export interface RequestEvent<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']> {
-  type: 'REQUEST'
-  alias: Alias
-  request: {
-    body: GatewayBodyParams<Alias>
-    path: GatewayPathParam<Alias>
-  }
-  onDone?: (response: GatewayResponse<Alias>) => void
-  onThrow?: (error: unknown) => void
+export interface RequestEventOptions<Alias extends EndpointAlias> {
+  onDone?: (responses: RequestResultForAlias<Alias>) => void
 }
 
-export function gatewayRequest<Alias extends GatewayApi[number]['alias'] = GatewayApi[number]['alias']>(
+export interface DoRequestParams<Alias extends EndpointAlias> {
+  alias: Alias
+  params: ExtractParamsForAlias<Alias>
+  options?: RequestEventOptions<Alias>
+}
+
+export type RequestEvent<Alias extends EndpointAlias> = {
+  type: 'REQUEST'
+} & DoRequestParams<Alias>
+
+export function gatewayRequest<Alias extends EndpointAlias>(
   alias: Alias,
-  body: GatewayBodyParams<Alias>,
-  path: GatewayPathParam<Alias>,
-  params?: {
-    onDone?: (response: GatewayResponse<Alias>) => void
-    onThrow?: (error: unknown) => void
-  },
-): RequestEvent<Alias> {
+  params: ExtractParamsForAlias<Alias>,
+  options: RequestEventOptions<Alias> = {},
+): AnyGatewayEvent {
   return {
     type: 'REQUEST',
     alias,
-    body,
-    path,
-    onDone: params?.onDone,
-    onThrow: params?.onThrow,
-  }
+    params,
+    options,
+  } as any
 }
 
 export const gatewayMachine = setup({
@@ -89,6 +89,7 @@ export const gatewayMachine = setup({
       return findGateway(input.URIs, input.apiKey, input.expectedBridgeID)
     }),
 
+    // #region connectToGatewayWebsocket
     connectToGatewayWebsocket: fromCallback<AnyEventObject, {
       gatewayID: string
       uri: string
@@ -120,107 +121,94 @@ export const gatewayMachine = setup({
             if (system.get('app')?.getSnapshot()?.context?.settings?.developerMode) {
               toast.error('Cant parse websocket message', {
                 duration: 3000,
-                id: '',
-                onAutoClose: () => {},
-                onDismiss: () => {},
-                important: false,
               })
             }
             return console.error('Cant parse websocket message', raw, message.error)
           }
 
-          if (message.data.e === 'added') {
-            sendBack({ type: 'REFRESH_DEVICES' })
-            const description = message.data.sensor?.name ?? message.data.light?.name ?? 'Unknown device'
-            toast.info('Device added', {
-              duration: 3000,
-              onAutoClose: () => {},
-              onDismiss: () => {},
-              id: '',
-              important: false,
-              description: description as string,
+          switch (message.data.e) {
+            case 'added':
+            {
+              sendBack({ type: 'REFRESH_DEVICES' })
+
+              let description: string | undefined
+              switch (message.data.r) {
+                case 'sensors':
+                  description = message.data.sensor.name
+                  break
+                case 'lights':
+                  description = message.data.light.name
+              }
+
+              if (description) {
+                toast.info('Device added', {
+                  description: description as string,
+                })
+              }
+              break
+            }
+            case 'deleted':{
+              sendBack({ type: 'REFRESH_DEVICES' })
+
+              break
+            }
+          }
+
+          if ('uniqueid' in message.data) {
+            const { uniqueid } = message.data
+
+            const devices = input.gateway.getSnapshot().context.devices as GatewayContext['devices']
+            devices.forEach((device) => {
+              const { context } = device.getSnapshot()
+              if (!uniqueid.startsWith(context.deviceID))
+                return
+
+              device.send({ type: 'WEBSOCKET_EVENT', data: message.data })
             })
           }
-          else if (message.data.e === 'deleted') {
-            sendBack({ type: 'REFRESH_DEVICES' })
-          }
-
-          const { uniqueid } = message.data
-
-          if (!uniqueid)
-            return
-
-          const devices = input.gateway.getSnapshot().context.devices as GatewayContext['devices']
-
-          devices.forEach((device) => {
-            const { context } = device.getSnapshot()
-            if (!uniqueid.startsWith(context.deviceID))
-              return
-
-            device.send({ type: 'WEBSOCKET_EVENT', data: message.data })
-          })
         })
       })
 
       return () => scope.stop()
     }),
 
-    fetchConfig: fromPromise<GatewayResponse<'getConfig'>, {
-      gateway: GatewayClient
-    }>(async ({ input }) => {
-      return input.gateway.getConfig()
-    }),
-
-    fetchDevices: fromPromise<GatewayResponse<'getDevices'>, {
-      gateway: GatewayClient
-    }>(async ({ input }) => {
-      return input.gateway.getDevices()
-    }),
+    // #endregion
 
     fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: GatewayClient }>(async ({ input }) => {
       const { gateway } = input
-      const newList = new Map<string, DDFDescriptor>()
+      const newList = new Map<string, BundleDescriptor>()
 
       let hasMore = true
-      let next
+      let next: string | number | undefined
 
       while (hasMore) {
-        const result = await gateway.getDDFBundleDescriptors({
-          queries: { next },
+        const results = await gateway.request('getDDFBundleDescriptors', { next })
+
+        results.forEach((result) => {
+          // console.log(result)
+          if (result.isErr())
+            throw new Error('Failed to fetch bundle')
+
+          for (const [key, value] of Object.entries(result.value.descriptors))
+            newList.set(key, value)
+
+          if (result.value.next) {
+            next = result.value.next
+          }
+          else {
+            next = undefined
+            hasMore = false
+          }
         })
-
-        const data = result?.success
-
-        if (!data)
-          throw new Error('Failed to fetch bundle')
-
-        for (const [key, value] of Object.entries(data.descriptors))
-          newList.set(key, value)
-
-        if (data.next) {
-          next = data.next
-        }
-        else {
-          next = undefined
-          hasMore = false
-        }
       }
       return newList
     }),
 
-    doRequest: fromPromise<void, { gateway: GatewayClient, event: RequestEvent }>(async ({ input, self }) => {
-      const { gateway, event } = input
-      try {
-        const result = await gateway[event.alias](event.request.body, {
-          params: {
-            path: event.request.path,
-          },
-        })
-        event.onDone?.(result)
-      }
-      catch (e) {
-        event.onThrow?.(e)
-      }
+    doRequest: fromPromise<RequestResultForAlias<EndpointAlias>, { gateway: GatewayClient, request: DoRequestParams<EndpointAlias> }>(async ({ input }) => {
+      const { gateway, request } = input
+      const result = await gateway.request(request.alias, request.params)
+      request.options?.onDone?.(result)
+      return result
     }),
   },
 
@@ -261,7 +249,7 @@ export const gatewayMachine = setup({
             actions: enqueueActions(({ enqueue, event }) => {
               const result = event.output.unwrap()
 
-              if (!event.output.isOk() || result.code !== 'ok')
+              if (!event.output.isOk() || result.code !== 'ok' || result.config.authenticated === false)
                 throw new Error('Invalid state')
 
               enqueue.assign({
@@ -299,12 +287,14 @@ export const gatewayMachine = setup({
         DISCONNECT: 'offline.disabled',
         REQUEST: {
           actions: enqueueActions(({ enqueue, context, event }) => {
-            if (event.type !== 'REQUEST')
-              return
             enqueue.spawnChild('doRequest', {
               input: {
                 gateway: context.gateway!,
-                event,
+                request: {
+                  alias: event.alias,
+                  params: event.params,
+                  options: event.options,
+                },
               },
             })
           }),
@@ -332,25 +322,40 @@ export const gatewayMachine = setup({
 
             pooling: {
               invoke: {
-                src: 'fetchConfig',
-                input: ({ context }) => ({ gateway: context.gateway! }),
+                src: 'doRequest',
+                input: ({ context }) => ({
+                  gateway: context.gateway!,
+                  request: {
+                    alias: 'getConfig',
+                    params: {},
+                  },
+                }),
                 onDone: {
                   target: 'idle',
                   actions: enqueueActions(({ enqueue, event, context }) => {
-                    const config = event.output.success
-                    if (!config)
-                      return
+                    const output = event.output as RequestResultForAlias<'getConfig'>
 
-                    enqueue.assign({
-                      config,
+                    output.forEach((result) => {
+                      // event.output.forEach((result) => {
+                      if (!result.isOk())
+                        return console.warn('Something went wrong when refreshing config', result.error)
+
+                      const config = result.value
+
+                      enqueue.assign({
+                        config,
+                      })
+
+                      if (config.name !== context.credentials.name) {
+                        enqueue.raise({
+                          type: 'UPDATE_CREDENTIALS',
+                          data: {
+                            ...context.credentials,
+                            name: config.name,
+                          },
+                        })
+                      }
                     })
-
-                    if (config.name !== context.credentials.name) {
-                      enqueue.raise({ type: 'UPDATE_CREDENTIALS', data: {
-                        ...context.credentials,
-                        name: config.name,
-                      } })
-                    }
                   }),
                 },
               },
@@ -385,15 +390,30 @@ export const gatewayMachine = setup({
 
             pooling: {
               invoke: {
-                src: 'fetchDevices',
-                input: ({ context }) => ({ gateway: context.gateway! }),
+                src: 'doRequest',
+                input: ({ context }) => ({
+                  gateway: context.gateway!,
+                  request: {
+                    alias: 'getDevices',
+                    params: {},
+                  },
+                }),
                 onDone: {
                   target: 'idle',
 
-                  actions: enqueueActions(({ enqueue, context, event }) => {
+                  actions: enqueueActions(({ enqueue, event, context }) => {
+                    const output = event.output as RequestResultForAlias<'getDevices'>
                     const { devices } = context
 
-                    const newList = event.output.success ?? []
+                    const newList: string[] = []
+
+                    output.forEach((result) => {
+                      if (!result.isOk())
+                        return console.warn('Something went wrong when refreshing devices', result.error)
+
+                      newList.push(...result.value)
+                    })
+
                     const oldList = Array.from(devices.keys())
 
                     const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))
