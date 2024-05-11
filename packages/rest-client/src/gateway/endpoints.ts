@@ -588,6 +588,8 @@ export const endpoints = {
         if (typeof descriptors !== 'object' || descriptors === null)
           return descriptors
 
+        // console.log({ descriptors })
+
         const next = descriptors.next
         if (typeof descriptors.next !== 'undefined')
           delete descriptors.next
@@ -604,23 +606,20 @@ export const endpoints = {
 
   }),
 
-  /*
   // This endpoint is not implemented in the backend
- getDDFBundleDescriptor: makeEndpoint({
-    alias: 'getDDFBundleDescriptor',
+  /*
+  getDDFBundleDescriptor: makeEndpoint({
     description: 'Get DDF bundle descriptor',
     method: 'get',
-    path: '/api/:apiKey/ddf/descriptors/:hash',
-    response: z.never(),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'hash',
-        description: 'The hash of the bundle to get',
-        type: 'Path',
-        schema: z.string(),
-      },
-    ],
+    path: '/api/{:apiKey:}/ddf/descriptors/{:bundleHash:}',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+      bundleHash: globalParameters.bundleHash,
+    },
+    response: {
+      format: 'json',
+      schema: z.never(),
+    },
   }),
   */
 

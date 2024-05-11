@@ -1,20 +1,20 @@
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
 import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 
-import type { DDFDescriptor, EndpointAlias, ExtractParamsForAlias, FindGatewayResult, GatewayApi, GatewayBodyParams, GatewayClient, GatewayPathParam, GatewayResponse, RequestResultForAlias } from '@deconz-community/rest-client'
+import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
-// export type BundleDescriptor = Extract<GatewayResponse<'getDDFBundleDescriptors'>['success'], { descriptors: any }>['descriptors'][string]
+export type BundleDescriptor = ExtractResponseSchemaForAlias<'getDDFBundleDescriptors'>['descriptors'][string]
 
 export interface GatewayContext {
   credentials: GatewayCredentials
   gateway?: GatewayClient
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
-  config: GatewayResponse<'getConfig'>['success']
-  bundles: Map<string, DDFDescriptor>
+  config?: ExtractResponseSchemaForAlias<'getConfig'>
+  bundles: Map<string, BundleDescriptor>
 }
 
 export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent<EndpointAlias>
@@ -123,36 +123,51 @@ export const gatewayMachine = setup({
             return console.error('Cant parse websocket message', raw, message.error)
           }
 
-          if (message.data.e === 'added') {
-            sendBack({ type: 'REFRESH_DEVICES' })
-            const description = message.data.sensor?.name ?? message.data.light?.name ?? 'Unknown device'
-            toast.info('Device added', {
-              duration: 3000,
-              onAutoClose: () => {},
-              onDismiss: () => {},
-              id: '',
-              important: false,
-              description: description as string,
+          switch (message.data.e) {
+            case 'added':
+            {
+              sendBack({ type: 'REFRESH_DEVICES' })
+
+              let description: string | undefined
+              switch (message.data.r) {
+                case 'sensors':
+                  description = message.data.sensor.name
+                  break
+                case 'lights':
+                  description = message.data.light.name
+              }
+
+              if (description) {
+                toast.info('Device added', {
+                  duration: 3000,
+                  onAutoClose: () => {},
+                  onDismiss: () => {},
+                  id: '',
+                  important: false,
+                  description: description as string,
+                })
+              }
+              break
+            }
+            case 'deleted':{
+              sendBack({ type: 'REFRESH_DEVICES' })
+
+              break
+            }
+          }
+
+          if ('uniqueid' in message.data) {
+            const { uniqueid } = message.data
+
+            const devices = input.gateway.getSnapshot().context.devices as GatewayContext['devices']
+            devices.forEach((device) => {
+              const { context } = device.getSnapshot()
+              if (!uniqueid.startsWith(context.deviceID))
+                return
+
+              device.send({ type: 'WEBSOCKET_EVENT', data: message.data })
             })
           }
-          else if (message.data.e === 'deleted') {
-            sendBack({ type: 'REFRESH_DEVICES' })
-          }
-
-          const { uniqueid } = message.data
-
-          if (!uniqueid)
-            return
-
-          const devices = input.gateway.getSnapshot().context.devices as GatewayContext['devices']
-
-          devices.forEach((device) => {
-            const { context } = device.getSnapshot()
-            if (!uniqueid.startsWith(context.deviceID))
-              return
-
-            device.send({ type: 'WEBSOCKET_EVENT', data: message.data })
-          })
         })
       })
 
@@ -163,33 +178,30 @@ export const gatewayMachine = setup({
 
     fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: GatewayClient }>(async ({ input }) => {
       const { gateway } = input
-      const newList = new Map<string, DDFDescriptor>()
+      const newList = new Map<string, BundleDescriptor>()
 
       let hasMore = true
-      let next
+      let next: string | number | undefined
 
       while (hasMore) {
-        const result = await gateway.request('getDDFBundleDescriptors', { next })
+        const results = await gateway.request('getDDFBundleDescriptors', { next })
 
-        console.log(result)
+        results.forEach((result) => {
+          // console.log(result)
+          if (result.isErr())
+            throw new Error('Failed to fetch bundle')
 
-        hasMore = false
+          for (const [key, value] of Object.entries(result.value.descriptors))
+            newList.set(key, value)
 
-        const data = result?.success
-
-        if (!data)
-          throw new Error('Failed to fetch bundle')
-
-        for (const [key, value] of Object.entries(data.descriptors))
-          newList.set(key, value)
-
-        if (data.next) {
-          next = data.next
-        }
-        else {
-          next = undefined
-          hasMore = false
-        }
+          if (result.value.next) {
+            next = result.value.next
+          }
+          else {
+            next = undefined
+            hasMore = false
+          }
+        })
       }
       return newList
     }),
@@ -381,24 +393,6 @@ export const gatewayMachine = setup({
 
             pooling: {
               invoke: {
-
-                /**
-                 *
-                 *          src: 'doRequest',
-                input: ({ context }) => ({
-                  gateway: context.gateway!,
-                  request: {
-                    alias: 'getConfig',
-                    params: {},
-                  },
-                }),
-                onDone: {
-                  target: 'idle',
-                  actions: enqueueActions(({ enqueue, event, context }) => {
-                    (event.output as RequestResultForAlias<'getConfig'>).forEach((result) => {
-
-
-                 */
                 src: 'doRequest',
                 input: ({ context }) => ({
                   gateway: context.gateway!,

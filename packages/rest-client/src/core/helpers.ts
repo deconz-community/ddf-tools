@@ -1,4 +1,4 @@
-import type { ZodAny, ZodType, ZodTypeAny } from 'zod'
+import type { ZodType, ZodTypeAny } from 'zod'
 import { z } from 'zod'
 
 import type { Result, ResultOkType } from 'ts-results-es'

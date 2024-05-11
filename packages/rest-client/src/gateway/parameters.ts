@@ -32,6 +32,12 @@ export const globalParameters = {
     sample: 12,
   }),
 
+  bundleHash: makeParameter({
+    description: 'Hash of the bundle',
+    type: 'path',
+    schema: z.string().length(64),
+    sample: '64ff180d340c15bb3a5136d5f336d1ca5a216ed16b1369c8439d6952478e58ac',
+  }),
   /*
   groupId: makeParameter({
     name: 'groupId',
