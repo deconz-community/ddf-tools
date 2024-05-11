@@ -104,7 +104,7 @@ onMounted(async () => {
         </template>
 
         <template v-if="gateway.state!.matches({ offline: 'editing' })">
-          <form-gateway-credentials :gateway="gateway" />
+          <form-gateway-credentials-old :gateway="gateway" />
         </template>
       </template>
     </v-card-text>

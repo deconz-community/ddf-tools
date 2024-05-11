@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EndpointAlias, RequestResultForAlias } from '@deconz-community/rest-client'
-import { endpoints, gatewayClient } from '@deconz-community/rest-client'
+import { endpoints } from '@deconz-community/rest-client'
 import { useRouteQuery } from '@vueuse/router'
 
 import { VTreeview } from 'vuetify/labs/VTreeview'
@@ -10,42 +10,49 @@ const props = defineProps<{
   gateway: string
 }>()
 
+const selectedAlias = useRouteQuery<string>('alias', 'discover')
+
 // #region API Tree
 
 interface APITree {
+  alias?: string
   title: string
-  children: {
-    alias: string
-    title: string
-  }[]
+  subtitle?: string
+  props?: Record<string, any>
+  children?: APITree[]
 }
 
-const apiTree: APITree[] = []
-
-Object.entries(endpoints).forEach(([alias, api]) => {
-  const path = api.path.replace('/api/{:apiKey:}', '')
-  const parts = path.substring(1).split('/')
-  const categoryTitle = parts[0].charAt(0).toUpperCase() + parts[0].slice(1)
-  const title = `${api.method.toUpperCase()} ${path}`
-
-  const leaf = apiTree.find(leaf => leaf.title === categoryTitle)
-  if (leaf) {
-    if (!leaf.children)
-      leaf.children = []
-    leaf.children.push({
-      alias,
-      title,
-    })
-  }
-  else {
-    apiTree.push({
-      title: categoryTitle,
-      children: [{
+const apiTree = computed<APITree[]>(() => {
+  const tree: APITree[] = []
+  Object.entries(endpoints).forEach(([alias, api]) => {
+    const path = api.path.replace('/api/{:apiKey:}', '')
+    const subtitle = `${api.method.toUpperCase()} ${path}`
+    const leaf = tree.find(leaf => leaf.title === api.category)
+    if (leaf) {
+      if (!leaf.children)
+        leaf.children = []
+      leaf.children.push({
         alias,
-        title,
-      }],
-    })
-  }
+        title: api.name,
+        props: {
+          subtitle,
+        },
+      })
+    }
+    else {
+      tree.push({
+        title: api.category,
+        children: [{
+          alias,
+          title: api.name,
+          props: {
+            subtitle,
+          },
+        }],
+      })
+    }
+  })
+  return tree
 })
 
 function selectAPI(params: unknown) {
@@ -63,8 +70,6 @@ function selectAPI(params: unknown) {
 // #endregion
 
 // #region Gateway
-
-const selectedAlias = useRouteQuery('alias', 'discover')
 
 const endpointAlias = computed(() => {
   const alias = selectedAlias.value as keyof typeof endpoints
@@ -136,113 +141,131 @@ async function send() {
 </script>
 
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="2" sm="4">
-        <v-card>
+  <v-alert
+    v-show="gateway.state?.can({ type: 'REQUEST' } as any) !== true"
+    class="ma-2"
+    type="error"
+    text="Gateway offline, please check the settings."
+  />
+  <v-card class="ma-2">
+    <v-card-title>
+      REST Client
+    </v-card-title>
+    <v-card-text>
+      This tool allows you to send requests to the gateway's API.
+    </v-card-text>
+  </v-card>
+  <v-divider />
+  <template v-if="gateway.state?.can({ type: 'REQUEST' } as any)">
+    <div class="d-flex flex-wrap flex-lg-nowrap">
+      <v-card min-width="300px" class="ma-2 mr-0">
+        <v-card-title>
+          Endpoints
+        </v-card-title>
+        <v-card-text>
+          <VTreeview
+            :items="apiTree"
+            active-strategy="single-independent"
+            mandatory
+            density="compact"
+            activatable
+            item-value="alias"
+            @update:activated="selectAPI"
+          />
+        </v-card-text>
+      </v-card>
+      <v-card v-if="endpoint" class="ma-2 flex-grow-1">
+        <v-form @submit.prevent="send()">
           <v-card-title>
-            Endpoints
+            {{ endpoint.method.toLocaleUpperCase() }}
+            {{ ('baseURL' in endpoint ? endpoint.baseURL : '') + endpoint.path }}
           </v-card-title>
+          <v-card-subtitle class="text-wrap">
+            {{ endpointAlias }} - {{ endpoint.description }}
+          </v-card-subtitle>
           <v-card-text>
-            <VTreeview
-              :items="apiTree"
-              active-strategy="single-independent"
-              mandatory
-              density="compact"
-              activatable
-              item-value="alias"
-              @update:activated="selectAPI"
-            />
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="8" sm="8">
-        <v-card v-if="endpoint">
-          <v-form @submit.prevent="send()">
-            <v-card-title>
-              {{ endpoint.method.toLocaleUpperCase() }}
-              {{ ('baseURL' in endpoint ? endpoint.baseURL : '') + endpoint.path }}
-            </v-card-title>
-            <v-card-subtitle>
-              {{ endpoint.description }}
-            </v-card-subtitle>
-            <v-card-text>
-              <v-card elevation="3">
-                <v-card-title>
-                  Parameters
-                </v-card-title>
-                <v-card-text v-if="endpointsParams.length === 0">
-                  None
-                </v-card-text>
-                <v-card-text v-else>
-                  <input-rest-client-param
-                    v-for="([name, parameter], index) in endpointsParams"
-                    :key="index"
-                    v-model="params"
-                    :gateway="props.gateway"
-                    :name="name"
-                    :param="parameter"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn type="submit" color="primary" variant="tonal" elevation="3" size="large">
-                Send request
-              </v-btn>
-            </v-card-actions>
-          </v-form>
-        </v-card>
-      </v-col>
-      <v-col v-show="hasResponse" cols="6" sm="6">
-        <v-card>
-          <v-card-title>
-            API Response
-          </v-card-title>
-          <v-card-text>
-            <v-card elevation="5">
+            <v-card elevation="3">
               <v-card-title>
-                <v-alert
-                  :text="`Status code: ${statusCode}`"
-                  :type="statusCode === 200 ? 'success' : 'error'"
+                Parameters
+              </v-card-title>
+              <v-card-text v-if="endpointsParams.length === 0">
+                None
+              </v-card-text>
+              <v-card-text v-else>
+                <input-rest-client-param
+                  v-for="([name, parameter], index) in endpointsParams"
+                  :key="index"
+                  v-model="params"
+                  :gateway="props.gateway"
+                  :name="name"
+                  :param="parameter"
                 />
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn type="submit" color="primary" variant="tonal" elevation="3" size="large">
+              Send request
+            </v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </div>
+
+    <div v-show="hasResponse">
+      <v-container style="max-width: none;">
+        <v-row>
+          <v-col cols="12" lg="6">
+            <v-card>
+              <v-card-title>
+                API Response
               </v-card-title>
               <v-card-text>
-                <pre>{{ rawResponse }}</pre>
+                <v-card elevation="5">
+                  <v-card-title>
+                    <v-alert
+                      :text="`Status code: ${statusCode}`"
+                      :type="statusCode === 200 ? 'success' : 'error'"
+                    />
+                  </v-card-title>
+                  <v-card-text>
+                    <pre>{{ rawResponse }}</pre>
+                  </v-card-text>
+                </v-card>
               </v-card-text>
             </v-card>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col v-show="hasResponse" cols="6" sm="6">
-        <v-card>
-          <v-card-title>
-            JS Client :
-            {{ clientResponse.length }}
-            {{ clientResponse.length > 1 ? 'responses' : 'response' }}
-          </v-card-title>
-          <v-card-text>
-            <v-card v-for="(response, index) of clientResponse" :key="index" elevation="5">
+          </v-col>
+          <v-col cols="12" lg="6">
+            <v-card>
               <v-card-title>
-                <v-alert
-                  :text="`Response #${index + 1}`"
-                  :type="response.isOk() ? 'success' : 'error'"
-                />
+                JS Client :
+                {{ clientResponse.length }}
+                {{ clientResponse.length > 1 ? 'responses' : 'response' }}
               </v-card-title>
+              <v-card-text>
+                <v-card v-for="(response, index) of clientResponse" :key="index" elevation="5">
+                  <v-card-title>
+                    <v-alert
+                      :text="`Response #${index + 1}`"
+                      :type="response.isOk() ? 'success' : 'error'"
+                    />
+                  </v-card-title>
 
-              <v-card-text v-if="response.isOk()">
-                <pre>{{ response.value }}</pre>
-              </v-card-text>
+                  <v-card-text v-if="response.isOk()">
+                    <pre>{{ response.value }}</pre>
+                  </v-card-text>
 
-              <v-card-text v-else>
-                <pre>{{ response.error }}</pre>
+                  <v-card-text v-else>
+                    <pre>{{ response.error }}</pre>
+                  </v-card-text>
+                </v-card>
               </v-card-text>
             </v-card>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+  </template>
 </template>
 
 <route lang="json">

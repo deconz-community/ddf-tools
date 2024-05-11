@@ -70,6 +70,9 @@ export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
 // #endregion
 
 export interface EndpointDefinition {
+  category: string
+  subcategory?: string
+  name: string
   description: string
   method: 'get' | 'post' | 'put' | 'delete'
   path: string

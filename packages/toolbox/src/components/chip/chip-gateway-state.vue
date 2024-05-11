@@ -45,7 +45,7 @@ const state = computed<{
 </script>
 
 <template>
-  <v-tooltip v-if="state.tooltip" :text="state.tooltip">
+  <v-tooltip v-if="state.tooltip" :text="state.tooltip" location="bottom">
     <template #activator="{ props: localProps }">
       <v-chip v-bind="{ ...localProps, ...$attrs }" :color="state.color" :text="state.text" />
     </template>

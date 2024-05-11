@@ -271,6 +271,12 @@ export const gatewayMachine = setup({
           {
             target: 'offline.error.invalidApiKey',
             guard: ({ event }) => event.output.isOk() && ['invalid_api_key', 'bridge_id_mismatch'].includes(event.output.unwrap().code),
+            actions: enqueueActions(({ enqueue, event }) => {
+              const result = event.output.unwrap()
+              enqueue.assign({
+                gateway: result.gateway,
+              })
+            }),
           },
           {
             target: 'offline.error',
@@ -532,7 +538,24 @@ export const gatewayMachine = setup({
           },
           states: {
             unreachable: {},
-            invalidApiKey: {},
+            invalidApiKey: {
+              on: {
+                REQUEST: {
+                  actions: enqueueActions(({ enqueue, context, event }) => {
+                    enqueue.spawnChild('doRequest', {
+                      input: {
+                        gateway: context.gateway!,
+                        request: {
+                          alias: event.alias,
+                          params: event.params,
+                          options: event.options,
+                        },
+                      },
+                    })
+                  }),
+                },
+              },
+            },
             unknown: {},
           },
         },

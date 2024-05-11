@@ -12,6 +12,8 @@ export const endpoints = {
   // #region Discovery
 
   discover: makeEndpoint({
+    category: 'Discovery',
+    name: 'Online Gateway Discovery',
     alias: 'discover',
     description: 'Get discovered gateways from Phoscon API',
     method: 'get',
@@ -258,6 +260,44 @@ export const endpoints = {
     ),
   }),
 
+  */
+
+  createAPIKey: makeEndpoint({
+    category: 'API Key',
+    name: 'Create API Key',
+    description: 'Creates a new API key which provides authorized access to the REST-API. '
+    + 'The request will only succeed if the gateway is unlocked, is having a hmac-sha256 challenge or an valid HTTP basic '
+    + 'authentification credentials are provided in the HTTP request header see authorization.',
+    method: 'post',
+    path: '/api',
+    parameters: {
+      body: makeParameter({
+        description: 'Payload',
+        type: 'body',
+        schema: z.object({
+          // TODO Blacklist devicetype to avoid specific api mode
+          // Should not start with iConnect | iConnectHue | Echo | hue_ | "Hue "
+          'devicetype': z.string().min(0).max(40).default('REST Client'),
+          'username': z.optional(z.string().min(10).max(40)
+            .default(() => (Math.random().toString(36).slice(2).toUpperCase())),
+          ),
+          'hmac-sha256': z.optional(z.string()),
+        }),
+        sample: {
+          devicetype: 'REST Client',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\/whitelist\//,
+      schema: z.strictObject({ username: z.string() }).transform(result => Ok(result.username))
+        .describe('The generated API key.'),
+    },
+  }),
+
+  /*
+
   createAPIKey: makeEndpoint({
     alias: 'createAPIKey',
     description: 'Creates a new API key which provides authorized access to the REST-API. '
@@ -288,6 +328,8 @@ export const endpoints = {
 
   */
   deleteAPIKey: makeEndpoint({
+    category: 'API Key',
+    name: 'Delete API Key',
     description: 'Deletes an API key so it can no longer be used.',
     method: 'delete',
     path: '/api/{:apiKey:}/config/whitelist/{:oldApiKey:}',
@@ -304,7 +346,11 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/config\/whitelist\//,
-      schema: z.union([z.string(), z.boolean()]).optional()
+      schema: z.preprocess((data) => {
+        console.log({ data })
+        return data
+      }, z.union([z.string(), z.boolean()]))
+        .optional()
         .transform(message => typeof message === 'string'
           ? Ok(message)
           : Err(customError('delete_api_key_failed', 'Key not found.')),
@@ -313,6 +359,8 @@ export const endpoints = {
   }),
 
   getConfig: makeEndpoint({
+    category: 'Config',
+    name: 'Get Gateway Configuration',
     description: 'Get gateway configuration',
     method: 'get',
     path: '/api/{:apiKey:}/config',
@@ -383,6 +431,8 @@ export const endpoints = {
   */
 
   updateConfig: makeEndpoint({
+    category: 'Config',
+    name: 'Update Gateway Configuration',
     description: 'Modify configuration parameters.',
     method: 'put',
     path: '/api/{:apiKey:}/config',
@@ -575,6 +625,8 @@ export const endpoints = {
   */
 
   getDDFBundleDescriptors: makeEndpoint({
+    category: 'DDF',
+    name: 'Get DDF Bundle Descriptors',
     description: 'Get all DDF bundle descriptors',
     method: 'get',
     path: '/api/{:apiKey:}/ddf/descriptors',
@@ -654,6 +706,8 @@ export const endpoints = {
   // #region Devices endpoints
 
   getDevices: makeEndpoint({
+    category: 'Devices',
+    name: 'Get all devices',
     description: 'Returns a list of all devices. If there are no devices in the system an empty array [] is returned.',
     method: 'get',
     path: '/api/{:apiKey:}/devices',
@@ -667,6 +721,8 @@ export const endpoints = {
   }),
 
   getDevice: makeEndpoint({
+    category: 'Devices',
+    name: 'Get one device',
     description: 'Returns the group with the specified id.',
     method: 'get',
     path: '/api/{:apiKey:}/devices/{:deviceUniqueID:}',
@@ -1079,7 +1135,9 @@ export const endpoints = {
   */
 
   findSensor: makeEndpoint({
-    description: 'Find a new sensor.',
+    category: 'Sensors',
+    name: 'Find a new sensor',
+    description: 'Open the gateway to add a new sensor.',
     method: 'post',
     path: '/api/{:apiKey:}/sensors',
     parameters: {
@@ -1095,7 +1153,9 @@ export const endpoints = {
   }),
 
   getSensorFindResult: makeEndpoint({
-    description: 'Returns recently added sensors.',
+    category: 'Sensors',
+    name: 'Get find sensor result',
+    description: 'Returns list of recently added sensors.',
     method: 'get',
     path: '/api/{:apiKey:}/sensors/new',
     parameters: {
