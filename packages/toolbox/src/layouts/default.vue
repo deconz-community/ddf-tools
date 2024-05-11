@@ -15,7 +15,9 @@ const isGatewayRoute = computed(() => route.params.gateway !== undefined)
       <nav-sidebar-level-two v-else />
     </v-navigation-drawer>
 
+    <!--
     <nav-topbar-details />
+    -->
 
     <portal-target name="before-content" />
     <!--

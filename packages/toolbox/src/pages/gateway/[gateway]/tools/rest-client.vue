@@ -135,7 +135,7 @@ async function send() {
     statusCode.value = response.statusCode as number
 
   if ('rawResponse' in response)
-    rawResponse.value = response.rawResponse
+    rawResponse.value = JSON.stringify(response.rawResponse, null, 2)
 }
 // #endregion
 </script>
@@ -229,7 +229,24 @@ async function send() {
                     />
                   </v-card-title>
                   <v-card-text>
-                    <pre>{{ rawResponse }}</pre>
+                    <VueMonacoEditor
+                      v-model:value="rawResponse"
+                      theme="vs-dark"
+
+                      language="json"
+                      :options="{
+                        automaticLayout: true,
+
+                        minimap: {
+                          enabled: true,
+                        },
+                        scrollbar: {
+                          vertical: 'visible',
+                          horizontal: 'visible',
+                        },
+                      }"
+                      height="700px"
+                    />
                   </v-card-text>
                 </v-card>
               </v-card-text>

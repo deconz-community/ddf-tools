@@ -27,6 +27,7 @@ export const deviceSchema = z.object({
       lastupdated: z.string().transform(value => new Date(value)).or(z.null()),
       value: z.any(),
     }))),
+    mode: z.number().optional(),
     type: z.string(),
     uniqueid: z.string(),
   })),
