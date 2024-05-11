@@ -6,6 +6,7 @@ const props = defineProps<{
   label: string
   error: boolean
   errorMessages?: Record<string, string>
+  height?: string
 }>()
 
 const emit = defineEmits<{
@@ -17,9 +18,9 @@ const localErrorMessages = ref('')
 const errorMessages = computed(() => {
   // Merge all error messages into a single string with the key and the message.
   return localErrorMessages.value
-  + Object.entries(props.errorMessages ?? {})
-    .map(([key, message]) => `${key[0].toUpperCase() + key.slice(1)}: ${message}.`)
-    .join('\n')
+    + Object.entries(props.errorMessages ?? {})
+      .map(([key, message]) => `${key[0].toUpperCase() + key.slice(1)}: ${message}.`)
+      .join('\n')
 })
 
 const attrs = useAttrs()
@@ -76,6 +77,6 @@ const data = computed({
     }"
 
     v-bind="attrs"
-    height="200px"
+    :height="props.height ?? '200px'"
   />
 </template>
