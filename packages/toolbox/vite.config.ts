@@ -131,6 +131,7 @@ export default defineConfig({
       },
     }),
 
+    // @ts-expect-error It's how this plugin works
     monacoEditorPlugin.default({}),
 
   ],

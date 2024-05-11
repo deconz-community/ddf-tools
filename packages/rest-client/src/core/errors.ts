@@ -1,11 +1,28 @@
 import type { ZodError } from 'zod'
 
 export type CommonErrors<DeconzCodes extends number | never> =
+  | CustomError
   | ReturnType<typeof clientError>
   | ReturnType<typeof zodError>
   | (DeconzCodes extends number
     ? ReturnType<typeof deconzError<DeconzCodes>>
     : never)
+
+// #region Custom Error
+export interface CustomError {
+  type: 'custom'
+  code: string
+  message: string
+}
+
+export function customError(code: string, message: string): CustomError {
+  return {
+    type: 'custom',
+    code,
+    message,
+  }
+}
+// #endregion
 
 // #region Client errors
 const ERRORS = {

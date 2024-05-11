@@ -3,31 +3,34 @@ const props = defineProps<{
   gateway: string
 }>()
 
-const machines = createUseAppMachine()
-const gatewayMachine = machines.use('gateway', computed(() => ({ id: props.gateway })))
-const config = computed(() => gatewayMachine.state?.context.config)
-const gateway = computed(() => gatewayMachine.state?.context.gateway)
+const gateway = useGateway(toRef(props, 'gateway'))
 
-const permitJoin = computed(() => config.value.permitjoin)
+const permitJoin = computed(() =>
+  gateway.config && 'permitjoin' in gateway.config
+    ? gateway.config.permitjoin
+    : undefined,
+)
 
 const drawer = ref(false)
 onMounted(() => setTimeout(() => drawer.value = true, 0))
 
 async function openGateway() {
-  if (!gateway.value)
-    return
-
-  await gateway.value.findSensor({})
-  await gatewayMachine.send({ type: 'REFRESH_CONFIG' })
+  await gateway.fetch('findSensor', {})
   getResult()
+  gateway.send({ type: 'REFRESH_CONFIG' })
 }
 
 const findResult = ref()
-async function getResult() {
-  if (!gateway.value)
-    return
 
-  findResult.value = await gateway.value.getSensorFindResult()
+async function getResult() {
+  const results = await gateway.fetch('getSensorFindResult', {})
+
+  results.forEach((result) => {
+    if (!result.isOk())
+      return
+
+    findResult.value = result.value
+  })
 }
 </script>
 
@@ -52,19 +55,19 @@ async function getResult() {
     -->
   </portal>
 
-  <v-card v-if="config" class="ma-2">
+  <v-card v-if="gateway.config" class="ma-2">
     <template #title>
-      {{ config.name }}
-      <v-btn icon="mdi-refresh" density="comfortable" @click="gatewayMachine.send({ type: 'REFRESH_CONFIG' })" />
+      {{ gateway.config.name }}
+      <v-btn icon="mdi-refresh" density="comfortable" @click="gateway.send({ type: 'REFRESH_CONFIG' })" />
     </template>
     <template #subtitle>
-      {{ config.bridgeid }}
+      {{ gateway.config.bridgeid }}
     </template>
     <template #text>
       <v-btn density="comfortable" text="Add sensor" @click="openGateway()" />
       <v-btn density="comfortable" text="Update find result" @click="getResult()" />
       <pre>{{ { permitJoin, findResult } }}</pre>
-      <pre>{{ config }}</pre>
+      <pre>{{ gateway.config }}</pre>
     </template>
   </v-card>
 </template>

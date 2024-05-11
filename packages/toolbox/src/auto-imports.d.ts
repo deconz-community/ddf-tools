@@ -189,6 +189,7 @@ declare global {
   const useFps: typeof import('@vueuse/core')['useFps']
   const useFullscreen: typeof import('@vueuse/core')['useFullscreen']
   const useGamepad: typeof import('@vueuse/core')['useGamepad']
+  const useGateway: typeof import('./composables/useGateway')['useGateway']
   const useGatewayScanner: typeof import('./composables/useGatewayScanner')['useGatewayScanner']
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useGithubAvatar: typeof import('./composables/useGithubAvatar')['useGithubAvatar']
@@ -501,6 +502,7 @@ declare module 'vue' {
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
+    readonly useGateway: UnwrapRef<typeof import('./composables/useGateway')['useGateway']>
     readonly useGatewayScanner: UnwrapRef<typeof import('./composables/useGatewayScanner')['useGatewayScanner']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGithubAvatar: UnwrapRef<typeof import('./composables/useGithubAvatar')['useGithubAvatar']>
@@ -806,6 +808,7 @@ declare module '@vue/runtime-core' {
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
+    readonly useGateway: UnwrapRef<typeof import('./composables/useGateway')['useGateway']>
     readonly useGatewayScanner: UnwrapRef<typeof import('./composables/useGatewayScanner')['useGatewayScanner']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGithubAvatar: UnwrapRef<typeof import('./composables/useGithubAvatar')['useGithubAvatar']>

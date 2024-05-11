@@ -233,11 +233,13 @@ export function gatewayClient(clientParams: ClientParams = {}) {
 
           const results: Result<any, any>[] = []
 
-          Object.defineProperty(result.success, 'statusCode', {
-            value: status,
-            writable: false,
-            enumerable: false,
-          })
+          if (typeof result.success === 'object' && result.success !== null) {
+            Object.defineProperty(result.success, 'statusCode', {
+              value: status,
+              writable: false,
+              enumerable: false,
+            })
+          }
 
           const successData = schema.safeParse(result.success)
 

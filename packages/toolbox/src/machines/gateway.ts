@@ -12,8 +12,8 @@ export type BundleDescriptor = ExtractResponseSchemaForAlias<'getDDFBundleDescri
 export interface GatewayContext {
   credentials: GatewayCredentials
   gateway?: GatewayClient
-  devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   config?: ExtractResponseSchemaForAlias<'getConfig'>
+  devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   bundles: Map<string, BundleDescriptor>
 }
 
@@ -287,16 +287,15 @@ export const gatewayMachine = setup({
         DISCONNECT: 'offline.disabled',
         REQUEST: {
           actions: enqueueActions(({ enqueue, context, event }) => {
-            if (event.type !== 'REQUEST')
-              return
-
-            const params = {
-              gateway: context.gateway!,
-              ...event,
-            } as any
-
             enqueue.spawnChild('doRequest', {
-              input: params,
+              input: {
+                gateway: context.gateway!,
+                request: {
+                  alias: event.alias,
+                  params: event.params,
+                  options: event.options,
+                },
+              },
             })
           }),
         },

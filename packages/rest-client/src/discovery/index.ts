@@ -4,34 +4,6 @@ import type { GatewayClient } from '../gateway'
 import { gatewayClient } from '../gateway'
 import type { ExtractResponseSchemaForAlias } from '../core/helpers'
 
-export function discoveryClient() {
-  /*
-  const client = new Zodios('https://phoscon.de', [{
-    method: 'get',
-    path: '/discover',
-    response: z.array(
-      z.object({
-        id: z.string(),
-        internalipaddress: z.string().ip(),
-        macaddress: z.string(),
-        internalport: z.number(),
-        name: z.string(),
-        publicipaddress: z.string().ip(),
-      }),
-    ),
-    alias: 'discover',
-    description: 'Get discovered gateways from Phoscon API',
-  }], {
-    axiosConfig: {
-      timeout: 5000,
-      ...axiosConfig,
-    },
-  })
-  */
-
-  return {}
-}
-
 interface GatewayInfo {
   gateway: GatewayClient
   uri: string

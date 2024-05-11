@@ -1,6 +1,7 @@
 import { z } from 'zod'
-import { Ok } from 'ts-results-es'
+import { Err, Ok } from 'ts-results-es'
 import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
+import { customError, deconzError } from '../core/errors'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 import { deviceSchema } from './schemas/deviceSchema'
@@ -285,28 +286,31 @@ export const endpoints = {
     ],
   }),
 
+  */
   deleteAPIKey: makeEndpoint({
-    alias: 'deleteAPIKey',
     description: 'Deletes an API key so it can no longer be used.',
     method: 'delete',
-    path: '/api/:apiKey/config/whitelist/:oldApiKey',
-    response: prepareResponse(
-      z.union([z.string(), z.boolean()]).optional()
-        .transform(message => typeof message === 'string' ? message : 'Key not found.'),
-      { removePrefix: /^\/config\/whitelist\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'oldApiKey',
+    path: '/api/{:apiKey:}/config/whitelist/{:oldApiKey:}',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+      oldApiKey: makeParameter({
+        type: 'path',
         description: 'Old API Key',
-        type: 'Path',
         schema: z.string().min(10).max(40),
-      },
-    ],
+        sample: '12345ABCDE',
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\/whitelist\//,
+      schema: z.union([z.string(), z.boolean()]).optional()
+        .transform(message => typeof message === 'string'
+          ? Ok(message)
+          : Err(customError('delete_api_key_failed', 'Key not found.')),
+        ),
+    },
   }),
 
-  */
   getConfig: makeEndpoint({
     description: 'Get gateway configuration',
     method: 'get',
@@ -1071,36 +1075,35 @@ export const endpoints = {
     ],
   }),
 
+  */
+
   findSensor: makeEndpoint({
-    alias: 'findSensor',
     description: 'Find a new sensor.',
     method: 'post',
-    path: '/api/:apiKey/sensors?_query=find',
-    response: prepareResponse(
-      z.object({
+    path: '/api/{:apiKey:}/sensors',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/sensors\//,
+      schema: z.object({
         duration: z.number(),
-      }),
-      {
-        removePrefix: /^\/sensors\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.strictObject({}),
-      },
-    ],
+      }).transform(data => Ok(data)),
+    },
   }),
 
   getSensorFindResult: makeEndpoint({
-    alias: 'getSensorFindResult',
     description: 'Returns recently added sensors.',
     method: 'get',
-    path: '/api/:apiKey/sensors/new',
-    response: prepareResponse(
-      z.preprocess((data: unknown) => {
+    path: '/api/{:apiKey:}/sensors/new',
+    parameters: {
+      apiKey: globalParameters.optionalApiKey,
+    },
+    response: {
+      format: 'json',
+      removePrefix: /^\/sensors\//,
+      schema: z.preprocess((data: unknown) => {
         if (typeof data !== 'object' || data === null || !('lastscan' in data))
           return data
         const { lastscan, ...rest } = data
@@ -1125,15 +1128,11 @@ export const endpoints = {
           z.literal('active'),
           z.string().transform(value => new Date(value)),
         ]),
-      })),
-      {
-        removePrefix: /^\/sensors\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+      })).transform(data => Ok(data)),
+    },
   }),
+
+  /*
 
   getSensors: makeEndpoint({
     alias: 'getSensors',

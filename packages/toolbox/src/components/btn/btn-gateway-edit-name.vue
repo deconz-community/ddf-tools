@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import type { RequestResultForAlias } from '@deconz-community/rest-client'
 import { getParamZodSchema } from '@deconz-community/rest-client'
-import { gatewayRequest } from '~/machines/gateway'
 
 const props = defineProps<{
   gateway: string
 }>()
 
-const machines = createUseAppMachine()
-const gatewayMachine = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const gateway = useGateway(toRef(props, 'gateway'))
 
 const editName = useDialogAction(() => {
-  const config = gatewayMachine.state?.context.config
-
-  if (!config)
+  if (!gateway.config)
     return
 
-  const currentName = config.name
+  const currentName = gateway.config.name
 
   return {
     title: 'Update gateway name',
@@ -31,87 +26,20 @@ const editName = useDialogAction(() => {
       if (name === currentName)
         return toast.info('No changes made')
 
-      /*
-      gatewayMachine.send({
-        type: 'REQUEST',
-        alias: 'updateConfig',
-        params: {
-          config: { name },
-        },
-        options: {
-          onDone: (r) => {
-            const response = r as any
+      const results = await gateway.fetch('updateConfig', { config: { name } })
 
-            if (response.success) {
-              toast.success('Gateway name updated')
-              gatewayMachine.send({ type: 'REFRESH_CONFIG' })
-            }
-            else {
-              toast.error('Failed to update gateway name')
-              console.error(response)
-            }
-          },
-        },
-      })
-      */
-
-      gatewayMachine.send(gatewayRequest('updateConfig', {
-        config: { name },
-
-      }, {
-        onDone: (r) => {
-          const responses = r as RequestResultForAlias<'updateConfig'>
-
-          responses.forEach((response) => {
-            if (response.isOk()) {
-              toast.success('Gateway name updated')
-              gatewayMachine.send({ type: 'REFRESH_CONFIG' })
-            }
-            else {
-              console.error(response.error)
-              toast.error('Failed to update gateway name', {
-                description: response.error.message,
-              })
-            }
+      results.forEach((result) => {
+        if (result.isOk()) {
+          toast.success('Gateway name updated')
+          gateway.send({ type: 'REFRESH_CONFIG' })
+        }
+        else {
+          console.error(result.error)
+          toast.error('Failed to update gateway name', {
+            description: result.error.message,
           })
-        },
-      }))
-
-      /*
-      gatewayMachine.send(gatewayRequest('updateConfig', { config: {
-        name,
-      } }))
-      */
-      // params: { name },
-      /*
-        options: {
-          onDone: (response) => {
-            if (response.success) {
-              toast.success('Gateway name updated')
-              gatewayMachine.send({ type: 'REFRESH_CONFIG' })
-            }
-            else {
-              toast.error('Failed to update gateway name')
-              console.error(response)
-            }
-          },
-        },
-        */
-
-      /*
-      gatewayMachine.send(gatewayRequest('updateConfig', { name }, {
-        onDone: (response) => {
-          if (response.success) {
-            toast.success('Gateway name updated')
-            gatewayMachine.send({ type: 'REFRESH_CONFIG' })
-          }
-          else {
-            toast.error('Failed to update gateway name')
-            console.error(response)
-          }
-        },
-      }))
-      */
+        }
+      })
     },
   }
 })
