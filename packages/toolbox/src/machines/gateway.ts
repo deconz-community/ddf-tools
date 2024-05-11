@@ -17,7 +17,10 @@ export interface GatewayContext {
   bundles: Map<string, BundleDescriptor>
 }
 
-export type AnyGatewayEvent = GatewayEvent | WebsocketEvent | RefreshEvent | RequestEvent<EndpointAlias>
+export type AnyGatewayEvent = GatewayEvent |
+  WebsocketEvent |
+  RefreshEvent |
+  RequestEvent<EndpointAlias>
 
 export type GatewayEvent = {
   type: 'CONNECT' | 'DISCONNECT'
@@ -55,12 +58,16 @@ export type RequestEvent<Alias extends EndpointAlias> = {
 } & DoRequestParams<Alias>
 
 export function gatewayRequest<Alias extends EndpointAlias>(
-  request: DoRequestParams<Alias>,
-): RequestEvent<Alias> {
+  alias: Alias,
+  params: ExtractParamsForAlias<Alias>,
+  options: RequestEventOptions<Alias> = {},
+): AnyGatewayEvent {
   return {
     type: 'REQUEST',
-    ...request,
-  }
+    alias,
+    params,
+    options,
+  } as any
 }
 
 export const gatewayMachine = setup({

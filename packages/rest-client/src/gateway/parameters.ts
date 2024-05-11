@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import { makeParameter } from '../core/helpers'
 
+const IDRegex = /\d+/
+const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
+const IDorUniqueIDRegex = new RegExp(`((${IDRegex.source})|(${uniqueIDRegex.source}))`)
+
 export const globalParameters = {
   // The API Key is optional because it's will be loaded by the API Key plugin
   requiredApiKey: makeParameter({
@@ -68,16 +72,12 @@ export const globalParameters = {
   deviceUniqueID: makeParameter({
     description: 'Device unique ID',
     type: 'path',
-    schema: z.string(),
+    schema: z.string().regex(uniqueIDRegex),
     sample: '00:1f:ee:00:00:00:08:bb-01-1000',
   }),
 } as const
 
 /*
-const IDRegex = /\d+/
-const uniqueIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
-const IDorUniqueIDRegex = new RegExp(`((${IDRegex.source})|(${uniqueIDRegex.source}))`)
-
 export const globalParametersRegex = {
   groupId: IDRegex,
   sensorId: IDorUniqueIDRegex,

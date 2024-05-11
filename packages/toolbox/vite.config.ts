@@ -57,7 +57,7 @@ export default defineConfig({
           ],
         },
         {
-          '@neoncoder/vuetify-sonner': ['toast'],
+          'vuetify-sonner': ['toast'],
         },
       ],
       dts: 'src/auto-imports.d.ts',

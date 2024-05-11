@@ -307,9 +307,6 @@ importers:
       '@guolao/vue-monaco-editor':
         specifier: ^1.5.1
         version: 1.5.1(monaco-editor@0.48.0)(vue@3.4.27(typescript@5.4.5))
-      '@neoncoder/vuetify-sonner':
-        specifier: ^0.3.18
-        version: 0.3.18(vue@3.4.27(typescript@5.4.5))(vuetify@3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5)))
       '@noble/hashes':
         specifier: ^1.4.0
         version: 1.4.0
@@ -385,6 +382,9 @@ importers:
       vuetify:
         specifier: ^3.6.4
         version: 3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5))
+      vuetify-sonner:
+        specifier: ^0.3.19
+        version: 0.3.19(vue@3.4.27(typescript@5.4.5))(vuetify@3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5)))
       vuetify-use-dialog:
         specifier: ^0.6.11
         version: 0.6.11(vue@3.4.27(typescript@5.4.5))(vuetify@3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5)))
@@ -10134,6 +10134,12 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  vuetify-sonner@0.3.19:
+    resolution: {integrity: sha512-Fn13UyP0Lzh9B10doHX8friWGgj0+dkRXd2fysLhtako/qEBY9nvwqKIUmGM0cUdjAUxioj7EcGod3l5qVPJVg==}
+    peerDependencies:
+      vue: ^3.3.0
+      vuetify: ^3.3.0
 
   vuetify-use-dialog@0.6.11:
     resolution: {integrity: sha512-iPAu6MsN8suuNAS1M6JN2CaOXRgr7LZ2u+UNtAw0Fi3AjianzVIrnRNhQcAZjmE8Hu6ZwAbgte1p47qU6OazLw==}
@@ -22117,6 +22123,12 @@ snapshots:
       '@vue/shared': 3.4.27
     optionalDependencies:
       typescript: 5.4.5
+
+  vuetify-sonner@0.3.19(vue@3.4.27(typescript@5.4.5))(vuetify@3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5))):
+    dependencies:
+      vue: 3.4.27(typescript@5.4.5)
+      vue-sonner: 1.1.2
+      vuetify: 3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5))
 
   vuetify-use-dialog@0.6.11(vue@3.4.27(typescript@5.4.5))(vuetify@3.6.4(typescript@5.4.5)(vite-plugin-vuetify@2.0.3)(vue@3.4.27(typescript@5.4.5))):
     dependencies:
