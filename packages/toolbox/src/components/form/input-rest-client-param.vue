@@ -36,19 +36,18 @@ const apiKeys = computed(() => {
   }))
 })
 
-const devices = toRef(gateway, 'devices')
+// const devices = toRef(gateway, 'devices_names')
+const devices = gateway.select(state => state.context.devices_names)
 
 const devicesUUID = computed(() => {
   if (!devices.value)
     return []
 
-  return Array.from(devices.value.keys()).map(uuid => ({
+  return Object.entries(devices.value).map(([uuid, name]) => ({
     key: uuid,
-    /*
     props: {
-      subtitle: `${value.name}`,
+      subtitle: name,
     },
-    */
   }))
 })
 

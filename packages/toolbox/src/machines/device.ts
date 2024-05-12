@@ -1,10 +1,13 @@
-import { assign, fromPromise, setup } from 'xstate'
+import type { ActorRefFrom } from 'xstate'
+import { assign, enqueueActions, fromPromise, setup } from 'xstate'
 import type { ExtractResponseSchemaForAlias, WebsocketEvent, gatewayClient } from '@deconz-community/rest-client'
 import { produce } from 'immer'
 import { objectEntries } from 'ts-extras'
+import type { gatewayMachine } from './gateway'
 
 export interface deviceContext {
   deviceID: string
+  gatewayID: string
   gatewayClient: ReturnType<typeof gatewayClient>
   data?: ExtractResponseSchemaForAlias<'getDevice'>
 }
@@ -13,7 +16,7 @@ export const deviceMachine = setup({
 
   types: {
     context: {} as deviceContext,
-    input: {} as Pick<deviceContext, 'deviceID' | 'gatewayClient'>,
+    input: {} as Pick<deviceContext, 'deviceID' | 'gatewayID' | 'gatewayClient'>,
     events: {} as | {
       type: 'REFRESH'
     } | {
@@ -22,15 +25,17 @@ export const deviceMachine = setup({
     },
   },
   actors: {
-    fetchData: fromPromise(({ input }: {
+    fetchData: fromPromise(async ({ input }: {
       input: {
         gateway: ReturnType<typeof gatewayClient>
         deviceID: string
       }
     }) => {
-      return input.gateway.request('getDevice', {
+      const data = await input.gateway.request('getDevice', {
         deviceUniqueID: input.deviceID,
       })
+
+      return data
     }),
 
   },
@@ -110,11 +115,17 @@ export const deviceMachine = setup({
         src: 'fetchData',
         onDone: {
           target: 'idle',
-          actions: assign({
-            data: ({ event }) => event.output.reduce<ExtractResponseSchemaForAlias<'getDevice'> | undefined>(
+          actions: enqueueActions(({ event, context, system, enqueue }) => {
+            const data = event.output.reduce<ExtractResponseSchemaForAlias<'getDevice'> | undefined>(
               (data, result) => result.isOk() ? result.value : data,
               undefined,
-            ),
+            )
+            enqueue.assign({ data })
+            enqueue.sendTo<ActorRefFrom<typeof gatewayMachine>>(system.get(context.gatewayID), {
+              type: 'UPDATE_DEVICE_NAME',
+              deviceID: context.deviceID,
+              name: data?.name ?? `Unknown device (${context.deviceID})`,
+            })
           }),
         },
 

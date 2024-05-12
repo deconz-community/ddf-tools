@@ -27,10 +27,11 @@ export function useGateway(gatewayId: MaybeRef<string | undefined>) {
   return reactive({
     fetch,
     send: gatewayMachine.send,
+    select: gatewayMachine.select,
     state: computed(() => gatewayMachine.state),
     credentials: computed(() => gatewayMachine.state?.context.credentials),
     config: computed(() => gatewayMachine.state?.context.config),
-    devices: computed(() => gatewayMachine.state?.context.devices),
+    devices_names: computed(() => gatewayMachine.state?.context.devices_names),
     bundles: computed(() => gatewayMachine.state?.context.bundles),
   })
 }

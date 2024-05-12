@@ -4,6 +4,7 @@ import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
+import { produce } from 'immer'
 import type { GatewayCredentials } from './app'
 import { deviceMachine } from './device'
 
@@ -14,6 +15,7 @@ export interface GatewayContext {
   gateway?: GatewayClient
   config?: ExtractResponseSchemaForAlias<'getConfig'>
   devices: Map<string, ActorRefFrom<typeof deviceMachine>>
+  devices_names: Record<string, string>
   bundles: Map<string, BundleDescriptor>
 }
 
@@ -27,6 +29,10 @@ export type GatewayEvent = {
 } | {
   type: 'UPDATE_CREDENTIALS'
   data: GatewayCredentials
+} | {
+  type: 'UPDATE_DEVICE_NAME'
+  deviceID: string
+  name: string
 }
 
 export type WebsocketEvent = {
@@ -220,6 +226,7 @@ export const gatewayMachine = setup({
     credentials: input.credentials,
     gateway: undefined,
     devices: new Map(),
+    devices_names: {},
     config: undefined,
     bundles: new Map(),
   }),
@@ -305,6 +312,14 @@ export const gatewayMachine = setup({
             })
           }),
         },
+        UPDATE_DEVICE_NAME: {
+          actions: assign({
+            devices_names: ({ context, event }) => produce(context.devices_names, (draft) => {
+              const { deviceID, name } = event
+              draft[deviceID] = name
+            }),
+          }),
+        },
       },
 
       states: {
@@ -371,7 +386,10 @@ export const gatewayMachine = setup({
           exit: enqueueActions(({ enqueue, context }) => {
             const { devices } = context
             devices.forEach(device => enqueue.stopChild(device))
-            enqueue.assign({ devices: new Map() })
+            enqueue.assign({
+              devices: new Map(),
+              devices_names: {},
+            })
           }),
 
         },
@@ -427,23 +445,33 @@ export const gatewayMachine = setup({
 
                     removedUUIDs.forEach((uuid) => {
                       enqueue.stopChild(devices.get(uuid)!)
-                      devices.delete(uuid)
                     })
 
                     enqueue.assign({
-                      devices: ({ context, spawn }) => {
+                      devices: ({ context, spawn }) => produce(context.devices, (draft) => {
+                        removedUUIDs.forEach((uuid) => {
+                          draft.delete(uuid)
+                        })
                         addedUUIDs.forEach((uuid) => {
-                          devices.set(uuid, spawn('deviceMachine', {
+                          draft.set(uuid, spawn('deviceMachine', {
                             id: 'device',
                             systemId: `${context.credentials.id}-${uuid}`,
                             input: {
+                              gatewayID: context.credentials.id,
                               deviceID: uuid,
                               gatewayClient: context.gateway!,
                             },
                           }))
                         })
-                        return devices
-                      },
+                      }),
+                      devices_names: ({ context }) => produce(context.devices_names, (draft) => {
+                        removedUUIDs.forEach((uuid) => {
+                          delete draft[uuid]
+                        })
+                        addedUUIDs.forEach((uuid) => {
+                          draft[uuid] = `Unknown (${uuid})`
+                        })
+                      }),
                     })
                   }),
 

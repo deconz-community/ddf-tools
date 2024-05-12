@@ -58,7 +58,6 @@ export const appMachine = setup({
 
   actions: {
     init: assign({
-
       discovery: ({ spawn }) => spawn('discoveryMachine', {
         id: 'discovery',
         systemId: 'discovery',
