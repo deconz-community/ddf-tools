@@ -332,7 +332,11 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     return packResponse([Err(clientError('NOT_IMPLEMENTED'))])
   } as RequestFunctionType
 
-  return { request }
+  return {
+    request,
+    address,
+    apiKey,
+  }
 }
 
 export function getParamZodSchema<

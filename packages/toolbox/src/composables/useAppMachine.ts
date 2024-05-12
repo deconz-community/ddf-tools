@@ -38,7 +38,7 @@ export interface UseAppMachine<Type extends AppMachine['type']> {
   state: ExtractMachine<Type>['state'] | undefined
   actor: ExtractMachine<Type>['actor'] | undefined
   send: ExtractMachine<Type>['actor']['send']
-  select: <Data>(selector: (state: ExtractMachine<Type>['state']) => Data) => Data
+  select: <Data>(selector: (state: ExtractMachine<Type>['state']) => Data) => Ref<Data>
 }
 
 export function createUseAppMachine() {

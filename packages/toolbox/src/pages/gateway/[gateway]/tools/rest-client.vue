@@ -6,6 +6,7 @@ import type { Component } from 'vue'
 
 import { VTreeview } from 'vuetify/labs/VTreeview'
 import { z } from 'zod'
+import BtnGatewayDownloadBackup from '~/components/btn/btn-gateway-download-backup.vue'
 import CardAuthChallenge from '~/components/card/card-auth-challenge.vue'
 
 const props = defineProps<{
@@ -151,6 +152,9 @@ const extraTools = computed<Component[]>(() => {
     case 'createAPIKey':
       tools.push(CardAuthChallenge)
       break
+    case 'exportConfig':
+      tools.push(BtnGatewayDownloadBackup)
+      break
   }
   return tools
 })
@@ -219,7 +223,13 @@ const extraTools = computed<Component[]>(() => {
                 />
               </v-card-text>
             </v-card>
-            <component :is="tool" v-for="(tool, index) in extraTools" :key="index" class="mt-2" />
+            <component
+              :is="tool"
+              v-for="(tool, index) in extraTools"
+              :key="index"
+              class="mt-2"
+              :gateway="props.gateway"
+            />
           </v-card-text>
           <v-card-actions>
             <v-btn type="submit" color="primary" variant="tonal" elevation="3" size="large">

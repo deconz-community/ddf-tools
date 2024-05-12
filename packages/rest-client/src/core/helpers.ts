@@ -68,13 +68,17 @@ export const KNOWN_PARAMS = [
 
 export type KnownParam = typeof KNOWN_PARAMS[number]
 
-export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
+export type ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> = {
   description: string
   format?: 'json'
   type: 'path' | 'body'
   knownParam?: KnownParam
   schema: Schema
   sample: z.infer<Schema> | (() => z.infer<Schema>)
+} | {
+  description: string
+  format: 'blob'
+  type: 'body'
 }
 // #endregion
 

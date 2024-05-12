@@ -416,7 +416,7 @@ export const endpoints = {
   }),
 
   updateSoftware: makeEndpoint({
-    category: 'Config',
+    category: 'System',
     name: 'Update Software',
     description: 'Starts the update if available (only on Raspberry Pi).',
     method: 'post',
@@ -433,7 +433,7 @@ export const endpoints = {
   }),
 
   updateFrimware: makeEndpoint({
-    category: 'Config',
+    category: 'System',
     name: 'Update Frimware',
     description: 'Starts the update firmware process if newer version is available.',
     method: 'post',
@@ -449,37 +449,66 @@ export const endpoints = {
     },
   }),
 
-  /*
-
   exportConfig: makeEndpoint({
-    alias: 'exportConfig',
+    category: 'System',
+    name: 'Export Configuration',
     description: 'Create a backup of the system. The exported file can be downloaded at http://[gateway]/deCONZ.tar.gz',
     method: 'post',
     path: '/api/:apiKey/config/export',
-    response: prepareResponse(
-      z.strictObject({ export: z.literal('success') }).transform(result => result.export)
-        .describe('The result of the operation'),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\//,
+      schema: z.strictObject({
+        export: z.literal('success'),
+      })
+        .transform(data => Ok(data)),
+    },
   }),
 
   importConfig: makeEndpoint({
-    alias: 'importConfig',
+    category: 'System',
+    name: 'Import Configuration',
     description: 'Restore the backup of the system. The file need to be uploaded before with endpoint /api/fileupload',
     method: 'post',
     path: '/api/:apiKey/config/import',
-    response: prepareResponse(
-      z.strictObject({ import: z.literal('success') }).transform(result => result.import)
-        .describe('The result of the operation'),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\//,
+      schema: z.strictObject({
+        import: z.literal('success'),
+      })
+        .transform(data => Ok(data)),
+    },
   }),
+
+  uploadConfig: makeEndpoint({
+    category: 'System',
+    name: 'Upload Configuration',
+    description: 'Upload a backup of the system.',
+    method: 'post',
+    path: '/api/fileupload',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      body: makeParameter({
+        description: 'Payload',
+        format: 'blob',
+        type: 'body',
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\//,
+      schema: z.any().transform(data => Ok(data)),
+    },
+  }),
+
+  /*
 
   uploadConfig: makeEndpoint({
     alias: 'uploadConfig',

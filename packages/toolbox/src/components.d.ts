@@ -7,7 +7,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BtnDownloadBackup: typeof import('./components/btn/btn-download-backup.vue')['default']
     BtnEvent: typeof import('./components/btn/btn-event.vue')['default']
+    BtnGatewayDownloadBackup: typeof import('./components/btn/btn-gateway-download-backup.vue')['default']
     BtnGatewayEditName: typeof import('./components/btn/btn-gateway-edit-name.vue')['default']
     BtnLogin: typeof import('./components/btn/btn-login.vue')['default']
     BtnRoundedCircle: typeof import('./components/btn/btn-rounded-circle.vue')['default']
