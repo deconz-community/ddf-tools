@@ -221,22 +221,15 @@ async function send() {
                 API Response
               </v-card-title>
               <v-card-text>
-                <v-card elevation="5">
-                  <v-card-title>
-                    <v-alert
-                      :text="`Status code: ${statusCode}`"
-                      :type="statusCode === 200 ? 'success' : 'error'"
-                    />
-                  </v-card-title>
-                  <v-card-text>
-                    <object-editor
-                      v-model="rawResponse"
-                      label="Response"
-                      :error="false"
-                      height="800px"
-                    />
-                  </v-card-text>
-                </v-card>
+                <v-alert
+                  :text="`Status code: ${statusCode}`"
+                  :type="statusCode === 200 ? 'success' : 'error'"
+                />
+                <object-editor
+                  v-model="rawResponse"
+                  :error="false"
+                  height="800px"
+                />
               </v-card-text>
             </v-card>
           </v-col>
@@ -248,27 +241,24 @@ async function send() {
                 {{ clientResponse.length > 1 ? 'responses' : 'response' }}
               </v-card-title>
               <v-card-text>
-                <v-card v-for="(response, index) of clientResponse" :key="index" elevation="5">
-                  <v-card-title>
-                    <v-alert
-                      :text="`Response #${index + 1}`"
-                      :type="response.isOk() ? 'success' : 'error'"
-                    />
-                  </v-card-title>
+                <div v-for="(response, index) of clientResponse" :key="index" elevation="5">
+                  <v-alert
+                    :text="`Response #${index + 1}`"
+                    :type="response.isOk() ? 'success' : 'error'"
+                  />
 
-                  <v-card-text v-if="response.isOk()">
+                  <div v-if="response.isOk()">
                     <object-editor
                       v-model="response.value"
-                      label="Response"
                       :error="false"
                       height="800px"
                     />
-                  </v-card-text>
+                  </div>
 
-                  <v-card-text v-else>
+                  <div v-else>
                     <pre>{{ response.error }}</pre>
-                  </v-card-text>
-                </v-card>
+                  </div>
+                </div>
               </v-card-text>
             </v-card>
           </v-col>

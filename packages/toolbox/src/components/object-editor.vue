@@ -3,7 +3,6 @@ import VueMonacoEditor from '@guolao/vue-monaco-editor'
 
 const props = defineProps<{
   modelValue: Record<string, any>
-  label: string
   error: boolean
   errorMessages?: Record<string, string>
   height?: string
@@ -74,6 +73,7 @@ const data = computed({
         vertical: 'hidden',
         horizontal: 'hidden',
       },
+      lineNumbers: 'off',
     }"
 
     v-bind="attrs"
