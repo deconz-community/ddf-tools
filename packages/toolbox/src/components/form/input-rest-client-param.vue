@@ -19,6 +19,9 @@ const value = computed({
 const gateway = useGateway(props.gateway)
 
 const sampleValue = computed(() => {
+  if (props.param.format === 'blob')
+    return undefined
+
   if (typeof props.param.sample === 'function')
     return props.param.sample(gateway)
   return props.param.sample
@@ -51,30 +54,39 @@ const devicesUUID = computed(() => {
 // #endregion
 
 // #region Set default value
-switch (props.param.knownParam) {
-  case undefined:
-    value.value = sampleValue.value
-    break
-  case 'apiKey':
-    value.value = apiKeys.value[0]?.key
-    break
-  case 'device/uuid':{
-    const selectFirst = () => value.value = devicesUUID.value[0]?.key
-    selectFirst()
-    if (value.value === undefined)
-      watchOnce(refDebounced(devicesUUID, 200), selectFirst)
-    break
-  }
+if (props.param.format === 'json') {
+  switch (props.param.knownParam) {
+    case undefined:
+      value.value = sampleValue.value
+      break
+    case 'apiKey':
+      value.value = apiKeys.value[0]?.key
+      break
+    case 'device/uuid':{
+      const selectFirst = () => value.value = devicesUUID.value[0]?.key
+      selectFirst()
+      if (value.value === undefined)
+        watchOnce(refDebounced(devicesUUID, 200), selectFirst)
+      break
+    }
 
-  case 'alarmSystem/id':
-    value.value = '1'
-    break
+    case 'alarmSystem/id':
+      value.value = '1'
+      break
+  }
 }
+
 // #endregion
 </script>
 
 <template>
-  <template v-if="props.param.knownParam !== 'hidden'">
+  <template v-if="props.param.format === 'blob'">
+    <v-file-input
+      v-model="value"
+      :label="props.param.description"
+    />
+  </template>
+  <template v-else-if="props.param.knownParam !== 'hidden'">
     <v-autocomplete
       v-if="props.param.knownParam === 'apiKey'"
       v-model="value"

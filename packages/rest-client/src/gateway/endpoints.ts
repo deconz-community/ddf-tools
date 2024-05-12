@@ -496,58 +496,92 @@ export const endpoints = {
     parameters: {
       apiKey: globalParameters.apiKey,
       body: makeParameter({
-        // TODO: Implement rest client UI for blob files
         // Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
         // Content-Type: application/octet-stream
-        description: 'Payload',
+        description: 'Backup file',
         format: 'blob',
         type: 'body',
+        schema: z.instanceof(File),
       }),
+    },
+    response: {
+      format: 'blank',
+      schema: z.literal('').transform(() => Ok({
+        upload: 'success',
+      })),
+    },
+  }),
+
+  resetGateway: makeEndpoint({
+    category: 'System',
+    name: 'Reset the gateway',
+    description: 'Reset the gateway network settings to factory new and/or delete the deCONZ database (config, lights, scenes, groups, schedules, devices, rules).',
+    method: 'post',
+    path: '/api/:apiKey/config/reset',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      body: {
+        type: 'body',
+        description: 'Reset options',
+        format: 'json',
+        schema: z.strictObject({
+          resetGW: z.boolean()
+            .describe('Set the network settings of the gateway to factory new.'),
+          deleteDB: z.boolean()
+            .describe('Delete the Database.'),
+        }).partial(),
+        sample: {
+          resetGW: false,
+          deleteDB: false,
+        },
+      },
     },
     response: {
       format: 'jsonArray',
       removePrefix: /^\/config\//,
-      schema: z.any().transform(data => Ok(data)),
+      schema: z.strictObject({ reset: z.string() }).transform(data => Ok(data)),
     },
   }),
 
-  // TODO: Add a download endpoint for the backup file ?
-
-  /*
-
-  resetGateway: makeEndpoint({
-    alias: 'resetGateway',
-    description: 'Reset the gateway network settings to factory new and/or delete the deCONZ database (config, lights, scenes, groups, schedules, devices, rules).',
-    method: 'post',
-    path: '/api/:apiKey/config/reset',
-    response: prepareResponse(
-      z.strictObject({ reset: z.string() }).transform(result => result.reset === 'success'),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.strictObject({
-          resetGW: z.boolean().default(false)
-            .describe('Set the network settings of the gateway to factory new.'),
-          deleteDB: z.boolean().default(false)
-            .describe('Delete the Database.'),
-        }).partial(),
-      },
-    ],
-  }),
-
   changePassword: makeEndpoint({
-    alias: 'changePassword',
+    category: 'Authentication',
+    name: 'Change password',
     description: 'Change the Password of the Gateway. The parameter must be a Base64 encoded string of <username>:<password>.',
     method: 'put',
     path: '/api/:apiKey/config/password',
-    response: prepareResponse(
-      z.strictObject({ password: z.string() }).transform(result => result.password === 'changed'),
-      { removePrefix: /^\/config\// },
-    ),
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      body: {
+        type: 'body',
+        description: 'Old and new password for the `delight` user',
+        schema: z.strictObject({
+          oldpassword: z.string(),
+          newpassword: z.string(),
+        }).transform((data) => {
+          return {
+            username: 'delight',
+            oldhash: btoa(`delight:${data.oldpassword}`),
+            newhash: btoa(`delight:${data.newpassword}`),
+          }
+        }),
+        sample: {
+          oldpassword: 'oldpassword',
+          newpassword: 'newpassword',
+        },
+      },
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\//,
+      schema: z.strictObject({ password: z.string() })
+        .transform(data => Ok(data)),
+    },
+  }),
+
+  /*
+
+  changePassword: makeEndpoint({
+
     parameters: [
       globalParameters.apiKey,
       {
@@ -619,7 +653,7 @@ export const endpoints = {
         type: 'path',
         description: 'The token to get the next page of results',
         schema: z.optional(z.union([z.string(), z.number()])),
-        sample: 3,
+        sample: '',
       },
     },
     response: {

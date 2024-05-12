@@ -68,7 +68,7 @@ const apiTree = computed<APITree[]>(() => {
       })
     }
   })
-  return tree
+  return tree.sort((a, b) => a.title.localeCompare(b.title))
 })
 
 function selectAPI(params: unknown) {
@@ -152,7 +152,7 @@ const extraTools = computed<Component[]>(() => {
     case 'createAPIKey':
       tools.push(CardAuthChallenge)
       break
-    case 'exportConfig':
+    case 'exportConfigBackup':
       tools.push(BtnGatewayDownloadBackup)
       break
   }

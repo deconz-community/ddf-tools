@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { Result } from 'ts-results-es'
-import { Err } from 'ts-results-es'
+import { Err, Ok } from 'ts-results-es'
 import { z } from 'zod'
 import type { EndpointAlias, EndpointDefinition, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, RequestResultForAlias } from '../core/helpers'
 import { getValue } from '../core/helpers'
@@ -71,11 +71,6 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       for (const [name, definition] of Object.entries(endpoint.parameters)) {
         const value = getValue(requestParams[name as keyof typeof requestParams])
 
-        const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
-
-        if (!parsed.success)
-          return [Err(zodError('request', parsed.error))]
-
         switch (definition.type) {
           case 'path':
             url = url.replace(`/:${name}`, `/${value}`)
@@ -84,10 +79,32 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           case 'body':
             switch (definition.format) {
               case undefined:
-              case 'json':
+              case 'json':{
                 // Let axios handle the serialization
+                const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
+
+                if (!parsed.success)
+                  return [Err(zodError('request', parsed.error))]
+
                 requestData = value
                 break
+              }
+
+              case 'blob':{
+                const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
+
+                if (!parsed.success)
+                  return [Err(zodError('request', parsed.error))]
+
+                const formData = new FormData()
+                const values = (Array.isArray(value) ? value : [value]) as File[]
+                values.forEach((file) => {
+                  if (file)
+                    formData.append('file', file)
+                })
+                requestData = formData
+                break
+              }
 
               default:
                 console.warn(`No parser for format of type body/${definition.format}`)
@@ -104,9 +121,6 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     }
     // #endregion
 
-    const { deconzErrors, schema, removePrefix } = endpoint.response
-    let { format } = endpoint.response
-
     const { data: responseData, status, statusText } = await axios.request({
       method: endpoint.method,
       baseURL,
@@ -119,6 +133,9 @@ export function gatewayClient(clientParams: ClientParams = {}) {
         Accept: 'application/vnd.ddel.v1.1', // Version recommended by Manup
       },
     })
+
+    const { deconzErrors, schema, removePrefix } = endpoint.response
+    let { format } = endpoint.response
 
     function packResponse<Data extends any[]>(value: Data): Data {
       Object.defineProperty(value, 'statusCode', {
@@ -313,6 +330,30 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           })
 
           return packResponse(returnResults)
+        }
+
+        case 'blob': {
+          const returnData = schema.safeParse(responseData)
+          if (returnData.success) {
+            if (Array.isArray(returnData.data))
+              return packResponse(returnData.data)
+            else
+              return packResponse([returnData.data])
+          }
+
+          return packResponse([Err(zodError('response', returnData.error))])
+        }
+
+        case 'blank': {
+          const returnData = schema.safeParse('')
+          if (returnData.success) {
+            if (Array.isArray(returnData.data))
+              return packResponse(returnData.data)
+            else
+              return packResponse([returnData.data])
+          }
+
+          return packResponse([Err(zodError('response', returnData.error))])
         }
 
         default:
