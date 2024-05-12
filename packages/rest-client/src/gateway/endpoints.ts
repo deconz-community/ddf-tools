@@ -242,7 +242,7 @@ export const endpoints = {
   // #region Config endpoints
 
   createChallenge: makeEndpoint({
-    category: 'API Key',
+    category: 'Authentication',
     name: 'Create Challenge',
     description: 'Creates a new authentication challenge which should be used as HMAC-Sha256(challenge, install code). '
     + 'Both challenge and install code must be in lowercase hex format.',
@@ -258,7 +258,7 @@ export const endpoints = {
   }),
 
   createAPIKey: makeEndpoint({
-    category: 'API Key',
+    category: 'Authentication',
     name: 'Create API Key',
     description: 'Creates a new API key which provides authorized access to the REST-API. '
     + 'The request will only succeed if the gateway is unlocked, is having a hmac-sha256 challenge or an valid HTTP basic '
@@ -292,7 +292,7 @@ export const endpoints = {
   }),
 
   deleteAPIKey: makeEndpoint({
-    category: 'API Key',
+    category: 'Authentication',
     name: 'Delete API Key',
     description: 'Deletes an API key so it can no longer be used.',
     method: 'delete',
@@ -449,7 +449,7 @@ export const endpoints = {
     },
   }),
 
-  exportConfig: makeEndpoint({
+  exportConfigBackup: makeEndpoint({
     category: 'System',
     name: 'Export Configuration',
     description: 'Create a backup of the system. The exported file can be downloaded at http://[gateway]/deCONZ.tar.gz',
@@ -468,9 +468,9 @@ export const endpoints = {
     },
   }),
 
-  importConfig: makeEndpoint({
+  importConfigBackup: makeEndpoint({
     category: 'System',
-    name: 'Import Configuration',
+    name: 'Import configuration backup',
     description: 'Restore the backup of the system. The file need to be uploaded before with endpoint /api/fileupload',
     method: 'post',
     path: '/api/:apiKey/config/import',
@@ -487,15 +487,18 @@ export const endpoints = {
     },
   }),
 
-  uploadConfig: makeEndpoint({
+  uploadConfigBackup: makeEndpoint({
     category: 'System',
-    name: 'Upload Configuration',
+    name: 'Upload configuration backup',
     description: 'Upload a backup of the system.',
     method: 'post',
     path: '/api/fileupload',
     parameters: {
       apiKey: globalParameters.apiKey,
       body: makeParameter({
+        // TODO: Implement rest client UI for blob files
+        // Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
+        // Content-Type: application/octet-stream
         description: 'Payload',
         format: 'blob',
         type: 'body',
@@ -508,27 +511,9 @@ export const endpoints = {
     },
   }),
 
-  /*
+  // TODO: Add a download endpoint for the backup file ?
 
-  uploadConfig: makeEndpoint({
-    alias: 'uploadConfig',
-    description: 'Upload a backup of the system.',
-    method: 'post',
-    path: '/api/fileupload',
-    response: z.never(),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        // Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
-        // Content-Type: application/octet-stream
-        name: 'body',
-        type: 'Body',
-        schema: z.object({
-          file: z.instanceof(File),
-        }),
-      },
-    ],
-  }),
+  /*
 
   resetGateway: makeEndpoint({
     alias: 'resetGateway',
@@ -580,17 +565,22 @@ export const endpoints = {
     ],
   }),
 
+  */
+
   resetPassword: makeEndpoint({
-    alias: 'resetPassword',
+    category: 'Authentication',
+    name: 'Password reset',
     description: 'Resets the username and password to default username = "delight" and password = "delight". '
     + 'The request can only succeed within 10 minutes after gateway start.',
     method: 'delete',
     path: '/api/config/password',
-    // The REST API return nothing but the plugin pluginTransformResponse will return {success: true}
-    response: prepareResponse(z.boolean()),
+    parameters: {},
+    response: {
+      format: 'json',
+      removePrefix: /^\/api\/config\//,
+      schema: z.any().transform(data => Ok(data)),
+    },
   }),
-
-  */
 
   // #endregion
 
