@@ -17,7 +17,12 @@ const value = computed({
 
 // #endregion
 const gateway = useGateway(props.gateway)
-const sampleValue = computed(() => props.param.sample)
+
+const sampleValue = computed(() => {
+  if (typeof props.param.sample === 'function')
+    return props.param.sample(gateway)
+  return props.param.sample
+})
 
 // #region Gateway Data
 const apiKeys = computed(() => {

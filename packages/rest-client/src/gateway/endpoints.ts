@@ -125,7 +125,7 @@ export const endpoints = {
             code0: z.string().min(4).max(16).optional(),
           })
           .partial(),
-        sample: {
+        sample: () => ({
           code0: Math.random().toString(10).slice(2, 10),
           disarmed_entry_delay: 0,
           disarmed_exit_delay: 0,
@@ -138,7 +138,7 @@ export const endpoints = {
           armed_night_entry_delay: 0,
           armed_night_exit_delay: 0,
           armed_night_trigger_duration: 0,
-        },
+        }),
       }),
     },
     response: {
@@ -272,14 +272,14 @@ export const endpoints = {
           // TODO Blacklist devicetype to avoid specific api mode
           // Should not start with iConnect | iConnectHue | Echo | hue_ | "Hue "
           'devicetype': z.string().min(0).max(40).default('REST Client'),
-          'username': z.optional(z.string().min(10).max(40)
-            .default(() => (Math.random().toString(36).slice(2).toUpperCase())),
-          ),
+          'username': z.optional(z.string().min(10).max(40)),
           'hmac-sha256': z.optional(z.string()),
         }),
-        sample: {
-          devicetype: 'REST Client',
-        },
+        sample: () => ({
+          'devicetype': 'REST Client',
+          'username': Math.random().toString(36).slice(2).toUpperCase(),
+          'hmac-sha256': '',
+        }),
       }),
     },
     response: {

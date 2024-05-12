@@ -74,7 +74,7 @@ export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
   type: 'path' | 'body'
   knownParam?: KnownParam
   schema: Schema
-  sample: z.infer<Schema>
+  sample: z.infer<Schema> | (() => z.infer<Schema>)
 }
 // #endregion
 

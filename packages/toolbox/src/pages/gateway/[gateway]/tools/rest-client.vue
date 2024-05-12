@@ -210,8 +210,8 @@ const extraTools = computed<Component[]>(() => {
               </v-card-text>
               <v-card-text v-else>
                 <input-rest-client-param
-                  v-for="([name, parameter], index) in endpointsParams"
-                  :key="index"
+                  v-for="([name, parameter]) in endpointsParams"
+                  :key="`${endpointAlias}/${name}`"
                   v-model="params"
                   :gateway="props.gateway"
                   :name="name"
@@ -264,7 +264,6 @@ const extraTools = computed<Component[]>(() => {
                     :text="`Response #${index + 1}`"
                     :type="response.isOk() ? 'success' : 'error'"
                   />
-
                   <div v-if="response.isOk()">
                     <object-editor
                       v-model="response.value"
