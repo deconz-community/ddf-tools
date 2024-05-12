@@ -107,7 +107,7 @@ const hasResponse = ref(false)
 const loading = ref(false)
 const params = ref<Record<string, any>>({})
 
-const rawResponse = ref<any>(undefined)
+const rawResponse = ref<any>('')
 const statusCode = ref<number | undefined>(undefined)
 const clientResponse = ref<RequestResultForAlias<EndpointAlias>>([])
 
@@ -233,7 +233,7 @@ const extraTools = computed<Component[]>(() => {
     <div v-show="hasResponse">
       <v-container style="max-width: none;">
         <v-row>
-          <v-col cols="12" lg="6">
+          <v-col v-if="rawResponse" cols="12" lg="6">
             <v-card>
               <v-card-title>
                 API Response
@@ -271,9 +271,12 @@ const extraTools = computed<Component[]>(() => {
                       height="800px"
                     />
                   </div>
-
                   <div v-else>
-                    <pre>{{ response.error }}</pre>
+                    <ObjectEditor
+                      v-model="response.error"
+                      :error="false"
+                      height="800px"
+                    />
                   </div>
                 </div>
               </v-card-text>

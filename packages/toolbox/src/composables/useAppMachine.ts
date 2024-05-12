@@ -36,6 +36,7 @@ export const appMachineSymbol: InjectionKey<ShallowRef<MachineTree>> = Symbol('A
 
 export interface UseAppMachine<Type extends AppMachine['type']> {
   state: ExtractMachine<Type>['state'] | undefined
+  actor: ExtractMachine<Type>['actor'] | undefined
   send: ExtractMachine<Type>['actor']['send']
 }
 
@@ -147,6 +148,7 @@ function getMachine<Type extends AppMachine['type']>(
 
   return reactive({
     state: stateRef,
+    actor: actorRef,
     send,
   }) as any
 }
@@ -154,15 +156,11 @@ function getMachine<Type extends AppMachine['type']>(
 export function createAppMachine() {
   return markRaw({
     install(app: App) {
-      /*
-      const inspect = import.meta.env.VITE_DEBUG === 'true'
+      const inspect = import.meta.env.VITE_DEBUG_XSTATE === 'true'
         ? createBrowserInspector({
           url: 'https://stately.ai/registry/inspect',
         }).inspect
         : undefined
-        */
-
-      const inspect = undefined
 
       const machineTree = shallowRef<MachineTree>({
         app: undefined,

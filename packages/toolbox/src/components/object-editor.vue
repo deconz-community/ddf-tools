@@ -27,11 +27,13 @@ const attrs = useAttrs()
 const data = computed({
   // getter
   get() {
-    return JSON.stringify(
-      props.modelValue,
-      (_k, v) => v === undefined ? null : v,
-      4,
-    )
+    return props.modelValue
+      ? JSON.stringify(
+        props.modelValue,
+        (_k, v) => v === undefined ? null : v,
+        4,
+      )
+      : '{}'
   },
   // setter
   set(newValue) {

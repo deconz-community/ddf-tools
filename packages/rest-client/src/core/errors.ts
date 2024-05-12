@@ -121,11 +121,13 @@ export function deconzError<Code extends number>(
   address: string = '',
 ): {
     type: 'deconz'
+    code_type: Code
     code: DeconzError<Code>
     address: string
   } {
   return {
     type: 'deconz',
+    code_type: code,
     code: (code in deconzErrorsMap)
       ? deconzErrorsMap[code as DeconzErrorCodes] as any
       : 'UNKNOWN_ERROR',

@@ -36,11 +36,13 @@ const apiKeys = computed(() => {
   }))
 })
 
+const devices = toRef(gateway, 'devices')
+
 const devicesUUID = computed(() => {
-  if (!gateway.devices)
+  if (!devices.value)
     return []
 
-  return Array.from(gateway.devices.keys()).map(uuid => ({
+  return Array.from(devices.value.keys()).map(uuid => ({
     key: uuid,
     /*
     props: {
@@ -61,7 +63,12 @@ switch (props.param.knownParam) {
     value.value = apiKeys.value[0]?.key
     break
   case 'device/uuid':
-    value.value = devicesUUID.value[0]?.key
+    value.value = devicesUUID.value.length > 1
+      ? devicesUUID.value[1]?.key
+      : devicesUUID.value[0]?.key
+    break
+  case 'alarmSystem/id':
+    value.value = '1'
     break
 }
 // #endregion
@@ -87,6 +94,15 @@ switch (props.param.knownParam) {
       :label="props.param.description"
       :items="devicesUUID"
       item-title="key"
+      item-value="key"
+    />
+    <v-autocomplete
+      v-else-if="props.param.knownParam === 'alarmSystem/id'"
+      v-model="value"
+      required
+      :label="props.param.description"
+      :items="[{ key: '1', name: 'Alarm System 1' }]"
+      item-title="name"
       item-value="key"
     />
     <VTextField

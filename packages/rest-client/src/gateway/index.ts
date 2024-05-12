@@ -104,7 +104,8 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     }
     // #endregion
 
-    const { format, deconzErrors, schema, removePrefix } = endpoint.response
+    const { deconzErrors, schema, removePrefix } = endpoint.response
+    let { format } = endpoint.response
 
     const { data: responseData, status } = await axios.request({
       method: endpoint.method,
@@ -170,6 +171,9 @@ export function gatewayClient(clientParams: ClientParams = {}) {
         return string
       return string.replace(removePrefix, '')
     }
+
+    if (status !== 200 && format === 'json')
+      format = 'jsonArray'
 
     try {
       switch (format) {
@@ -256,6 +260,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             if ('error' in item) {
               if (result.errors === undefined)
                 result.errors = []
+
               if (typeof item.error === 'string') {
                 throw new TypeError('Not Implemented')
               }
@@ -266,18 +271,22 @@ export function gatewayClient(clientParams: ClientParams = {}) {
                   type: z.number(),
                 }).safeParse(item.error)
 
-                if (deconzErrors && error.data?.type && !deconzErrors.includes(error.data.type as any))
-                  console.warn('Unexpected error ', error.data.type)
-
-                if (error.success)
-                  result.errors.push(deconzError(error.data.type))
-                else
+                if (error.success) {
+                  if (deconzErrors && error.data.type && !deconzErrors.includes(error.data.type as any))
+                    console.warn(`Unexpected error for alias=${alias}, type=${error.data.type} `)
+                  result.errors.push(deconzError(
+                    error.data.type,
+                    getString(error.data.address),
+                  ))
+                }
+                else {
                   result.errors.push(clientError('RESPONSE_PARSE_FAILED'))
+                }
               }
             }
           })
 
-          const results: Result<any, any>[] = []
+          const returnResults: Result<any, any>[] = []
 
           if (typeof result.success === 'object' && result.success !== null) {
             Object.defineProperty(result.success, 'statusCode', {
@@ -287,21 +296,23 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             })
           }
 
-          const successData = schema.safeParse(result.success)
+          if (result.success) {
+            const successData = schema.safeParse(result.success)
 
-          if (!successData.success)
-            return packResponse([Err(zodError('response', successData.error))])
+            if (!successData.success)
+              return packResponse([Err(zodError('response', successData.error))])
 
-          if (Array.isArray(successData.data))
-            results.push(...successData.data)
-          else
-            results.push(successData.data)
+            if (Array.isArray(successData.data))
+              returnResults.push(...successData.data)
+            else
+              returnResults.push(successData.data)
+          }
 
           result.errors?.forEach((error) => {
-            results.push(Err(error))
+            returnResults.push(Err(error))
           })
 
-          return packResponse(results)
+          return packResponse(returnResults)
         }
 
         default:

@@ -81,7 +81,7 @@ export const endpoints = {
 
   updateAlarmSystem: makeEndpoint({
     category: 'Alarm Systems',
-    name: 'Update Alarm System Attributes',
+    name: 'Update alarm system attributes',
     description: 'Sets attributes of an alarm system.',
     method: 'put',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId',
@@ -106,7 +106,7 @@ export const endpoints = {
 
   updateAlarmSystemConfig: makeEndpoint({
     category: 'Alarm Systems',
-    name: 'Update Alarm System Config',
+    name: 'Update alarm system config',
     description: 'Sets attributes of an alarm system.',
     method: 'put',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId/config',
@@ -144,10 +144,32 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/alarmsystems\/\d+\/config\//,
+      deconzErrors: [7],
       schema: alarmSystemSchema.shape.config
         .omit({ armmode: true })
         .partial()
         .transform(data => Ok(data)),
+    },
+  }),
+
+  updateAlarmSystemAddDevice: makeEndpoint({
+    category: 'Alarm Systems',
+    name: 'Add device to alarm system',
+    description: 'Add keypad to alarm system.',
+    method: 'put',
+    path: '/api/:apiKey/alarmsystems/:alarmSystemId/device/:deviceUniqueID',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      alarmSystemId: globalParameters.alarmSystemId,
+      deviceUniqueID: globalParameters.deviceUniqueID,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/alarmsystems\/\d+\/device\//,
+      deconzErrors: [7],
+      schema: z.strictObject({
+        added: z.string(),
+      }).transform(data => Ok(data)),
     },
   }),
 
