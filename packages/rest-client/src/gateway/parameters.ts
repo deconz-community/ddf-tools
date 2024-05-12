@@ -14,6 +14,7 @@ export const globalParameters = {
   apiKey: makeParameter({
     description: 'API Key',
     type: 'path',
+    format: 'string',
     knownParam: 'hidden',
     schema: z.string().optional(),
     sample: '12345ABCDE',
@@ -22,6 +23,7 @@ export const globalParameters = {
   groupId: makeParameter({
     description: 'groupId',
     type: 'path',
+    format: 'string',
     knownParam: 'group/id',
     schema: z.number(),
     sample: 12,
@@ -30,6 +32,7 @@ export const globalParameters = {
   bundleHash: makeParameter({
     description: 'Hash of the bundle',
     type: 'path',
+    format: 'string',
     knownParam: 'bundle/hash',
     schema: z.string().length(64),
     sample: '64ff180d340c15bb3a5136d5f336d1ca5a216ed16b1369c8439d6952478e58ac',
@@ -57,6 +60,7 @@ export const globalParameters = {
   alarmSystemId: makeParameter({
     description: 'Alarm system ID',
     type: 'path',
+    format: 'string',
     knownParam: 'alarmSystem/id',
     schema: z.string(),
     sample: '1',
@@ -65,6 +69,7 @@ export const globalParameters = {
   deviceUniqueID: makeParameter({
     description: 'Device unique ID',
     type: 'path',
+    format: 'string',
     knownParam: 'device/uuid',
     schema: z.string().regex(deviceOrSubDeviceUUIDRegex),
     sample: '00:1f:ee:00:00:00:08:bb',

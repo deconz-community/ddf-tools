@@ -79,14 +79,14 @@ if (props.param.format === 'json') {
 </script>
 
 <template>
-  <template v-if="props.param.format === 'blob'">
-    <v-file-input
-      v-model="value"
-      :label="props.param.description"
-    />
-  </template>
-  <template v-else-if="props.param.format === 'json'">
-    <template v-if="props.param.knownParam !== 'hidden'">
+  <template v-if="props.param.knownParam !== 'hidden'">
+    <template v-if="props.param.format === 'blob'">
+      <v-file-input
+        v-model="value"
+        :label="props.param.description"
+      />
+    </template>
+    <template v-else-if="props.param.format === 'string'">
       <v-autocomplete
         v-if="props.param.knownParam === 'apiKey'"
         v-model="value"
@@ -132,20 +132,27 @@ if (props.param.format === 'json') {
         v-model="value"
         :label="props.param.description"
       />
-      <template v-else-if="typeof sampleValue === 'object'">
-        <ObjectEditor
-          v-model="value"
-          :label="props.param.description"
-          :error="false"
-        />
-      </template>
       <template v-else>
         <v-alert
           type="error"
-          text="WIP"
+          text="No UI for that format yet."
         />
         <pre>{{ props.param }}</pre>
       </template>
+    </template>
+    <template v-else-if="props.param.format === 'json'">
+      <ObjectEditor
+        v-model="value"
+        :label="props.param.description"
+        :error="false"
+      />
+    </template>
+    <template v-else>
+      <v-alert
+        type="error"
+        text="No UI for that format yet."
+      />
+      <pre>{{ props.param }}</pre>
     </template>
   </template>
 </template>
