@@ -69,7 +69,6 @@ if (props.param.format === 'json') {
         watchOnce(refDebounced(devicesUUID, 200), selectFirst)
       break
     }
-
     case 'alarmSystem/id':
       value.value = '1'
       break
@@ -86,65 +85,67 @@ if (props.param.format === 'json') {
       :label="props.param.description"
     />
   </template>
-  <template v-else-if="props.param.knownParam !== 'hidden'">
-    <v-autocomplete
-      v-if="props.param.knownParam === 'apiKey'"
-      v-model="value"
-      auto-select-first
-      clearable
-      :label="props.param.description"
-      :items="apiKeys"
-      item-title="key"
-      item-value="key"
-      item-props="props"
-    />
-    <v-autocomplete
-      v-else-if="props.param.knownParam === 'device/uuid'"
-      v-model="value"
-      clearable
-      :label="props.param.description"
-      :items="devicesUUID"
-      item-title="name"
-      item-value="key"
-    />
-    <v-autocomplete
-      v-else-if="props.param.knownParam === 'alarmSystem/id'"
-      v-model="value"
-      required
-      :label="props.param.description"
-      :items="[{ key: '1', name: 'Alarm System 1' }]"
-      item-title="name"
-      item-value="key"
-    />
-    <VTextField
-      v-else-if="typeof sampleValue === 'string'"
-      v-model="value"
-      :label="props.param.description"
-    />
-    <VTextField
-      v-else-if="typeof sampleValue === 'number'"
-      v-model.number="value"
-      type="number"
-      :label="props.param.description"
-    />
-    <VCheckbox
-      v-else-if="typeof sampleValue === 'boolean'"
-      v-model="value"
-      :label="props.param.description"
-    />
-    <template v-else-if="typeof sampleValue === 'object'">
-      <ObjectEditor
+  <template v-else-if="props.param.format === 'json'">
+    <template v-if="props.param.knownParam !== 'hidden'">
+      <v-autocomplete
+        v-if="props.param.knownParam === 'apiKey'"
+        v-model="value"
+        auto-select-first
+        clearable
+        :label="props.param.description"
+        :items="apiKeys"
+        item-title="key"
+        item-value="key"
+        item-props="props"
+      />
+      <v-autocomplete
+        v-else-if="props.param.knownParam === 'device/uuid'"
+        v-model="value"
+        clearable
+        :label="props.param.description"
+        :items="devicesUUID"
+        item-title="name"
+        item-value="key"
+      />
+      <v-autocomplete
+        v-else-if="props.param.knownParam === 'alarmSystem/id'"
+        v-model="value"
+        required
+        :label="props.param.description"
+        :items="[{ key: '1', name: 'Alarm System 1' }]"
+        item-title="name"
+        item-value="key"
+      />
+      <VTextField
+        v-else-if="typeof sampleValue === 'string'"
         v-model="value"
         :label="props.param.description"
-        :error="false"
       />
-    </template>
-    <template v-else>
-      <v-alert
-        type="error"
-        text="WIP"
+      <VTextField
+        v-else-if="typeof sampleValue === 'number'"
+        v-model.number="value"
+        type="number"
+        :label="props.param.description"
       />
-      <pre>{{ props.param }}</pre>
+      <VCheckbox
+        v-else-if="typeof sampleValue === 'boolean'"
+        v-model="value"
+        :label="props.param.description"
+      />
+      <template v-else-if="typeof sampleValue === 'object'">
+        <ObjectEditor
+          v-model="value"
+          :label="props.param.description"
+          :error="false"
+        />
+      </template>
+      <template v-else>
+        <v-alert
+          type="error"
+          text="WIP"
+        />
+        <pre>{{ props.param }}</pre>
+      </template>
     </template>
   </template>
 </template>

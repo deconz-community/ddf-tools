@@ -93,6 +93,7 @@ export const endpoints = {
       body: makeParameter({
         description: 'Payload',
         type: 'body',
+        format: 'json',
         schema: alarmSystemSchema.pick({ name: true }),
         sample: {
           name: 'New name',
@@ -120,6 +121,7 @@ export const endpoints = {
       body: makeParameter({
         description: 'Payload',
         type: 'body',
+        format: 'json',
         schema: alarmSystemSchema.shape.config
           .omit({
             armmode: true,
@@ -213,12 +215,14 @@ export const endpoints = {
       armMode: makeParameter({
         description: 'Armmode to set',
         type: 'path',
+        format: 'string',
         schema: alarmSystemArmmodesWrite,
         sample: 'arm_away',
       }),
       body: makeParameter({
         description: 'Payload',
         type: 'body',
+        format: 'json',
         schema: z.strictObject({
           code0: z.string().min(4).max(16).optional(),
         }),
@@ -269,6 +273,7 @@ export const endpoints = {
       body: makeParameter({
         description: 'Payload',
         type: 'body',
+        format: 'json',
         schema: z.object({
           // TODO Blacklist devicetype to avoid specific api mode
           // Should not start with iConnect | iConnectHue | Echo | hue_ | "Hue "
@@ -301,6 +306,7 @@ export const endpoints = {
       apiKey: globalParameters.apiKey,
       oldApiKey: makeParameter({
         type: 'path',
+        format: 'string',
         description: 'Old API Key',
         knownParam: 'apiKey',
         schema: z.string().min(10).max(40),
@@ -397,8 +403,9 @@ export const endpoints = {
     path: '/api/:apiKey/config',
     parameters: {
       apiKey: globalParameters.apiKey,
-      config: makeParameter({
+      body: makeParameter({
         type: 'body',
+        format: 'json',
         description: 'Properties of the gateway to update',
         schema: writableConfigSchema.partial(),
         sample: {
@@ -520,7 +527,7 @@ export const endpoints = {
     path: '/api/:apiKey/config/reset',
     parameters: {
       apiKey: globalParameters.apiKey,
-      body: {
+      body: makeParameter({
         type: 'body',
         description: 'Reset options',
         format: 'json',
@@ -534,7 +541,7 @@ export const endpoints = {
           resetGW: false,
           deleteDB: false,
         },
-      },
+      }),
     },
     response: {
       format: 'jsonArray',
@@ -551,8 +558,9 @@ export const endpoints = {
     path: '/api/:apiKey/config/password',
     parameters: {
       apiKey: globalParameters.apiKey,
-      body: {
+      body: makeParameter({
         type: 'body',
+        format: 'json',
         description: 'Old and new password for the `delight` user',
         schema: z.strictObject({
           oldpassword: z.string(),
@@ -568,7 +576,7 @@ export const endpoints = {
           oldpassword: 'oldpassword',
           newpassword: 'newpassword',
         },
-      },
+      }),
     },
     response: {
       format: 'jsonArray',
@@ -577,7 +585,7 @@ export const endpoints = {
         .transform(data => Ok(data)),
     },
   }),
-
+  // TODO: Fix
   /*
 
   changePassword: makeEndpoint({
@@ -649,12 +657,13 @@ export const endpoints = {
     path: '/api/:apiKey/ddf/descriptors',
     parameters: {
       apiKey: globalParameters.apiKey,
-      next: {
+      next: makeParameter({
         type: 'path',
+        format: 'string',
         description: 'The token to get the next page of results',
         schema: z.optional(z.union([z.string(), z.number()])),
         sample: '',
-      },
+      }),
     },
     response: {
       format: 'json',

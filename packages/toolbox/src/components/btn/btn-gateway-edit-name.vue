@@ -21,12 +21,12 @@ const editName = useDialogAction(() => {
     },
     defaultValue: currentName,
     confirmationText: 'Save',
-    schema: getParamZodSchema('updateConfig', 'config').shape.name,
+    schema: getParamZodSchema('updateConfig', 'body').shape.name,
     onSubmit: async (name) => {
       if (name === currentName)
         return toast.info('No changes made')
 
-      const results = await gateway.fetch('updateConfig', { config: { name } })
+      const results = await gateway.fetch('updateConfig', { body: { name } })
 
       results.forEach((result) => {
         if (result.isOk()) {
