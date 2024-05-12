@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { sensorSchema } from './gateway/schemas/sensorSchema'
 import { lightSchema } from './gateway/schemas/lightSchema'
 import { groupSchema } from './gateway/schemas/groupSchema'
+import { alarmSystemSchema } from './gateway/schemas/alarmSystemSchema'
 
 export type WebsocketEvent = z.infer<ReturnType<typeof websocketSchema>>
 
@@ -37,17 +38,34 @@ export function websocketSchema() {
     // #region Alarm system
     // Alarm system state change
     // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/alarm_system_event_handler.cpp#L92
-    /*
     z.object({
-      'event': z.literal('/event/changed/alarmsystems'),
-      't': z.literal('event'),
-      'e': z.literal('changed'),
-      'r': z.literal('alarmsystems'),
-      'id': z.string(),
-      'state/armstate': z.string(),
-      'state/seconds_remaining': z.number(),
+      eventSchema: z.literal('/event/changed/alarmsystems/attr'),
+      t: z.literal('event'),
+      e: z.literal('changed'),
+      r: z.literal('alarmsystems'),
+      attr: alarmSystemSchema
+        .pick({ name: true })
+        .extend({
+          id: z.string(),
+        }),
     }),
-    */
+
+    z.object({
+      eventSchema: z.literal('/event/changed/alarmsystems/config'),
+      t: z.literal('event'),
+      e: z.literal('changed'),
+      r: z.literal('alarmsystems'),
+      config: alarmSystemSchema.shape.config,
+    }),
+
+    z.object({
+      eventSchema: z.literal('/event/changed/alarmsystems/state'),
+      t: z.literal('event'),
+      e: z.literal('changed'),
+      r: z.literal('alarmsystems'),
+      state: alarmSystemSchema.shape.state,
+    }),
+
     // #endregion
 
     // #region Scenes

@@ -7,7 +7,7 @@ import { getValue } from '../core/helpers'
 import type { MaybeLazy } from '../core/types'
 
 import type { CommonErrors } from '../core/errors'
-import { clientError, deconzError, zodError } from '../core/errors'
+import { clientError, deconzError, httpError, zodError } from '../core/errors'
 import { endpoints } from './endpoints'
 
 type RequestFunctionType = <
@@ -107,7 +107,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     const { deconzErrors, schema, removePrefix } = endpoint.response
     let { format } = endpoint.response
 
-    const { data: responseData, status } = await axios.request({
+    const { data: responseData, status, statusText } = await axios.request({
       method: endpoint.method,
       baseURL,
       url,
@@ -320,8 +320,13 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       }
     }
     catch (error) {
-      console.error(error)
-      return packResponse([Err(clientError('RESPONSE_PARSE_FAILED'))])
+      if (status === 200) {
+        console.error(error)
+        return packResponse([Err(clientError('RESPONSE_PARSE_FAILED'))])
+      }
+      else {
+        return packResponse([Err(httpError(status, statusText))])
+      }
     }
 
     return packResponse([Err(clientError('NOT_IMPLEMENTED'))])

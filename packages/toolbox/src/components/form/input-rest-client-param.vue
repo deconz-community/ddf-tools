@@ -36,19 +36,16 @@ const apiKeys = computed(() => {
   }))
 })
 
-// const devices = toRef(gateway, 'devices_names')
-const devices = gateway.select(state => state.context.devices_names)
-
 const devicesUUID = computed(() => {
-  if (!devices.value)
-    return []
-
-  return Object.entries(devices.value).map(([uuid, name]) => ({
-    key: uuid,
-    props: {
-      subtitle: name,
-    },
-  }))
+  return Object.entries(gateway.devices_names)
+    .map(([uuid, name]) => ({
+      key: uuid,
+      name,
+      props: {
+        subtitle: uuid,
+      },
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 })
 
 // #endregion
@@ -61,11 +58,14 @@ switch (props.param.knownParam) {
   case 'apiKey':
     value.value = apiKeys.value[0]?.key
     break
-  case 'device/uuid':
-    value.value = devicesUUID.value.length > 1
-      ? devicesUUID.value[1]?.key
-      : devicesUUID.value[0]?.key
+  case 'device/uuid':{
+    const selectFirst = () => value.value = devicesUUID.value[0]?.key
+    selectFirst()
+    if (value.value === undefined)
+      watchOnce(refDebounced(devicesUUID, 200), selectFirst)
     break
+  }
+
   case 'alarmSystem/id':
     value.value = '1'
     break
@@ -92,7 +92,7 @@ switch (props.param.knownParam) {
       clearable
       :label="props.param.description"
       :items="devicesUUID"
-      item-title="key"
+      item-title="name"
       item-value="key"
     />
     <v-autocomplete

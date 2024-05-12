@@ -1,16 +1,23 @@
 import { z } from 'zod'
 
-export const alarmSystemArmmodes = z.enum([
+export const alarmSystemArmmodesRead = z.enum([
   'disarmed',
   'armed_stay',
   'armed_night',
   'armed_away',
 ])
 
+export const alarmSystemArmmodesWrite = z.enum([
+  'disarm',
+  'arm_away',
+  'arm_stay',
+  'arm_night',
+])
+
 export const alarmSystemDeviceSchema = z.strictObject({
   armmask: z.union([z.literal('none'), z.string()])
     .describe('A combination of arm modes in which the device triggers alarms. '
-      + 'A - armed_away, N - armed_night, S - armed_stay, "none" - for keypads and keyfobs'),
+    + 'A - armed_away, N - armed_night, S - armed_stay, "none" - for keypads and keyfobs'),
   trigger: z.enum([
     'state/presence',
     'state/open',
@@ -19,7 +26,7 @@ export const alarmSystemDeviceSchema = z.strictObject({
     'state/on',
   ])
     .describe('Specifies arm modes in which the device triggers alarms. '
-      + 'This attribute is not available for keypads and keyfobs.'),
+    + 'This attribute is not available for keypads and keyfobs.'),
 })
 
 export const alarmSystemSchema = z.strictObject({
@@ -28,7 +35,7 @@ export const alarmSystemSchema = z.strictObject({
     .describe('The alarm system name.'),
 
   config: z.strictObject({
-    armmode: alarmSystemArmmodes
+    armmode: alarmSystemArmmodesRead
       .describe('The target arm mode.'),
     configured: z.boolean()
       .describe('Is true when a PIN code is configured.'),

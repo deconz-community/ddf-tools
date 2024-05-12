@@ -28,10 +28,10 @@ export function useGateway(gatewayId: MaybeRef<string | undefined>) {
     fetch,
     send: gatewayMachine.send,
     select: gatewayMachine.select,
-    state: computed(() => gatewayMachine.state),
-    credentials: computed(() => gatewayMachine.state?.context.credentials),
-    config: computed(() => gatewayMachine.state?.context.config),
-    devices_names: computed(() => gatewayMachine.state?.context.devices_names),
-    bundles: computed(() => gatewayMachine.state?.context.bundles),
+    state: gatewayMachine.select(state => state),
+    credentials: gatewayMachine.select(state => state.context.credentials),
+    config: gatewayMachine.select(state => state.context.config),
+    devices_names: gatewayMachine.select(state => state.context.devices_names),
+    bundles: gatewayMachine.select(state => state.context.bundles),
   })
 }

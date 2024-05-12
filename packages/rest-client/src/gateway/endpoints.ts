@@ -6,7 +6,8 @@ import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 import { deviceSchema } from './schemas/deviceSchema'
 import { ddfdDescriptorSchema } from './schemas/ddfSchema'
-import { alarmSystemSchema, alarmSystemsSchema } from './schemas/alarmSystemSchema'
+import { alarmSystemArmmodesRead, alarmSystemArmmodesWrite, alarmSystemSchema, alarmSystemsSchema } from './schemas/alarmSystemSchema'
+import { sensorsSchema } from './schemas/sensorSchema'
 
 export const endpoints = {
 
@@ -75,7 +76,8 @@ export const endpoints = {
     },
     response: {
       format: 'json',
-      schema: alarmSystemsSchema.transform(data => Ok(data)),
+      schema: alarmSystemsSchema
+        .transform(data => Ok(data)),
     },
   }),
 
@@ -99,8 +101,10 @@ export const endpoints = {
     },
     response: {
       format: 'jsonArray',
-      schema: alarmSystemSchema.pick({ name: true }).transform(data => Ok(data)),
       removePrefix: /^\/alarmsystems\/\d+\//,
+      schema: alarmSystemSchema
+        .pick({ name: true })
+        .transform(data => Ok(data)),
     },
   }),
 
@@ -166,97 +170,72 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/alarmsystems\/\d+\/device\//,
-      deconzErrors: [7],
+      deconzErrors: [3, 7],
       schema: z.strictObject({
         added: z.string(),
       }).transform(data => Ok(data)),
     },
   }),
 
-  /*
-
-  updateAlarmSystemAddDevice: makeEndpoint({
-    alias: 'updateAlarmSystemAddDevice',
-    description: 'Add keypad to alarm system.',
-    method: 'put',
-    path: '/api/:apiKey/alarmsystems/:alarmSystemId/device/:deviceUniqueID',
-    response: prepareResponse(
-      z.strictObject({
-        added: z.string(),
-      }),
-      {
-        removePrefix: /^\/alarmsystems\/\d+\/device\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.alarmSystemId,
-      globalParameters.deviceUniqueID,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: alarmSystemDeviceSchema
-          .partial(),
-      },
-
-    ],
-  }),
-
   updateAlarmSystemRemoveDevice: makeEndpoint({
-    alias: 'updateAlarmSystemRemoveDevice',
+    category: 'Alarm Systems',
+    name: 'Remove device to alarm system',
     description: 'Removes a device from an alarm system. Note that the respective sensor or light resource is '
     + 'not deleted, only the link to the alarm system.',
     method: 'delete',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId/device/:deviceUniqueID',
-    response: prepareResponse(
-      z.strictObject({
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      alarmSystemId: globalParameters.alarmSystemId,
+      deviceUniqueID: globalParameters.deviceUniqueID,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/alarmsystems\/\d+\/device\//,
+      deconzErrors: [3, 7],
+      schema: z.strictObject({
         removed: z.string(),
-      }),
-      {
-        removePrefix: /^\/alarmsystems\/\d+\/device\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.alarmSystemId,
-      globalParameters.deviceUniqueID,
-    ],
+      }).transform(data => Ok(data)),
+    },
   }),
 
   updateAlarmSystemArmState: makeEndpoint({
-    alias: 'updateAlarmSystemArmState',
+    category: 'Alarm Systems',
+    name: 'Update alarm system state',
     description: 'To arm or disarm an alarm system, the REST-API provides four requests, one for each mode. '
     + 'The request body is required to specify a valid code0 PIN code, which is verified to protect against '
     + 'unauthorized access.',
     method: 'put',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId/:armMode',
-    response: prepareResponse(
-      z.strictObject({
-        armmode: alarmSystemArmmodes,
-      }),
-      {
-        removePrefix: /^\/alarmsystems\/\d+\/device\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.alarmSystemId,
-      {
-        name: 'armMode',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      alarmSystemId: globalParameters.alarmSystemId,
+      armMode: makeParameter({
         description: 'Armmode to set',
-        type: 'Path',
-        schema: alarmSystemArmmodes,
-      },
-      {
-        name: 'body',
-        type: 'Body',
+        type: 'path',
+        schema: alarmSystemArmmodesWrite,
+        sample: 'arm_away',
+      }),
+      body: makeParameter({
+        description: 'Payload',
+        type: 'body',
         schema: z.strictObject({
-          code0: z.string().min(4).max(16).optional().default(() => Math.random().toString(10).slice(2, 10)),
+          code0: z.string().min(4).max(16).optional(),
         }),
-      },
-    ],
+        sample: () => ({
+          code0: Math.random().toString(10).slice(2, 10),
+        }),
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/alarmsystems\/\d+\/config\//,
+      deconzErrors: [3, 7],
+      schema: z.strictObject({
+        armmode: alarmSystemArmmodesRead,
+      }).transform(data => Ok(data)),
+    },
   }),
-  */
 
   // #endregion
 
@@ -306,7 +285,8 @@ export const endpoints = {
     },
     response: {
       format: 'jsonArray',
-      schema: z.strictObject({ username: z.string() }).transform(result => Ok(result))
+      schema: z.strictObject({ username: z.string() })
+        .transform(result => Ok(result))
         .describe('The generated API key.'),
     },
   }),
@@ -383,15 +363,18 @@ export const endpoints = {
     },
   }),
 
-  /*
-
   getFullState: makeEndpoint({
-    alias: 'getFullState',
-    description: 'Get gateway configuration',
+    category: 'Config',
+    name: 'Get full Gateway Configuration',
+    description: 'Get full gateway configuration',
     method: 'get',
     path: '/api/:apiKey',
-    response: prepareResponse(
-      z.object({
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'json',
+      schema: z.object({
         // TODO add schemas
         alarmsystems: z.any().describe('All alarm systems of the gateway.'),
         config: configSchema,
@@ -402,14 +385,9 @@ export const endpoints = {
         scenes: z.any().describe('All scenes of the gateway.'),
         schedules: z.any().describe('All schedules of the gateway.'),
         sensors: sensorsSchema,
-      }),
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+      }).transform(data => Ok(data)),
+    },
   }),
-
-  */
 
   updateConfig: makeEndpoint({
     category: 'Config',
@@ -430,43 +408,48 @@ export const endpoints = {
     },
     response: {
       format: 'jsonArray',
+      removePrefix: /^\/config\//,
       schema: writableConfigSchema
         .partial()
         .transform(data => Ok(data)),
+    },
+  }),
+
+  updateSoftware: makeEndpoint({
+    category: 'Config',
+    name: 'Update Software',
+    description: 'Starts the update if available (only on Raspberry Pi).',
+    method: 'post',
+    path: '/api/:apiKey/config/update',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'jsonArray',
       removePrefix: /^\/config\//,
+      schema: z.strictObject({ update: z.string() })
+        .transform(data => Ok(data)),
+    },
+  }),
+
+  updateFrimware: makeEndpoint({
+    category: 'Config',
+    name: 'Update Frimware',
+    description: 'Starts the update firmware process if newer version is available.',
+    method: 'post',
+    path: '/api/:apiKey/config/updatefirmware',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/config\//,
+      schema: z.strictObject({ updatefirmware: z.string() })
+        .transform(data => Ok(data)),
     },
   }),
 
   /*
-  updateSoftware: makeEndpoint({
-    alias: 'updateSoftware',
-    description: 'Starts the update if available (only on Raspberry Pi).',
-    method: 'post',
-    path: '/api/:apiKey/config/update',
-    response: prepareResponse(
-      z.strictObject({ update: z.string() }).transform(result => result.update)
-        .describe('The newest software version available'),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
-  }),
-
-  updateFrimware: makeEndpoint({
-    alias: 'updateFrimware',
-    description: 'Starts the update firmware process if newer version is available.',
-    method: 'post',
-    path: '/api/:apiKey/config/updatefirmware',
-    response: prepareResponse(
-      z.strictObject({ updatefirmware: z.string() }).transform(result => result.updatefirmware)
-        .describe('The newest frimware version available'),
-      { removePrefix: /^\/config\// },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
-  }),
 
   exportConfig: makeEndpoint({
     alias: 'exportConfig',

@@ -4,6 +4,7 @@ export type CommonErrors<DeconzCodes extends number | never> =
   | CustomError
   | ReturnType<typeof clientError>
   | ReturnType<typeof zodError>
+  | ReturnType<typeof httpError>
   | (DeconzCodes extends number
     ? ReturnType<typeof deconzError<DeconzCodes>>
     : never)
@@ -132,6 +133,19 @@ export function deconzError<Code extends number>(
       ? deconzErrorsMap[code as DeconzErrorCodes] as any
       : 'UNKNOWN_ERROR',
     address,
+  }
+}
+
+export type HttpError = keyof typeof httpError
+
+export function httpError(
+  status: number,
+  statusText: string = '',
+) {
+  return {
+    type: 'http',
+    status,
+    statusText,
   }
 }
 

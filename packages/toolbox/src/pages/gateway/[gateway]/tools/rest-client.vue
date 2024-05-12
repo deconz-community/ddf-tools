@@ -233,7 +233,7 @@ const extraTools = computed<Component[]>(() => {
     <div v-show="hasResponse">
       <v-container style="max-width: none;">
         <v-row>
-          <v-col v-if="rawResponse" cols="12" lg="6">
+          <v-col v-if="statusCode" cols="12" lg="6">
             <v-card>
               <v-card-title>
                 API Response
@@ -244,10 +244,14 @@ const extraTools = computed<Component[]>(() => {
                   :type="statusCode === 200 ? 'success' : 'error'"
                 />
                 <object-editor
+                  v-if="rawResponse"
                   v-model="rawResponse"
                   :error="false"
                   height="800px"
                 />
+                <p v-else class="mt-6 ma-2">
+                  No content
+                </p>
               </v-card-text>
             </v-card>
           </v-col>
