@@ -16,6 +16,7 @@ declare module 'vue' {
     BundleEditorInfo: typeof import('./components/bundle-editor/bundle-editor-info.vue')['default']
     BundleEditorSignatures: typeof import('./components/bundle-editor/bundle-editor-signatures.vue')['default']
     BundleEditorValidation: typeof import('./components/bundle-editor/bundle-editor-validation.vue')['default']
+    CardAuthChallenge: typeof import('./components/card/card-auth-challenge.vue')['default']
     CardGateway: typeof import('./components/card/card-gateway.vue')['default']
     ChipGatewayState: typeof import('./components/chip/chip-gateway-state.vue')['default']
     ChipSignatures: typeof import('./components/chip/chip-signatures.vue')['default']

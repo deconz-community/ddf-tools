@@ -154,11 +154,15 @@ function getMachine<Type extends AppMachine['type']>(
 export function createAppMachine() {
   return markRaw({
     install(app: App) {
+      /*
       const inspect = import.meta.env.VITE_DEBUG === 'true'
         ? createBrowserInspector({
           url: 'https://stately.ai/registry/inspect',
         }).inspect
         : undefined
+        */
+
+      const inspect = undefined
 
       const machineTree = shallowRef<MachineTree>({
         app: undefined,

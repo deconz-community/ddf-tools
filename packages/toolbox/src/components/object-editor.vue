@@ -73,7 +73,8 @@ const data = computed({
         vertical: 'hidden',
         horizontal: 'hidden',
       },
-      lineNumbers: 'off',
+      lineNumbers: 'on',
+      wordWrap: 'on',
     }"
 
     v-bind="attrs"

@@ -64,7 +64,6 @@ switch (props.param.knownParam) {
 
 <template>
   <template v-if="props.param.knownParam !== 'hidden'">
-    <pre>{{ props.param }}</pre>
     <v-autocomplete
       v-if="props.param.knownParam === 'apiKey'"
       v-model="value"

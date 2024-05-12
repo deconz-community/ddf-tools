@@ -7,6 +7,7 @@ const machines = createUseAppMachine()
 const app = machines.use('app')
 const gateway = machines.use('gateway', { id: props.id })
 const discovery = machines.use('discovery')
+const editDialog = ref(false)
 
 const isNew = computed(() => gateway.state === undefined)
 
@@ -136,15 +137,27 @@ onMounted(async () => {
       >
         Remove
       </v-btn>
-      <btn-event
-        elevation="2"
-        append-icon="mdi-pencil"
-        :machine="gateway"
-        :event="{ type: 'EDIT_CREDENTIALS' }"
-        label="Edit credentials"
-        color="secondary"
-        variant="flat"
-      />
+
+      <v-dialog v-model="editDialog" min-width="500" max-width="600">
+        <template #activator="{ props: activatorProps }">
+          <v-btn
+            v-bind="activatorProps"
+            elevation="2"
+            append-icon="mdi-pencil"
+            color="secondary"
+            variant="flat"
+          >
+            Edit credentials
+          </v-btn>
+        </template>
+
+        <template #default>
+          <form-gateway-credentials
+            :gateway="props.id"
+            @close="editDialog = false"
+          />
+        </template>
+      </v-dialog>
     </v-card-actions>
   </v-card>
 </template>

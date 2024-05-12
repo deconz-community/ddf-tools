@@ -1,8 +1,8 @@
 import type { Result } from 'ts-results-es'
 import { Err, Ok } from 'ts-results-es'
-import type { GatewayClient } from '../gateway'
-import { gatewayClient } from '../gateway'
-import type { ExtractResponseSchemaForAlias } from '../core/helpers'
+import type { GatewayClient } from './gateway'
+import { gatewayClient } from './gateway'
+import type { ExtractResponseSchemaForAlias } from './core/helpers'
 
 interface GatewayInfo {
   gateway: GatewayClient

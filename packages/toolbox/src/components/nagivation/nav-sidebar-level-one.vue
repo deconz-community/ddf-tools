@@ -33,7 +33,6 @@ const links = computed(() => {
     list.push('divider')
 
     list.push({ icon: 'mdi-folder-zip', title: 'Bundler', to: '/dev-tools/bundler' })
-    list.push({ icon: 'mdi-key-chain', title: 'Auth challenge', to: '/dev-tools/auth-challenge' })
 
     if (import.meta.env.VITE_DEBUG === 'true')
       list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/dev-tools/sandbox' })

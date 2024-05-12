@@ -2,15 +2,30 @@
 import type { EndpointAlias, RequestResultForAlias } from '@deconz-community/rest-client'
 import { endpoints } from '@deconz-community/rest-client'
 import { useRouteQuery } from '@vueuse/router'
+import type { Component } from 'vue'
 
 import { VTreeview } from 'vuetify/labs/VTreeview'
 import { z } from 'zod'
+import CardAuthChallenge from '~/components/card/card-auth-challenge.vue'
 
 const props = defineProps<{
   gateway: string
 }>()
 
-const selectedAlias = useRouteQuery<string>('alias', 'discover')
+const queryAlias = useRouteQuery<string>('alias', 'discover')
+
+const endpointAlias = computed({
+  get() {
+    const alias = queryAlias.value as keyof typeof endpoints
+    if (typeof alias !== 'string' || !(alias in endpoints))
+      return undefined
+
+    return alias
+  },
+  set(newValue) {
+    queryAlias.value = newValue as string
+  },
+})
 
 // #region API Tree
 
@@ -64,20 +79,12 @@ function selectAPI(params: unknown) {
   if (!alias.success)
     return
 
-  selectedAlias.value = alias.data
+  endpointAlias.value = alias.data as any
 }
 
 // #endregion
 
 // #region Gateway
-
-const endpointAlias = computed(() => {
-  const alias = selectedAlias.value as keyof typeof endpoints
-  if (typeof alias !== 'string' || !(alias in endpoints))
-    return undefined
-
-  return alias
-})
 
 const endpoint = computed(() => {
   if (!endpointAlias.value)
@@ -104,7 +111,7 @@ const rawResponse = ref<any>(undefined)
 const statusCode = ref<number | undefined>(undefined)
 const clientResponse = ref<RequestResultForAlias<EndpointAlias>>([])
 
-watch(selectedAlias, () => {
+watch(endpointAlias, () => {
   hasResponse.value = false
   loading.value = true
   clientResponse.value = []
@@ -113,11 +120,8 @@ watch(selectedAlias, () => {
 })
 
 async function send() {
-  if (!selectedAlias.value)
-    return toast.error('No endpoint selected')
-
   if (!endpointAlias.value)
-    return toast.error('Invalid endpoint selected')
+    return toast.error('No endpoint selected')
 
   hasResponse.value = false
   loading.value = true
@@ -137,6 +141,19 @@ async function send() {
   if ('rawResponse' in response)
     rawResponse.value = response.rawResponse
 }
+// #endregion
+
+// #region Extra tools
+const extraTools = computed<Component[]>(() => {
+  const tools: Component[] = []
+  switch (endpointAlias.value) {
+    case 'createChallenge':
+    case 'createAPIKey':
+      tools.push(CardAuthChallenge)
+      break
+  }
+  return tools
+})
 // #endregion
 </script>
 
@@ -202,6 +219,7 @@ async function send() {
                 />
               </v-card-text>
             </v-card>
+            <component :is="tool" v-for="(tool, index) in extraTools" :key="index" class="mt-2" />
           </v-card-text>
           <v-card-actions>
             <v-btn type="submit" color="primary" variant="tonal" elevation="3" size="large">

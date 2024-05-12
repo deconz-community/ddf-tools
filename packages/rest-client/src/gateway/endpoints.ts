@@ -246,21 +246,21 @@ export const endpoints = {
 
   // #region Config endpoints
 
-  /*
   createChallenge: makeEndpoint({
-    alias: 'createChallenge',
+    category: 'API Key',
+    name: 'Create Challenge',
     description: 'Creates a new authentication challenge which should be used as HMAC-Sha256(challenge, install code). '
     + 'Both challenge and install code must be in lowercase hex format.',
     method: 'get',
     path: '/api/challenge',
-    response: prepareResponse(
-      z.object({
+    parameters: {},
+    response: {
+      format: 'json',
+      schema: z.object({
         challenge: z.string().optional(),
-      }).transform(result => result.challenge),
-    ),
+      }).transform(result => Ok(result)),
+    },
   }),
-
-  */
 
   createAPIKey: makeEndpoint({
     category: 'API Key',
@@ -290,8 +290,7 @@ export const endpoints = {
     },
     response: {
       format: 'jsonArray',
-      removePrefix: /^\/config\/whitelist\//,
-      schema: z.strictObject({ username: z.string() }).transform(result => Ok(result.username))
+      schema: z.strictObject({ username: z.string() }).transform(result => Ok(result))
         .describe('The generated API key.'),
     },
   }),

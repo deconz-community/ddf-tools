@@ -7,8 +7,11 @@ const props = defineProps<{
   gateway: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
+
 const gateway = useGateway(props.gateway)
-const discovery = useAppMachine('discovery')
 
 const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE ?? '')
 
@@ -38,28 +41,41 @@ async function fetchKey() {
 
   const gateway = result.unwrap().gateway
 
-  const params: ExtractParamsForAlias<'createAPIKey'>['body'] = {
+  const body: ExtractParamsForAlias<'createAPIKey'>['body'] = {
     devicetype: '@deconz-community/toolbox',
   }
 
   if (installCode.value && installCode.value.length > 0) {
-    const challenge = await gateway.createChallenge()
+    const challenge = (await gateway.request('createChallenge', {})).shift()
 
-    if (!challenge.success) {
-      console.error(challenge.errors)
-      return challenge
+    if (
+      challenge === undefined
+      || challenge.isErr()
+      || challenge.value.challenge === undefined
+    ) {
+      toast.error('Failed to create challenge')
+      console.error(challenge)
+      return
     }
 
-    params['hmac-sha256'] = hmacSHA256(challenge.success, installCode.value.toLowerCase()).toString()
+    body['hmac-sha256'] = hmacSHA256(
+      challenge.value.challenge,
+      installCode.value.toLowerCase(),
+    ).toString()
   }
 
-  const apiKey = await gateway.createAPIKey(params)
+  const apiKey = (await gateway.request('createAPIKey', { body })).shift()
 
-  if (!apiKey.success) {
-    console.error(apiKey.errors)
-    return apiKey
+  if (
+    apiKey === undefined
+    || apiKey.isErr()
+  ) {
+    toast.error('Failed to create API Key')
+    console.error(apiKey)
+    return
   }
-  credentials.value.apiKey = apiKey.success
+
+  credentials.value.apiKey = apiKey.value.username
 }
 
 function save() {
@@ -77,13 +93,8 @@ onScopeDispose(() => {
     gateway.send({ type: 'CONNECT' })
 })
 
-onMounted(async () => {
-  // props.gateway.send({ type: 'NEXT' })
-  // props.gateway.send({ type: 'NEXT' })
-})
-
-const isConnecting = computed(() => gateway.state?.matches('connecting'))
-const isDisabled = computed(() => gateway.state?.matches({ offline: 'disabled' }))
+// const isConnecting = computed(() => gateway.state?.matches('connecting'))
+// const isDisabled = computed(() => gateway.state?.matches({ offline: 'disabled' }))
 const isUnreachable = computed(() => gateway.state?.matches({ offline: { error: 'unreachable' } }))
 const isInvalidApiKey = computed(() => gateway.state?.matches({ offline: { error: 'invalidApiKey' } }))
 const isOnline = computed(() => gateway.state?.matches('online'))
@@ -101,37 +112,51 @@ const steps = computed(() => [
     subtitle: gateway.state?.matches({ offline: { error: 'invalidApiKey' } })
       ? 'The API key is invalid.'
       : undefined,
+    complete: isOnline.value,
+    color: isOnline.value
+      ? 'success'
+      : isInvalidApiKey.value ? 'error' : '',
   },
+  /*
   {
     title: 'Websocket Address',
     subtitle: 'Optional',
   },
+  */
 ])
 
 const currentStep = ref(1)
-
-function disabled() {
-  return currentStep.value === 1
-    ? 'prev'
-    : currentStep.value === steps.value.length
-      ? 'next'
-      : undefined
-}
 </script>
 
 <template>
   <v-card>
-    <v-card-title>
-      {{ gateway.config?.name ?? `Gateway ${props.gateway}` }}
-      <chip-gateway-state :gateway="gateway" class="ml-2" />
-
-      <v-btn variant="elevated" color="secondary" class="ma-2" @click="save()">
+    <v-card-title class="d-flex align-stretch">
+      <div class="align-self-center me-auto">
+        {{ gateway.config?.name ?? `Gateway ${props.gateway}` }}
+        <chip-gateway-state :gateway="gateway" class="ml-2" />
+      </div>
+      <v-btn
+        variant="elevated"
+        color="secondary"
+        class="ma-2 align-self-center "
+        append-icon="mdi-floppy"
+        @click="save()"
+      >
         Save settings
+      </v-btn>
+      <v-btn
+        variant="outlined"
+        append-icon="mdi-close"
+        class="ma-2 align-self-center"
+        color="secondary"
+        @click="emit('close')"
+      >
+        Close
       </v-btn>
     </v-card-title>
 
     <v-card-text>
-      <v-stepper v-if="gateway" v-model="currentStep" alt-labels>
+      <v-stepper v-if="gateway" v-model="currentStep">
         <template #default>
           <v-stepper-header>
             <template v-for="n in steps.length" :key="`${n}-step`">
@@ -228,73 +253,17 @@ function disabled() {
               -->
               </v-card-text>
             </v-stepper-window-item>
+            <!--
             <v-stepper-window-item :value="3">
               <v-card
                 color="grey-lighten-5"
                 height="200"
               />
             </v-stepper-window-item>
+            -->
           </v-stepper-window>
         </template>
       </v-stepper>
     </v-card-text>
   </v-card>
-
-<!--
-  <template v-if="credentials && gateway.state">
-    <v-card variant="outlined">
-      <template v-if="gateway.state.matches({ offline: { editing: 'address' } })">
-        <v-card-title>
-          Editing API address
-        </v-card-title>
-        <v-card-text>
-          <v-btn @click="credentials.URIs.api.push('')">
-            Add
-          </v-btn>
-          <template v-for="address, index of credentials.URIs.api" :key="index">
-            <v-text-field
-              v-model="credentials.URIs.api[index]"
-              append-inner-icon="mdi-close"
-              @click:append-inner="credentials.URIs.api.splice(index, 1)"
-            />
-          </template>
-        </v-card-text>
-      </template>
-      <template v-else-if="gateway.state.matches({ offline: { editing: 'apiKey' } })">
-        <v-card-title>
-          Editing API Key
-        </v-card-title>
-        <v-card-text>
-          <v-text-field v-model="credentials.apiKey" label="API Key" />
-          <v-text-field v-model="installCode" label="Install code" />
-          <v-btn @click="fetchKey()">
-            Fetch API key
-          </v-btn>
-        </v-card-text>
-      </template>
-      <v-card-actions v-if="gateway.state.matches({ offline: 'editing' })">
-        <v-btn
-          elevation="2"
-          :disabled="gateway.state.can({ type: 'PREVIOUS' }) !== true"
-          @click="gateway.send({ type: 'PREVIOUS' })"
-        >
-          Previous
-        </v-btn>
-        <v-btn
-          elevation="2"
-          :disabled="gateway.state.can({ type: 'NEXT' }) !== true"
-          @click="gateway.send({ type: 'NEXT' })"
-        >
-          Next
-        </v-btn>
-        <v-btn
-          elevation="2"
-          @click="save()"
-        >
-          Save
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </template>
-  -->
 </template>
