@@ -78,7 +78,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
 
         switch (definition.type) {
           case 'path':
-            url = url.replace(`{:${name}:}`, value)
+            url = url.replace(`/:${name}`, `/${value}`)
             break
 
           case 'body':

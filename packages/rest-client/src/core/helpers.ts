@@ -57,7 +57,16 @@ export type ExtractParamsSchemaForAlias<
     // @ts-expect-error schema is defined
 > = Parameters<Alias>[ParamName]['schema']
 
-export type KnownParam = 'hidden' | 'apiKey' | 'group/id' | 'bundle/hash' | 'device/uuid'
+export const KNOWN_PARAMS = [
+  'hidden',
+  'apiKey',
+  'alarmSystem/id',
+  'group/id',
+  'bundle/hash',
+  'device/uuid',
+] as const
+
+export type KnownParam = typeof KNOWN_PARAMS[number]
 
 export interface ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> {
   description: string

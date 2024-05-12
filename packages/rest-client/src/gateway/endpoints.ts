@@ -6,6 +6,7 @@ import { configSchema, writableConfigSchema } from './schemas/configSchema'
 import { globalParameters } from './parameters'
 import { deviceSchema } from './schemas/deviceSchema'
 import { ddfdDescriptorSchema } from './schemas/ddfSchema'
+import { alarmSystemSchema, alarmSystemsSchema } from './schemas/alarmSystemSchema'
 
 export const endpoints = {
 
@@ -35,34 +36,6 @@ export const endpoints = {
     },
   }),
 
-  /*
-
-  updateConfig: makeEndpoint({
-    description: 'Modify configuration parameters.',
-    method: 'put',
-    path: '/api/{:apiKey:}/config',
-    parameters: {
-      apiKey: globalParameters.optionalApiKey,
-      config: makeParameter({
-        type: 'body',
-        description: 'Properties of the gateway to update',
-        schema: writableConfigSchema.partial(),
-        sample: {
-          name: 'New name',
-        },
-      }),
-    },
-    response: {
-      format: 'jsonArray',
-      schema: writableConfigSchema
-        .partial()
-        .transform(data => Ok(data)),
-      removePrefix: /^\/config\//,
-    },
-  }),
-
-  */
-
   // #endregion
 
   // #region Alarm System endpoints
@@ -91,73 +64,94 @@ export const endpoints = {
   }),
   */
 
-  /*
   getAlarmSystems: makeEndpoint({
-    alias: 'getAlarmSystems',
+    category: 'Alarm Systems',
+    name: 'Get all alarm systems',
     description: 'Returns a list of all alarm systems.',
     method: 'get',
     path: '/api/:apiKey/alarmsystems',
-    response: prepareResponse(
-      alarmSystemsSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'json',
+      schema: alarmSystemsSchema.transform(data => Ok(data)),
+    },
   }),
 
   updateAlarmSystem: makeEndpoint({
-    alias: 'updateAlarmSystem',
+    category: 'Alarm Systems',
+    name: 'Update Alarm System Attributes',
     description: 'Sets attributes of an alarm system.',
     method: 'put',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId',
-    response: prepareResponse(
-      alarmSystemSchema.pick({ name: true }),
-      {
-        removePrefix: /^\/alarmsystems\/\d+\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.alarmSystemId,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      alarmSystemId: globalParameters.alarmSystemId,
+      body: makeParameter({
+        description: 'Payload',
+        type: 'body',
         schema: alarmSystemSchema.pick({ name: true }),
-      },
-    ],
+        sample: {
+          name: 'New name',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      schema: alarmSystemSchema.pick({ name: true }).transform(data => Ok(data)),
+      removePrefix: /^\/alarmsystems\/\d+\//,
+    },
   }),
 
   updateAlarmSystemConfig: makeEndpoint({
-    alias: 'updateAlarmSystemConfig',
+    category: 'Alarm Systems',
+    name: 'Update Alarm System Config',
     description: 'Sets attributes of an alarm system.',
     method: 'put',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId/config',
-    response: prepareResponse(
-      alarmSystemSchema.shape.config
-        .omit({ armmode: true })
-        .partial(),
-      {
-        removePrefix: /^\/alarmsystems\/\d+\/config\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.alarmSystemId,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      alarmSystemId: globalParameters.alarmSystemId,
+      body: makeParameter({
+        description: 'Payload',
+        type: 'body',
         schema: alarmSystemSchema.shape.config
           .omit({
             armmode: true,
             configured: true,
           })
           .extend({
-            code0: z.string().min(4).max(16).optional().default(() => Math.random().toString(10).slice(2, 10)),
+            code0: z.string().min(4).max(16).optional(),
           })
           .partial(),
-      },
-    ],
+        sample: {
+          code0: Math.random().toString(10).slice(2, 10),
+          disarmed_entry_delay: 0,
+          disarmed_exit_delay: 0,
+          armed_away_entry_delay: 0,
+          armed_away_exit_delay: 0,
+          armed_away_trigger_duration: 0,
+          armed_stay_entry_delay: 0,
+          armed_stay_exit_delay: 0,
+          armed_stay_trigger_duration: 0,
+          armed_night_entry_delay: 0,
+          armed_night_exit_delay: 0,
+          armed_night_trigger_duration: 0,
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/alarmsystems\/\d+\/config\//,
+      schema: alarmSystemSchema.shape.config
+        .omit({ armmode: true })
+        .partial()
+        .transform(data => Ok(data)),
+    },
   }),
+
+  /*
 
   updateAlarmSystemAddDevice: makeEndpoint({
     alias: 'updateAlarmSystemAddDevice',
@@ -295,43 +289,12 @@ export const endpoints = {
     },
   }),
 
-  /*
-
-  createAPIKey: makeEndpoint({
-    alias: 'createAPIKey',
-    description: 'Creates a new API key which provides authorized access to the REST-API. '
-    + 'The request will only succeed if the gateway is unlocked, is having a hmac-sha256 challenge or an valid HTTP basic '
-    + 'authentification credentials are provided in the HTTP request header see authorization.',
-    method: 'post',
-    path: '/api',
-    response: prepareResponse(
-      z.strictObject({ username: z.string() }).transform(result => result.username)
-        .describe('The generated API key.'),
-    ),
-    parameters: [
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.object({
-          // TODO Blacklist devicetype to avoid specific api mode
-          // Should not start with iConnect | iConnectHue | Echo | hue_ | "Hue "
-          'devicetype': z.string().min(0).max(40).default('REST Client'),
-          'username': z.optional(z.string().min(10).max(40)
-            .default(() => (Math.random().toString(36).slice(2).toUpperCase())),
-          ),
-          'hmac-sha256': z.optional(z.string()),
-        }),
-      },
-    ],
-  }),
-
-  */
   deleteAPIKey: makeEndpoint({
     category: 'API Key',
     name: 'Delete API Key',
     description: 'Deletes an API key so it can no longer be used.',
     method: 'delete',
-    path: '/api/{:apiKey:}/config/whitelist/{:oldApiKey:}',
+    path: '/api/:apiKey/config/whitelist/:oldApiKey',
     parameters: {
       apiKey: globalParameters.apiKey,
       oldApiKey: makeParameter({
@@ -345,10 +308,7 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/config\/whitelist\//,
-      schema: z.preprocess((data) => {
-        console.log({ data })
-        return data
-      }, z.union([z.string(), z.boolean()]))
+      schema: z.union([z.string(), z.boolean()])
         .optional()
         .transform(message => typeof message === 'string'
           ? Ok(message)
@@ -362,7 +322,7 @@ export const endpoints = {
     name: 'Get Gateway Configuration',
     description: 'Get gateway configuration',
     method: 'get',
-    path: '/api/{:apiKey:}/config',
+    path: '/api/:apiKey/config',
     parameters: {
       apiKey: globalParameters.apiKey,
     },
@@ -434,7 +394,7 @@ export const endpoints = {
     name: 'Update Gateway Configuration',
     description: 'Modify configuration parameters.',
     method: 'put',
-    path: '/api/{:apiKey:}/config',
+    path: '/api/:apiKey/config',
     parameters: {
       apiKey: globalParameters.apiKey,
       config: makeParameter({
@@ -628,7 +588,7 @@ export const endpoints = {
     name: 'Get DDF Bundle Descriptors',
     description: 'Get all DDF bundle descriptors',
     method: 'get',
-    path: '/api/{:apiKey:}/ddf/descriptors',
+    path: '/api/:apiKey/ddf/descriptors',
     parameters: {
       apiKey: globalParameters.apiKey,
       next: {
@@ -667,7 +627,7 @@ export const endpoints = {
   getDDFBundleDescriptor: makeEndpoint({
     description: 'Get DDF bundle descriptor',
     method: 'get',
-    path: '/api/{:apiKey:}/ddf/descriptors/{:bundleHash:}',
+    path: '/api/:apiKey/ddf/descriptors/:bundleHash',
     parameters: {
       apiKey: globalParameters.optionalApiKey,
       bundleHash: globalParameters.bundleHash,
@@ -709,7 +669,7 @@ export const endpoints = {
     name: 'Get all devices',
     description: 'Returns a list of all devices. If there are no devices in the system an empty array [] is returned.',
     method: 'get',
-    path: '/api/{:apiKey:}/devices',
+    path: '/api/:apiKey/devices',
     parameters: {
       apiKey: globalParameters.apiKey,
     },
@@ -724,7 +684,7 @@ export const endpoints = {
     name: 'Get one device',
     description: 'Returns the group with the specified id.',
     method: 'get',
-    path: '/api/{:apiKey:}/devices/{:deviceUniqueID:}',
+    path: '/api/:apiKey/devices/:deviceUniqueID',
     parameters: {
       apiKey: globalParameters.apiKey,
       deviceUniqueID: globalParameters.deviceUniqueID,
@@ -1138,7 +1098,7 @@ export const endpoints = {
     name: 'Find a new sensor',
     description: 'Open the gateway to add a new sensor.',
     method: 'post',
-    path: '/api/{:apiKey:}/sensors',
+    path: '/api/:apiKey/sensors',
     parameters: {
       apiKey: globalParameters.apiKey,
     },
@@ -1156,7 +1116,7 @@ export const endpoints = {
     name: 'Get find sensor result',
     description: 'Returns list of recently added sensors.',
     method: 'get',
-    path: '/api/{:apiKey:}/sensors/new',
+    path: '/api/:apiKey/sensors/new',
     parameters: {
       apiKey: globalParameters.apiKey,
     },

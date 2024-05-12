@@ -53,13 +53,14 @@ export const globalParameters = {
     type: 'Path',
     schema: z.number().or(z.string()).default(10),
   }),
-  alarmSystemId: makeParameter({
-    name: 'alarmSystemId',
-    description: 'Alarm system ID',
-    type: 'Path',
-    schema: z.number().default(1),
-  }),
   */
+  alarmSystemId: makeParameter({
+    description: 'Alarm system ID',
+    type: 'path',
+    knownParam: 'alarmSystem/id',
+    schema: z.string(),
+    sample: '1',
+  }),
 
   deviceUniqueID: makeParameter({
     description: 'Device unique ID',
