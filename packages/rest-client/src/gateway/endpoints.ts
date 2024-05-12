@@ -261,6 +261,8 @@ export const endpoints = {
     },
   }),
 
+  // TODO: Split into multiple endpoints : createAPIKey, createAPIKeyWithInstallCode, createAPIKeyWithPassword
+  // For password, set header Authorization: Basic base64(username:password)
   createAPIKey: makeEndpoint({
     category: 'Authentication',
     name: 'Create API Key',
@@ -585,29 +587,6 @@ export const endpoints = {
         .transform(data => Ok(data)),
     },
   }),
-  // TODO: Fix
-  /*
-
-  changePassword: makeEndpoint({
-
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.strictObject({
-          username: z.literal('delight').default('delight')
-            .describe('The user name (currently only "delight" is supported).'),
-          oldhash: z.string().default('')
-            .describe('The Base64 encoded combination of "username:old password".'),
-          newhash: z.string().default('')
-            .describe('The Base64 encoded combination of "username:new password".'),
-        }),
-      },
-    ],
-  }),
-
-  */
 
   resetPassword: makeEndpoint({
     category: 'Authentication',
