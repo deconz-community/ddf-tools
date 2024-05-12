@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EffectScope } from 'vue'
+// import type { EffectScope } from 'vue'
 
 const route = useRoute()
 
@@ -19,6 +19,7 @@ const scope = getCurrentScope()
 if (!scope)
   throw new Error('no scope')
 
+/*
 const devices = ref(new Map<string, {
   name: string
   id: string
@@ -70,6 +71,8 @@ const sortedDevices = computed(() => {
     })
   }, { immediate: true })
 }
+
+*/
 </script>
 
 <template>
@@ -111,6 +114,7 @@ const sortedDevices = computed(() => {
       />
     </template>
 
+    <!--
     <v-list-subheader>
       Devices
       <v-btn icon="mdi-refresh" size="small" class="ma-2" @click="gateway.send({ type: 'REFRESH_DEVICES' })" />
@@ -121,5 +125,6 @@ const sortedDevices = computed(() => {
       :subtitle="device.type"
       :to="`${baseURL}/device/${device.id}`"
     />
+    -->
   </v-list>
 </template>
