@@ -9,18 +9,52 @@ export const groupSchema = z.strictObject({
   type: z.enum(['LightGroup', 'Luminaire', 'Lightsource', 'Room'])
     .describe('The type of the group.'),
   class: z.enum([
-    'Living room', 'Kitchen', 'Dining', 'Bedroom', 'Kids bedroom',
-    'Bathroom', 'Nursery', 'Recreation', 'Office', 'Gym', 'Hallway',
-    'Toilet', 'Front door', 'Garage', 'Terrace', 'Garden', 'Driveway',
-    'Carport', 'Other',
-    'Home', 'Downstairs', 'Upstairs', 'Top floor', 'Attic', 'Guest room',
-    'Staircase', 'Lounge', 'Man cave', 'Computer', 'Studio', 'Music',
-    'TV', 'Reading', 'Closet', 'Storage', 'Laundry room', 'Balcony',
-    'Porch', 'Barbecue', 'Pool',
+    'Living room',
+    'Kitchen',
+    'Dining',
+    'Bedroom',
+    'Kids bedroom',
+    'Bathroom',
+    'Nursery',
+    'Recreation',
+    'Office',
+    'Gym',
+    'Hallway',
+    'Toilet',
+    'Front door',
+    'Garage',
+    'Terrace',
+    'Garden',
+    'Driveway',
+    'Carport',
+    'Other',
+    'Home',
+    'Downstairs',
+    'Upstairs',
+    'Top floor',
+    'Attic',
+    'Guest room',
+    'Staircase',
+    'Lounge',
+    'Man cave',
+    'Computer',
+    'Studio',
+    'Music',
+    'TV',
+    'Reading',
+    'Closet',
+    'Storage',
+    'Laundry room',
+    'Balcony',
+    'Porch',
+    'Barbecue',
+    'Pool',
   ]).optional()
     .describe('The class of the group. Only available for type Room.'),
-  uniqueid: z.string().optional()
-    .describe('The unique id of the group.'),
+  uniqueid: z.string().length(11)
+    .or(z.string().length(14))
+    .optional()
+    .describe('The unique id of the group. (AA:BB:CC:DD or AA:BB:CC:DD-XX) /!\\ this is not a unique value.'),
   action: lightSchema.shape.state
     .pick({
       on: true,
@@ -82,8 +116,6 @@ export const writableGroupActionSchema = groupSchema.shape.action.pick({
   xy: true,
   alert: true,
   effect: true,
-  colorloopspeed: true,
-  transitiontime: true,
 }).extend({
   toggle: z.boolean().optional().default(false)
     .describe('Set to true toggles the lights of that group from on to off or vice versa, false has no effect. '

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { Result } from 'ts-results-es'
-import { Err, Ok } from 'ts-results-es'
+import { Err } from 'ts-results-es'
 import { z } from 'zod'
 import type { EndpointAlias, EndpointDefinition, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, RequestResultForAlias } from '../core/helpers'
 import { getValue } from '../core/helpers'
@@ -81,7 +81,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
               case undefined:
               case 'json':{
                 // Let axios handle the serialization
-                const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
+                const parsed = await endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParseAsync(value)
 
                 if (!parsed.success)
                   return [Err(zodError('request', parsed.error))]
@@ -91,7 +91,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
               }
 
               case 'blob':{
-                const parsed = endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParse(value)
+                const parsed = await endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParseAsync(value)
 
                 if (!parsed.success)
                   return [Err(zodError('request', parsed.error))]
@@ -205,7 +205,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             enumerable: false,
           })
 
-          const returnData = schema.safeParse(jsonData)
+          const returnData = await schema.safeParseAsync(jsonData)
           if (returnData.success) {
             if (Array.isArray(returnData.data))
               return packResponse(returnData.data)
@@ -227,14 +227,14 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             enumerable: false,
           })
 
-          const rawData = z.array(z.object({
+          const rawData = await z.array(z.object({
             success: z.any().optional(),
             error: z.object({
               address: z.string(),
               description: z.string(),
               type: z.number(),
             }).optional(),
-          })).safeParse(jsonData)
+          })).safeParseAsync(jsonData)
 
           if (!rawData.success)
             return packResponse([Err(zodError('response', rawData.error))])
@@ -244,7 +244,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             errors?: CommonErrors<any>[]
           } = {}
 
-          rawData.data.forEach((item) => {
+          for (const item of rawData.data) {
             if ('success' in item) {
               if (Array.isArray(item.success)) {
                 result.success = item.success
@@ -282,11 +282,11 @@ export function gatewayClient(clientParams: ClientParams = {}) {
                 throw new TypeError('Not Implemented')
               }
               else if (typeof item.error === 'object') {
-                const error = z.object({
+                const error = await z.object({
                   address: z.string(),
                   description: z.string(),
                   type: z.number(),
-                }).safeParse(item.error)
+                }).safeParseAsync(item.error)
 
                 if (error.success) {
                   if (deconzErrors && error.data.type && !deconzErrors.includes(error.data.type as any))
@@ -301,7 +301,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
                 }
               }
             }
-          })
+          }
 
           const returnResults: Result<any, any>[] = []
 
@@ -314,7 +314,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           }
 
           if (result.success) {
-            const successData = schema.safeParse(result.success)
+            const successData = await schema.safeParseAsync(result.success)
 
             if (!successData.success)
               return packResponse([Err(zodError('response', successData.error))])
@@ -333,7 +333,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
         }
 
         case 'blob': {
-          const returnData = schema.safeParse(responseData)
+          const returnData = await schema.safeParseAsync(responseData)
           if (returnData.success) {
             if (Array.isArray(returnData.data))
               return packResponse(returnData.data)
@@ -345,7 +345,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
         }
 
         case 'blank': {
-          const returnData = schema.safeParse('')
+          const returnData = await schema.safeParseAsync('')
           if (returnData.success) {
             if (Array.isArray(returnData.data))
               return packResponse(returnData.data)

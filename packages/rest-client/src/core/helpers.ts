@@ -64,6 +64,9 @@ export const KNOWN_PARAMS = [
   'group/id',
   'bundle/hash',
   'device/uuid',
+  'subdevice/uuid',
+  'sensor/id',
+  'light/id',
 ] as const
 
 export type KnownParam = typeof KNOWN_PARAMS[number]
@@ -81,7 +84,7 @@ export type ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> = ({
   description: string
   knownParam?: KnownParam
   schema: Schema
-  sample?: z.input<Schema> | (() => z.input<Schema>)
+  sample: z.input<Schema> | (() => z.input<Schema>)
 }
 
 // #endregion

@@ -148,6 +148,9 @@ importers:
 
   packages/rest-client:
     dependencies:
+      '@deconz-community/ddf-bundler':
+        specifier: workspace:^
+        version: link:../bundler
       axios:
         specifier: ^1.6.8
         version: 1.6.8

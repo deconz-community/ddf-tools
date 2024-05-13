@@ -28,7 +28,7 @@ const developerMode = computed({
     <v-card-text>
       <v-switch
         v-model="developerMode"
-        label="Developper mode"
+        label="Developer mode"
         color="primary"
       />
     </v-card-text>

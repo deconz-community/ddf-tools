@@ -3,7 +3,7 @@ import type { EndpointAlias, RequestResultForAlias } from '@deconz-community/res
 import { endpoints } from '@deconz-community/rest-client'
 import { useRouteQuery } from '@vueuse/router'
 import type { Component } from 'vue'
-
+import { saveAs } from 'file-saver'
 import { VTreeview } from 'vuetify/labs/VTreeview'
 import { z } from 'zod'
 import BtnGatewayDownloadBackup from '~/components/btn/btn-gateway-download-backup.vue'
@@ -12,6 +12,8 @@ import CardAuthChallenge from '~/components/card/card-auth-challenge.vue'
 const props = defineProps<{
   gateway: string
 }>()
+
+const fancyUI = ref(true)
 
 const queryAlias = useRouteQuery<string>('alias', 'discover')
 
@@ -159,6 +161,24 @@ const extraTools = computed<Component[]>(() => {
   return tools
 })
 // #endregion
+
+const downloadFileName = computed(() => {
+  switch (endpointAlias.value) {
+    case 'downloadDDFBundleBlob':
+      return `${params.value.hash}.ddf`
+    default:
+      return 'data.dat'
+  }
+})
+
+async function download(data: unknown) {
+  const blob = isBlob(data) ? data : new Blob([data as any])
+  saveAs(blob, downloadFileName.value)
+}
+
+function isBlob(data: unknown): data is Blob {
+  return data instanceof Blob
+}
 </script>
 
 <template>
@@ -206,8 +226,19 @@ const extraTools = computed<Component[]>(() => {
           </v-card-subtitle>
           <v-card-text>
             <v-card elevation="3">
-              <v-card-title>
+              <v-card-title class="d-flex">
                 Parameters
+                <v-spacer />
+                <v-switch
+                  v-model="fancyUI"
+                  label="Fancy UI"
+                  inline
+                  hide-details
+                  inset
+                  color="primary"
+                  false-icon="mdi-death-star-variant"
+                  true-icon="mdi-death-star"
+                />
               </v-card-title>
               <v-card-text v-if="endpointsParams.length === 0">
                 None
@@ -217,6 +248,7 @@ const extraTools = computed<Component[]>(() => {
                   v-for="([name, parameter]) in endpointsParams"
                   :key="`${endpointAlias}/${name}`"
                   v-model="params"
+                  :fancy-ui="fancyUI"
                   :gateway="props.gateway"
                   :name="name"
                   :param="parameter"
@@ -253,8 +285,16 @@ const extraTools = computed<Component[]>(() => {
                   :text="`Status code: ${statusCode}`"
                   :type="statusCode === 200 ? 'success' : 'error'"
                 />
+                <v-btn
+                  v-if="typeof rawResponse === 'object' && rawResponse !== null && rawResponse.type === 'blob'"
+                  class="ma-2"
+                  append-icon="mdi-download"
+                  @click="download(rawResponse.data)"
+                >
+                  Download Blob
+                </v-btn>
                 <object-editor
-                  v-if="rawResponse"
+                  v-else-if="rawResponse"
                   v-model="rawResponse"
                   :error="false"
                   height="800px"
@@ -279,7 +319,16 @@ const extraTools = computed<Component[]>(() => {
                     :type="response.isOk() ? 'success' : 'error'"
                   />
                   <div v-if="response.isOk()">
+                    <v-btn
+                      v-if="isBlob(response.value)"
+                      class="ma-2"
+                      append-icon="mdi-download"
+                      @click="download(response.value)"
+                    >
+                      Download Blob
+                    </v-btn>
                     <object-editor
+                      v-else
                       v-model="response.value"
                       :error="false"
                       height="800px"

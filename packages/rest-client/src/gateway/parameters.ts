@@ -2,10 +2,10 @@ import { z } from 'zod'
 import { makeParameter } from '../core/helpers'
 
 // const IDRegex = /\d+/
-const deviceUUIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}/
-const subDeviceUUIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
+export const deviceUUIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}/
+export const subDeviceUUIDRegex = /[\da-f]{2}(:[\da-f]{2}){7}-[\da-f]{2}-[\da-f]{4}/
 
-const deviceOrSubDeviceUUIDRegex = new RegExp(`((${deviceUUIDRegex.source})|(${subDeviceUUIDRegex.source}))`)
+export const deviceOrSubDeviceUUIDRegex = new RegExp(`((${deviceUUIDRegex.source})|(${subDeviceUUIDRegex.source}))`)
 
 // const IDorUniqueIDRegex = new RegExp(`((${IDRegex.source})|(${uniqueIDRegex.source}))`)
 
@@ -21,7 +21,7 @@ export const globalParameters = {
   }),
 
   groupId: makeParameter({
-    description: 'groupId',
+    description: 'Group ID',
     type: 'path',
     format: 'string',
     knownParam: 'group/id',
@@ -37,26 +37,25 @@ export const globalParameters = {
     schema: z.string().length(64),
     sample: '64ff180d340c15bb3a5136d5f336d1ca5a216ed16b1369c8439d6952478e58ac',
   }),
-  /*
-  groupId: makeParameter({
-    name: 'groupId',
-    description: 'Device ID',
-    type: 'Path',
-    schema: z.number().default(1),
-  }),
+
   sensorId: makeParameter({
-    name: 'sensorId',
     description: 'Sensor ID',
-    type: 'Path',
-    schema: z.number().or(z.string()).default(10),
+    type: 'path',
+    format: 'string',
+    knownParam: 'sensor/id',
+    schema: z.number().or(z.string()),
+    sample: '1',
   }),
+
   lightId: makeParameter({
-    name: 'lightId',
     description: 'Light ID',
-    type: 'Path',
-    schema: z.number().or(z.string()).default(10),
+    type: 'path',
+    format: 'string',
+    knownParam: 'light/id',
+    schema: z.number().or(z.string()),
+    sample: '1',
   }),
-  */
+
   alarmSystemId: makeParameter({
     description: 'Alarm system ID',
     type: 'path',
@@ -71,9 +70,28 @@ export const globalParameters = {
     type: 'path',
     format: 'string',
     knownParam: 'device/uuid',
+    schema: z.string().regex(deviceUUIDRegex),
+    sample: '00:1f:ee:00:00:00:08:bb',
+  }),
+
+  subDeviceUniqueID: makeParameter({
+    description: 'Sub device unique ID',
+    type: 'path',
+    format: 'string',
+    knownParam: 'subdevice/uuid',
+    schema: z.string().regex(subDeviceUUIDRegex),
+    sample: '00:1f:ee:00:00:00:08:bb',
+  }),
+
+  deviceOrSubDeviceID: makeParameter({
+    description: 'Device or sub device unique ID',
+    type: 'path',
+    format: 'string',
+    knownParam: 'device/uuid',
     schema: z.string().regex(deviceOrSubDeviceUUIDRegex),
     sample: '00:1f:ee:00:00:00:08:bb',
   }),
+
 } as const
 
 /*

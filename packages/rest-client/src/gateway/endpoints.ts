@@ -1,13 +1,16 @@
 import { z } from 'zod'
 import { Err, Ok } from 'ts-results-es'
+import { decode } from '@deconz-community/ddf-bundler'
 import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
-import { customError } from '../core/errors'
+import { clientError, customError } from '../core/errors'
 import { configSchema, writableConfigSchema } from './schemas/configSchema'
-import { globalParameters } from './parameters'
-import { deviceSchema } from './schemas/deviceSchema'
+import { deviceUUIDRegex, globalParameters } from './parameters'
+import { deviceSchema, introspectButtonEventItemSchema, introspectGenericItemSchema } from './schemas/deviceSchema'
 import { ddfdDescriptorSchema } from './schemas/ddfSchema'
 import { alarmSystemArmmodesRead, alarmSystemArmmodesWrite, alarmSystemSchema, alarmSystemsSchema } from './schemas/alarmSystemSchema'
-import { sensorsSchema } from './schemas/sensorSchema'
+import { sensorSchema, sensorsSchema } from './schemas/sensorSchema'
+import { groupSchema, groupsSchema, writableGroupActionSchema } from './schemas/groupSchema'
+import { lightSchema, lightsSchema, writablelightStateSchema } from './schemas/lightSchema'
 
 export const endpoints = {
 
@@ -503,7 +506,6 @@ export const endpoints = {
     method: 'post',
     path: '/api/fileupload',
     parameters: {
-      apiKey: globalParameters.apiKey,
       body: makeParameter({
         // Content-Disposition: form-data; name="file"; filename="raspbee_gateway_config_2024-01-01.dat"
         // Content-Type: application/octet-stream
@@ -607,26 +609,47 @@ export const endpoints = {
 
   // #region DDF endpoints
 
-  /*
-  getDDFBundle: makeEndpoint({
-    alias: 'getDDFBundle',
-    description: 'Get DDF bundle file',
+  downloadDDFBundleBlob: makeEndpoint({
+    category: 'DDF',
+    name: 'Download DDF Bundle (Blob)',
+    description: 'Download a DDF bundle file',
     method: 'get',
     path: '/api/:apiKey/ddf/bundles/:hash',
-    response: prepareResponse(z.instanceof(Blob)),
-    reponseFormat: 'blob',
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'hash',
-        description: 'The hash of the bundle to get',
-        type: 'Path',
-        schema: z.string(),
-      },
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      hash: globalParameters.bundleHash,
+    },
+    response: {
+      format: 'blob',
+      schema: z.instanceof(ArrayBuffer).transform(async (data) => {
+        return Ok(new Blob([data]))
+      }),
+    },
   }),
 
-  */
+  downloadDDFBundleDecoded: makeEndpoint({
+    category: 'DDF',
+    name: 'Download DDF Bundle (Decoded)',
+    description: 'Download a DDF bundle file',
+    method: 'get',
+    path: '/api/:apiKey/ddf/bundles/:hash',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      hash: globalParameters.bundleHash,
+    },
+    response: {
+      format: 'blob',
+      schema: z.instanceof(ArrayBuffer).transform(async (data) => {
+        try {
+          return Ok(await decode(new Blob([data])))
+        }
+        catch (e) {
+          console.error(e)
+          return Err(clientError('RESPONSE_PARSE_FAILED'))
+        }
+      }),
+    },
+  }),
 
   getDDFBundleDescriptors: makeEndpoint({
     category: 'DDF',
@@ -685,27 +708,29 @@ export const endpoints = {
   }),
   */
 
-  /*
   uploadDDFBundle: makeEndpoint({
-    alias: 'uploadDDFBundle',
+    category: 'DDF',
+    name: 'Upload a bundle',
     description: 'Uploads a DDF bundle so it can be used by DDF system.',
     method: 'post',
     path: '/api/:apiKey/ddf/bundles',
-    response: prepareResponse(
-      z.strictObject({ id: z.string() }).transform(result => result.id)
-        .describe('The uploaded Bundle Hash'),
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.instanceof(FormData),
-      },
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      body: makeParameter({
+        description: 'DDF file',
+        format: 'blob',
+        type: 'body',
+        schema: z.instanceof(File),
+      }),
+    },
+    response: {
+      format: 'blank',
+      schema: z.literal('').transform(() => Ok({
+        upload: 'success',
+      })),
+    },
   }),
 
-  */
   // #endregion
 
   // #region Devices endpoints
@@ -741,212 +766,253 @@ export const endpoints = {
     },
   }),
 
-  /*
-
   getDeviceItemIntrospect: makeEndpoint({
-    alias: 'getDeviceItemIntrospect',
+    category: 'Devices',
+    name: 'Introspect device item',
     description: 'Get the data type of the respective resource item as well as its defined values/boundaries or other relevant data.',
     method: 'get',
-    path: '/api/:apiKey/devices/:deviceUniqueID/:item/introspect',
-    response: prepareResponse(z.preprocess((data: any) => {
-      if (typeof data !== 'object' || data === null)
-        return data
-      if ('buttons' in data)
-        data.format = 'buttons'
-      else
-        data.format = 'generic'
-      return data
-    }, z.discriminatedUnion('format', [
-      introspectButtonEventItemSchema,
-      introspectGenericItemSchema,
-    ]))),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-      {
-        name: 'item',
+    path: '/api/:apiKey/devices/:subDeviceUniqueID/:item/introspect',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      subDeviceUniqueID: globalParameters.subDeviceUniqueID,
+      item: makeParameter({
+        type: 'path',
+        format: 'string',
         description: 'Item name',
-        type: 'Path',
-        schema: z.string().default('attr/name'),
-      },
-    ],
+        schema: z.string(),
+        sample: 'attr/name',
+      }),
+    },
+    response: {
+      format: 'json',
+      schema: z.preprocess((data: any) => {
+        if (typeof data !== 'object' || data === null)
+          return data
+        if ('buttons' in data)
+          data.format = 'buttons'
+        else
+          data.format = 'generic'
+        return data
+      }, z.discriminatedUnion('format', [
+        introspectButtonEventItemSchema,
+        introspectGenericItemSchema,
+      ])).transform(data => Ok(data)),
+    },
   }),
 
   getDeviceDDF: makeEndpoint({
-    alias: 'getDeviceDDF',
+    category: 'Devices',
+    name: 'Get device DDF',
     description: 'Returns the device with the specified id.',
     method: 'get',
-    path: '/api/:apiKey/devices/:deviceUniqueID/ddf',
-    response: prepareResponse(z.object({}).passthrough()),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-    ],
+    path: '/api/:apiKey/devices/:deviceOrSubDeviceID/ddf',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      deviceOrSubDeviceID: globalParameters.deviceOrSubDeviceID,
+    },
+    response: {
+      format: 'json',
+      // TOTO: Add schema
+      schema: z.object({}).passthrough().transform(data => Ok(data)),
+    },
   }),
 
   getDeviceFullDDF: makeEndpoint({
-    alias: 'getDeviceFullDDF',
+    category: 'Devices',
+    name: 'Get device full DDF',
     description: 'Returns the full DDF of the device specified by the provided MAC address.',
     method: 'get',
-    path: '/api/:apiKey/devices/:deviceUniqueID/ddffull',
-    response: prepareResponse(z.object({}).passthrough()),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-    ],
+    path: '/api/:apiKey/devices/:deviceOrSubDeviceID/ddffull',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      deviceOrSubDeviceID: globalParameters.deviceOrSubDeviceID,
+    },
+    response: {
+      format: 'json',
+      // TOTO: Add schema
+      schema: z.object({}).passthrough().transform(data => Ok(data)),
+    },
   }),
 
   reloadDeviceDDF: makeEndpoint({
-    alias: 'reloadDeviceDDF',
+    category: 'Devices',
+    name: 'Reload device DDF',
     description: 'Reload the DDF for the specified device MAC address. This might be required if you made some changes.',
-    method: 'put',
-    path: '/api/:apiKey/devices/:deviceUniqueID/ddf/reload',
-    response: prepareResponse(z.object({ reload: z.string() })),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-    ],
+    method: 'get',
+    path: '/api/:apiKey/devices/:subDeviceUniqueID/ddf/reload',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      subDeviceUniqueID: globalParameters.subDeviceUniqueID,
+    },
+    response: {
+      format: 'json',
+      // TOTO: Add schema
+      schema: z.object({ reload: z.string() }).transform(data => Ok(data)),
+    },
   }),
 
   pairDevice: makeEndpoint({
-    alias: 'pairDevice',
+    category: 'Devices',
+    name: 'Pair a device with code',
     description: 'Pair a device by using zigbee install code.',
     method: 'put',
     path: '/api/:apiKey/devices/:deviceUniqueID/installcode',
-    response: prepareResponse(z.object({
-      installcode: z.string().describe('The device install code provided in the request.'),
-      mmohash: z.string().describe('The Matyas-Meyer-Oseas (MMO) hash calculated based on the provided installation code. It is automatically used by deCONZ to enable pairing with the target device.'),
-    })),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      deviceUniqueID: globalParameters.deviceUniqueID,
+      body: makeParameter({
+        type: 'body',
+        description: 'Payload',
+        format: 'json',
         schema: z.object({
-          installcode: z.string().describe('6, 8, 12 or 16 Byte device installation code, plus 2 Byte CRC.'),
+          installcode: z.string()
+            .describe('6, 8, 12 or 16 Byte device installation code, plus 2 Byte CRC.'),
         }),
-      },
-    ],
+        sample: {
+          installcode: '0123456789abcdef',
+        },
+      }),
+    },
+    response: {
+      format: 'json',
+      schema: z.object({
+        installcode: z.string()
+          .describe('The device install code provided in the request.'),
+        mmohash: z.string()
+          .describe('The Matyas-Meyer-Oseas (MMO) hash calculated based on the provided installation code. It is automatically used by deCONZ to enable pairing with the target device.'),
+      }).transform(data => Ok(data)),
+    },
+
   }),
 
   setDeviceDDFPolicy: makeEndpoint({
-    alias: 'setDeviceDDFPolicy',
+    category: 'Devices',
+    name: 'Set Device DDF Policy',
     description: 'Sets the device DDF policy and optional bundle hash to be pinned.',
     method: 'put',
     path: '/api/:apiKey/devices/:deviceUniqueID/ddf/policy',
-    response: prepareResponse(
-      z.strictObject({
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      deviceUniqueID: globalParameters.deviceUniqueID,
+      body: makeParameter({
+        type: 'body',
+        format: 'json',
+        description: 'Policy to set',
+        schema: z.strictObject({
+          policy: z.enum([
+            'latest_prefer_stable',
+            'latest',
+            'raw_json',
+            'pin',
+          ]),
+          hash: z.optional(z.string().length(64)),
+        }),
+        sample: {
+          policy: 'pin',
+          hash: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: new RegExp(`/devices(${deviceUUIDRegex})ddf/`),
+      schema: z.strictObject({
         policy: z.enum([
           'latest_prefer_stable',
           'latest',
           'raw_json',
           'pin',
         ]),
-        hash: z.string(),
-      })
-        .describe('The uploaded Bundle Hash'),
-      {
-        removePrefix: /^\/alarmsystems\/\d+\/device\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.deviceUniqueID,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.discriminatedUnion('policy', [
-          z.object({
-            policy: z.enum([
-              'latest_prefer_stable',
-              'latest',
-              'raw_json',
-            ]),
-          }),
-          z.object({
-            policy: z.literal('pin'),
-            hash: z.string().describe('DDF bundle hash (64 characters).'),
-          }),
-        ]).describe('Determines how DDF bundle is selected.'),
-      },
-    ],
-  }),
+        hash: z.string().optional(),
+      }).transform(data => Ok(data)),
+    },
 
-  */
+  }),
 
   // #endregion
 
   // #region Groups endpoints
 
-  /*
   createGroup: makeEndpoint({
-    alias: 'createGroup',
+    category: 'Groups',
+    name: 'Create a group',
     description: 'Returns the group with the specified id.',
     method: 'post',
     path: '/api/:apiKey/groups',
-    response: prepareResponse(
-      z.strictObject({ id: z.coerce.number() }),
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      body: makeParameter({
+        type: 'body',
+        format: 'json',
+        description: 'Group properties',
         schema: groupSchema.pick({
           name: true,
           type: true,
           class: true,
           uniqueid: true,
         }),
+        sample: {
+          name: 'New group',
+          type: 'Room',
+          class: 'Living room',
+          uniqueid: 'AA:BB:CC:DD',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      schema: z.strictObject({ id: z.coerce.number() })
+        .transform(data => Ok(data)),
+    },
 
-      },
-    ],
   }),
 
   getGroups: makeEndpoint({
-    alias: 'getGroups',
+    category: 'Groups',
+    name: 'Get all groups',
     description: 'Returns a list of all groups. If there are no groups in the system an empty object {} is returned.',
     method: 'get',
     path: '/api/:apiKey/groups',
-    response: prepareResponse(
-      groupsSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'json',
+      schema: groupsSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
   getGroup: makeEndpoint({
-    alias: 'getGroup',
+    category: 'Groups',
+    name: 'Get one group',
     description: 'Returns the group with the specified id.',
     method: 'get',
     path: '/api/:apiKey/groups/:groupId',
-    response: prepareResponse(
-      groupSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.groupId,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      groupId: globalParameters.groupId,
+    },
+    response: {
+      format: 'json',
+      schema: groupSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
-  updateGroup: makeEndpoint({
-    alias: 'updateGroup',
+  updateGroupAttr: makeEndpoint({
+    category: 'Groups',
+    name: 'Update group attribute',
     description: 'Sets attributes of a group which are not related to its state.',
     method: 'put',
     path: '/api/:apiKey/groups/:groupId',
-    response: prepareResponse(
-      groupSchema.pick({ name: true }),
-      {
-        removePrefix: /^\/groups\/\d+\//,
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      groupId: globalParameters.groupId,
+      body: makeParameter({
+        type: 'body',
+        format: 'json',
+        description: 'Group properties',
         schema: groupSchema.pick({
           class: true,
           name: true,
@@ -955,45 +1021,74 @@ export const endpoints = {
           lightsequence: true,
           multideviceids: true,
         }),
-      },
-    ],
+        sample: {
+          class: 'Living room',
+          name: 'New group',
+          hidden: false,
+          lights: ['1', '2'],
+          lightsequence: [],
+          multideviceids: [],
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/groups\/\d+\//,
+      schema: groupSchema.pick({ name: true })
+        .transform(data => Ok(data)),
+    },
   }),
 
   updateGroupState: makeEndpoint({
-    alias: 'updateGroupState',
+    category: 'Groups',
+    name: 'Update group state',
     description: 'Sets the state of a group.',
     method: 'put',
     path: '/api/:apiKey/groups/:groupId/action',
-    response: prepareResponse(
-      writableGroupActionSchema,
-      {
-        removePrefix: /^\/groups\/\d+\/action\//,
-      },
-    ),
-    parameters: [
-      globalParameters.groupId,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      groupId: globalParameters.groupId,
+      body: makeParameter({
+        type: 'body',
+        format: 'json',
+        description: 'Group state',
         schema: writableGroupActionSchema,
-      },
-    ],
+        sample: {
+          on: true,
+          bri: 254,
+          hue: 10000,
+          sat: 254,
+          effect: 'none',
+          xy: [0.5, 0.5],
+          ct: 250,
+          alert: 'none',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/groups\/\d+\/action\//,
+      schema: writableGroupActionSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
   deleteGroup: makeEndpoint({
-    alias: 'deleteGroup',
+    category: 'Groups',
+    name: 'Delete a group',
     description: 'Delete a group.',
     method: 'delete',
     path: '/api/:apiKey/groups/:groupId',
-    response: prepareResponse(
-      z.strictObject({ id: z.coerce.number() }),
-      {
-        removePrefix: /^\/groups\/\d+\//,
-      },
-    ),
-    parameters: [
-      globalParameters.groupId,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      groupId: globalParameters.groupId,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/groups\/\d+\//,
+      schema: z.strictObject({ id: z.coerce.number() })
+        .transform(data => Ok(data)),
+    },
   }),
 
   // #endregion
@@ -1001,52 +1096,52 @@ export const endpoints = {
   // #region Lights endpoints
 
   getlights: makeEndpoint({
-    alias: 'getlights',
+    category: 'Lights',
+    name: 'Get all lights',
     description: 'Returns a list of all lights. If there are no lights in the system an empty object {} is returned.',
     method: 'get',
     path: '/api/:apiKey/lights',
-    response: prepareResponse(
-      lightsSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'json',
+      schema: lightsSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
-  */
-  /*
-  makeEndpoint({
-    alias: 'getlight',
+  getlight: makeEndpoint({
+    category: 'Lights',
+    name: 'Get one light',
     description: 'Returns the light with the specified id.',
     method: 'get',
     path: '/api/:apiKey/lights/:lightId',
-    response: prepareResponse(
-      lightSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.lightId,
-    ],
-  }),
-  */
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      lightId: globalParameters.lightId,
+    },
+    response: {
+      format: 'json',
+      schema: lightSchema
+        .transform(data => Ok(data)),
+    },
 
-  /*
-  updateLight: makeEndpoint({
-    alias: 'updateLight',
+  }),
+
+  updateLightAttr: makeEndpoint({
+    category: 'Lights',
+    name: 'Update light attributes',
     description: 'Sets attributes of a light which are not related to its state.',
     method: 'put',
     path: '/api/:apiKey/lights/:lightId',
-    response: prepareResponse(
-      lightSchema.pick({ name: true }),
-      {
-        removePrefix: /^\/lights\/\d+\//,
-      },
-    ),
-    parameters: [
-      globalParameters.lightId,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      lightId: globalParameters.lightId,
+      body: makeParameter({
+        description: 'Light properties',
+        format: 'json',
+        type: 'body',
         schema: lightSchema.pick({
           // class: true,
           name: true,
@@ -1055,93 +1150,125 @@ export const endpoints = {
         // lightsequence: true,
         // multideviceids: true,
         }),
-      },
-    ],
+        sample: {
+          name: 'New light',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/lights\/\d+\//,
+      schema: lightSchema.pick({ name: true })
+        .transform(data => Ok(data)),
+    },
   }),
-  */
 
-  /*
-  makeEndpoint({
-    alias: 'updatelightState',
+  updatelightState: makeEndpoint({
+    category: 'Lights',
+    name: 'Update light state',
     description: 'Sets the state of a light.',
     method: 'put',
-    path: '/api/:apiKey/lights/:lightId/action',
-    response: prepareResponse(
-      writablelightActionSchema,
-      {
-        removePrefix: /^\/lights\/\d+\/action\//,
-      },
-    ),
-    parameters: [
-      globalParameters.lightId,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: writablelightActionSchema,
-      },
-    ],
+    path: '/api/:apiKey/lights/:lightId/state',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      lightId: globalParameters.lightId,
+      body: makeParameter({
+        description: 'Light state',
+        format: 'json',
+        type: 'body',
+        schema: writablelightStateSchema,
+        sample: {
+          on: true,
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/lights\/\d+\/state\//,
+      schema: writablelightStateSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
-  makeEndpoint({
-    alias: 'deletelight',
+  deletelight: makeEndpoint({
+    category: 'Lights',
+    name: 'Delete a light',
     description: 'Delete a light.',
     method: 'delete',
     path: '/api/:apiKey/lights/:lightId',
-    response: prepareResponse(
-      z.strictObject({ id: z.coerce.number() }),
-      {
-        removePrefix: /^\/lights\/\d+\//,
-      },
-    ),
-    parameters: [
-      globalParameters.lightId,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      lightId: globalParameters.lightId,
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/lights\/\d+\//,
+      schema: z.strictObject({ id: z.coerce.number() })
+        .transform(data => Ok(data)),
+    },
   }),
-  */
 
   // #endregion
 
   // #region Sensors endpoints
 
-  /*
-  createSensor: makeEndpoint({
-    alias: 'createSensor',
+  createCLIPSensor: makeEndpoint({
+    category: 'Sensors',
+    name: 'Create a new CLIP sensor',
     description: 'Create a new CLIP sensor.',
     method: 'post',
     path: '/api/:apiKey/sensors?_query=create',
-    response: prepareResponse(
-      z.strictObject({ id: z.coerce.number() }),
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      body: makeParameter({
+        description: 'Payload',
+        format: 'json',
+        type: 'body',
         schema: z.object({
-          name: z.string().default('New Sensor'),
-          manufacturername: z.string().default('Manufacturer'),
-          modelid: z.string().default('Model'),
-          swversion: z.string().default('1.0.0'),
-          type: z.string().default('CLIPSwitch'),
-          uniqueid: z.string().default('00:1f:ee:00:00:00:08:bb-01-1000'),
+          name: z.string(),
+          manufacturername: z.string(),
+          modelid: z.string(),
+          swversion: z.string(),
+          type: z.string(),
+          uniqueid: z.string(),
           state: z.object({
-            buttonevent: z.string().default('1001'),
+            buttonevent: z.string(),
           }),
           config: z.object({
-            on: z.boolean().default(true),
-            reachable: z.boolean().default(true),
-            battery: z.number().default(100),
+            on: z.boolean(),
+            reachable: z.boolean(),
+            battery: z.number(),
           }),
         }),
-      },
-    ],
+        sample: {
+          name: 'New Sensor',
+          manufacturername: 'Manufacturer',
+          modelid: 'Model',
+          swversion: '1.0.0',
+          type: 'CLIPSwitch',
+          uniqueid: '00:1f:ee:00:00:00:08:bb-01-1000',
+          state: {
+            buttonevent: '1001',
+          },
+          config: {
+            on: true,
+            reachable: true,
+            battery: 100,
+          },
+
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      schema: z.strictObject({ id: z.coerce.number() })
+        .transform(data => Ok(data)),
+    },
   }),
 
-  */
-
-  findSensor: makeEndpoint({
+  addSensor: makeEndpoint({
     category: 'Sensors',
-    name: 'Find a new sensor',
+    name: 'Add a new sensor',
     description: 'Open the gateway to add a new sensor.',
     method: 'post',
     path: '/api/:apiKey/sensors',
@@ -1198,139 +1325,162 @@ export const endpoints = {
     },
   }),
 
-  /*
-
   getSensors: makeEndpoint({
-    alias: 'getSensors',
+    category: 'Sensors',
+    name: 'Get all sensors',
     description: 'Returns a list of all sensors. If there are no sensors in the system an empty object {} is returned.',
     method: 'get',
     path: '/api/:apiKey/sensors',
-    response: prepareResponse(
-      sensorsSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+    },
+    response: {
+      format: 'json',
+      schema: sensorsSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
   getSensor: makeEndpoint({
-    alias: 'getSensor',
+    category: 'Sensors',
+    name: 'Get one sensor',
     description: 'Returns the sensor with the specified id.',
     method: 'get',
     path: '/api/:apiKey/sensors/:sensorId',
-    response: prepareResponse(
-      sensorSchema,
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.sensorId,
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      sensorId: globalParameters.sensorId,
+    },
+    response: {
+      format: 'json',
+      schema: sensorSchema
+        .transform(data => Ok(data)),
+    },
   }),
 
-  updateSensor: makeEndpoint({
-    alias: 'updateSensor',
+  updateSensorattr: makeEndpoint({
+    category: 'Sensors',
+    name: 'Update sensor attribute',
     description: 'Update a sensor with the specified parameters.',
     method: 'put',
     path: '/api/:apiKey/sensors/:sensorId',
-    response: prepareResponse(
-      sensorSchema.pick({ name: true }),
-      {
-        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/`),
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.sensorId,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: sensorSchema.pick({ name: true, mode: true }),
-      },
-    ],
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      sensorId: globalParameters.sensorId,
+      body: makeParameter({
+        description: 'Sensor properties',
+        format: 'json',
+        type: 'body',
+        schema: sensorSchema.pick({
+          name: true,
+          mode: true,
+        }),
+        sample: {
+          name: 'New sensor',
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/sensors\/\d+\//,
+      schema: sensorSchema.pick({ name: true })
+        .transform(data => Ok(data)),
+    },
   }),
 
   updateSensorConfig: makeEndpoint({
-    alias: 'updateSensorConfig',
+    category: 'Sensors',
+    name: 'Update sensor config',
     description: 'Update a sensor config with the specified parameters. Sensors expose certain configuration parameters '
     + 'depending on their defined or known capabilities. To get an overview on which parameters are available for a '
     + 'particular device, get the sensor state of either all Get all sensors or a single sensor Get sensor.',
     method: 'put',
     path: '/api/:apiKey/sensors/:sensorId/config',
-    response: prepareResponse(
-      z.object({}).passthrough(),
-      {
-        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/config/`),
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.sensorId,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.object({}).passthrough().default({
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      sensorId: globalParameters.sensorId,
+      body: makeParameter({
+        description: 'Sensor properties',
+        format: 'json',
+        type: 'body',
+        // TODO: Add schema
+        schema: z.object({}).passthrough(),
+        sample: {
           on: true,
-        }),
-      },
-    ],
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/sensors\/\d+\/config\//,
+      schema: z.object({}).passthrough()
+        .transform(data => Ok(data)),
+    },
   }),
 
   updateSensorState: makeEndpoint({
-    alias: 'updateSensorState',
+    category: 'Sensors',
+    name: 'Update sensor state',
     description: 'Update a sensor state with the specified parameters. Changing the sensor state is only allowed for CLIP sensors.',
     method: 'put',
     path: '/api/:apiKey/sensors/:sensorId/state',
-    response: prepareResponse(
-      z.object({}).passthrough(),
-      {
-        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/state/`),
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.sensorId,
-      {
-        name: 'body',
-        type: 'Body',
-        schema: z.object({}).passthrough().default({
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      sensorId: globalParameters.sensorId,
+      body: makeParameter({
+        description: 'Sensor properties',
+        format: 'json',
+        type: 'body',
+        // TODO: Add schema
+        schema: z.object({}).passthrough(),
+        sample: {
           buttonevent: 1001,
-        }),
-      },
-    ],
+        },
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/sensors\/\d+\/state\//,
+      schema: z.object({}).passthrough()
+        .transform(data => Ok(data)),
+    },
   }),
 
   deleteSensor: makeEndpoint({
-    alias: 'deleteSensor',
+    category: 'Sensors',
+    name: 'Delete a sensor',
     description: 'Delete a sensor.',
     method: 'delete',
     path: '/api/:apiKey/sensors/:sensorId',
-    response: prepareResponse(
-      // See https://github.com/dresden-elektronik/deconz-rest-doc/pull/31#issuecomment-1501970805
-      z.object({
-        id: z.coerce.number(),
-        reset: z.boolean(),
-      }).partial(),
-      {
-        removePrefix: new RegExp(`^/sensors/${globalParametersRegex.sensorId.source}/`),
-      },
-    ),
-    parameters: [
-      globalParameters.apiKey,
-      globalParameters.sensorId,
-      {
-        name: 'body',
-        type: 'Body',
+    parameters: {
+      apiKey: globalParameters.apiKey,
+      sensorId: globalParameters.sensorId,
+      body: makeParameter({
+        description: 'Sensor properties',
+        format: 'json',
+        type: 'body',
         schema: z.object({
-          reset: z.boolean().optional().default(false)
+          reset: z.boolean().optional()
             .describe('If this parameter is omitted, it will implicitly be set to false and the sensor is marked as deleted in the database. '
             + 'If set to true, deCONZ is trying to reset the whole physical device by issuing a leave request. '
             + 'It is required that the device is awake (able to receive commands) or supports this type of request respectively and on success, '
             + 'the device is deleted as a node and reset to factory defaults.'),
         }),
-      },
-    ],
+        sample: {
+          reset: false,
+        },
+
+      }),
+    },
+    response: {
+      format: 'jsonArray',
+      removePrefix: /^\/sensors\/\d+\//,
+      schema: z.object({
+        id: z.coerce.number(),
+        reset: z.boolean(),
+      }).partial().transform(data => Ok(data)),
+    },
   }),
-  */
 
   // #endregion
 

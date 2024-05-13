@@ -6,6 +6,7 @@ const props = defineProps<{
   gateway: string
   name: string
   param: ParameterDefinition
+  fancyUi: boolean
 }>()
 
 const model = defineModel<Record<string, any>>({ default: {} })
@@ -51,28 +52,47 @@ const devicesUUID = computed(() => {
     .sort((a, b) => a.name.localeCompare(b.name))
 })
 
+const bundlesHash = computed(() => {
+  return Array.from(gateway.bundles.entries())
+    .map(([hash, bundle]) => ({
+      key: hash,
+      name: `${bundle.product} (${hash.substring(0, 8)})`,
+      props: {
+        subtitle: bundle.last_modified,
+      },
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+})
+
 // #endregion
 
 // #region Set default value
-if (props.param.format === 'json') {
-  switch (props.param.knownParam) {
-    case undefined:
-      value.value = sampleValue.value
-      break
-    case 'apiKey':
-      value.value = apiKeys.value[0]?.key
-      break
-    case 'device/uuid':{
-      const selectFirst = () => value.value = devicesUUID.value[0]?.key
-      selectFirst()
-      if (value.value === undefined)
-        watchOnce(refDebounced(devicesUUID, 200), selectFirst)
-      break
-    }
-    case 'alarmSystem/id':
-      value.value = '1'
-      break
+switch (props.param.knownParam) {
+  case undefined:
+    value.value = sampleValue.value
+    break
+  case 'apiKey':
+    value.value = apiKeys.value[0]?.key
+    break
+  case 'device/uuid':{
+    gateway.send({ type: 'REFRESH_DEVICES' })
+    const selectFirst = () => value.value = devicesUUID.value[0]?.key
+    selectFirst()
+    if (value.value === undefined)
+      watchOnce(refDebounced(devicesUUID, 200), selectFirst)
+    break
   }
+  case 'bundle/hash':{
+    gateway.send({ type: 'REFRESH_BUNDLES' })
+    const selectFirst = () => value.value = bundlesHash.value[0]?.key
+    selectFirst()
+    if (value.value === undefined)
+      watchOnce(refDebounced(bundlesHash, 200), selectFirst)
+    break
+  }
+  case 'alarmSystem/id':
+    value.value = '1'
+    break
 }
 
 // #endregion
@@ -88,7 +108,7 @@ if (props.param.format === 'json') {
     </template>
     <template v-else-if="props.param.format === 'string'">
       <v-autocomplete
-        v-if="props.param.knownParam === 'apiKey'"
+        v-if="props.fancyUi && props.param.knownParam === 'apiKey'"
         v-model="value"
         auto-select-first
         clearable
@@ -99,16 +119,29 @@ if (props.param.format === 'json') {
         item-props="props"
       />
       <v-autocomplete
-        v-else-if="props.param.knownParam === 'device/uuid'"
+        v-else-if="props.fancyUi && props.param.knownParam === 'device/uuid'"
         v-model="value"
         clearable
         :label="props.param.description"
         :items="devicesUUID"
         item-title="name"
         item-value="key"
+        append-icon="mdi-refresh"
+        @click:append="gateway.send({ type: 'REFRESH_DEVICES' })"
       />
       <v-autocomplete
-        v-else-if="props.param.knownParam === 'alarmSystem/id'"
+        v-else-if="props.fancyUi && props.param.knownParam === 'bundle/hash'"
+        v-model="value"
+        clearable
+        :label="props.param.description"
+        :items="bundlesHash"
+        item-title="name"
+        item-value="key"
+        append-icon="mdi-refresh"
+        @click:append="gateway.send({ type: 'REFRESH_BUNDLES' })"
+      />
+      <v-autocomplete
+        v-else-if="props.fancyUi && props.param.knownParam === 'alarmSystem/id'"
         v-model="value"
         required
         :label="props.param.description"

@@ -114,3 +114,25 @@ export const lightSchema = z.object({
 
 export const lightsSchema = z.record(lightSchema)
   .describe('All lights of the gateway.')
+
+export const writablelightStateSchema = lightSchema.shape.state.pick({
+  on: true,
+  bri: true,
+  hue: true,
+  sat: true,
+  ct: true,
+  xy: true,
+  alert: true,
+  effect: true,
+}).extend({
+  toggle: z.boolean().optional().default(false)
+    .describe('Set to true toggles the lights of that group from on to off or vice versa, false has no effect. '
+    + '**Notice:** This setting supersedes the `on` parameter!'),
+  colorloopspeed: z.number().optional().default(15)
+    .describe('Specifies the speed of a colorloop. 1 = very fast, 255 = very slow (default: 15). '
+    + 'This parameter only has an effect when it is called together with effect colorloop.'),
+  transitiontime: z.number().optional().default(4)
+    .describe('Transition time in 1/10 seconds between two states. Note that not all states support a transition time. '
+    + 'For example, a transition time when setting on will be ignored as the Zigbee On and Off commands do not support transition times. '
+    + 'In general, light attributes that support a range of values support transition times, while boolean values do not.'),
+}).partial()
