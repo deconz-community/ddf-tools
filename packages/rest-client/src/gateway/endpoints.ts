@@ -513,6 +513,7 @@ export const endpoints = {
         format: 'blob',
         type: 'body',
         schema: z.instanceof(File),
+        sample: new File([], 'raspbee_gateway_config_2024-01-01.dat'),
       }),
     },
     response: {
@@ -721,6 +722,7 @@ export const endpoints = {
         format: 'blob',
         type: 'body',
         schema: z.instanceof(File),
+        sample: new File([], 'bundle.ddf'),
       }),
     },
     response: {
