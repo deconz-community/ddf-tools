@@ -1,3 +1,4 @@
+import { publicEncrypt } from 'node:crypto'
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
 import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
 
@@ -47,6 +48,7 @@ export type WebsocketEvent = {
 
 export interface RefreshEvent {
   type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
+  manual?: boolean
 }
 
 export interface RequestEventOptions<Alias extends EndpointAlias> {
@@ -180,7 +182,10 @@ export const gatewayMachine = setup({
 
     // #endregion
 
-    fetchBundles: fromPromise<GatewayContext['bundles'], { gateway: GatewayClient }>(async ({ input }) => {
+    fetchBundles: fromPromise<GatewayContext['bundles'], {
+      gateway: GatewayClient
+      manual?: boolean
+    }>(async ({ input }) => {
       const { gateway } = input
       const newList = new Map<string, BundleDescriptor>()
 
@@ -207,6 +212,13 @@ export const gatewayMachine = setup({
           }
         })
       }
+
+      if (input.manual) {
+        toast.info('Bundle list updated', {
+          description: `${newList.size} bundles found`,
+        })
+      }
+
       return newList
     }),
 
@@ -415,16 +427,33 @@ export const gatewayMachine = setup({
             pooling: {
               invoke: {
                 src: 'doRequest',
-                input: ({ context }) => ({
+                input: ({ context, event }) => ({
                   gateway: context.gateway!,
                   request: {
                     alias: 'getDevices',
                     params: {},
+                    options: {
+                      onDone: (result) => {
+                        if (event.type === 'REFRESH_DEVICES' && event.manual) {
+                          result.forEach((result) => {
+                            if (result.isOk()) {
+                              toast.info('Device list updated', {
+                                description: `${result.value.length} devices found`,
+                              })
+                            }
+                            else {
+                              toast.error('Refresh failed', {
+                                description: 'Something went wrong when refreshing devices',
+                              })
+                            }
+                          })
+                        }
+                      },
+                    },
                   },
                 }),
                 onDone: {
                   target: 'idle',
-
                   actions: enqueueActions(({ enqueue, event, context }) => {
                     const output = event.output as RequestResultForAlias<'getDevices'>
                     const { devices } = context
@@ -528,7 +557,10 @@ export const gatewayMachine = setup({
             },
             fetching: {
               invoke: {
-                input: ({ context }) => ({ gateway: context.gateway! }),
+                input: ({ context, event }) => ({
+                  gateway: context.gateway!,
+                  manual: event.type === 'REFRESH_BUNDLES' ? event.manual : false,
+                }),
                 src: 'fetchBundles',
                 onDone: {
                   target: 'idle',

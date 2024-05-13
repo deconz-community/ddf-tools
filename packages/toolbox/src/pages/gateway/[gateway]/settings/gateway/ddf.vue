@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { Bundle } from '@deconz-community/ddf-bundler'
-import { decode } from '@deconz-community/ddf-bundler'
-import type { GatewayContext } from '~/machines/gateway'
 
 const props = defineProps<{
   gateway: string
 }>()
 
-const machines = createUseAppMachine()
-const gateway = machines.use('gateway', computed(() => ({ id: props.gateway })))
+const app = useApp()
+const gateway = useGateway(toRef(props, 'gateway'))
+
 const search = ref('')
 const inputUploadBundle = ref<File[]>([])
 
@@ -18,25 +17,25 @@ const isLoading = refDebounced(
 )
 
 async function upload() {
-  const client = gateway.state?.context.gateway
-  if (!client) {
-    console.error('No client found')
-    return
-  }
+  if (inputUploadBundle.value.length === 0)
+    return toast.error('You should select at least one DDF bundle')
 
-  if (inputUploadBundle.value.length === 0) {
-    console.error('You should upload at least one bundle')
-    return
-  }
+  const results = (
+    await Promise.all(
+      inputUploadBundle.value.map(
+        async file => await gateway.fetch('uploadDDFBundle', { body: file }),
+      ),
+    )
+  ).flat()
 
-  await Promise.all(inputUploadBundle.value.map(async (file) => {
-    const formData = new FormData()
-    formData.append('ddfbundle', file)
+  const errors = results.filter(result => result.isErr())
+  const successes = results.filter(result => result.isOk())
 
-    const result = await client?.uploadDDFBundle(formData)
+  if (errors.length > 0)
+    toast.error(`Failed to ${errors.length} DDF ${errors.length > 1 ? 'bundles' : 'bundle'}`)
 
-    console.log('result', result)
-  }))
+  if (successes.length > 0)
+    toast.success(`Successfully uploaded ${successes.length} DDF ${successes.length > 1 ? 'bundles' : 'bundle'}`)
 
   gateway.send({ type: 'REFRESH_BUNDLES' })
 }
@@ -45,18 +44,21 @@ const isActive = ref(false)
 const bundleRef = ref<ReturnType<typeof Bundle> | undefined>()
 
 async function inspect(hash: string) {
-  const client = gateway.state?.context.gateway
-  if (!client)
-    console.error('No client found')
-
-  const bundle = await client?.getDDFBundle({ params: { hash } })
-
-  if (!bundle?.success)
-    return console.error('No bundle found')
-
-  bundleRef.value = await decode(bundle.success)
-  bundleRef.value.data.name = `${hash}.ddf`
-  isActive.value = true
+  const responses = await gateway.fetch('downloadDDFBundleDecoded', {
+    hash,
+  })
+  responses.forEach((response) => {
+    if (response.isOk()) {
+      bundleRef.value = response.value
+      bundleRef.value.data.name = `${hash}.ddf`
+      isActive.value = true
+    }
+    else {
+      bundleRef.value = undefined
+      isActive.value = false
+      toast.error('Failed to download bundle')
+    }
+  })
 }
 
 const bundles = computed(() => {
@@ -69,10 +71,21 @@ const bundles = computed(() => {
   }))
 })
 
+const devices = computed(() => {
+  return Array.from(gateway.state?.context.bundles.entries() || []).map(([hash, bundle]) => ({
+    hash,
+    uuid: bundle.uuid,
+    product: bundle.product,
+    last_modified: new Date(bundle.last_modified),
+    used_by: [],
+  }))
+})
+
 onMounted(() => {
   setTimeout(() => {
+    gateway.send({ type: 'REFRESH_DEVICES' })
     gateway.send({ type: 'REFRESH_BUNDLES' })
-  }, 200)
+  }, 500)
 })
 </script>
 
@@ -95,16 +108,39 @@ onMounted(() => {
   </v-card>
 
   <v-card class="ma-2">
-    <v-card-title>
-      Manage Bundles
+    <v-card-title class="d-flex">
+      Devices
+      <v-spacer />
       <v-btn
         class="ma-2"
-        :disabled="!gateway.state?.can({ type: 'REFRESH_BUNDLES' })"
-        @click="gateway.send({ type: 'REFRESH_BUNDLES' })"
+        color="secondary"
+        variant="outlined"
+        :disabled="!gateway.state?.can({ type: 'REFRESH_DEVICES' })"
+        @click="gateway.send({ type: 'REFRESH_DEVICES', manual: true })"
       >
         Refresh
       </v-btn>
+    </v-card-title>
+    <v-card-text>
+      WIP
+    </v-card-text>
+  </v-card>
+
+  <v-card v-if="app.settings?.developerMode" class="ma-2">
+    <v-card-title class="d-flex">
+      Installed DDF Bundles
       <v-spacer />
+      <v-btn
+        class="ma-2"
+        color="secondary"
+        variant="outlined"
+        :disabled="!gateway.state?.can({ type: 'REFRESH_BUNDLES' })"
+        @click="gateway.send({ type: 'REFRESH_BUNDLES', manual: true })"
+      >
+        Refresh
+      </v-btn>
+    </v-card-title>
+    <v-card-text>
       <v-text-field
         v-model="search"
         placeholder="Search"
@@ -114,8 +150,6 @@ onMounted(() => {
         hide-details
         @click:append-inner="search = ''"
       />
-    </v-card-title>
-    <v-card-text>
       <v-data-table
         :loading="isLoading"
         :search="search"

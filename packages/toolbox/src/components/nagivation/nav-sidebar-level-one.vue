@@ -12,7 +12,7 @@ const links = computed(() => {
   list.push({ icon: 'mdi-home', title: 'Home', to: '/' })
 
   if (store.state?.matches('online'))
-    list.push({ icon: 'mdi-view-list', title: 'Bundle store', to: '/store/search' })
+    list.push({ icon: 'mdi-storefront', title: 'DDF store', to: '/store/search' })
 
   list.push('divider')
 
@@ -32,7 +32,7 @@ const links = computed(() => {
   if (isDevelopper.value) {
     list.push('divider')
 
-    list.push({ icon: 'mdi-folder-zip', title: 'Bundler', to: '/dev-tools/bundler' })
+    list.push({ icon: 'mdi-folder-zip', title: 'DDF Bundler', to: '/dev-tools/bundler' })
 
     if (import.meta.env.VITE_DEBUG === 'true')
       list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/dev-tools/sandbox' })
