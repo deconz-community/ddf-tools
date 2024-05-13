@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/*
 import type { DDFDescriptor } from '@deconz-community/rest-client'
 import { toastError } from '~/lib/handleError'
 import { gatewayRequest } from '~/machines/gateway'
@@ -73,9 +74,12 @@ const avaliableBundles = computed(() => {
 
   return avaliableBundles
 })
+*/
 </script>
 
 <template>
+  Nothing to see here
+  <!--
   <v-card v-if="device.state && device.state.context.data" class="ma-2">
     <v-card-title>
       {{ device.state.context.data.name }}
@@ -128,7 +132,8 @@ const avaliableBundles = computed(() => {
           <pre>{{ bundle }}</pre>
         </v-card-text>
         <v-card-actions>
-          <!--
+          -->
+  <!--
             gatewayRequest('updateConfig', { name }, {
         onDone: (response) => {
           if (response.success) {
@@ -143,6 +148,7 @@ const avaliableBundles = computed(() => {
       })
 
           -->
+  <!--
           <v-btn
             @click="() => gateway.send(gatewayRequest('setDeviceDDFPolicy', {
               policy: 'pin',
@@ -169,6 +175,7 @@ const avaliableBundles = computed(() => {
       <v-progress-linear indeterminate />
     </v-card-text>
   </v-card>
+-->
 </template>
 
 <route lang="json">

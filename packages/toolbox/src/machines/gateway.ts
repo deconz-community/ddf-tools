@@ -1,6 +1,5 @@
-import { publicEncrypt } from 'node:crypto'
 import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
-import type { ActorRef, ActorRefFrom, AnyEventObject } from 'xstate'
+import type { ActorRef, AnyEventObject } from 'xstate'
 
 import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
@@ -15,8 +14,9 @@ export interface GatewayContext {
   credentials: GatewayCredentials
   gateway?: GatewayClient
   config?: ExtractResponseSchemaForAlias<'getConfig'>
-  devices: Map<string, ActorRefFrom<typeof deviceMachine>>
-  devices_names: Record<string, string>
+  devices: Map<string, ExtractResponseSchemaForAlias<'getDevice'>>
+  // devices: Map<string, ActorRefFrom<typeof deviceMachine>>
+  // devices_names: Record<string, string>
   bundles: Map<string, BundleDescriptor>
 }
 
@@ -30,11 +30,12 @@ export type GatewayEvent = {
 } | {
   type: 'UPDATE_CREDENTIALS'
   data: GatewayCredentials
-} | {
+}
+/* | {
   type: 'UPDATE_DEVICE_NAME'
   deviceID: string
   name: string
-}
+} */
 
 export type WebsocketEvent = {
   type: 'WEBSOCKET_CONNECT'
@@ -162,6 +163,7 @@ export const gatewayMachine = setup({
             }
           }
 
+          /*
           if ('uniqueid' in message.data) {
             const { uniqueid } = message.data
 
@@ -174,6 +176,7 @@ export const gatewayMachine = setup({
               device.send({ type: 'WEBSOCKET_EVENT', data: message.data })
             })
           }
+          */
         })
       })
 
@@ -238,7 +241,7 @@ export const gatewayMachine = setup({
     credentials: input.credentials,
     gateway: undefined,
     devices: new Map(),
-    devices_names: {},
+    // devices_names: {},
     config: undefined,
     bundles: new Map(),
   }),
@@ -324,6 +327,7 @@ export const gatewayMachine = setup({
             })
           }),
         },
+        /*
         UPDATE_DEVICE_NAME: {
           actions: assign({
             devices_names: ({ context, event }) => produce(context.devices_names, (draft) => {
@@ -332,6 +336,7 @@ export const gatewayMachine = setup({
             }),
           }),
         },
+        */
       },
 
       states: {
@@ -395,12 +400,14 @@ export const gatewayMachine = setup({
             },
           },
 
-          exit: enqueueActions(({ enqueue, context }) => {
+          exit: enqueueActions(({ enqueue /* , context */ }) => {
+            /*
             const { devices } = context
             devices.forEach(device => enqueue.stopChild(device))
+            */
             enqueue.assign({
               devices: new Map(),
-              devices_names: {},
+              // devices_names: {},
             })
           }),
 
@@ -472,16 +479,17 @@ export const gatewayMachine = setup({
                     const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))
                     const removedUUIDs = oldList.filter(uuid => !newList.includes(uuid))
 
-                    removedUUIDs.forEach((uuid) => {
-                      enqueue.stopChild(devices.get(uuid)!)
+                    removedUUIDs.forEach((/* uuid */) => {
+                      // enqueue.stopChild(devices.get(uuid)!)
                     })
 
                     enqueue.assign({
-                      devices: ({ context, spawn }) => produce(context.devices, (draft) => {
+                      devices: ({ context /* , spawn */ }) => produce(context.devices, (draft) => {
                         removedUUIDs.forEach((uuid) => {
                           draft.delete(uuid)
                         })
-                        addedUUIDs.forEach((uuid) => {
+                        addedUUIDs.forEach((/* uuid */) => {
+                          /*
                           draft.set(uuid, spawn('deviceMachine', {
                             id: 'device',
                             systemId: `${context.credentials.id}-${uuid}`,
@@ -491,8 +499,10 @@ export const gatewayMachine = setup({
                               gatewayClient: context.gateway!,
                             },
                           }))
+                          */
                         })
                       }),
+                      /*
                       devices_names: ({ context }) => produce(context.devices_names, (draft) => {
                         removedUUIDs.forEach((uuid) => {
                           delete draft[uuid]
@@ -501,6 +511,7 @@ export const gatewayMachine = setup({
                           draft[uuid] = `Unknown (${uuid})`
                         })
                       }),
+                      */
                     })
                   }),
 
@@ -509,9 +520,11 @@ export const gatewayMachine = setup({
             },
           },
 
-          exit: enqueueActions(({ enqueue, context }) => {
+          exit: enqueueActions(({ enqueue /* , context */ }) => {
+            /*
             const { devices } = context
             devices.forEach(device => enqueue.stopChild(device))
+            */
             enqueue.assign({ devices: new Map() })
           }),
 
@@ -576,9 +589,11 @@ export const gatewayMachine = setup({
         },
       },
 
-      exit: enqueueActions(({ enqueue, context }) => {
+      exit: enqueueActions(({ enqueue /* , context */ }) => {
+        /*
         const { devices } = context
         devices.forEach(device => enqueue.stopChild(device))
+        */
         enqueue.assign({ devices: new Map() })
       }),
 
