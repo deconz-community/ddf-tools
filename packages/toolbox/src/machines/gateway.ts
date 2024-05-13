@@ -238,11 +238,30 @@ export const gatewayMachine = setup({
     }),
     // #endregion
 
-    doRequest: fromPromise<RequestResultForAlias<EndpointAlias>, { gateway: GatewayClient, request: DoRequestParams<EndpointAlias> }>(async ({ input }) => {
+    doRequest: fromPromise<{
+      response: RequestResultForAlias<EndpointAlias>
+      previousEvent?: AnyGatewayEvent
+    }, {
+      gateway: GatewayClient
+      request: DoRequestParams<EndpointAlias>
+      previousEvent?: AnyGatewayEvent
+    }>(async ({ input }) => {
       const { gateway, request } = input
-      const result = await gateway.request(request.alias, request.params)
-      request.options?.onDone?.(result)
-      return result
+      const response = await gateway.request(request.alias, request.params)
+      request.options?.onDone?.(response)
+      return {
+        response,
+        previousEvent: input.previousEvent,
+      }
+    }),
+
+  },
+
+  actions: {
+    cleanupGatewayData: assign({
+      devices: new Map(),
+      config: undefined,
+      bundles: new Map(),
     }),
   },
 
@@ -321,8 +340,9 @@ export const gatewayMachine = setup({
     },
 
     online: {
-
       type: 'parallel',
+      entry: ['cleanupGatewayData'],
+      exit: ['cleanupGatewayData'],
 
       on: {
         DISCONNECT: 'offline.disabled',
@@ -353,7 +373,7 @@ export const gatewayMachine = setup({
       },
 
       states: {
-
+        // #region config state
         config: {
           initial: 'init',
           states: {
@@ -384,19 +404,19 @@ export const gatewayMachine = setup({
                 onDone: {
                   target: 'idle',
                   actions: enqueueActions(({ enqueue, event, context }) => {
-                    const output = event.output as RequestResultForAlias<'getConfig'>
-
-                    output.forEach((result) => {
-                      // event.output.forEach((result) => {
-                      if (!result.isOk())
-                        return console.warn('Something went wrong when refreshing config', result.error)
+                    const response = event.output.response as RequestResultForAlias<'getConfig'>
+                    response.forEach((result) => {
+                      if (!result.isOk()) {
+                        console.error(result.error)
+                        return toast.warning('Something went wrong when refreshing config')
+                      }
 
                       const config = result.value
 
-                      enqueue.assign({
-                        config,
-                      })
+                      // Save new config
+                      enqueue.assign({ config })
 
+                      // Update the name of the gateway if it changed
                       if (config.name !== context.credentials.name) {
                         enqueue.raise({
                           type: 'UPDATE_CREDENTIALS',
@@ -412,20 +432,10 @@ export const gatewayMachine = setup({
               },
             },
           },
-
-          exit: enqueueActions(({ enqueue /* , context */ }) => {
-            /*
-            const { devices } = context
-            devices.forEach(device => enqueue.stopChild(device))
-            */
-            enqueue.assign({
-              devices: new Map(),
-              // devices_names: {},
-            })
-          }),
-
         },
+        // #endregion
 
+        // #region devices state
         devices: {
           initial: 'init',
 
@@ -447,12 +457,13 @@ export const gatewayMachine = setup({
             pooling: {
               invoke: {
                 src: 'doRequest',
-                input: ({ context, event }) => ({
+                input: ({ context /* , event */ }) => ({
                   gateway: context.gateway!,
                   request: {
                     alias: 'getDevices',
                     params: {},
                     options: {
+                      /*
                       onDone: (result) => {
                         if (event.type === 'REFRESH_DEVICES' && event.manual) {
                           result.forEach((result) => {
@@ -469,13 +480,14 @@ export const gatewayMachine = setup({
                           })
                         }
                       },
+                      */
                     },
                   },
                 }),
                 onDone: {
                   target: 'idle',
                   actions: enqueueActions(({ enqueue, event, context }) => {
-                    const output = event.output as RequestResultForAlias<'getDevices'>
+                    const output = event.output.response as RequestResultForAlias<'getDevices'>
                     const { devices } = context
 
                     const newList: string[] = []
@@ -489,45 +501,14 @@ export const gatewayMachine = setup({
 
                     const oldList = Array.from(devices.keys())
 
-                    const addedUUIDs = newList.filter(uuid => !oldList.includes(uuid))
-                    const removedUUIDs = oldList.filter(uuid => !newList.includes(uuid))
-
-                    removedUUIDs.forEach((/* uuid */) => {
-                      // enqueue.stopChild(devices.get(uuid)!)
+                    newList.filter(uuid => !oldList.includes(uuid)).forEach((uuid) => {
+                      enqueue.raise({ type: 'ADD_DEVICE', deviceID: uuid })
                     })
 
-                    enqueue.assign({
-                      devices: ({ context /* , spawn */ }) => produce(context.devices, (draft) => {
-                        removedUUIDs.forEach((uuid) => {
-                          draft.delete(uuid)
-                        })
-                        addedUUIDs.forEach((/* uuid */) => {
-                          /*
-                          draft.set(uuid, spawn('deviceMachine', {
-                            id: 'device',
-                            systemId: `${context.credentials.id}-${uuid}`,
-                            input: {
-                              gatewayID: context.credentials.id,
-                              deviceID: uuid,
-                              gatewayClient: context.gateway!,
-                            },
-                          }))
-                          */
-                        })
-                      }),
-                      /*
-                      devices_names: ({ context }) => produce(context.devices_names, (draft) => {
-                        removedUUIDs.forEach((uuid) => {
-                          delete draft[uuid]
-                        })
-                        addedUUIDs.forEach((uuid) => {
-                          draft[uuid] = `Unknown (${uuid})`
-                        })
-                      }),
-                      */
+                    oldList.filter(uuid => !newList.includes(uuid)).forEach((uuid) => {
+                      enqueue.raise({ type: 'REMOVE_DEVICE', deviceID: uuid })
                     })
                   }),
-
                 },
               },
             },
@@ -542,6 +523,9 @@ export const gatewayMachine = setup({
           }),
 
         },
+        // #endregion
+
+        // #region websocket state
         websocket: {
 
           initial: 'disabled',
@@ -572,7 +556,9 @@ export const gatewayMachine = setup({
             },
           },
         },
+        // #endregion
 
+        // #region bundles state
         bundles: {
           initial: 'idle',
           states: {
@@ -600,15 +586,8 @@ export const gatewayMachine = setup({
             },
           },
         },
+        // #endregion
       },
-
-      exit: enqueueActions(({ enqueue /* , context */ }) => {
-        /*
-        const { devices } = context
-        devices.forEach(device => enqueue.stopChild(device))
-        */
-        enqueue.assign({ devices: new Map() })
-      }),
 
     },
 
