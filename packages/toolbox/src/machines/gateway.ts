@@ -6,7 +6,7 @@ import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import { produce } from 'immer'
 import type { GatewayCredentials } from './app'
-import { deviceMachine } from './device'
+// import { deviceMachine } from './device'
 
 export type BundleDescriptor = ExtractResponseSchemaForAlias<'getDDFBundleDescriptors'>['descriptors'][string]
 
@@ -47,8 +47,15 @@ export type WebsocketEvent = {
   data: any
 }
 
-export interface RefreshEvent {
+export type RefreshEvent = ({
   type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
+} | {
+  type: 'ADD_DEVICE'
+  deviceID: string
+} | {
+  type: 'REMOVE_DEVICE'
+  deviceID: string
+}) & {
   manual?: boolean
 }
 
@@ -89,7 +96,8 @@ export const gatewayMachine = setup({
   },
 
   actors: {
-    deviceMachine,
+    // deviceMachine,
+
     connectToGateway: fromPromise<FindGatewayResult, {
       URIs: string[]
       apiKey: string
@@ -138,6 +146,7 @@ export const gatewayMachine = setup({
           switch (message.data.e) {
             case 'added':
             {
+              // TODO: Remplace with the ADD_DEVICE event
               sendBack({ type: 'REFRESH_DEVICES' })
 
               let description: string | undefined
@@ -157,6 +166,7 @@ export const gatewayMachine = setup({
               break
             }
             case 'deleted':{
+              // TODO: Remplace with the REMOVE_DEVICE event
               sendBack({ type: 'REFRESH_DEVICES' })
 
               break
@@ -184,6 +194,8 @@ export const gatewayMachine = setup({
     }),
 
     // #endregion
+
+    // #region fetchBundles
 
     fetchBundles: fromPromise<GatewayContext['bundles'], {
       gateway: GatewayClient
@@ -224,6 +236,7 @@ export const gatewayMachine = setup({
 
       return newList
     }),
+    // #endregion
 
     doRequest: fromPromise<RequestResultForAlias<EndpointAlias>, { gateway: GatewayClient, request: DoRequestParams<EndpointAlias> }>(async ({ input }) => {
       const { gateway, request } = input
