@@ -58,16 +58,22 @@ async function getResult() {
   <v-card v-if="gateway.config" class="ma-2">
     <template #title>
       {{ gateway.config.name }}
+      <btn-gateway-edit-name density="comfortable" :gateway="props.gateway" />
+
+      <!--
       <v-btn icon="mdi-refresh" density="comfortable" @click="gateway.send({ type: 'REFRESH_CONFIG' })" />
+      -->
     </template>
     <template #subtitle>
       {{ gateway.config.bridgeid }}
     </template>
     <template #text>
+      <!--
       <v-btn density="comfortable" text="Add sensor" @click="openGateway()" />
       <v-btn density="comfortable" text="Update find result" @click="getResult()" />
       <pre>{{ { permitJoin, findResult } }}</pre>
       <pre>{{ gateway.config }}</pre>
+      -->
     </template>
   </v-card>
 </template>
