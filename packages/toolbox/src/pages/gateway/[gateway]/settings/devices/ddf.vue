@@ -60,7 +60,7 @@ const devices = computed(() => {
     productid: device.productid,
     lastseen: device.lastseen,
     ddf_policy: device.ddf_policy,
-    ddf_hash: device.ddf_hash,
+    ddf_hash: device.ddf_hash ?? '',
   }))
 })
 

@@ -3,7 +3,7 @@ import type { ExtractResponseSchemaForAlias } from '@deconz-community/rest-clien
 
 const props = defineProps<{
   ddfPolicy: ExtractResponseSchemaForAlias<'getDevice'>['ddf_policy']
-  ddfHash?: string
+  ddfHash: string
   gateway: string
   deviceId: string
   deviceName: string
@@ -80,12 +80,13 @@ async function save() {
     deviceUniqueID: props.deviceId,
     body: {
       policy: policy.value,
-      hash: hash.value,
+      hash: hash.value.length > 0 ? hash.value : undefined,
     },
   })
 
   results.forEach((result) => {
     if (result.isErr()) {
+      console.error(result.error)
       toast.error('Failed to set DDF policy')
     }
     else {
