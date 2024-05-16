@@ -31,7 +31,7 @@ export function useGateway(gatewayId: MaybeRef<string | undefined>) {
     state: gatewayMachine.select(state => state),
     credentials: gatewayMachine.select(state => state.context.credentials),
     config: gatewayMachine.select(state => state.context.config),
-    devices_names: gatewayMachine.select(state => state.context.devices_names),
+    devices: gatewayMachine.select(state => state.context.devices),
     bundles: gatewayMachine.select(state => state.context.bundles),
   })
 }

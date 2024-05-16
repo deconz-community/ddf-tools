@@ -41,10 +41,10 @@ const apiKeys = computed(() => {
 })
 
 const devicesUUID = computed(() => {
-  return Object.entries(gateway.devices_names)
-    .map(([uuid, name]) => ({
+  return Array.from(gateway.devices.entries())
+    .map(([uuid, device]) => ({
       key: uuid,
-      name,
+      name: device.name,
       props: {
         subtitle: uuid,
       },

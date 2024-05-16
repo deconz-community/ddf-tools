@@ -49,12 +49,6 @@ export type WebsocketEvent = {
 
 export type RefreshEvent = ({
   type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
-} | {
-  type: 'ADD_DEVICE'
-  deviceID: string
-} | {
-  type: 'REMOVE_DEVICE'
-  deviceID: string
 }) & {
   manual?: boolean
 }
@@ -196,7 +190,6 @@ export const gatewayMachine = setup({
     // #endregion
 
     // #region fetchBundles
-
     fetchBundles: fromPromise<GatewayContext['bundles'], {
       gateway: GatewayClient
       manual?: boolean
@@ -238,6 +231,43 @@ export const gatewayMachine = setup({
     }),
     // #endregion
 
+    // #region fetchDevices
+    fetchDevices: fromPromise<GatewayContext['devices'], {
+      gateway: GatewayClient
+      manual?: boolean
+    }>(async ({ input }) => {
+      const { gateway } = input
+      const devices = new Map<string, ExtractResponseSchemaForAlias<'getDevice'>>()
+
+      const devicesResults = await gateway.request('getDevices', {})
+
+      for (const result of devicesResults) {
+        if (result.isErr())
+          throw result.error
+
+        for (const deviceUniqueID of result.value) {
+          const deviceData = await gateway.request('getDevice', { deviceUniqueID })
+
+          for (const deviceResult of deviceData) {
+            if (deviceResult.isErr())
+              continue
+
+            devices.set(deviceUniqueID, deviceResult.value)
+          }
+        }
+      }
+
+      if (input.manual) {
+        toast.info('Device list updated', {
+          description: `${devices.size} devices found`,
+        })
+      }
+
+      return devices
+    }),
+    // #endregion
+
+    // #region doRequest
     doRequest: fromPromise<{
       response: RequestResultForAlias<EndpointAlias>
       previousEvent?: AnyGatewayEvent
@@ -254,6 +284,7 @@ export const gatewayMachine = setup({
         previousEvent: input.previousEvent,
       }
     }),
+    // #endregion
 
   },
 
@@ -273,7 +304,6 @@ export const gatewayMachine = setup({
     credentials: input.credentials,
     gateway: undefined,
     devices: new Map(),
-    // devices_names: {},
     config: undefined,
     bundles: new Map(),
   }),
@@ -456,58 +486,22 @@ export const gatewayMachine = setup({
 
             pooling: {
               invoke: {
-                src: 'doRequest',
-                input: ({ context /* , event */ }) => ({
+                src: 'fetchDevices',
+                input: ({ context, event }) => ({
                   gateway: context.gateway!,
-                  request: {
-                    alias: 'getDevices',
-                    params: {},
-                    options: {
-                      /*
-                      onDone: (result) => {
-                        if (event.type === 'REFRESH_DEVICES' && event.manual) {
-                          result.forEach((result) => {
-                            if (result.isOk()) {
-                              toast.info('Device list updated', {
-                                description: `${result.value.length} devices found`,
-                              })
-                            }
-                            else {
-                              toast.error('Refresh failed', {
-                                description: 'Something went wrong when refreshing devices',
-                              })
-                            }
-                          })
-                        }
-                      },
-                      */
-                    },
-                  },
+                  manual: event.type === 'REFRESH_DEVICES' ? event.manual : false,
                 }),
                 onDone: {
                   target: 'idle',
-                  actions: enqueueActions(({ enqueue, event, context }) => {
-                    const output = event.output.response as RequestResultForAlias<'getDevices'>
-                    const { devices } = context
-
-                    const newList: string[] = []
-
-                    output.forEach((result) => {
-                      if (!result.isOk())
-                        return console.warn('Something went wrong when refreshing devices', result.error)
-
-                      newList.push(...result.value)
-                    })
-
-                    const oldList = Array.from(devices.keys())
-
-                    newList.filter(uuid => !oldList.includes(uuid)).forEach((uuid) => {
-                      enqueue.raise({ type: 'ADD_DEVICE', deviceID: uuid })
-                    })
-
-                    oldList.filter(uuid => !newList.includes(uuid)).forEach((uuid) => {
-                      enqueue.raise({ type: 'REMOVE_DEVICE', deviceID: uuid })
-                    })
+                  actions: enqueueActions(({ enqueue, event }) => {
+                    enqueue.assign({ devices: event.output })
+                  }),
+                },
+                onError: {
+                  target: 'idle',
+                  actions: enqueueActions(({ event }) => {
+                    toast.error('Failed to fetch devices')
+                    console.error(event)
                   }),
                 },
               },

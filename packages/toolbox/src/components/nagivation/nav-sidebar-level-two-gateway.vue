@@ -97,12 +97,15 @@ const sortedDevices = computed(() => {
       title="API Keys"
       :to="`${baseURL}/settings/gateway/apikey`"
     />
+    <v-divider />
+    <v-list-subheader>Devices</v-list-subheader>
     <v-list-item
       prepend-icon="mdi-window-shutter-cog"
-      title="Devices DDF"
-      :to="`${baseURL}/settings/gateway/ddf`"
+      title="DDF"
+      :to="`${baseURL}/settings/devices/ddf`"
     />
     <template v-if="isDevelopper">
+      <v-divider />
       <v-list-subheader>
         Dev Tools
       </v-list-subheader>

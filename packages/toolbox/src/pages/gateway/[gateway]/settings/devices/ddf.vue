@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Bundle } from '@deconz-community/ddf-bundler'
-
 const props = defineProps<{
   gateway: string
 }>()
@@ -8,7 +6,9 @@ const props = defineProps<{
 const app = useApp()
 const gateway = useGateway(toRef(props, 'gateway'))
 
-const search = ref('')
+const bundleSearch = ref('')
+const deviceSearch = ref('')
+
 const inputUploadBundle = ref<File[]>([])
 
 const isLoading = refDebounced(
@@ -38,31 +38,11 @@ async function upload() {
     toast.success(`Successfully uploaded ${successes.length} DDF ${successes.length > 1 ? 'bundles' : 'bundle'}`)
 
   gateway.send({ type: 'REFRESH_BUNDLES' })
-}
-
-const isActive = ref(false)
-const bundleRef = ref<ReturnType<typeof Bundle> | undefined>()
-
-async function inspect(hash: string) {
-  const responses = await gateway.fetch('downloadDDFBundleDecoded', {
-    hash,
-  })
-  responses.forEach((response) => {
-    if (response.isOk()) {
-      bundleRef.value = response.value
-      bundleRef.value.data.name = `${hash}.ddf`
-      isActive.value = true
-    }
-    else {
-      bundleRef.value = undefined
-      isActive.value = false
-      toast.error('Failed to download bundle')
-    }
-  })
+  gateway.send({ type: 'REFRESH_DEVICES' })
 }
 
 const bundles = computed(() => {
-  return Array.from(gateway.state?.context.bundles.entries() || []).map(([hash, bundle]) => ({
+  return Array.from(gateway.bundles.entries() || []).map(([hash, bundle]) => ({
     hash,
     uuid: bundle.uuid,
     product: bundle.product,
@@ -72,12 +52,15 @@ const bundles = computed(() => {
 })
 
 const devices = computed(() => {
-  return Array.from(gateway.state?.context.bundles.entries() || []).map(([hash, bundle]) => ({
-    hash,
-    uuid: bundle.uuid,
-    product: bundle.product,
-    last_modified: new Date(bundle.last_modified),
-    used_by: [],
+  return Array.from(gateway.devices.entries() || []).map(([uniqueId, device]) => ({
+    uniqueId,
+    name: device.name,
+    manufacturername: device.manufacturername,
+    modelid: device.modelid,
+    productid: device.productid,
+    lastseen: device.lastseen,
+    ddf_policy: device.ddf_policy,
+    ddf_hash: device.ddf_hash,
   }))
 })
 
@@ -109,7 +92,7 @@ onMounted(() => {
 
   <v-card class="ma-2">
     <v-card-title class="d-flex">
-      Devices
+      Devices DDF Bundles Policy
       <v-spacer />
       <v-btn
         class="ma-2"
@@ -122,7 +105,84 @@ onMounted(() => {
       </v-btn>
     </v-card-title>
     <v-card-text>
-      WIP
+      <v-text-field
+        v-model="deviceSearch"
+        placeholder="Search"
+        append-inner-icon="mdi-close"
+        label="Search"
+        single-line
+        hide-details
+        @click:append-inner="deviceSearch = ''"
+      />
+
+      <v-data-table
+        :loading="isLoading"
+        :search="deviceSearch"
+        :headers="[{
+          title: 'Name',
+          key: 'name',
+        }, {
+          title: 'Product',
+          key: 'productid',
+        }, {
+          title: 'DDF Policy',
+          key: 'ddf_policy',
+        }, {
+          title: 'DDF Used',
+          key: 'ddf_hash',
+        }, {
+          title: 'Actions',
+          key: 'actions',
+        }]"
+        :sort-by="[{
+          key: 'name',
+          order: 'asc',
+        }]"
+        :items="devices"
+        item-value="uniqueId"
+      >
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.ddf_policy="{ item }">
+          <chip-ddf-policy
+            :gateway="props.gateway"
+            :device-id="item.uniqueId"
+            :device-name="item.name"
+            :manufacturer-name="item.manufacturername"
+            :model-id="item.modelid"
+            :ddf-policy="item.ddf_policy"
+            :ddf-hash="item.ddf_hash"
+          />
+        </template>
+
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.ddf_hash="{ item }">
+          <chip-ddf-hash
+            v-if="item.ddf_hash"
+            :hash="item.ddf_hash"
+            :gateway="props.gateway"
+          />
+          <v-chip v-else class="ma-2" color="warning">
+            None
+          </v-chip>
+        </template>
+
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.actions="{ item }">
+          <v-tooltip text="Search for new DDF Bundle on the store">
+            <template #activator="{ props: localProps }">
+              <v-btn
+                v-bind="localProps" icon="mdi-magnify" size="small" :to="{
+                  path: '/store/search',
+                  query: {
+                    manufacturer: item.manufacturername,
+                    model: item.modelid,
+                  },
+                }"
+              />
+            </template>
+          </v-tooltip>
+        </template>
+      </v-data-table>
     </v-card-text>
   </v-card>
 
@@ -142,17 +202,17 @@ onMounted(() => {
     </v-card-title>
     <v-card-text>
       <v-text-field
-        v-model="search"
+        v-model="bundleSearch"
         placeholder="Search"
         append-inner-icon="mdi-close"
         label="Search"
         single-line
         hide-details
-        @click:append-inner="search = ''"
+        @click:append-inner="bundleSearch = ''"
       />
       <v-data-table
         :loading="isLoading"
-        :search="search"
+        :search="bundleSearch"
         :headers="[{
           title: 'Hash',
           key: 'hash',
@@ -162,9 +222,6 @@ onMounted(() => {
         }, {
           title: 'Last Modified',
           key: 'last_modified',
-        }, {
-          title: 'Actions',
-          key: 'actions',
         }]"
         :sort-by="[{
           key: 'last_modified',
@@ -175,9 +232,10 @@ onMounted(() => {
       >
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.hash="{ item }">
-          <v-chip class="ma-2" color="grey">
-            {{ item.hash.slice(0, 10) }}
-          </v-chip>
+          <chip-ddf-hash
+            :hash="item.hash"
+            :gateway="props.gateway"
+          />
         </template>
 
         <!-- eslint-disable-next-line vue/valid-v-slot -->
@@ -192,38 +250,9 @@ onMounted(() => {
             </template>
           </v-tooltip>
         </template>
-        <!-- eslint-disable-next-line vue/valid-v-slot -->
-        <template #item.actions="{ item }">
-          <v-tooltip text="Inspect">
-            <template #activator="{ props: localProps }">
-              <v-btn v-bind="localProps" icon="mdi-magnify" size="small" @click="inspect(item.hash)" />
-            </template>
-          </v-tooltip>
-        </template>
       </v-data-table>
     </v-card-text>
   </v-card>
-
-  <v-dialog v-model="isActive">
-    <template #default>
-      <v-card title="Inspect Bundle">
-        <v-card-text>
-          <bundle-editor
-            v-if="bundleRef" v-model="bundleRef" variant="outlined" class="ma-2"
-          />
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer />
-
-          <v-btn
-            text="Close Dialog"
-            @click="isActive = false"
-          />
-        </v-card-actions>
-      </v-card>
-    </template>
-  </v-dialog>
 </template>
 
 <route lang="json">

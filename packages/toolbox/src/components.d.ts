@@ -20,6 +20,8 @@ declare module 'vue' {
     BundleEditorValidation: typeof import('./components/bundle-editor/bundle-editor-validation.vue')['default']
     CardAuthChallenge: typeof import('./components/card/card-auth-challenge.vue')['default']
     CardGateway: typeof import('./components/card/card-gateway.vue')['default']
+    ChipDdfHash: typeof import('./components/chip/chip-ddf-hash.vue')['default']
+    ChipDdfPolicy: typeof import('./components/chip/chip-ddf-policy.vue')['default']
     ChipGatewayState: typeof import('./components/chip/chip-gateway-state.vue')['default']
     ChipSignatures: typeof import('./components/chip/chip-signatures.vue')['default']
     ChipUser: typeof import('./components/chip/chip-user.vue')['default']
