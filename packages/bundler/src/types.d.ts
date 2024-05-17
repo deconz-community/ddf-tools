@@ -13,6 +13,7 @@ export interface ChunkDESC {
   last_modified: Date
   product: string
   links?: string[]
+  matchexpr?: string
   device_identifiers: [string, string][]
 }
 

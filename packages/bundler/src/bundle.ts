@@ -32,6 +32,7 @@ export function Bundle() {
         data.desc.last_modified = file.last_modified
     })
 
+    data.desc.matchexpr = ddfc.matchexpr
     data.desc.device_identifiers = []
 
     const keys = ['uuid', 'product', 'version_deconz'] as const

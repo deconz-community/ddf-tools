@@ -364,6 +364,7 @@ export default defineEndpoint({
               version_deconz: bundle.data.desc.version_deconz,
               device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
               source_last_modified: bundle.data.desc.last_modified,
+              matchexpr: bundle.data.desc.matchexpr,
               signatures: bundle.data.signatures.map((signature) => {
                 const key = bytesToHex(signature.key)
                 const type = key === settings.public_key_stable || key === settings.public_key_beta ? 'system' : 'user'

@@ -209,6 +209,7 @@ export namespace Collections {
     content_size: Types.Optional<Types.Integer>;
     file_count: Types.Optional<Types.Integer>;
     deprecation_message: Types.Optional<Types.String>;
+    matchexpr: Types.Optional<Types.String>;
   }
 
   /**

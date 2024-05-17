@@ -776,6 +776,45 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: bundles
+    field: matchexpr
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: null
+      display_options: null
+      field: matchexpr
+      group: null
+      hidden: false
+      interface: input-code
+      note: null
+      options:
+        language: javascript
+      readonly: false
+      required: false
+      sort: 17
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: matchexpr
+      table: bundles
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: bundles_device_identifiers
     field: id
     type: integer
