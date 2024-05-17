@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.25.0
+
+### Minor Changes
+
+- 0df88f3: Add matchexpr to DESC
+
 ## 0.24.0
 
 ### Minor Changes
