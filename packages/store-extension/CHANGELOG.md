@@ -1,5 +1,17 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.18.0
+
+### Minor Changes
+
+- 8bd08f9: Add cache headers
+- 0df88f3: Add matchexpr to DESC
+
+### Patch Changes
+
+- Updated dependencies [0df88f3]
+  - @deconz-community/ddf-bundler@0.25.0
+
 ## 0.17.1
 
 ### Patch Changes
