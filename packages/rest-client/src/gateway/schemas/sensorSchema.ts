@@ -14,8 +14,8 @@ export const sensorSchema = z.object({
   config: z.record(z.string(), z.unknown()).default({})
     .describe('The config of the sensor. Refer to Change sensor config for further details.'),
   state: z.object({
-    buttonevent: z.number().optional()
-      .describe('The button event of the sensor. Only available for dresden elektronik Scene Switch and dresden elektronik Wireless Light Switch.'),
+    buttonevent: z.number().or(z.null()).optional()
+      .describe('The button event of the sensor.'),
     lastupdated: deconzDate.optional(),
   }).passthrough().default({})
     .describe('The state of the sensor. Refer to Change sensor state for further details.'),
@@ -31,7 +31,7 @@ export const sensorSchema = z.object({
     .describe('Timestamp representing the last time a message from the sensor was received. UTC with resolution of minutes.'),
   lastseen: deconzDate.optional()
     .describe('Timestamp representing the last time a message from the sensor was received. UTC with resolution of minutes.'),
-  swversion: z.string().optional()
+  swversion: z.string().or(z.null())
     .describe('The software version of the sensor.'),
 }).describe('Sensor of the gateway.')
 

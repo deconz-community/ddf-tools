@@ -175,7 +175,7 @@ const pageCount = computed(() => {
         </template>
       </v-data-iterator>
     </template>
-    <v-alert v-if="bundleList.state.value.totalCount === 0 && stableOnly" type="info" title="Info" class="ma-2">
+    <v-alert v-if="bundleList.state.value?.totalCount === 0 && stableOnly" type="info" title="Info" class="ma-2">
       No result ? try to disable the stable only option
     </v-alert>
   </v-card>
