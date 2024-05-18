@@ -82,8 +82,8 @@ const filesTypes = [
   { type: 'SCJS', desc: 'Javascript file for read, write or parse', format: 'javascript' },
   { type: 'JSON', desc: 'Generic files for items / constants', format: 'json' },
   { type: 'CHLG', desc: 'Changelog', format: 'markdown' },
-  { type: 'NOTI', desc: 'Informational note', format: 'markdown' },
-  { type: 'NOTW', desc: 'Warning note', format: 'markdown' },
+  { type: 'INFO', desc: 'Informational note', format: 'markdown' },
+  { type: 'WARN', desc: 'Warning note', format: 'markdown' },
   { type: 'KWIS', desc: 'Know issue', format: 'markdown' },
 ] as const
 

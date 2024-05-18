@@ -133,8 +133,8 @@ FileType is a tag to know what kind of file the chunk contain.
 | SCJS | Javascript file for read, write or parse | Text file | javascript |
 | JSON | Generic files for items / constants      | Text file | json       |
 | CHLG | Changelog                                | Text file | markdown   |
-| NOTI | Informational note                       | Text file | markdown   |
-| NOTW | Warning note                             | Text file | markdown   |
+| INFO | Informational note                       | Text file | markdown   |
+| WARN | Warning note                             | Text file | markdown   |
 | KWIS | Know issue                               | Text file | markdown   |
 <!--
 | BTNM | Button maps* WIP NOT USED                | Text file | json       |

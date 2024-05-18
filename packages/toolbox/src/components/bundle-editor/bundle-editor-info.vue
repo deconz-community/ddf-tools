@@ -22,8 +22,8 @@ const supportedDevices = computed(() => {
 
 const markdownFilesTypes = {
   CHLG: 'Changelog',
-  NOTI: 'Notice',
-  NOTW: 'Warning',
+  INFO: 'Information',
+  WARN: 'Warning',
   KWIS: 'Known issue',
 }
 

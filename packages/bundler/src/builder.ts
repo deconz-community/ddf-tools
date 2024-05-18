@@ -95,8 +95,8 @@ export async function buildFromFiles(
 
   const fileMap = {
     CHLG: 'md:changelog',
-    NOTI: 'md:notes_info',
-    NOTW: 'md:notes_warning',
+    INFO: 'md:info',
+    WARN: 'md:warning',
     KWIS: 'md:known_issues',
   } as const
 

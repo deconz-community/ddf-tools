@@ -356,7 +356,7 @@ export default defineEndpoint({
             }))
 
             const info = bundle.data.files
-              .filter(file => file.type === 'NOTI')
+              .filter(file => file.type === 'INFO')
               .map(file => file.path).join('\n')
 
             const newBundle = await bundleService.createOne({

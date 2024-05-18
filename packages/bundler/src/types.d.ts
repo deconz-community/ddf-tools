@@ -21,7 +21,7 @@ export type BundleFile = TextFile // | BinaryFile
 export type TextFile = JSONFile | ScriptFile | MarkdownFile
 
 interface FileMeta {
-  type: 'SCJS' | 'JSON' | 'DDFC' /* | 'BTNM' */ | 'CHLG' | 'NOTI' | 'NOTW' | 'KWIS' /* | 'UBIN' | 'IMGP' */
+  type: 'SCJS' | 'JSON' | 'DDFC' /* | 'BTNM' */ | 'CHLG' | 'INFO' | 'WARN' | 'KWIS' /* | 'UBIN' | 'IMGP' */
   last_modified?: Date
   path: string
 }
@@ -37,7 +37,7 @@ export interface ScriptFile extends FileMeta {
 }
 
 export interface MarkdownFile extends FileMeta {
-  type: 'CHLG' | 'NOTI' | 'NOTW' | 'KWIS'
+  type: 'CHLG' | 'INFO' | 'WARN' | 'KWIS'
   data: string
 }
 
