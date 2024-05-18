@@ -18,10 +18,10 @@ const router = createRouter({
 
 app.use(router)
 
+app.use(createAppMachine())
+
 // install all modules under `modules/`
 Object.values(import.meta.glob<{ install: UserModule }>('./modules/*.ts', { eager: true }))
   .forEach(i => i.install?.({ app, router }))
-
-app.use(createAppMachine())
 
 app.mount('#app')
