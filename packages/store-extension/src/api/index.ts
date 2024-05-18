@@ -145,6 +145,7 @@ export default defineEndpoint({
           'source_last_modified',
           'device_identifiers.device_identifiers_id.manufacturer',
           'device_identifiers.device_identifiers_id.model',
+          'info',
           'signatures.key',
           'signatures.type',
         ],
@@ -354,6 +355,10 @@ export default defineEndpoint({
               })
             }))
 
+            const info = bundle.data.files
+              .filter(file => file.type === 'NOTI')
+              .map(file => file.path).join('\n')
+
             const newBundle = await bundleService.createOne({
               id: hash,
               ddf_uuid: bundle.data.desc.uuid,
@@ -364,7 +369,7 @@ export default defineEndpoint({
               version_deconz: bundle.data.desc.version_deconz,
               device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
               source_last_modified: bundle.data.desc.last_modified,
-              matchexpr: bundle.data.desc.matchexpr,
+              info: info.length > 0 ? info : undefined,
               signatures: bundle.data.signatures.map((signature) => {
                 const key = bytesToHex(signature.key)
                 const type = key === settings.public_key_stable || key === settings.public_key_beta ? 'system' : 'user'

@@ -94,14 +94,14 @@ export async function buildFromFiles(
   }[] = []
 
   const fileMap = {
-    'md:changelog': 'CHLG',
-    'md:notes_info': 'NOTI',
-    'md:notes_warning': 'NOTW',
-    'md:known_issues': 'KWIS',
+    CHLG: 'md:changelog',
+    NOTI: 'md:notes_info',
+    NOTW: 'md:notes_warning',
+    KWIS: 'md:known_issues',
   } as const
 
   // Download markdown files
-  Object.entries(fileMap).forEach(([key, type]) => {
+  Object.entries(fileMap).forEach(([type, key]) => {
     if (ddfc[key] !== undefined) {
       for (const filePath of asArray<unknown>(ddfc[key])) {
         if (typeof filePath !== 'string')
@@ -110,7 +110,7 @@ export async function buildFromFiles(
         filesToAdd.push({
           url: new URL(`${ddfPath}/../${filePath}`).href,
           path: filePath,
-          type,
+          type: type as keyof typeof fileMap,
         })
       }
     }

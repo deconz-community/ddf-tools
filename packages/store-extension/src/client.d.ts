@@ -197,6 +197,7 @@ export namespace Collections {
     ddf_uuid: Types.String | Collections.DdfUuids;
     product: Types.String;
     version_deconz: Types.String;
+    info: Types.Optional<Types.String>;
     user_created: Types.Optional<Types.String | Collections.DirectusUser>;
     date_created: Types.Optional<Types.DateTime>;
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
@@ -209,7 +210,6 @@ export namespace Collections {
     content_size: Types.Optional<Types.Integer>;
     file_count: Types.Optional<Types.Integer>;
     deprecation_message: Types.Optional<Types.String>;
-    matchexpr: Types.Optional<Types.String>;
   }
 
   /**
