@@ -18,23 +18,6 @@ type RequestFunctionType = <
   params: Params
 ) => Promise<RequestResultForAlias<Alias>>
 
-/*
-type IsEmptyObject<T> = keyof T extends never ? true : false
-
-type RequestFunctionType = <
-  Alias extends EndpointAlias,
-  Params extends ExtractParamsForAlias<Alias>,
->(
-  alias: Alias,
-  ...params: IsEmptyObject<Params> extends true ? [] : [Params]
-) => Promise<
-  Result<
-    ExtractFormatsSchemaForAlias<Alias, true>,
-    ErrorMessages | ExtractFormatsSchemaForAlias<Alias, false>
-  >
->
-*/
-
 export interface ClientParams {
   address?: MaybeLazy<string | undefined>
   apiKey?: MaybeLazy<string | undefined>
@@ -62,6 +45,9 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       return [Err(clientError('NO_URL'))]
 
     let requestData: any
+    const headers: Record<string, string> = {
+      Accept: 'application/vnd.ddel.v1.1', // Version recommended by Manup
+    }
 
     // #region Handle parameters
     if (endpoint.parameters) {
@@ -86,7 +72,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
                 if (!parsed.success)
                   return [Err(zodError('request', parsed.error))]
 
-                requestData = value
+                requestData = parsed.data
                 break
               }
 
@@ -97,7 +83,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
                   return [Err(zodError('request', parsed.error))]
 
                 const formData = new FormData()
-                const values = (Array.isArray(value) ? value : [value]) as File[]
+                const values = (Array.isArray(parsed.data) ? parsed.data : [parsed.data]) as File[]
                 values.forEach((file) => {
                   if (file)
                     formData.append('file', file)
@@ -112,6 +98,16 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             }
 
             break
+
+          case 'header':{
+            const parsed = await endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParseAsync(value)
+
+            if (!parsed.success)
+              return [Err(zodError('request', parsed.error))]
+
+            headers[definition.key] = parsed.data
+            break
+          }
 
           default:
             console.warn(`No parser for param of type ${definition.type}`)
@@ -130,9 +126,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       timeout,
       validateStatus: () => true,
       responseType: 'arraybuffer',
-      headers: {
-        Accept: 'application/vnd.ddel.v1.1', // Version recommended by Manup
-      },
+      headers,
     })
 
     const { deconzErrors, schema, removePrefix } = endpoint.response

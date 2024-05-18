@@ -275,6 +275,14 @@ export const endpoints = {
     method: 'post',
     path: '/api',
     parameters: {
+      gatewayPassword: makeParameter({
+        type: 'header',
+        key: 'Authorization',
+        description: 'Gateway password',
+        schema: z.string().optional()
+          .transform(data => data ? `Basic ${btoa(`delight:${data}`)}` : undefined),
+        sample: '',
+      }),
       body: makeParameter({
         description: 'Payload',
         type: 'body',

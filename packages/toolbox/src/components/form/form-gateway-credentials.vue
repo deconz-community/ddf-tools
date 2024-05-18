@@ -14,6 +14,8 @@ const emit = defineEmits<{
 const gateway = useGateway(props.gateway)
 
 const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE ?? '')
+const gatewayPassword = ref<string>(import.meta.env.VITE_GATEWAY_PASSWORD ?? '')
+const formPanel = ref('password')
 
 const { cloned: credentials, sync: resetCredentials } = useCloned(
   computed(() => gateway.credentials ?? {
@@ -28,7 +30,7 @@ const { cloned: credentials, sync: resetCredentials } = useCloned(
   { clone: structuredClone },
 )
 
-async function fetchKey() {
+async function fetchKey(method: 'link_button' | 'install_code' | 'password') {
   if (!credentials.value)
     throw new Error('No credentials')
 
@@ -41,30 +43,51 @@ async function fetchKey() {
 
   const gateway = result.unwrap().gateway
 
-  const body: ExtractParamsForAlias<'createAPIKey'>['body'] = {
-    devicetype: '@deconz-community/toolbox',
+  const params: ExtractParamsForAlias<'createAPIKey'> = {
+    body: {
+      devicetype: '@deconz-community/toolbox',
+
+    },
   }
 
-  if (installCode.value && installCode.value.length > 0) {
-    const challenge = (await gateway.request('createChallenge', {})).shift()
+  switch (method) {
+    case 'link_button':
 
-    if (
-      challenge === undefined
-      || challenge.isErr()
-      || challenge.value.challenge === undefined
-    ) {
-      toast.error('Failed to create challenge')
-      console.error(challenge)
-      return
+      break
+    case 'install_code':{
+      if (!installCode.value || installCode.value.length === 0)
+        return toast.error('No install code provided')
+
+      const challenge = (await gateway.request('createChallenge', {})).shift()
+
+      if (
+        challenge === undefined
+        || challenge.isErr()
+        || challenge.value.challenge === undefined
+      ) {
+        toast.error('Failed to create challenge')
+        console.error(challenge)
+        return
+      }
+
+      params.body['hmac-sha256'] = hmacSHA256(
+        challenge.value.challenge,
+        installCode.value.toLowerCase(),
+      ).toString()
+
+      break
     }
 
-    body['hmac-sha256'] = hmacSHA256(
-      challenge.value.challenge,
-      installCode.value.toLowerCase(),
-    ).toString()
+    case 'password':{
+      if (!gatewayPassword.value || gatewayPassword.value.length === 0)
+        return toast.error('No gateway password provided')
+      params.gatewayPassword = gatewayPassword.value
+      break
+    }
   }
 
-  const apiKey = (await gateway.request('createAPIKey', { body })).shift()
+  console.log(params)
+  const apiKey = (await gateway.request('createAPIKey', params)).shift()
 
   if (
     apiKey === undefined
@@ -204,53 +227,60 @@ const currentStep = ref(1)
               <v-card-title>
                 Editing API Key
               </v-card-title>
-              <v-card-subtitle>
+              <v-card-subtitle class="text-wrap">
                 Add manually an api Key or fetch it from the gateway using the
                 install code or by pressing the link button in phoscon.
               </v-card-subtitle>
               <v-card-text>
                 <v-text-field v-model="credentials.apiKey" label="API Key" />
-                <v-expansion-panels>
-                  <v-expansion-panel title="Fetch a key by pressing the link button">
+                <v-expansion-panels v-model="formPanel">
+                  <v-expansion-panel value="password" title="Fetch a key using gateway password">
+                    <v-expansion-panel-text>
+                      <div class="d-flex">
+                        <v-text-field
+                          v-model="gatewayPassword"
+                          label="Gateway password"
+                          type="password"
+                          class="mr-2"
+                          hint=""
+                        />
+                        <v-btn color="primary" class="mt-2" @click="fetchKey('password')">
+                          Fetch API key
+                        </v-btn>
+                      </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                  <v-expansion-panel value="link_button" title="Fetch a key by pressing the link button">
                     <v-expansion-panel-text>
                       <p>
                         Press the "Authenticate app button inside the advanced gateway settings in phoscon.
                         And then press the button below.
                       </p>
-                      <v-btn color="primary" class="mt-2" @click="fetchKey()">
+                      <v-btn color="primary" class="mt-2" @click="fetchKey('link_button')">
                         I pressed the authenticate app button
                       </v-btn>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
 
-                  <v-expansion-panel title="Fetch a key using the install code">
+                  <v-expansion-panel value="install_code" title="Fetch a key using the install code">
                     <v-expansion-panel-text>
+                      <p>
+                        The install code can be found on the conbee box or in the deconz GUI
+                        in the menu Plugins->REST API Plugin.
+                      </p>
                       <div class="d-flex">
                         <v-text-field
                           v-model="installCode"
                           label="Install code"
                           class="mr-2"
-                          hint="The install code can be found on the conbee box or in the deconz GUI in the menu Plugins->REST API Plugin"
                         />
-
-                        <v-btn color="primary" class="mt-2" @click="fetchKey()">
+                        <v-btn color="primary" class="mt-2" @click="fetchKey('install_code')">
                           Fetch API key
                         </v-btn>
                       </div>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
-
-                <!--
-                <v-expansion-panels class="mt-2">
-                  <v-expansion-panel title="Fetch a key using gateway password">
-                    <v-expansion-panel-text>
-                      TODO
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-card-text>
-              -->
               </v-card-text>
             </v-stepper-window-item>
             <!--
