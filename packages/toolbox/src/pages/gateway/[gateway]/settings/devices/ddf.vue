@@ -161,8 +161,8 @@ onMounted(() => {
             :hash="item.ddf_hash"
             :gateway="props.gateway"
           />
-          <v-chip v-else class="ma-2" color="warning">
-            None
+          <v-chip v-else class="ma-2" color="gray">
+            Raw JSON
           </v-chip>
         </template>
 

@@ -93,19 +93,28 @@ export async function buildFromFiles(
     patch?: (data: string) => string
   }[] = []
 
-  // Download markdown files
-  if (ddfc['md:known_issues'] !== undefined) {
-    for (const filePath of asArray<unknown>(ddfc['md:known_issues'])) {
-      if (typeof filePath !== 'string')
-        continue
+  const fileMap = {
+    'md:changelog': 'CHLG',
+    'md:notes_info': 'NOTI',
+    'md:notes_warning': 'NOTW',
+    'md:known_issues': 'KWIS',
+  } as const
 
-      filesToAdd.push({
-        url: new URL(`${ddfPath}/../${filePath}`).href,
-        path: filePath,
-        type: 'KWIS',
-      })
+  // Download markdown files
+  Object.entries(fileMap).forEach(([key, type]) => {
+    if (ddfc[key] !== undefined) {
+      for (const filePath of asArray<unknown>(ddfc[key])) {
+        if (typeof filePath !== 'string')
+          continue
+
+        filesToAdd.push({
+          url: new URL(`${ddfPath}/../${filePath}`).href,
+          path: filePath,
+          type,
+        })
+      }
     }
-  }
+  })
 
   // Download script files
   if (Array.isArray(ddfc.subdevices)) {

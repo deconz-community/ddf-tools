@@ -14,6 +14,9 @@ export function ddfSchema(generics: GenericsData) {
     'version_deconz': z.optional(z.string()),
     'doc:path': z.optional(z.string()),
     'doc:hdr': z.optional(z.string()),
+    'md:changelogs': z.optional(z.array(z.string())).describe('Changelogs for this device, markdown file.'),
+    'md:notes_info': z.optional(z.array(z.string())).describe('Notes info for this device, markdown file.'),
+    'md:notes_warning': z.optional(z.array(z.string())).describe('Notes warning for this device, markdown file.'),
     'md:known_issues': z.optional(z.array(z.string())).describe('Know issues for this device, markdown file.'),
     'manufacturername': z.union([
       z.enum(Object.keys(generics.manufacturers) as [string, ...string[]]),
