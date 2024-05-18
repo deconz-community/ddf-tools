@@ -5,7 +5,7 @@ export const configSchema = z.strictObject({
   // General
   'name': z.string().min(0).max(16).default('Phoscon-GW')
     .describe('Name of the gateway.'),
-  'devicename': z.enum(['ConBee', 'RaspBee', 'ConBee II', 'RaspBee II']).default('ConBee II')
+  'devicename': z.enum(['ConBee', 'RaspBee', 'ConBee II', 'ConBee III', 'RaspBee II']).or(z.string()).default('ConBee II')
     .describe('The product name of the gateway. Valid values are "ConBee", "RaspBee", "ConBee II" and "RaspBee II".'),
   'bridgeid': z.string()
     .describe('The unique identifier for the gateway.'),

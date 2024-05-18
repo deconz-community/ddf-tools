@@ -120,8 +120,6 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       }
     }
 
-    if (requestParams.apiKey === undefined)
-      requestParams.apiKey = '<nouser>'
     // #endregion
 
     const { data: responseData, status, statusText } = await axios.request({
