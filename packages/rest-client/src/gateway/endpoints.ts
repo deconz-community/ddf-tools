@@ -329,10 +329,10 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/config\/whitelist\//,
-      schema: z.union([z.string(), z.boolean()])
+      schema: z.object({ value: z.string() })
         .optional()
-        .transform(message => typeof message === 'string'
-          ? Ok(message)
+        .transform(data => typeof data?.value === 'string'
+          ? Ok(data)
           : Err(customError('delete_api_key_failed', 'Key not found.')),
         ),
     },
