@@ -354,6 +354,7 @@ function isBlob(data: unknown): data is Blob {
 <route lang="json">
 {
   "meta": {
+    "layout": "gateway",
     "hideLevelTwoSidebar": false
   }
 }

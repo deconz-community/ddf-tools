@@ -6,7 +6,7 @@ const showLevelTowSidebar = computed(() => route.meta.hideLevelTwoSidebar !== tr
 
 <template>
   <v-navigation-drawer v-model="showLevelTowSidebar" width="240" permanent>
-    <nav-sidebar-level-two />
+    <nav-sidebar-level-two-gateway />
   </v-navigation-drawer>
 
   <!--

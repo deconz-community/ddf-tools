@@ -275,6 +275,7 @@ onMounted(() => {
 <route lang="json">
 {
   "meta": {
+    "layout": "gateway",
     "requireAPI" : ">2.27.0",
     "hideLevelTwoSidebar": false
   }

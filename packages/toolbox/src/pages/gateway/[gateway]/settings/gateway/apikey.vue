@@ -133,3 +133,11 @@ const isLoading = refDebounced(
     </v-card-text>
   </v-card>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "layout": "gateway"
+  }
+}
+</route>

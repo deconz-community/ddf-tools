@@ -5,7 +5,12 @@ import 'vuetify-sonner/style.css'
 
 <template>
   <v-app>
-    <VSonner position="bottom-right" :visible-toasts="5" />
-    <router-view />
+    <v-layout>
+      <nav-topbar-global />
+      <nav-sidebar-level-one />
+
+      <VSonner position="bottom-right" :visible-toasts="5" />
+      <router-view />
+    </v-layout>
   </v-app>
 </template>

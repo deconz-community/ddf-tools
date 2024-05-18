@@ -81,6 +81,7 @@ async function getResult() {
 <route lang="json">
 {
   "meta": {
+    "layout": "gateway",
     "hideLevelTwoSidebar": false
   }
 }

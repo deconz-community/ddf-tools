@@ -181,6 +181,7 @@ const avaliableBundles = computed(() => {
 <route lang="json">
 {
   "meta": {
+    "layout": "gateway",
     "hideLevelTwoSidebar": false
   }
 }
