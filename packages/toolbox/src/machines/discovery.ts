@@ -81,7 +81,7 @@ export const discoveryMachine = setup({
 
         results.forEach((result) => {
           if (!result.isOk())
-            return
+            return console.error(result.error)
 
           const config = result.value
 

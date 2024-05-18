@@ -48,7 +48,8 @@ export type ExtractParamsNamesForAlias<Alias extends EndpointAlias> = keyof Para
 
 export type ExtractParamsForAlias<Alias extends EndpointAlias> =
 Prettify<UndefinedToOptional<{
-  [K in ExtractParamsNamesForAlias<Alias>]: ResolveZod<ExtractParamsSchemaForAlias<Alias, K>>
+  // @ts-expect-error schema is defined
+  [K in ExtractParamsNamesForAlias<Alias>]: z.input<ExtractParamsSchemaForAlias<Alias, K>>
 }>>
 
 export type ExtractParamsSchemaForAlias<

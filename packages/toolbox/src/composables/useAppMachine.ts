@@ -5,7 +5,6 @@ import { createBrowserInspector } from '@statelyai/inspect'
 import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
-// import type { deviceMachine } from '~/machines/device'
 import type { storeMachine } from '~/machines/store'
 
 export interface AppMachinePart<Type extends AnyStateMachine> {
@@ -19,7 +18,6 @@ export type AppMachine =
   | { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
   | { type: 'store' } & AppMachinePart<typeof storeMachine>
   | { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
-//  | { type: 'device' } & AppMachinePart<typeof deviceMachine> & { query: { gateway: string, id: string } }
 
 export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
 export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
@@ -29,7 +27,6 @@ export interface MachineTree {
   discovery?: ExtractMachine<'discovery'>['actor']
   store?: ExtractMachine<'store'>['actor']
   gateways: Map<string, ExtractMachine<'gateway'>['actor']>
-//  devices: Map<string, ExtractMachine<'device'>['actor']>
 }
 
 export const appMachineSymbol: InjectionKey<ShallowRef<MachineTree>> = Symbol('AppMachine')
@@ -100,13 +97,6 @@ function getMachine<Type extends AppMachine['type']>(
           const query = unref(_query) as MachineQuery<'gateway'>
           return machineTree.value.gateways.get(query.id)
         }
-
-        /*
-        case 'device':{
-          const query = unref(_query) as MachineQuery<'device'>
-          return machineTree.value.devices.get(`${query.gateway}-${query.id}`)
-        }
-        */
 
         default : {
           const _exhaustiveCheck: never = type
