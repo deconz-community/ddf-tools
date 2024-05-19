@@ -35,7 +35,7 @@ export interface UseAppMachine<Type extends AppMachine['type']> {
   state: ExtractMachine<Type>['state'] | undefined
   actor: ExtractMachine<Type>['actor'] | undefined
   send: ExtractMachine<Type>['actor']['send']
-  select: <Data>(selector: (state: ExtractMachine<Type>['state']) => Data) => Ref<Data>
+  select: <Data>(selector: (state: ExtractMachine<Type>['state']) => Data) => Ref<Data | undefined>
 }
 
 export function createUseAppMachine() {
@@ -140,7 +140,7 @@ function getMachine<Type extends AppMachine['type']>(
   })
 
   function select<Data>(selector: (state: ExtractMachine<Type>['state']) => Data) {
-    const selected = shallowRef(selector(actorRef.value?.getSnapshot()))
+    const selected = shallowRef<Data | undefined>(undefined)
 
     const updateSelectedIfChanged = (nextSelected: Data) => {
       if (selected.value !== nextSelected)
@@ -148,6 +148,10 @@ function getMachine<Type extends AppMachine['type']>(
     }
 
     watchImmediate(actorRef, (newActor, _, onCleanup) => {
+      selected.value = newActor
+        ? selector(newActor.getSnapshot())
+        : undefined
+
       if (!newActor)
         return
 

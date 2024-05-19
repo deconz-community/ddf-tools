@@ -4,10 +4,9 @@ import { gatewayRequest } from '~/machines/gateway'
 
 export function useGateway(gatewayId: MaybeRef<string | undefined>) {
   const machines = createUseAppMachine()
-  const gatewayMachine = machines.use(
-    'gateway',
-    computed(() => ({ id: toValue(gatewayId) ?? '' })),
-  )
+  const gatewayIdRef = computed(() => ({ id: toValue(gatewayId) ?? '' }))
+
+  const gatewayMachine = machines.use('gateway', gatewayIdRef)
 
   function fetch<Alias extends EndpointAlias>(
     alias: Alias,

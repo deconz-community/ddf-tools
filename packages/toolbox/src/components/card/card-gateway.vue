@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   id: string
+  hideRemoveButton?: boolean
 }>()
 
 const machines = createUseAppMachine()
@@ -74,7 +75,7 @@ onMounted(async () => {
           -->
       </template>
 
-      <template v-if="gateway.state!.matches('connecting')">
+      <template v-if="gateway.state!.matches('connecting') || gateway.state!.matches('init')">
         <v-alert type="info" title="Info">
           Connecting to the gateway...
         </v-alert>
@@ -125,6 +126,7 @@ onMounted(async () => {
     </v-card-actions>
     <v-card-actions v-else>
       <v-btn
+        v-if="!props.hideRemoveButton"
         elevation="2"
         append-icon="mdi-delete"
         color="error"
