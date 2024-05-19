@@ -81,6 +81,7 @@ export type ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> = ({
 } | {
   type: 'header'
   key: string
+  format: 'string'
 }) & {
   description: string
   knownParam?: KnownParam

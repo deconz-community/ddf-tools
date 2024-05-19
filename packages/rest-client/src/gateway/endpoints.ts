@@ -264,8 +264,6 @@ export const endpoints = {
     },
   }),
 
-  // TODO: Split into multiple endpoints : createAPIKey, createAPIKeyWithInstallCode, createAPIKeyWithPassword
-  // For password, set header Authorization: Basic base64(username:password)
   createAPIKey: makeEndpoint({
     category: 'Authentication',
     name: 'Create API Key',
@@ -278,6 +276,7 @@ export const endpoints = {
       gatewayPassword: makeParameter({
         type: 'header',
         key: 'Authorization',
+        format: 'string',
         description: 'Gateway password',
         schema: z.string().optional()
           .transform(data => data ? `Basic ${btoa(`delight:${data}`)}` : undefined),
