@@ -36,7 +36,9 @@ export function filePathsToTree<Data>(paths: string[], getData?: (node: Node<Dat
         }
 
         node.data = getData?.(node)
+        // TODO: Optimize this by inserting the node in the right place
         nodes.push(node)
+        nodes.sort((a, b) => a.name.localeCompare(b.name))
       }
 
       byPath[path] = node

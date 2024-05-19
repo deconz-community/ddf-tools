@@ -215,14 +215,12 @@ function selectDirectory(index: number) {
       </v-card-actions>
     </v-card>
   </v-dialog>
-
   <v-data-table
     :headers="tableHeaders"
     :items="tableItems"
     item-value="name"
     class="elevation-1"
   >
-    <!-- eslint-disable vue/valid-v-slot -->
     <template #top>
       <v-toolbar>
         <v-breadcrumbs :items="breadcrumbs" density="comfortable">
@@ -271,6 +269,7 @@ function selectDirectory(index: number) {
       </template>
     </template>
   </v-data-table>
+
   <!--
   <json-viewer :value="fileTree" :expand-level="1" />
   <json-viewer :value="currentTreePosition" :expand-level="1" />

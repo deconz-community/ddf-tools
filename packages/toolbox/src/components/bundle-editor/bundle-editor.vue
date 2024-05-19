@@ -13,9 +13,8 @@ defineOptions({
 const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>
 }>()
-
 const emit = defineEmits(['update:modelValue'])
-
+const isDebug = import.meta.env.VITE_DEBUG === 'true'
 const bundle = useVModel(props, 'modelValue', emit)
 
 const signatures = computed(() => bundle.value.data.signatures.map((signature) => {
@@ -111,7 +110,14 @@ function setDirty() {
         </v-window-item>
 
         <v-window-item value="files">
+          <bundle-editor-files-v2
+            v-if="isDebug"
+            v-model="files"
+            @change="setDirty()"
+          />
+
           <bundle-editor-files
+            v-else
             v-model="files"
             @change="setDirty()"
           />
