@@ -25,7 +25,6 @@ declare module 'vue' {
     ChipGatewayState: typeof import('./components/chip/chip-gateway-state.vue')['default']
     ChipSignatures: typeof import('./components/chip/chip-signatures.vue')['default']
     ChipUser: typeof import('./components/chip/chip-user.vue')['default']
-    Drafter: typeof import('./components/drafter.vue')['default']
     FormGatewayCredentials: typeof import('./components/form/form-gateway-credentials.vue')['default']
     GatewayBadge: typeof import('./components/gateway-badge.vue')['default']
     InputRestClientParam: typeof import('./components/form/input-rest-client-param.vue')['default']
@@ -44,6 +43,5 @@ declare module 'vue' {
     UseTimeAgo: typeof import('@vueuse/components')['UseTimeAgo']
     VueMarkdown: typeof import('markdown-vue')['default']
     VueMonacoEditor: typeof import('@guolao/vue-monaco-editor')['VueMonacoEditor']
-    ZodiosApi: typeof import('./components/zodios-api.vue')['default']
   }
 }
