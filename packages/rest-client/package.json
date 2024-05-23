@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.1.1",
+  "packageManager": "pnpm@9.1.2",
   "description": "",
   "author": {
     "name": "Zehir",
@@ -65,18 +65,18 @@
   },
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "ts-results-es": "^4.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.6",
     "@types/node": "^20.12.12",
-    "@typescript-eslint/eslint-plugin": "^7.9.0",
-    "@typescript-eslint/parser": "^7.9.0",
+    "@typescript-eslint/eslint-plugin": "^7.10.0",
+    "@typescript-eslint/parser": "^7.10.0",
     "degit": "^2.8.4",
     "eslint": "^9.3.0",
-    "lint-staged": "^15.2.2",
+    "lint-staged": "^15.2.4",
     "rimraf": "^5.0.7",
     "stylelint": "^16.5.0",
     "stylelint-config-recommended": "^14.0.0",

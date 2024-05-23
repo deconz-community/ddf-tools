@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-tools",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@9.1.1",
+  "packageManager": "pnpm@9.1.2",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.18.1",
-    "@changesets/cli": "^2.27.2",
+    "@changesets/cli": "^2.27.3",
     "@eslint/eslintrc": "^3.1.0",
     "eslint": "^9.3.0",
     "eslint-plugin-xstate": "^3.2.1",

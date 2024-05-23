@@ -3,7 +3,7 @@
 
 # Use the official Directus image as the base image
 
-FROM directus/directus:10.11.0
+FROM directus/directus:10.11.1
 
 USER root
 RUN corepack enable && corepack prepare
