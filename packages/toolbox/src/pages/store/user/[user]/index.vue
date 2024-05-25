@@ -89,3 +89,11 @@ const collectionsCount = ref(0)
     </v-card-text>
   </v-card>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
+}
+</route>

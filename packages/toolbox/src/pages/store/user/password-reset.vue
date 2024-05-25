@@ -51,7 +51,7 @@ const rules = {
     ),
     includeSpecial: helpers.withMessage(
       `${baseMessage} special character from !@#$%^&*()_+}{';'?>.<,`,
-      helpers.regex(/(?=.[!@#$%^&*()_+}{';'?>.<,])/),
+      helpers.regex(/(?=.[!@#$%^&*()_+}{';?>.<,])/),
     ),
   },
   password_confirm: {
@@ -156,9 +156,8 @@ async function updatePassword() {
 
 <route lang="json">
 {
-    "meta": {
-    "breadcrumbs": "none",
+  "meta": {
     "hideLevelTwoSidebar": true
-    }
+  }
 }
 </route>
