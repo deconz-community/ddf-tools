@@ -19,7 +19,7 @@ export function bulkUUIDCommand(command: Command) {
     .command('uuid')
     .description('Add missing UUID on DDF file.')
     .argument('<path>', 'Source DDF file / directory')
-    .option('--store-url <url>', 'Use a custom store URL instead of the default')
+    .option('--store-url <url>', 'Use a custom store URL instead of the default', 'https://ddf.cryonet.io')
     .option('--store-token <token>', 'Authentication token')
     .action(async (input, options) => {
       const {

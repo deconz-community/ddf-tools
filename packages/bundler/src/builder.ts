@@ -62,6 +62,9 @@ export async function buildFromFiles(
 
   const ddfc: Record<string, unknown> = await ddfSource.jsonData
 
+  if (ddfc.schema !== 'devcap1.schema.json')
+    throw new Error('Invalid schema')
+
   // Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
     manufacturers: string[]

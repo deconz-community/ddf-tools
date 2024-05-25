@@ -55,15 +55,18 @@ Make sure the DDFs are valid before bundling them.
 
 ```bash
 ddf-tools bundler --help
-ddf-tools bundler devices/ikea/starkvind_air_purifier.json -o ./output/
+ddf-tools bundler -o ./output/ devices/ikea/starkvind_air_purifier.json
+ddf-tools bundler -o ./output/ devices/
+ddf-tools bundler --upload --store-token <token> devices/
 ```
 
 ##### Argument <path> (required)
 The path to the json DDF source file or a directory containing the json DDF source files.
 If a directory is provided, all json files in the directory will be bundled.
 
-##### -g, --generic <path> (required)
+##### -g, --generic <path>
 The directory where all generic files are located.
+If not provided, the bundler will look for the generic directory in parent directories.
 
 ##### -o, --output <path>
 The directory where the bundled DDFs will be saved.
@@ -73,15 +76,35 @@ Defaults to the DDF directory.
 Skip the validation of the DDFs.
 
 ##### --private-key <privateKey>
-The private key to sign the DDFs with.
+The private key to sign the DDFs with. If upload enabled your private key will be used to sign the DDFs.
 
 ##### --upload
 Upload the DDFs to the DDF server.
-Currently no public DDF server is available.
-The server is still in WIP.
 
 ##### --store-url <url>
-The url of the DDF server to upload the DDFs to.
+The url of the DDF server to upload the DDFs to. By default it's using the global DDF server at https://ddf.cryonet.io.
 
 ##### --store-token <token>
 The token to authenticate with the DDF server.
+
+##### --store-bundle-status <status>
+Status of the bundle (alpha, beta, stable) (default: "alpha")
+
+##### --file-modified-method <method>
+Method to use to get the last modified date of the files (gitlog, mtime, ctime) (default: "gitlog")
+
+##### --debug
+Enable debug mode.
+
+#### Bulk operations
+
+The bulk command will run various operation on DDF files.
+
+##### uuid operation
+
+The uuid operation will generate a new UUID for each DDF file in the given directory.
+Limited to 100 files at a time.
+
+```bash
+ddf-tools bulk uuid --store-token <token> ./devices/
+```

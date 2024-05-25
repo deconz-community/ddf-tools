@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import path from 'node:path'
 import fs from 'node:fs/promises'
+import process from 'node:process'
 import { program } from '@commander-js/extra-typings'
 import glob from 'fast-glob'
 import type { Source, ValidationError } from '@deconz-community/ddf-bundler'
@@ -13,6 +14,8 @@ import { createDirectus, rest, serverHealth, staticToken } from '@directus/sdk'
 import { v4 as uuidv4 } from 'uuid'
 import type { PrimaryKey } from '@directus/types'
 import { simpleGit } from 'simple-git'
+import ora from 'ora'
+import chalk from 'chalk'
 
 export function bundlerCommand() {
   program
@@ -43,35 +46,53 @@ export function bundlerCommand() {
         debug,
       } = options
 
+      const spinner = ora(chalk.blue('Starting Bundler')).start()
+      const log = (text: string) => {
+        if (spinner.isSpinning) {
+          spinner.clear()
+          console.log(text)
+          spinner.start()
+        }
+        else {
+          console.log(text)
+        }
+      }
+
       // #region Validate options
       if (upload && (!storeUrl || !storeToken)) {
-        console.error('You must provide both --store-url and --store-token when using --upload')
+        spinner.fail(chalk.red('You must provide both --store-url and --store-token when using --upload'))
         return
       }
 
       if (!upload && !output) {
-        console.error('You must provide either --upload or --output')
+        spinner.fail(chalk.red('You must provide either --upload or --output'))
         return
       }
 
       if (output) {
         const outputStat = await fs.stat(output)
         if (!outputStat.isDirectory()) {
-          console.error('output must be a directory')
+          spinner.fail(chalk.red('output must be a directory'))
           return
         }
       }
 
       if (generic) {
-        const genericStat = await fs.stat(generic)
-        if (!genericStat.isDirectory()) {
-          console.error('generic must be a directory')
+        try {
+          const genericStat = await fs.stat(generic)
+          if (!genericStat.isDirectory()) {
+            spinner.fail(chalk.red('generic must be a directory'))
+            return
+          }
+        }
+        catch {
+          spinner.fail(chalk.red('generic directory does not exist'))
           return
         }
       }
 
       if (!['alpha', 'beta', 'stable'].includes(storeBundleStatus)) {
-        console.error('store-bundle-status must be either alpha, beta or stable')
+        spinner.fail(chalk.red('store-bundle-status must be either alpha, beta or stable'))
         return
       }
       // #endregion
@@ -119,30 +140,30 @@ export function bundlerCommand() {
           case 'gitlog': {
             const gitDirectory = await findGitDirectory(resolvedFilePath)
             if (gitDirectory === undefined) {
-              console.warn(`No .git directory found for ${resolvedFilePath}. Using mtime instead.`)
+              log(chalk.yellow(`No .git directory found for ${resolvedFilePath}. Using mtime instead.`))
               return (await fs.stat(resolvedFilePath)).mtime
             }
 
             if (debug)
-              console.log(`Finding git log datetime for file '${resolvedFilePath}' in git directory '${gitDirectory}'`)
+              log(`Finding git log datetime for file '${resolvedFilePath}' in git directory '${gitDirectory}'`)
 
             const git = simpleGit(gitDirectory)
-            const log = await git.log({ file: resolvedFilePath })
+            const gitLog = await git.log({ file: resolvedFilePath })
 
             const status = await git.status()
             if (status.modified.some(file => resolvedFilePath.endsWith(file))) {
-              console.warn(`File modified since last commit for ${resolvedFilePath}. Using mtime instead.`)
+              log(chalk.yellow(`File modified since last commit for ${resolvedFilePath}. Using mtime instead.`))
               return (await fs.stat(resolvedFilePath)).mtime
             }
 
-            const latestCommit = log.latest
+            const latestCommit = gitLog.latest
             if (latestCommit === null) {
-              console.warn(`No commit found for ${resolvedFilePath}. Using mtime instead.`)
+              log(chalk.yellow(`No commit found for ${resolvedFilePath}. Using mtime instead.`))
               return (await fs.stat(resolvedFilePath)).mtime
             }
 
             if (debug)
-              console.log(`Found git log datetime for file '${resolvedFilePath}' : '${latestCommit.date}'`)
+              log(`Found git log datetime for file '${resolvedFilePath}' : '${latestCommit.date}'`)
 
             return new Date(latestCommit.date)
           }
@@ -160,6 +181,7 @@ export function bundlerCommand() {
       // #endregion
 
       // Generate input file list
+
       const inputFiles: string[] = []
       {
         const inputStat = await fs.stat(input)
@@ -170,43 +192,49 @@ export function bundlerCommand() {
           inputFiles.push(...await glob(`${input}/**/*.json`))
         }
         else {
-          console.warn('Input must be a file or directory')
+          spinner.fail(chalk.red('Input must be a file or directory'))
           return
         }
       }
 
       if (inputFiles.length === 0) {
-        console.warn('No input files found')
+        spinner.fail(chalk.red('No input files found'))
         return
       }
 
-      const genericDirectoryPath = generic ?? await findGenericDirectory(inputFiles[0])
+      inputFiles.sort((a, b) => a.localeCompare(b))
+
+      spinner.start(chalk.blue(`Loading ${inputFiles.length} files from disk`))
+
+      let genericDirectoryPath = generic ?? await findGenericDirectory(inputFiles[0])
 
       if (genericDirectoryPath === undefined) {
-        console.warn('No generic directory found')
+        spinner.fail(chalk.red('No generic directory found'))
         return
       }
-      if (debug)
-        console.log(`Using generic directory '${genericDirectoryPath}'`)
 
-      const fileToProcess = inputFiles.map(file => path.resolve(file)).filter(file => !file.startsWith(genericDirectoryPath))
+      genericDirectoryPath = path.resolve(genericDirectoryPath)
+
+      if (debug)
+        log(`Using generic directory '${genericDirectoryPath}'`)
+
+      const fileToProcess = inputFiles
+        .map(file => path.resolve(file))
+        .filter(file => !file.startsWith(genericDirectoryPath))
 
       const bundleToUpload: Record<string, {
         name: string
         encoded: Blob
+        hash: string
       }> = {}
 
       const sources = new Map<string, Source>()
 
-      if (debug)
-        console.log(`Processing ${fileToProcess.length} file(s)`)
-
       for (const [index, inputFilePath] of fileToProcess.entries()) {
-        if (index % 10 === 0)
-          console.log(`Processing file #${index + 1}/${fileToProcess.length}`)
+        spinner.text = chalk.blue(`Processing file #${index + 1}/${fileToProcess.length}`)
 
         if (debug)
-          console.log(`Bundling file '${inputFilePath}'`)
+          log(`Bundling file '${inputFilePath}'`)
 
         const bundle = await buildFromFiles(
           `file://${genericDirectoryPath}`,
@@ -295,41 +323,56 @@ export function bundlerCommand() {
             encoded = await sign(encoded, [{ key: hexToBytes(key) }])
         }
 
+        bundle.data.hash = await generateHash(bundle.data)
+        const hash = bytesToHex(bundle.data.hash)
+
         if (output) {
-          const hash = bundle.data.hash ? bytesToHex(bundle.data.hash) : bytesToHex(await generateHash(bundle.data))
           const outputPath = path.join(output, `${bundle.data.name}-${hash.substring(0, 8)}.ddf`)
           await fs.writeFile(outputPath, encoded.stream())
-          console.log(`[${bundle.data.name}] written to ${outputPath}`)
+
+          spinner.clear()
+          spinner.info(chalk.green(`[${inputFilePath.replace(`${process.cwd()}/`, '')}] written to ${outputPath}`))
+          spinner.start()
         }
 
         if (upload) {
           bundleToUpload[uuidv4()] = {
             name: bundle.data.name,
             encoded,
+            hash,
           }
+
+          spinner.clear()
+          spinner.info(chalk.green(`[${inputFilePath.replace(`${process.cwd()}/`, '')}] added to the upload list`))
+          spinner.start()
         }
       }
 
       if (upload) {
+        const CHUNK_SIZE = 10
+
+        spinner.start(chalk.blue(`Uploading bundles to the store by group of ${CHUNK_SIZE}`))
         const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest())
 
         try {
           const health = await client.request(serverHealth())
           if (health.status !== 'ok') {
-            console.error('Error while connecting to the store', health)
+            spinner.fail(chalk.red('Error while connecting to the store'))
+            log(chalk.red(JSON.stringify(health)))
             return
           }
         }
         catch (error) {
-          console.error('Error while connecting to the store', error)
+          spinner.fail(chalk.red('Error while connecting to the store'))
+          log(chalk.red(JSON.stringify(error)))
           return
         }
 
         const entries = Object.entries(bundleToUpload)
+        let errorCount = 0
 
-        const CHUNK_SIZE = 10
         for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
-          console.log(`Processing chunk #${(i / CHUNK_SIZE) + 1}`)
+          spinner.text = chalk.blue(`Processing chunk #${(i / CHUNK_SIZE) + 1}`)
           const chunk = entries.slice(i, i + CHUNK_SIZE)
 
           const formData = new FormData()
@@ -337,29 +380,45 @@ export function bundlerCommand() {
             formData.append(uuid, encoded)
 
           // TODO: use this : https://github.com/directus/directus/blob/main/sdk/src/rest/helpers/custom-endpoint.ts
-          const { result } = await client.request<
-          // TODO: import type from the store extension
-          { result: Record<string, {
-            success: boolean
-            createdId?: PrimaryKey | undefined
-            message?: string | undefined
-          }> }
-          >(() => {
-            return {
-              method: 'POST',
-              path: `/bundle/upload/${storeBundleStatus}`,
-              body: formData,
-              headers: { 'Content-Type': 'multipart/form-data' },
-            }
-          })
+          try {
+            const { result } = await client.request<
+            // TODO: import type from the store extension
+            { result: Record<string, {
+              success: boolean
+              createdId?: PrimaryKey | undefined
+              message?: string | undefined
+            }> }
+            >(() => {
+              return {
+                method: 'POST',
+                path: `/bundle/upload/${storeBundleStatus}`,
+                body: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
+              }
+            })
 
-          for (const [uuid, { name }] of chunk) {
-            if (result[uuid].success === true)
-              console.log(`[${name}] uploaded successfully`)
-            else
-              console.log(`[${name}] failed to upload : ${result[uuid].message}`)
+            for (const [uuid, { name }] of chunk) {
+              if (result[uuid].success === true) {
+                spinner.info(chalk.green(`[${name}] uploaded successfully at ${storeUrl}/bundle/download/${result[uuid].createdId}`))
+              }
+              else {
+                errorCount++
+                log(chalk.red(`[${name}] failed to upload : ${result[uuid].message}`))
+              }
+            }
+          }
+          catch (error) {
+            spinner.fail(chalk.red('Failed to upload bundles'))
+            console.error(error)
           }
         }
+
+        if (errorCount === 0)
+          spinner.succeed(chalk.green('All bundles uploaded successfully'))
+        else
+          spinner.fail(chalk.red(`${errorCount} bundles failed to upload`))
       }
+
+      spinner.succeed(chalk.green('Bundler finished'))
     })
 }
