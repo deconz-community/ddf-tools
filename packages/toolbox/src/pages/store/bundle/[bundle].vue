@@ -57,9 +57,6 @@ const ddfUuidInfo = store.request(computed(() => {
     fields: [
       'deprecation_message',
       'user_created',
-      {
-        maintainers: ['user'],
-      },
     ],
   })
 }))
@@ -98,7 +95,7 @@ const downloadURL = computed(() => {
 })
 
 const settingsProps = computed(() => {
-  if (!store.profile?.can_sign_with_system_keys)
+  if (!store.profile?.can_use_official_keys)
     return undefined
 
   if (!bundle.state.value)
@@ -471,18 +468,6 @@ async function reinstate(type: 'bundle' | 'version') {
                   </v-btn-toggle>
                 </v-card-actions>
               </v-card>
-              <!--
-              <v-card class="ma-2" title="Maintainers">
-                <v-card-text>
-                  TODO
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn color="primary" prepend-icon="mdi-account-plus">
-                    Invite maintainer (TODO)
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-              -->
               <v-card v-if="!bundle.state.value?.deprecation_message" class="ma-2" title="Deprecate version">
                 <v-card-text>
                   This will mark this version of the bundle as deprecated.
@@ -575,11 +560,6 @@ async function reinstate(type: 'bundle' | 'version') {
             <v-list-item title="Total Files">
               {{ bundle.state.value.file_count ?? 'Unknown' }}
             </v-list-item>
-            <!--
-            <v-list-item title="Maintainers">
-              TODO
-            </v-list-item>
-            -->
             <v-list-item title="Signed by">
               <chip-signatures :signatures="bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>

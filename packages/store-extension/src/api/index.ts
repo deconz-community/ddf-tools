@@ -50,7 +50,8 @@ export default defineEndpoint({
         'id',
         'private_key',
         'public_key',
-        'can_sign_with_system_keys',
+        'can_use_official_keys',
+        'is_contributor',
       ] as const
 
       const [
@@ -231,14 +232,14 @@ export default defineEndpoint({
         case 'beta':
           expectedKeys.push([settings.public_key_beta, settings.private_key_beta])
           unExpectedPublicKeys.push(settings.public_key_stable)
-          if (!userInfo.can_sign_with_system_keys)
+          if (!userInfo.can_use_official_keys)
             throw new ForbiddenError()
           break
 
         case 'stable' :
           expectedKeys.push([settings.public_key_stable, settings.private_key_stable])
           unExpectedPublicKeys.push(settings.public_key_beta)
-          if (!userInfo.can_sign_with_system_keys)
+          if (!userInfo.can_use_official_keys)
             throw new ForbiddenError()
           break
         default:
@@ -309,11 +310,7 @@ export default defineEndpoint({
             const deviceIdentifiersService = new services.ItemsService<Collections.DeviceIdentifiers>('device_identifiers', serviceOptions)
 
             const uuidInfo = (await UUIDService.readByQuery({
-              fields: [
-                'id',
-                'user_created',
-                'maintainers.user',
-              ],
+              fields: ['id'],
               filter: {
                 id: {
                   _eq: bundle.data.desc.uuid,
@@ -321,11 +318,7 @@ export default defineEndpoint({
               },
             })).shift()
 
-            if (uuidInfo) {
-              if (uuidInfo.user_created !== userId && !uuidInfo.maintainers.some(m => m.user === userId))
-                throw new InvalidQueryError({ reason: 'You don\'t have permission to upload a bundle with that UUID because you are not the maintainer of it' })
-            }
-            else {
+            if (!uuidInfo) {
               await UUIDService.createOne({
                 id: bundle.data.desc.uuid,
               })
@@ -488,6 +481,7 @@ export default defineEndpoint({
           'date_created',
           'public_key',
           'avatar',
+          'is_contributor',
         ],
         // @ts-expect-error - I added this field don't worry
         filter,
@@ -549,7 +543,7 @@ export default defineEndpoint({
 
       const { settings, userInfo } = await fetchUserContext(adminAccountability, accountability.user)
 
-      if (!userInfo.can_sign_with_system_keys)
+      if (!userInfo.can_use_official_keys)
         throw new ForbiddenError()
 
       const buffer = Buffer.from(bundle.content, 'base64')
@@ -686,23 +680,22 @@ export default defineEndpoint({
       if (type === 'version' && typeof bundle_id !== 'string')
         throw new InvalidQueryError({ reason: 'You must provide a bundle_id' })
 
+      const { userInfo } = await fetchUserContext(adminAccountability, accountability.user)
+
       const uuidInfo = (await UUIDService.readByQuery({
         fields: [
           'id',
           'user_created',
-          'maintainers.user',
         ],
         filter: {
-          id: {
-            _eq: ddf_uuid,
-          },
+          id: { _eq: ddf_uuid },
         },
       })).shift()
 
       if (uuidInfo === undefined)
         throw new InvalidQueryError({ reason: 'UUID not found' })
 
-      if (uuidInfo.user_created !== userId && !uuidInfo.maintainers.some(m => m.user === userId))
+      if (uuidInfo.user_created !== userId && !userInfo.is_contributor)
         throw new InvalidQueryError({ reason: 'You don\'t have permission to modify a bundle with that UUID because you are not the maintainer of it' })
 
       if (type === 'bundle') {
@@ -715,9 +708,7 @@ export default defineEndpoint({
       const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
 
       const bundle = await bundleService.readOne(bundle_id as string, {
-        fields: [
-          'ddf_uuid',
-        ],
+        fields: ['ddf_uuid'],
       })
 
       if (bundle.ddf_uuid !== ddf_uuid)

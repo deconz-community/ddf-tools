@@ -243,7 +243,6 @@ export namespace Collections {
     date_updated: Types.Optional<Types.DateTime>;
     expire_at: Types.Optional<Types.DateTime>;
     deprecation_message: Types.Optional<Types.String>;
-    maintainers: Collections.Maintainers[];
     bundles: Collections.Bundles[];
   }
 
@@ -255,15 +254,6 @@ export namespace Collections {
     manufacturer: Types.Optional<Types.String>;
     model: Types.Optional<Types.String>;
     bundles: Collections.BundlesDeviceIdentifiers[];
-  }
-
-  /**
-   * The maintainers collection.
-   */
-  export interface Maintainers {
-    id: Types.Integer;
-    ddf_uuid: Types.Optional<Types.String | Collections.DdfUuids>;
-    user: Types.Optional<Types.String | Collections.DirectusUser>;
   }
 
   /**
@@ -368,11 +358,11 @@ export interface System {
    *
    */
   directus_users: {
+    is_contributor: Types.Boolean;
+    can_use_official_keys: Types.Boolean;
     date_created: Types.Optional<Types.DateTime>;
-    can_sign_with_system_keys: Types.Boolean;
     public_key: Types.Optional<Types.String>;
     private_key: Types.Optional<Types.String>;
-    ddf_uuids: Collections.Maintainers[];
   }[];
 
   /**
@@ -464,11 +454,6 @@ export interface Schema extends System {
    * The device identifiers collection.
    */
   device_identifiers: Collections.DeviceIdentifiers[];
-
-  /**
-   * The maintainers collection.
-   */
-  maintainers: Collections.Maintainers[];
 
   /**
    * The signatures collection.
@@ -594,24 +579,6 @@ export function readDeviceIdentifiers<
     key,
     query,
   );
-}
-
-/**
- * List maintainers items.
- */
-export function listMaintainers<
-  const Query extends Query$<Schema, Collections.Maintainers>,
->(query?: Query) {
-  return readItems$<Schema, "maintainers", Query>("maintainers", query);
-}
-
-/**
- * Gets a single known maintainers item by id.
- */
-export function readMaintainers<
-  const Query extends Query$<Schema, Collections.Maintainers>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "maintainers", Query>("maintainers", key, query);
 }
 
 /**

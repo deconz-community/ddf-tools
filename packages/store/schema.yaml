@@ -1,5 +1,5 @@
 version: 1
-directus: 10.11.0
+directus: 10.11.1
 vendor: sqlite
 collections:
   - collection: bundles
@@ -124,30 +124,6 @@ collections:
       versioning: false
     schema:
       name: device_identifiers
-  - collection: maintainers
-    meta:
-      accountability: all
-      archive_app_filter: true
-      archive_field: null
-      archive_value: null
-      collapse: open
-      collection: maintainers
-      color: null
-      display_template: null
-      group: ddf_uuids
-      hidden: true
-      icon: import_export
-      item_duplication_fields: null
-      note: null
-      preview_url: null
-      singleton: false
-      sort: 1
-      sort_field: null
-      translations: null
-      unarchive_value: null
-      versioning: false
-    schema:
-      name: maintainers
   - collection: signatures
     meta:
       accountability: all
@@ -1283,29 +1259,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: ddf_uuids
-    field: maintainers
-    type: alias
-    meta:
-      collection: ddf_uuids
-      conditions: null
-      display: related-values
-      display_options: null
-      field: maintainers
-      group: null
-      hidden: false
-      interface: list-m2m
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 8
-      special:
-        - m2m
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-  - collection: ddf_uuids
     field: bundles
     type: alias
     meta:
@@ -1508,6 +1461,26 @@ fields:
       validation: null
       validation_message: null
       width: full
+  - collection: directus_sessions
+    field: next_token
+    type: string
+    meta: null
+    schema:
+      name: next_token
+      table: directus_sessions
+      data_type: varchar
+      default_value: null
+      max_length: 64
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: directus_settings
     field: private_key_stable
     type: string
@@ -1676,7 +1649,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 3
+      sort: 5
       special: null
       translations: null
       validation: null
@@ -1714,7 +1687,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 4
+      sort: 6
       special: null
       translations: null
       validation: null
@@ -1729,45 +1702,6 @@ fields:
       numeric_precision: null
       numeric_scale: null
       is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: directus_users
-    field: can_sign_with_system_keys
-    type: boolean
-    meta:
-      collection: directus_users
-      conditions: null
-      display: null
-      display_options: null
-      field: can_sign_with_system_keys
-      group: null
-      hidden: false
-      interface: boolean
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 2
-      special:
-        - cast-boolean
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: can_sign_with_system_keys
-      table: directus_users
-      data_type: boolean
-      default_value: false
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
       is_unique: false
       is_primary_key: false
       is_generated: false
@@ -1791,7 +1725,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 1
+      sort: 3
       special:
         - cast-timestamp
         - date-created
@@ -1816,142 +1750,89 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: directus_users
-    field: ddf_uuids
-    type: alias
+    field: can_use_official_keys
+    type: boolean
     meta:
       collection: directus_users
       conditions: null
-      display: null
-      display_options: null
-      field: ddf_uuids
+      display: boolean
+      display_options:
+        labelOff: Not allowed
+        labelOn: Allowed
+      field: can_use_official_keys
       group: null
       hidden: false
-      interface: list-m2m
-      note: null
-      options: null
+      interface: boolean
+      note: Allow user to use stable and beta keys
+      options:
+        label: Allow
       readonly: false
       required: false
-      sort: 5
+      sort: 2
       special:
-        - m2m
+        - cast-boolean
       translations: null
       validation: null
       validation_message: null
-      width: full
-  - collection: maintainers
-    field: id
-    type: integer
-    meta:
-      collection: maintainers
-      conditions: null
-      display: null
-      display_options: null
-      field: id
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 1
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
+      width: half
     schema:
-      name: id
-      table: maintainers
-      data_type: integer
-      default_value: null
+      name: can_use_official_keys
+      table: directus_users
+      data_type: boolean
+      default_value: false
       max_length: null
       numeric_precision: null
       numeric_scale: null
       is_nullable: false
       is_unique: false
-      is_primary_key: true
+      is_primary_key: false
       is_generated: false
       generation_expression: null
-      has_auto_increment: true
+      has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
-  - collection: maintainers
-    field: ddf_uuid
-    type: string
+  - collection: directus_users
+    field: is_contributor
+    type: boolean
     meta:
-      collection: maintainers
+      collection: directus_users
       conditions: null
-      display: null
-      display_options: null
-      field: ddf_uuid
+      display: boolean
+      display_options:
+        labelOff: Not allowed
+        labelOn: Allowed
+      field: is_contributor
       group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
+      hidden: false
+      interface: boolean
+      note: Allow user to modify bundles from other users
+      options:
+        label: Allow
       readonly: false
       required: false
-      sort: 2
-      special: null
+      sort: 1
+      special:
+        - cast-boolean
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
-      name: ddf_uuid
-      table: maintainers
-      data_type: char
-      default_value: null
-      max_length: 36
+      name: is_contributor
+      table: directus_users
+      data_type: boolean
+      default_value: false
+      max_length: null
       numeric_precision: null
       numeric_scale: null
-      is_nullable: true
+      is_nullable: false
       is_unique: false
       is_primary_key: false
       is_generated: false
       generation_expression: null
       has_auto_increment: false
-      foreign_key_table: ddf_uuids
-      foreign_key_column: id
-  - collection: maintainers
-    field: user
-    type: string
-    meta:
-      collection: maintainers
-      conditions: null
-      display: null
-      display_options: null
-      field: user
-      group: null
-      hidden: true
-      interface: null
-      note: null
-      options: null
-      readonly: false
-      required: false
-      sort: 3
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: user
-      table: maintainers
-      data_type: char
-      default_value: null
-      max_length: 36
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: directus_users
-      foreign_key_column: id
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: signatures
     field: id
     type: uuid
@@ -2468,48 +2349,6 @@ relations:
       constraint_name: null
       on_update: NO ACTION
       on_delete: SET NULL
-  - collection: maintainers
-    field: user
-    related_collection: directus_users
-    meta:
-      junction_field: ddf_uuid
-      many_collection: maintainers
-      many_field: user
-      one_allowed_collections: null
-      one_collection: directus_users
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: ddf_uuids
-      sort_field: null
-    schema:
-      table: maintainers
-      column: user
-      foreign_key_table: directus_users
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: CASCADE
-  - collection: maintainers
-    field: ddf_uuid
-    related_collection: ddf_uuids
-    meta:
-      junction_field: user
-      many_collection: maintainers
-      many_field: ddf_uuid
-      one_allowed_collections: null
-      one_collection: ddf_uuids
-      one_collection_field: null
-      one_deselect_action: delete
-      one_field: maintainers
-      sort_field: null
-    schema:
-      table: maintainers
-      column: ddf_uuid
-      foreign_key_table: ddf_uuids
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: CASCADE
   - collection: signatures
     field: bundle
     related_collection: bundles
