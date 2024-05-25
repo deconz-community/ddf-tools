@@ -67,7 +67,7 @@ async function passwordReset() {
         <v-list-item
           prepend-icon="mdi-cog"
           title="Account"
-          :to="`/store/user/${store.profile.id}/settings`"
+          to="/store/user/me/settings"
         />
         <v-list-item
           prepend-icon="mdi-logout"

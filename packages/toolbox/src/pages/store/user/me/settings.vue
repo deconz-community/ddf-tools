@@ -121,7 +121,7 @@ async function saveKeys() {
 {
   "meta": {
     "requiresAuth": true,
-    "requiresPersonnalAuth": true
+    "hideLevelTwoSidebar": true
   }
 }
 </route>
