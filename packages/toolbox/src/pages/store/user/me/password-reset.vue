@@ -8,22 +8,23 @@ import { toastError } from '~/lib/handleError'
 
 const store = useStore()
 
-const queryToken = useRouteQuery('token', '')
+const queryToken = useRouteQuery<string>('token', '')
 const router = useRouter()
 const route = useRoute()
 
 // See https://github.com/vuejs/router/issues/2054
 const currentUrl = new URL(window.location.href)
 if (currentUrl.searchParams.has('token')) {
+  queryToken.value = currentUrl.searchParams.get('token') as string
   const newUrl = router.resolve({
     path: route.path,
-    query: {
-      token: currentUrl.searchParams.get('token'),
-    },
+    query: { token: queryToken.value },
   })
-  const newHref = window.location.origin + window.location.pathname + newUrl.href
-  if (newHref !== window.location.href)
-    window.location.href = newHref
+  history.replaceState(
+    history.state,
+    '',
+    window.location.origin + window.location.pathname + newUrl.href,
+  )
 }
 
 const data = computed(() => {
