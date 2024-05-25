@@ -55,7 +55,7 @@ Make sure the DDFs are valid before bundling them.
 
 ```bash
 ddf-tools bundler --help
-ddf-tools bundler --generic devices/generic/ devices/ikea/starkvind_air_purifier.json
+ddf-tools bundler devices/ikea/starkvind_air_purifier.json -o ./output/
 ```
 
 ##### Argument <path> (required)

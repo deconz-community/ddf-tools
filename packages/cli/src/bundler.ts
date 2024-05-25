@@ -19,20 +19,20 @@ export function bundlerCommand() {
     .command('bundler')
     .description('Create a bundle from a file')
     .argument('<path>', 'Source DDF file / directory')
-    .requiredOption('-g, --generic <path>', 'Generic directory path')
+    .option('-g, --generic <path>', 'Generic directory path, by default it will search for a generic directory in the source directory')
     .option('-o, --output <path>', 'Output directory path')
     .option('--no-validate', 'Disable validation of the DDF file')
     .option('--private-key <privateKey>', 'Comma seperated list of private key to sign the bundle with')
-    .option('--upload', 'Upload the bundle to the store after creating it')
-    .option('--store-url <url>', 'Use a custom store URL instead of the default')
+    .option('--upload', 'Upload the bundle to the store after creating it', false)
+    .option('--store-url <url>', 'Use a custom store URL instead of the default', 'https://ddf.cryonet.io')
     .option('--store-token <token>', 'Authentication token')
     .option('--store-bundle-status <status>', 'Status of the bundle (alpha, beta, stable)', 'alpha')
     .option('--file-modified-method <method>', 'Method to use to get the last modified date of the files (gitlog, mtime, ctime)', 'gitlog')
-    .option('--debug', 'Enable debug log')
+    .option('--debug', 'Enable debug log', false)
     .action(async (input, options) => {
       const {
-        generic,
         output,
+        generic,
         validate,
         privateKey,
         upload,
@@ -49,14 +49,6 @@ export function bundlerCommand() {
         return
       }
 
-      {
-        const genericStat = await fs.stat(generic)
-        if (!genericStat.isDirectory()) {
-          console.error('generic must be a directory')
-          return
-        }
-      }
-
       if (!upload && !output) {
         console.error('You must provide either --upload or --output')
         return
@@ -70,6 +62,14 @@ export function bundlerCommand() {
         }
       }
 
+      if (generic) {
+        const genericStat = await fs.stat(generic)
+        if (!genericStat.isDirectory()) {
+          console.error('generic must be a directory')
+          return
+        }
+      }
+
       if (!['alpha', 'beta', 'stable'].includes(storeBundleStatus)) {
         console.error('store-bundle-status must be either alpha, beta or stable')
         return
@@ -77,6 +77,22 @@ export function bundlerCommand() {
       // #endregion
 
       // #region Utils methods
+      async function findGenericDirectory(filePath: string): Promise<string | undefined> {
+        const directoryPath = path.dirname(filePath)
+
+        try {
+          await fs.access(path.join(directoryPath, 'generic', 'constants.json'))
+          return path.join(directoryPath, 'generic')
+        }
+        catch {
+          const parentDirectory = path.dirname(directoryPath)
+          if (parentDirectory === directoryPath)
+            return undefined
+
+          return findGenericDirectory(directoryPath)
+        }
+      }
+
       async function findGitDirectory(filePath: string): Promise<string | undefined> {
         const directoryPath = path.dirname(filePath)
 
@@ -156,7 +172,20 @@ export function bundlerCommand() {
           return
         }
       }
-      const genericDirectoryPath = path.resolve(generic)
+
+      if (inputFiles.length === 0) {
+        console.warn('No input files found')
+        return
+      }
+
+      const genericDirectoryPath = generic ?? await findGenericDirectory(inputFiles[0])
+
+      if (genericDirectoryPath === undefined) {
+        console.warn('No generic directory found')
+        return
+      }
+      if (debug)
+        console.log(`Using generic directory '${genericDirectoryPath}'`)
 
       const fileToProcess = inputFiles.map(file => path.resolve(file)).filter(file => !file.startsWith(genericDirectoryPath))
 
@@ -267,6 +296,7 @@ export function bundlerCommand() {
         if (output) {
           const outputPath = path.join(output, bundle.data.name)
           await fs.writeFile(outputPath, encoded.stream())
+          console.log(`[${bundle.data.name}] written to ${outputPath}`)
         }
 
         if (upload) {

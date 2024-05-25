@@ -54,8 +54,6 @@ export function bulkUUIDCommand(command: Command) {
         uuid: z.string().optional(),
       })
 
-      console.log(inputFiles)
-
       const filesToEdit = (await Promise.all(inputFiles.map(async (inputFile) => {
         const content = await fs.readFile(inputFile, 'utf-8')
         const data = (() => {
