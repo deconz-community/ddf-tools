@@ -4,8 +4,8 @@ import fs from 'node:fs/promises'
 import { program } from '@commander-js/extra-typings'
 import glob from 'fast-glob'
 import type { Source, ValidationError } from '@deconz-community/ddf-bundler'
-import { buildFromFiles, createSource, encode, sign } from '@deconz-community/ddf-bundler'
-import { hexToBytes } from '@noble/hashes/utils'
+import { buildFromFiles, createSource, encode, generateHash, sign } from '@deconz-community/ddf-bundler'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
@@ -110,45 +110,47 @@ export function bundlerCommand() {
       }
 
       const getLastModified = async (filePath: string) => {
+        const resolvedFilePath = path.resolve(filePath)
+
         // return new Date(1675344959000) // Thu Feb 02 2023 14:35:59 GMT+0100
         // return new Date(1696250159000) // Mon Oct 02 2023 14:35:59 GMT+0200
         // return new Date()
         switch (fileModifiedMethod) {
           case 'gitlog': {
-            const gitDirectory = await findGitDirectory(filePath)
+            const gitDirectory = await findGitDirectory(resolvedFilePath)
             if (gitDirectory === undefined) {
-              console.warn(`No .git directory found for ${filePath}. Using mtime instead.`)
-              return (await fs.stat(filePath)).mtime
+              console.warn(`No .git directory found for ${resolvedFilePath}. Using mtime instead.`)
+              return (await fs.stat(resolvedFilePath)).mtime
             }
 
             if (debug)
-              console.log(`Finding git log datetime for file '${filePath}' in git directory '${gitDirectory}'`)
+              console.log(`Finding git log datetime for file '${resolvedFilePath}' in git directory '${gitDirectory}'`)
 
             const git = simpleGit(gitDirectory)
-            const log = await git.log({ file: filePath })
+            const log = await git.log({ file: resolvedFilePath })
 
             const status = await git.status()
-            if (status.modified.some(file => filePath.endsWith(file))) {
-              console.warn(`File modified since last commit for ${filePath}. Using mtime instead.`)
-              return (await fs.stat(filePath)).mtime
+            if (status.modified.some(file => resolvedFilePath.endsWith(file))) {
+              console.warn(`File modified since last commit for ${resolvedFilePath}. Using mtime instead.`)
+              return (await fs.stat(resolvedFilePath)).mtime
             }
 
             const latestCommit = log.latest
             if (latestCommit === null) {
-              console.warn(`No commit found for ${filePath}. Using mtime instead.`)
-              return (await fs.stat(filePath)).mtime
+              console.warn(`No commit found for ${resolvedFilePath}. Using mtime instead.`)
+              return (await fs.stat(resolvedFilePath)).mtime
             }
 
             if (debug)
-              console.log(`Found git log datetime for file '${filePath}' : '${latestCommit.date}'`)
+              console.log(`Found git log datetime for file '${resolvedFilePath}' : '${latestCommit.date}'`)
 
             return new Date(latestCommit.date)
           }
           case 'mtime': {
-            return (await fs.stat(filePath)).mtime
+            return (await fs.stat(resolvedFilePath)).mtime
           }
           case 'ctime': {
-            return (await fs.stat(filePath)).atime
+            return (await fs.stat(resolvedFilePath)).atime
           }
         }
 
@@ -294,7 +296,8 @@ export function bundlerCommand() {
         }
 
         if (output) {
-          const outputPath = path.join(output, bundle.data.name)
+          const hash = bundle.data.hash ? bytesToHex(bundle.data.hash) : bytesToHex(await generateHash(bundle.data))
+          const outputPath = path.join(output, `${bundle.data.name}-${hash.substring(0, 8)}.ddf`)
           await fs.writeFile(outputPath, encoded.stream())
           console.log(`[${bundle.data.name}] written to ${outputPath}`)
         }
