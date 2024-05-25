@@ -66,20 +66,11 @@ const pageCount = computed(() => {
             <div class="d-flex align-center">
               <div class="d-inline-flex">
                 <v-btn
-                  :disabled="page === 1"
-                  icon="mdi-arrow-left"
-                  size="small"
+                  append-icon="mdi-upload"
                   variant="tonal"
                   class="me-2"
-                  @click="page--"
-                />
-
-                <v-btn
-                  :disabled="page === pageCount"
-                  icon="mdi-arrow-right"
-                  size="small"
-                  variant="tonal"
-                  @click="page++"
+                  to="/store/upload"
+                  text="Upload"
                 />
               </div>
             </div>

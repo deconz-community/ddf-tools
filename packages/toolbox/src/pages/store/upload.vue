@@ -91,12 +91,16 @@ async function upload() {
         label="Open .ddf bundle from disk"
         accept=".ddf"
       />
-      <v-btn @click="upload()">
-        Upload
-      </v-btn>
     </template>
     <template #actions>
+      <v-btn
+        variant="tonal"
+        @click="upload()"
+      >
+        Upload
+      </v-btn>
       <v-btn-toggle
+        v-if="store.profile?.can_use_official_keys === true"
         v-model="defaultState"
         mandatory
         divided
