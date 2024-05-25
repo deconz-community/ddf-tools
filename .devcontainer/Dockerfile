@@ -11,4 +11,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"
 
 # [Optional] Uncomment if you want to install more global node packages
-RUN su node -c "npm install --location=global pnpm turbo @changesets/cli"
+RUN su node -c "npm install --location=global pnpm turbo @changesets/cli isolated-vm"
