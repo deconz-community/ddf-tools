@@ -41,6 +41,8 @@ export const storeMachine = setup({
     } | {
       type: 'UPDATE_DIRECTUS_URL'
       directusUrl: string
+    } | {
+      type: 'REFRESH_PROFILE'
     },
   },
 
@@ -279,6 +281,10 @@ export const storeMachine = setup({
                 },
                 UPDATE_PROFILE: {
                   actions: 'updateProfile',
+                },
+                REFRESH_PROFILE: {
+                  target: 'connected',
+                  reenter: true,
                 },
               },
 

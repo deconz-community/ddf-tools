@@ -53,7 +53,19 @@ async function passwordReset() {
           :height="avatarSize"
           :width="avatarSize"
         >
-          <v-avatar :image="avatarUrl" alt="User avatar" :size="avatarSize - 2" />
+          <v-avatar :size="avatarSize - 2">
+            <v-img
+              v-if="avatarUrl"
+              :src="avatarUrl"
+              alt="User avatar"
+            />
+            <v-icon
+              v-else
+              icon="mdi-account"
+              size="40"
+              color="grey lighten-1"
+            />
+          </v-avatar>
         </btn-rounded-circle>
       </template>
       <v-list>
@@ -128,6 +140,13 @@ async function passwordReset() {
                 variant="flat"
                 color="secondary"
                 @click="passwordReset()"
+              />
+              <v-btn
+                text="Register"
+                variant="flat"
+                color="secondary"
+                :to="{ path: '/store/user/me/register' }"
+                @click="isActive.value = false"
               />
               <v-btn
                 text="Login"

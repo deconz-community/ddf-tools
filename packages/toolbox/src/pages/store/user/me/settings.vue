@@ -2,24 +2,40 @@
 import { useConfirm } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { updateMe } from '@directus/sdk'
-
-const props = defineProps<{
-  user: string
-}>()
+import { createDirectus, rest, updateFile, updateMe, uploadFiles } from '@directus/sdk'
 
 const createConfirm = useConfirm()
 
 const store = useStore()
 
 const settings = reactive({
-  private_key: store.profile?.private_key as string,
-  public_key: store.profile?.public_key as string,
+  first_name: store.profile?.first_name ?? '',
+  email: store.profile?.email ?? '',
+  private_key: store.profile?.private_key ?? '',
+  public_key: store.profile?.public_key ?? '',
+})
+
+watch(toRef(store, 'profile'), () => {
+  settings.first_name = store.profile?.first_name ?? ''
+  settings.email = store.profile?.email ?? ''
+  settings.private_key = store.profile?.private_key ?? ''
+  settings.public_key = store.profile?.public_key ?? ''
 })
 
 const errorMessage = ref('')
+const avatarFile = ref<File[]>([])
 
 async function generateKeys() {
+  if (settings.private_key) {
+    const isConfirmed = await createConfirm({
+      title: 'Generate new keys',
+      content: 'Any bundles signed with the old keys will no longer be valid.',
+    })
+
+    if (!isConfirmed)
+      return
+  }
+
   settings.private_key = bytesToHex(secp256k1.utils.randomPrivateKey())
 }
 
@@ -37,30 +53,50 @@ watch(toRef(settings, 'private_key'), () => {
   }
 })
 
-async function saveKeys() {
-  const isConfirmed = await createConfirm({
-    content: 'Any bundles signed with the old keys will no longer be valid.',
-  })
-
-  if (!isConfirmed)
-    return
-
+async function save() {
   try {
     if (store.profile === undefined)
       throw new Error('User is not logged in.')
 
-    await store.client?.request(updateMe({
+    /*
+    let newAvatarId: string | null = store.profile.avatar as string
+
+    if (avatarFile.value.length > 0) {
+      const formData = new FormData()
+      formData.append('file', avatarFile.value[0])
+      if (!newAvatarId) {
+        const avatar = await store.client?.request(uploadFiles(formData))
+        newAvatarId = avatar?.id ?? null
+      }
+      else {
+        // TODO
+        const result = await store.client?.request(updateFile(newAvatarId, formData))
+        console.log(result)
+      }
+    }
+    */
+
+    const profile = await store.client?.request(updateMe({
+      first_name: settings.first_name,
+      email: settings.email,
       private_key: settings.private_key,
       public_key: settings.public_key,
     }))
+
+    store.send({ type: 'UPDATE_PROFILE', profile: profile as any })
   }
   catch (e) {
     console.error(e)
-    return toast.error('Error while saving keys.')
+    return toast.error('Error while saving user profile.')
   }
 
-  toast.success('New keys has been saved.')
+  toast.success('User profile has been saved.')
 }
+
+const avatarPreview = computed(() => {
+  const avatar = avatarFile.value[0]
+  return avatar ? URL.createObjectURL(avatar) : null
+})
 
 // const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)
 </script>
@@ -68,52 +104,89 @@ async function saveKeys() {
 <template>
   <v-card class="ma-2" title="Account Details">
     <v-card-text>
-      <div class="d-flex">
-        <v-avatar class="ma-2" :image="store.profile?.avatar_url" size="125" />
+      <div class="d-flex mb-5">
+        <v-avatar
+          size="125"
+          variant="outlined"
+          class="mr-4"
+        >
+          <v-img
+            v-if="store.profile?.avatar_url"
+            :src="store.profile?.avatar_url"
+            alt="avatar"
+            size="125"
+          />
+          <v-icon
+            v-else
+            icon="mdi-account"
+            size="100"
+            color="grey lighten-1"
+          />
+        </v-avatar>
         <v-card
           class="ma-2 flex-grow-1"
           :title="`${store.profile?.first_name ?? ''} ${store.profile?.last_name ?? ''}`"
           :subtitle="store.profile?.email ?? undefined"
-        >
-          <v-card-text>
-            <!--
-            <v-btn :href="userProfilLink" target="_blank">
-              Github profile
-            </v-btn>
-          -->
-          </v-card-text>
-        </v-card>
+        />
       </div>
+      <v-text-field
+        v-model="settings.first_name"
+        label="Username"
+      />
+      <v-text-field
+        v-model="settings.email"
+        label="Email"
+      />
+      <!--
+      <div class="d-flex">
+        <v-avatar
+          size="56"
+          variant="outlined"
+          class="mr-4"
+        >
+          <v-img
+            v-if="avatarPreview"
+            :src="avatarPreview"
+            alt="avatar"
+          />
+          <v-icon
+            v-else
+            icon="mdi-account"
+            size="46"
+            color="grey lighten-1"
+          />
+        </v-avatar>
 
-      <v-card
-        class="ma-2 flex-grow-1"
-        title="Bundle Signature"
-        variant="outlined"
-        elevation="1"
-      >
-        <v-card-text>
-          <v-text-field
-            v-model="settings.private_key"
-            label="Signature private key"
-            :error-messages="errorMessage"
-          />
-          <v-text-field
-            v-model="settings.public_key"
-            label="Signature public key"
-            readonly
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="outlined" @click="generateKeys">
-            Generate new keys
-          </v-btn>
-          <v-btn variant="outlined" @click="saveKeys">
-            Save
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+        <v-file-input
+          v-model="avatarFile"
+          label="Avatar"
+          prepend-icon="mdi-camera"
+          accept="image/*"
+          autocomplete="photo"
+        />
+      </div>
+      -->
+
+      <v-divider class="mb-5" />
+      <v-text-field
+        v-model="settings.private_key"
+        label="Signature private key"
+        :error-messages="errorMessage"
+        append-icon="mdi-reload"
+        @click:append="generateKeys"
+      />
+      <v-text-field
+        v-model="settings.public_key"
+        label="Signature public key"
+        readonly
+      />
     </v-card-text>
+    <v-card-actions>
+      <v-spacer />
+      <v-btn variant="outlined" @click="save">
+        Save
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
