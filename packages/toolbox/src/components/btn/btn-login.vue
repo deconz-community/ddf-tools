@@ -25,6 +25,9 @@ async function login() {
 }
 
 async function passwordReset() {
+  if (loginEmail.value === '')
+    return toast.error('Please enter your email address')
+
   try {
     await store.client?.request(passwordRequest(
       loginEmail.value,

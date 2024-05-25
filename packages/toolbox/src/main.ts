@@ -12,6 +12,7 @@ const routes = setupLayouts(generatedRoutes)
 const app = createApp(App)
 
 const router = createRouter({
+  // If removing hash history look in the code for "https://github.com/vuejs/router/issues/2054"
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
 })
