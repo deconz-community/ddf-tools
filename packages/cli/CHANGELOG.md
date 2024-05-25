@@ -1,5 +1,20 @@
 # @deconz-community/cli
 
+## 1.14.0
+
+### Minor Changes
+
+- 53472c5: Auto detect generic directory
+
+### Patch Changes
+
+- 4449efe: Fix git directory search
+- 6458a23: Update deps
+- Updated dependencies [dea07d6]
+- Updated dependencies [6458a23]
+  - @deconz-community/ddf-validator@2.30.0
+  - @deconz-community/ddf-bundler@0.26.0
+
 ## 1.13.2
 
 ### Patch Changes

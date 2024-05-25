@@ -1,5 +1,19 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.19.0
+
+### Minor Changes
+
+- fb06381: Add info data on bundles
+- 8a06d5b: Remove maintainer of UUID filter on upload
+
+### Patch Changes
+
+- 6458a23: Update deps
+- Updated dependencies [dea07d6]
+- Updated dependencies [6458a23]
+  - @deconz-community/ddf-bundler@0.26.0
+
 ## 0.18.0
 
 ### Minor Changes

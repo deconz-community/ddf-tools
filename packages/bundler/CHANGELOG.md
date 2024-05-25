@@ -1,5 +1,15 @@
 # @deconz-community/ddf-bundler
 
+## 0.26.0
+
+### Minor Changes
+
+- dea07d6: Add support for md:type files
+
+### Patch Changes
+
+- 6458a23: Update deps
+
 ## 0.25.0
 
 ### Minor Changes
