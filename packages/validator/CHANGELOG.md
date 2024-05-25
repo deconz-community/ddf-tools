@@ -1,5 +1,15 @@
 # @deconz-community/ddf-validator
 
+## 2.30.0
+
+### Minor Changes
+
+- dea07d6: Add support for md:type files
+
+### Patch Changes
+
+- 6458a23: Update deps
+
 ## 2.29.0
 
 ### Minor Changes
