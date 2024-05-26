@@ -1,9 +1,9 @@
 import type { Accountability } from '@directus/types'
 import { asyncHandler } from '../utils'
 import type { Collections } from '../../client'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext } from '../types'
 
-export function searchEndpoint({ router, context, services, schema }: InstallFunctionParams) {
+export function searchEndpoint({ router, context, services, schema }: GlobalContext) {
   router.get('/search', asyncHandler(async (req, res) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
     const serviceOptions = { schema, knex: context.database, accountability }

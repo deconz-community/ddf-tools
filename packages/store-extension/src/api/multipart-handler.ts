@@ -3,21 +3,14 @@ import { createError } from '@directus/errors'
 import Busboy from 'busboy'
 
 const ContentTooLargeError = createError('CONTENT_TOO_LARGE', 'Uploaded content is too large.', 413)
-
-function InvalidPayloadError(message: string) {
-  return createError(
-    'INVALID_PAYLOAD',
-    message,
-    400,
-  )
-}
+const NoFileUploadedError = createError('INVALID_PAYLOAD', 'No files uploaded', 413)
 
 export type BlobsPayload = Record<string, {
   blob: Blob
   meta: Record<string, string | boolean | null>
 }>
 
-export const multipartHandler: RequestHandler<object, any, BlobsPayload> = (req, res, next) => {
+export const multipartHandler: RequestHandler<object, any, BlobsPayload> = (req, _res, next) => {
   if (req.is('multipart/form-data') === false)
     return next()
 
@@ -57,10 +50,9 @@ export const multipartHandler: RequestHandler<object, any, BlobsPayload> = (req,
     currentMeta[fieldname] = fieldValue
   })
 
-  busboy.on('file', async (uploadUUID, fileStream) => {
+  busboy.on('file', (uploadUUID, fileStream) => {
     fileStream.on('limit', () => {
-      const error = ContentTooLargeError
-      next(error)
+      next(ContentTooLargeError)
     })
 
     const chunks: BlobPart[] = []
@@ -85,7 +77,7 @@ export const multipartHandler: RequestHandler<object, any, BlobsPayload> = (req,
 
   busboy.on('close', () => {
     if (Object.keys(payload).length === 0)
-      return next(InvalidPayloadError('No files uploaded'))
+      next(NoFileUploadedError)
 
     req.body = payload
 

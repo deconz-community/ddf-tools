@@ -7,7 +7,7 @@ import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import pako from 'pako'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext } from '../types'
 import type { Collections } from '../../client'
 import { asyncHandler, fetchUserContext } from '../utils'
 import type { BlobsPayload } from '../multipart-handler'
@@ -23,8 +23,8 @@ type UploadResponse = Record<string, {
   message: string
 }>
 
-export function uploadEndpoint(params: InstallFunctionParams) {
-  const { router, context, services, schema } = params
+export function uploadEndpoint(globalContext: GlobalContext) {
+  const { router, context, services, schema } = globalContext
 
   router.post('/upload/:state', (req, _res, next) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
@@ -36,7 +36,7 @@ export function uploadEndpoint(params: InstallFunctionParams) {
       throw new ForbiddenError()
 
     next()
-  }, asyncHandler(multipartHandler), asyncHandler(async (req, res, _next) => {
+  }, multipartHandler, asyncHandler(async (req, res, _next) => {
     // @ts-expect-error - The middleware above ensures that this is defined
     const accountability = req.accountability as Accountability
     const userId = accountability.user!
@@ -47,7 +47,7 @@ export function uploadEndpoint(params: InstallFunctionParams) {
 
     const result: UploadResponse = {}
 
-    const { settings, userInfo } = await fetchUserContext(adminAccountability, userId, params)
+    const { settings, userInfo } = await fetchUserContext(adminAccountability, userId, globalContext)
 
     if (!settings.private_key_beta || !settings.private_key_stable || !settings.public_key_beta || !settings.public_key_stable)
       throw new InvalidQueryError({ reason: 'The server is missing the system keys, please contact an admin.' })

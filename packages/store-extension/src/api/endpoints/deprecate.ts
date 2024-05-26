@@ -1,11 +1,12 @@
 import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
 import type { Collections } from '../../client'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext, KeySet } from '../types'
 import { asyncHandler, fetchUserContext } from '../utils'
+import { updateBundleSignatures } from '../signature-editor'
 
-export function deprecateEndpoint(params: InstallFunctionParams) {
-  const { router, context, services, schema } = params
+export function deprecateEndpoint(globalContext: GlobalContext) {
+  const { router, context, services, schema } = globalContext
 
   router.post('/deprecate', asyncHandler(async (req, res) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
@@ -36,7 +37,18 @@ export function deprecateEndpoint(params: InstallFunctionParams) {
     if (type === 'version' && typeof bundle_id !== 'string')
       throw new InvalidQueryError({ reason: 'You must provide a bundle_id' })
 
-    const { userInfo, settings } = await fetchUserContext(adminAccountability, accountability.user, params)
+    const { userInfo, settings } = await fetchUserContext(adminAccountability, accountability.user, globalContext)
+
+    const { public_key_deprecated, private_key_deprecated } = settings
+
+    if (!public_key_deprecated || !private_key_deprecated)
+      throw new InvalidQueryError({ reason: 'The server is missing the system keys, please contact an admin.' })
+
+    const deprecatedKeySet: KeySet = {
+      private: private_key_deprecated,
+      public: public_key_deprecated,
+      type: 'system',
+    }
 
     const uuidInfo = (await UUIDService.readByQuery({
       fields: [
@@ -63,20 +75,43 @@ export function deprecateEndpoint(params: InstallFunctionParams) {
     if (bundle.ddf_uuid !== ddf_uuid)
       throw new InvalidQueryError({ reason: 'The bundle does not match the UUID' })
 
+    const affectedBundles: string[] = []
+    const deprecation_message = message === 'null' ? null : message as string
+
     if (type === 'bundle') {
+      affectedBundles.push(bundle_id as string)
       await UUIDService.updateOne(ddf_uuid, {
-        deprecation_message: message === 'null' ? null : message as string,
+        deprecation_message,
       })
-      return res.json({ success: true })
     }
 
     if (type === 'version') {
-      await bundleService.updateOne(bundle_id as string, {
-        deprecation_message: message === 'null' ? null : message as string,
+      const bundlesList = await bundleService.readByQuery({
+        fields: ['id'],
+        filter: {
+          ddf_uuid: { _eq: ddf_uuid },
+        },
       })
-      return res.json({ success: true })
+
+      affectedBundles.push(...bundlesList.map(bundle => bundle.id))
+
+      await bundleService.updateOne(bundle_id as string, {
+        deprecation_message,
+      })
     }
 
-    throw new InvalidQueryError({ reason: 'Unknown error' })
+    if (affectedBundles.length > 0) {
+      await updateBundleSignatures(
+        globalContext,
+        adminAccountability,
+        affectedBundles,
+        // addKeys
+        deprecation_message === null ? [] : [deprecatedKeySet],
+        // removeKeys
+        deprecation_message === null ? [deprecatedKeySet] : [],
+      )
+    }
+
+    return res.json({ success: true })
   }))
 }

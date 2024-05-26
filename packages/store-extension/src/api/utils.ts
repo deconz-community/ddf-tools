@@ -1,15 +1,15 @@
 import type { Accountability } from '@directus/types'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import type { Collections } from '../client'
-import type { InstallFunctionParams } from './types'
+import type { GlobalContext } from './types'
 
 export function asyncHandler(fn: RequestHandler) {
   return (req: Request, res: Response, next: NextFunction) =>
     Promise.resolve(fn(req, res, next)).catch(next)
 }
 
-export async function fetchUserContext(accountability: Accountability, userId: string, globalParams: InstallFunctionParams) {
-  const { schema, context, services } = globalParams
+export async function fetchUserContext(accountability: Accountability, userId: string, globalContext: GlobalContext) {
+  const { schema, context, services } = globalContext
   const serviceOptions = { schema, knex: context.database, accountability }
   const userService = new services.UsersService(serviceOptions)
   const settingsService = new services.SettingsService(serviceOptions)

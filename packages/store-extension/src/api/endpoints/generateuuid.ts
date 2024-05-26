@@ -1,11 +1,11 @@
 import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
 import type { Collections } from '../../client'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext } from '../types'
 import { asyncHandler } from '../utils'
 
-export function generateUUIDEndpoint(params: InstallFunctionParams) {
-  const { router, context, services, schema } = params
+export function generateUUIDEndpoint(globalContext: GlobalContext) {
+  const { router, context, services, schema } = globalContext
 
   router.get('/generateUUID', asyncHandler(async (req, res, _next) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null

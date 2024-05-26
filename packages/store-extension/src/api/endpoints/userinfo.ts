@@ -1,8 +1,8 @@
 import { InvalidQueryError } from '@directus/errors'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext } from '../types'
 import { asyncHandler } from '../utils'
 
-export function userinfoEndpoint({ router, context, services, schema }: InstallFunctionParams) {
+export function userinfoEndpoint({ router, context, services, schema }: GlobalContext) {
   router.get('/userinfo', asyncHandler(async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600')
 

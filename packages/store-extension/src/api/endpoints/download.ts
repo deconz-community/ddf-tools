@@ -5,10 +5,10 @@ import type { Accountability } from '@directus/types'
 import slugify from '@sindresorhus/slugify'
 import pako from 'pako'
 import type { Collections } from '../../client'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext } from '../types'
 import { asyncHandler } from '../utils'
 
-export function downloadEndpoint({ router, context, services, schema }: InstallFunctionParams) {
+export function downloadEndpoint({ router, context, services, schema }: GlobalContext) {
   router.get('/download/:id', asyncHandler(async (req, res) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
 

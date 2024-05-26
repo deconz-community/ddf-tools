@@ -1,16 +1,11 @@
-import { Buffer } from 'node:buffer'
-import { createSignature, decode, encode } from '@deconz-community/ddf-bundler'
 import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
-import { sha256 } from '@noble/hashes/sha256'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
-import pako from 'pako'
-import type { Collections } from '../../client'
-import type { InstallFunctionParams } from '../types'
+import type { GlobalContext, KeySet } from '../types'
 import { asyncHandler, fetchUserContext } from '../utils'
+import { updateBundleSignatures } from '../signature-editor'
 
-export function signEndpoint(params: InstallFunctionParams) {
-  const { router, context, services, schema } = params
+export function signEndpoint(globalContext: GlobalContext) {
+  const { router } = globalContext
   router.post('/sign/:id', asyncHandler(async (req, res) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
 
@@ -21,10 +16,6 @@ export function signEndpoint(params: InstallFunctionParams) {
       ...accountability,
       admin: true,
     })
-
-    const serviceOptions = { schema, knex: context.database, accountability: adminAccountability }
-
-    const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
 
     const { type, state } = req.query
     const bundleID = req.params.id
@@ -41,123 +32,52 @@ export function signEndpoint(params: InstallFunctionParams) {
     if (!['alpha', 'beta', 'stable'].includes(state))
       throw new InvalidQueryError({ reason: 'Invalid state' })
 
-    const { settings, userInfo } = await fetchUserContext(adminAccountability, accountability.user, params)
+    const { settings, userInfo } = await fetchUserContext(adminAccountability, accountability.user, globalContext)
 
     if (!userInfo.is_contributor)
       throw new ForbiddenError()
 
-    const bundle = await bundleService.readOne(bundleID, {
-      fields: [
-        'content',
-      ],
-    })
+    const {
+      public_key_beta,
+      private_key_beta,
+      public_key_stable,
+      private_key_stable,
+    } = settings
 
-    if (!bundle.content)
-      throw new InvalidQueryError({ reason: 'Bundle not found' })
-
-    const buffer = Buffer.from(bundle.content, 'base64')
-
-    const decoded = await decode(new Blob([pako.inflate(buffer)]))
-
-    if (!decoded.data.hash)
-      throw new InvalidQueryError({ reason: 'Invalid bundle' })
-
-    const keysToUse = state === 'stable'
-      ? {
-          privateKey: settings.private_key_stable,
-          publicKey: settings.public_key_stable,
-        }
-      : state === 'beta'
-        ? {
-            privateKey: settings.private_key_beta,
-            publicKey: settings.public_key_beta,
-          }
-        : {}
-
-    const { publicKey, privateKey } = keysToUse
-
-    if (state !== 'alpha' && (!publicKey || !privateKey))
+    if (!public_key_beta || !private_key_beta || !public_key_stable || !private_key_stable)
       throw new InvalidQueryError({ reason: 'The server is missing the system keys, please contact an admin.' })
 
-    // Remove current system signature and check if the bundle is already signed by the system key
-    decoded.data.signatures = decoded.data.signatures.filter((signature) => {
-      const key = bytesToHex(signature.key)
-
-      if (key === publicKey)
-        throw new InvalidQueryError({ reason: 'Bundle already signed by this key' })
-
-      return key !== settings.public_key_stable
-        && key !== settings.public_key_beta
-    })
-
-    if (state !== 'alpha') {
-      decoded.data.signatures.push({
-        key: hexToBytes(publicKey!),
-        signature: createSignature(decoded.data.hash, hexToBytes(privateKey!)),
-      })
+    const betaKeySet: KeySet = {
+      public: public_key_beta,
+      private: private_key_beta,
+      type: 'system',
     }
 
-    const bundleBuffer = await encode(decoded).arrayBuffer()
-    const compressed = Buffer.from(pako.deflate(bundleBuffer)).toString('base64')
+    const stableKeySet: KeySet = {
+      public: public_key_stable,
+      private: private_key_stable,
+      type: 'system',
+    }
 
-    await context.database.transaction(async (knex) => {
-      const serviceOptions = { schema, knex, accountability: adminAccountability }
+    const addKeys: KeySet[] = []
+    const removeKeys: KeySet[] = []
 
-      const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
-      const signatureService = new services.ItemsService<Collections.Signatures>('signatures', serviceOptions)
+    switch (state) {
+      case 'alpha':
+        removeKeys.push(betaKeySet)
+        removeKeys.push(stableKeySet)
+        break
+      case 'beta':
+        addKeys.push(betaKeySet)
+        removeKeys.push(stableKeySet)
+        break
+      case 'stable':
+        removeKeys.push(betaKeySet)
+        addKeys.push(stableKeySet)
+        break
+    }
 
-      const currentSystemSignature = (await signatureService.readByQuery({
-        fields: [
-          'id',
-          'key',
-          'type',
-        ],
-        filter: {
-          type: {
-            _eq: 'system',
-          },
-          bundle: {
-            _eq: bundleID,
-          },
-        },
-
-      })).shift()
-
-      const promises = []
-
-      promises.push(bundleService.updateOne(bundleID, {
-        content: compressed,
-        content_hash: bytesToHex(sha256(new Uint8Array(bundleBuffer))),
-      }))
-
-      if (state === 'alpha') {
-        if (currentSystemSignature) {
-          promises.push(
-            signatureService.deleteOne(currentSystemSignature.id),
-          )
-        }
-      }
-      else {
-        if (currentSystemSignature === undefined) {
-          promises.push(
-            signatureService.createOne({
-              bundle: bundleID,
-              key: publicKey!,
-              type: 'system',
-            }),
-          )
-        }
-        else {
-          promises.push(
-            signatureService.updateOne(currentSystemSignature.id, {
-              key: publicKey!,
-            }),
-          )
-        }
-      }
-
-      return await Promise.all(promises)
-    })
+    await updateBundleSignatures(globalContext, accountability, [bundleID], addKeys, removeKeys)
 
     res.json({ success: true, type, state })
   }))
