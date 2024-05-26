@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.27.0
+
+### Minor Changes
+
+- 4056798: Add deprecated public key
+
 ## 0.26.0
 
 ### Minor Changes
