@@ -2,15 +2,25 @@
 import { useConfirm } from 'vuetify-use-dialog'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { createDirectus, rest, updateFile, updateMe, uploadFiles } from '@directus/sdk'
+import { RestCommand, createDirectus, rest, updateFile, updateMe, uploadFiles } from '@directus/sdk'
 
 const createConfirm = useConfirm()
+
+// https://github.com/directus/directus/issues/22571
+const randomString = <Schema>(length?: number): RestCommand<string, Schema> =>
+  () => ({
+    method: 'GET',
+    path: `/utils/random/string`,
+    params: length !== undefined ? { length } : undefined,
+  });
 
 const store = useStore()
 
 const settings = reactive({
   first_name: store.profile?.first_name ?? '',
   email: store.profile?.email ?? '',
+  token: store.profile?.token ?? '',
+  isNewToken: false,
   private_key: store.profile?.private_key ?? '',
   public_key: store.profile?.public_key ?? '',
 })
@@ -18,6 +28,9 @@ const settings = reactive({
 watch(toRef(store, 'profile'), () => {
   settings.first_name = store.profile?.first_name ?? ''
   settings.email = store.profile?.email ?? ''
+  if(settings.token === '')
+    settings.token = store.profile?.token ?? ''
+  settings.isNewToken = false
   settings.private_key = store.profile?.private_key ?? ''
   settings.public_key = store.profile?.public_key ?? ''
 })
@@ -79,6 +92,7 @@ async function save() {
     const profile = await store.client?.request(updateMe({
       first_name: settings.first_name,
       email: settings.email,
+      ...(settings.isNewToken ? { token: settings.token } : {}),
       private_key: settings.private_key,
       public_key: settings.public_key,
     }))
@@ -97,6 +111,11 @@ const avatarPreview = computed(() => {
   const avatar = avatarFile.value[0]
   return avatar ? URL.createObjectURL(avatar) : null
 })
+
+async function generateToken() {
+  settings.token = await store.client?.request(randomString()) ?? ''
+  settings.isNewToken = true
+}
 
 // const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)
 </script>
@@ -168,6 +187,14 @@ const avatarPreview = computed(() => {
       -->
 
       <v-divider class="mb-5" />
+      <v-text-field
+        v-model="settings.token"
+        label="Static authentication token"
+        hint="This token is used to authenticate the user in various tools."
+        readonly
+        append-icon="mdi-reload"
+        @click:append="generateToken()"
+      />
       <v-text-field
         v-model="settings.private_key"
         label="Signature private key"
