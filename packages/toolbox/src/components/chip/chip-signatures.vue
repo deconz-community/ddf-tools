@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BETA_PUBLIC_KEY, STABLE_PUBLIC_KEY } from '@deconz-community/ddf-bundler'
+import { BETA_PUBLIC_KEY, DEPRECATED_PUBLIC_KEY, STABLE_PUBLIC_KEY } from '@deconz-community/ddf-bundler'
 
 type KeyType = 'system' | 'user'
 interface Signature {
@@ -31,12 +31,23 @@ const betaKeys = computed(() => {
   ].filter(Boolean)
 })
 
+const deprecatedKeys = computed(() => {
+  return [
+    DEPRECATED_PUBLIC_KEY,
+    settings.value?.public_key_deprecated,
+  ].filter(Boolean)
+})
+
 const processedSignatures = computed<Signature[]>(() => {
   return props.signatures.map((signature) => {
     if (signature.type !== undefined)
       return signature
 
-    if (stableKeys.value.includes(signature.key) || betaKeys.value.includes(signature.key)) {
+    if (
+      stableKeys.value.includes(signature.key)
+      || betaKeys.value.includes(signature.key)
+      || deprecatedKeys.value.includes(signature.key)
+    ) {
       return {
         key: signature.key,
         type: 'system',
@@ -59,6 +70,13 @@ const systemFlag = computed(() => {
     return {
       text: 'Unknown',
       color: 'gray',
+    }
+  }
+
+  if (processedSignatures.value.some(s => deprecatedKeys.value.includes(s.key))) {
+    return {
+      text: 'Deprecated',
+      color: 'orange',
     }
   }
 

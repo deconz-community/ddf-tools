@@ -193,7 +193,7 @@ const deprecation_message = computed(() => {
   else { return undefined }
 })
 
-async function deprecate(type: 'bundle' | 'version') {
+async function deprecate() {
   const input = ref('')
   const textArea = ref<VTextarea>()
 
@@ -203,13 +203,13 @@ async function deprecate(type: 'bundle' | 'version') {
   ]
 
   const isConfirmed = createConfirm({
-    title: `This will mark this ${type} as deprecated`,
+    title: `This will mark this version as deprecated`,
     contentComponent: VTextarea,
     contentComponentProps: {
       'label': 'Deprecation message',
       'model-value': input,
       'rules': rules,
-      'placeholder': `Don't use this ${type} anymore because...`,
+      'placeholder': `Don't use this version anymore because...`,
       'ref': textArea,
     },
     confirmationText: 'Deprecate',
@@ -230,30 +230,19 @@ async function deprecate(type: 'bundle' | 'version') {
   for (const rule of rules) {
     const result = rule(input.value)
     if (typeof result === 'string')
-      return toast.error(`Error while deprecating this ${type}.`)
+      return toast.error(`Error while deprecating this bundle.`)
   }
 
   try {
     if (bundle.state.value === null)
       throw new Error('No bundle')
 
-    const ddf_uuid = bundle.state.value.ddf_uuid as string
-    const bundle_id = bundle.state.value.id
+    const result = await store.client?.request(storeDeprecateBundle({
+      type: 'version',
+      message: input.value,
+      bundle_id: bundle.state.value.id,
+    }))
 
-    const params: BundleDeprecateParams = type === 'bundle'
-      ? {
-          type: 'bundle',
-          message: input.value,
-          ddf_uuid,
-        }
-      : {
-          type: 'version',
-          message: input.value,
-          ddf_uuid,
-          bundle_id,
-        }
-
-    const result = await store.client?.request(storeDeprecateBundle(params))
     if (result && result.success) {
       await bundle.execute()
       toast.success(`Deprecation message updated`)
@@ -264,28 +253,17 @@ async function deprecate(type: 'bundle' | 'version') {
   }
 }
 
-async function reinstate(type: 'bundle' | 'version') {
+async function reinstate() {
   try {
     if (bundle.state.value === null)
       throw new Error('No bundle')
 
-    const ddf_uuid = bundle.state.value.ddf_uuid as string
-    const bundle_id = bundle.state.value.id
+    const result = await store.client?.request(storeDeprecateBundle({
+      type: 'version',
+      message: 'null',
+      bundle_id: bundle.state.value.id,
+    }))
 
-    const params: BundleDeprecateParams = type === 'bundle'
-      ? {
-          type: 'bundle',
-          message: 'null',
-          ddf_uuid,
-        }
-      : {
-          type: 'version',
-          message: 'null',
-          ddf_uuid,
-          bundle_id,
-        }
-
-    const result = await store.client?.request(storeDeprecateBundle(params))
     if (result && result.success) {
       await bundle.execute()
       toast.success(`Deprecation message updated`)
@@ -413,7 +391,7 @@ async function reinstate(type: 'bundle' | 'version') {
                       </v-chip>
                     </td>
                     <td>
-                      <v-chip v-if="version.deprecation_message || ddfUuidInfo.state.value?.deprecation_message" variant="flat" color="orange">
+                      <v-chip v-if="version.deprecation_message" variant="flat" color="orange">
                         Deprecated
                       </v-chip>
                       <chip-signatures v-else :signatures="version.signatures ?? []" only="system" class="ma-2" />
@@ -468,14 +446,14 @@ async function reinstate(type: 'bundle' | 'version') {
                   </v-btn-toggle>
                 </v-card-actions>
               </v-card>
-              <v-card v-if="!bundle.state.value?.deprecation_message" class="ma-2" title="Deprecate version">
+              <v-card v-if="!bundle.state.value?.deprecation_message" class="ma-2" title="Deprecate bundle version">
                 <v-card-text>
                   This will mark this version of the bundle as deprecated.
                   <v-spacer />
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn color="orange" prepend-icon="mdi-flag" @click="deprecate('version')">
+                  <v-btn color="orange" prepend-icon="mdi-flag" @click="deprecate()">
                     Deprecate this version
                   </v-btn>
                 </v-card-actions>
@@ -487,32 +465,8 @@ async function reinstate(type: 'bundle' | 'version') {
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn color="orange" prepend-icon="mdi-flag" @click="reinstate('version')">
+                  <v-btn color="orange" prepend-icon="mdi-flag" @click="reinstate()">
                     Reinstate this version
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-              <v-card v-if="!ddfUuidInfo.state.value?.deprecation_message" class="ma-2" title="Deprecate bundle">
-                <v-card-text>
-                  This will mark all versions of the bundle as deprecated.
-                  <v-spacer />
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer />
-                  <v-btn color="red" prepend-icon="mdi-flag" @click="deprecate('bundle')">
-                    Deprecate all versions
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-              <v-card v-else class="ma-2" title="Reinstate bundle">
-                <v-card-text>
-                  This will reinstate all versions of the bundle.
-                  <v-spacer />
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer />
-                  <v-btn color="orange" prepend-icon="mdi-flag" @click="reinstate('bundle')">
-                    Reinstate all version
                   </v-btn>
                 </v-card-actions>
               </v-card>

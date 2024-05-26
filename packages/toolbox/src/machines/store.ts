@@ -11,7 +11,7 @@ export type Directus = DirectusClient<Schema>
 
 export type DirectusSettings = Pick<Collections.DirectusSettings, PublicSettingsKeys>
 
-export type PublicSettingsKeys = 'public_key_stable' | 'public_key_beta'
+export type PublicSettingsKeys = 'public_key_stable' | 'public_key_beta' | 'public_key_deprecated'
 
 export interface StoreContext {
   directusUrl: string

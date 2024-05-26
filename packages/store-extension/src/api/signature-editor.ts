@@ -72,6 +72,9 @@ export async function updateBundleSignatures(
 
       // Add Signatures
       for (const keySet of addKeys) {
+        if (decoded.data.signatures.some(signature => bytesToHex(signature.key) === keySet.public))
+          continue
+
         databasePromises.push(signatureService.createOne({
           bundle: bundleID,
           key: keySet.public,

@@ -32,17 +32,11 @@ export function storeSignBundle(bundleId: string, state: BundleSignatureState = 
   })
 }
 
-export type BundleDeprecateParams = {
-  ddf_uuid: string
+export interface BundleDeprecateParams {
   message?: string
-} & (
-  {
-    type: 'bundle'
-  } | {
-    type: 'version'
-    bundle_id: string
-  }
-)
+  type: 'version'
+  bundle_id: string
+}
 
 export function storeDeprecateBundle(params: BundleDeprecateParams) {
   return customEndpoint<{

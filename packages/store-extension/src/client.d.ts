@@ -243,7 +243,6 @@ export namespace Collections {
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
     expire_at: Types.Optional<Types.DateTime>;
-    deprecation_message: Types.Optional<Types.String>;
     bundles: Collections.Bundles[];
   }
 
