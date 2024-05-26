@@ -1,5 +1,12 @@
 # @deconz-community/cli
 
+## 1.14.1
+
+### Patch Changes
+
+- Updated dependencies [4056798]
+  - @deconz-community/ddf-bundler@0.27.0
+
 ## 1.14.0
 
 ### Minor Changes

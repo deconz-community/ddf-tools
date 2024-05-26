@@ -1,5 +1,17 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.20.0
+
+### Minor Changes
+
+- 4056798: Rework signature update workflow
+- b0fad60: Remove unused user flag
+
+### Patch Changes
+
+- Updated dependencies [4056798]
+  - @deconz-community/ddf-bundler@0.27.0
+
 ## 0.19.0
 
 ### Minor Changes
