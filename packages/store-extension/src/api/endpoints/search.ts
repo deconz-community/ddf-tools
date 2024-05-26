@@ -45,7 +45,6 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     if (showDeprecated === false) {
       subquery
         .join('ddf_uuids', 'bundles.ddf_uuid', '=', 'ddf_uuids.id')
-        .whereNull('ddf_uuids.deprecation_message')
         .whereNull('bundles.deprecation_message')
     }
 
