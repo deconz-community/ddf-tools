@@ -203,12 +203,13 @@ export namespace Collections {
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
     date_updated: Types.Optional<Types.DateTime>;
     source_last_modified: Types.DateTime;
+    file_count: Types.Optional<Types.Integer>;
+    content_size: Types.Optional<Types.Integer>;
+    content_hash: Types.Optional<Types.String>;
     device_identifiers: Collections.BundlesDeviceIdentifiers[];
     sub_devices: Collections.BundlesSubDevices[];
     signatures: Collections.Signatures[];
     content: Types.Optional<Types.String>;
-    content_size: Types.Optional<Types.Integer>;
-    file_count: Types.Optional<Types.Integer>;
     deprecation_message: Types.Optional<Types.String>;
   }
 
@@ -351,6 +352,8 @@ export interface System {
     public_key_stable: Types.Optional<Types.String>;
     private_key_beta: Types.Optional<Types.String>;
     public_key_beta: Types.Optional<Types.String>;
+    private_key_deprecated: Types.Optional<Types.String>;
+    public_key_deprecated: Types.Optional<Types.String>;
   };
 
   /**
@@ -359,7 +362,6 @@ export interface System {
    */
   directus_users: {
     is_contributor: Types.Boolean;
-    can_use_official_keys: Types.Boolean;
     date_created: Types.Optional<Types.DateTime>;
     public_key: Types.Optional<Types.String>;
     private_key: Types.Optional<Types.String>;

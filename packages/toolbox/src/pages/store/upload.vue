@@ -100,7 +100,7 @@ async function upload() {
         Upload
       </v-btn>
       <v-btn-toggle
-        v-if="store.profile?.can_use_official_keys === true"
+        v-if="store.profile?.is_contributor === true"
         v-model="defaultState"
         mandatory
         divided

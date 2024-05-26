@@ -11,7 +11,7 @@ collections:
       collapse: open
       collection: bundles
       color: null
-      display_template: '{{product}} {{id}}'
+      display_template: '{{product}}'
       group: null
       hidden: false
       icon: null
@@ -179,14 +179,24 @@ fields:
     meta:
       collection: bundles
       conditions: null
-      display: null
-      display_options: null
+      display: field-actions
+      display_options:
+        clickAction: copy
+        copyButtonLabel: Hash
+        hideFieldValue: true
+        linkButtonLabel: Download
+        linkPrefix: https://ddf.cryonet.io/bundle/download/
+        openLinkAsNewTab: false
+        showCopy: true
+        showLink: true
       field: id
       group: null
       hidden: false
-      interface: input
+      interface: field-actions
       note: null
-      options: null
+      options:
+        linkPrefix: https://ddf.cryonet.io/bundle/download/
+        showLink: true
       readonly: false
       required: true
       sort: 1
@@ -468,7 +478,7 @@ fields:
           {{device_identifiers_id.model}}
       readonly: false
       required: false
-      sort: 11
+      sort: 14
       special:
         - m2m
       translations: null
@@ -491,7 +501,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 12
+      sort: 15
       special:
         - m2m
       translations: null
@@ -514,7 +524,7 @@ fields:
       options: {}
       readonly: false
       required: false
-      sort: 13
+      sort: 16
       special:
         - o2m
       translations: null
@@ -531,13 +541,15 @@ fields:
       display_options: null
       field: content
       group: null
-      hidden: false
+      hidden: true
       interface: null
       note: null
-      options: null
+      options:
+        linkPrefix: $project_url
+        showLink: true
       readonly: false
       required: false
-      sort: 14
+      sort: 17
       special: null
       translations: null
       validation: null
@@ -575,12 +587,12 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 15
+      sort: 12
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: content_size
       table: bundles
@@ -613,12 +625,12 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 16
+      sort: 11
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: file_count
       table: bundles
@@ -651,7 +663,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 17
+      sort: 18
       special: null
       translations: null
       validation: null
@@ -777,6 +789,44 @@ fields:
       width: full
     schema:
       name: info
+      table: bundles
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: content_hash
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: null
+      display_options: null
+      field: content_hash
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 13
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: content_hash
       table: bundles
       data_type: varchar
       default_value: null
@@ -1633,6 +1683,82 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: directus_settings
+    field: private_key_deprecated
+    type: string
+    meta:
+      collection: directus_settings
+      conditions: null
+      display: null
+      display_options: null
+      field: private_key_deprecated
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: private_key_deprecated
+      table: directus_settings
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: directus_settings
+    field: public_key_deprecated
+    type: string
+    meta:
+      collection: directus_settings
+      conditions: null
+      display: null
+      display_options: null
+      field: public_key_deprecated
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: public_key_deprecated
+      table: directus_settings
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: directus_users
     field: public_key
     type: string
@@ -1750,48 +1876,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: directus_users
-    field: can_use_official_keys
-    type: boolean
-    meta:
-      collection: directus_users
-      conditions: null
-      display: boolean
-      display_options:
-        labelOff: Not allowed
-        labelOn: Allowed
-      field: can_use_official_keys
-      group: null
-      hidden: false
-      interface: boolean
-      note: Allow user to use stable and beta keys
-      options:
-        label: Allow
-      readonly: false
-      required: false
-      sort: 2
-      special:
-        - cast-boolean
-      translations: null
-      validation: null
-      validation_message: null
-      width: half
-    schema:
-      name: can_use_official_keys
-      table: directus_users
-      data_type: boolean
-      default_value: false
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: false
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: directus_users
     field: is_contributor
     type: boolean
     meta:
@@ -1805,9 +1889,8 @@ fields:
       group: null
       hidden: false
       interface: boolean
-      note: Allow user to modify bundles from other users
-      options:
-        label: Allow
+      note: Allow user to use official keys
+      options: {}
       readonly: false
       required: false
       sort: 1

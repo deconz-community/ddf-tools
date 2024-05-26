@@ -95,7 +95,7 @@ const downloadURL = computed(() => {
 })
 
 const settingsProps = computed(() => {
-  if (!store.profile?.can_use_official_keys)
+  if (!store.profile?.is_contributor)
     return undefined
 
   if (!bundle.state.value)

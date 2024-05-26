@@ -8,6 +8,7 @@ import type { RecordNotUniqueError } from '@directus/errors'
 import { ErrorCode, ForbiddenError, InvalidQueryError, isDirectusError } from '@directus/errors'
 import { createSignature, decode, encode, generateHash, verifySignature } from '@deconz-community/ddf-bundler'
 import { secp256k1 } from '@noble/curves/secp256k1'
+import { sha256 } from '@noble/hashes/sha256'
 
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import pako from 'pako'
@@ -44,13 +45,14 @@ export default defineEndpoint({
         'public_key_stable',
         'private_key_beta',
         'public_key_beta',
+        'private_key_deprecated',
+        'public_key_deprecated',
       ] as const
 
       const userFields = [
         'id',
         'private_key',
         'public_key',
-        'can_use_official_keys',
         'is_contributor',
       ] as const
 
@@ -144,6 +146,7 @@ export default defineEndpoint({
           'product',
           'ddf_uuid',
           'source_last_modified',
+          'content_hash',
           'device_identifiers.device_identifiers_id.manufacturer',
           'device_identifiers.device_identifiers_id.model',
           'info',
@@ -226,20 +229,23 @@ export default defineEndpoint({
 
       switch (req.params.state) {
         case undefined:
+          break
         case 'alpha':
           req.params.state = 'alpha'
+          unExpectedPublicKeys.push(settings.public_key_beta)
+          unExpectedPublicKeys.push(settings.public_key_stable)
           break
         case 'beta':
           expectedKeys.push([settings.public_key_beta, settings.private_key_beta])
           unExpectedPublicKeys.push(settings.public_key_stable)
-          if (!userInfo.can_use_official_keys)
+          if (!userInfo.is_contributor)
             throw new ForbiddenError()
           break
 
         case 'stable' :
           expectedKeys.push([settings.public_key_stable, settings.private_key_stable])
           unExpectedPublicKeys.push(settings.public_key_beta)
-          if (!userInfo.can_use_official_keys)
+          if (!userInfo.is_contributor)
             throw new ForbiddenError()
           break
         default:
@@ -358,6 +364,7 @@ export default defineEndpoint({
               content,
               product: bundle.data.desc.product,
               content_size: blob.size,
+              content_hash: bytesToHex(sha256(new Uint8Array(bundleBuffer))),
               file_count: bundle.data.files.length + 1, // +1 for the DDF file
               version_deconz: bundle.data.desc.version_deconz,
               device_identifiers: device_identifier_ids.map(device_identifiers_id => ({ device_identifiers_id })) as any,
@@ -532,6 +539,11 @@ export default defineEndpoint({
       if (!['alpha', 'beta', 'stable'].includes(state))
         throw new InvalidQueryError({ reason: 'Invalid state' })
 
+      const { settings, userInfo } = await fetchUserContext(adminAccountability, accountability.user)
+
+      if (!userInfo.is_contributor)
+        throw new ForbiddenError()
+
       const bundle = await bundleService.readOne(bundleID, {
         fields: [
           'content',
@@ -540,11 +552,6 @@ export default defineEndpoint({
 
       if (!bundle.content)
         throw new InvalidQueryError({ reason: 'Bundle not found' })
-
-      const { settings, userInfo } = await fetchUserContext(adminAccountability, accountability.user)
-
-      if (!userInfo.can_use_official_keys)
-        throw new ForbiddenError()
 
       const buffer = Buffer.from(bundle.content, 'base64')
 
@@ -588,7 +595,8 @@ export default defineEndpoint({
         })
       }
 
-      const compressed = Buffer.from(pako.deflate(await encode(decoded).arrayBuffer())).toString('base64')
+      const bundleBuffer = await encode(decoded).arrayBuffer()
+      const compressed = Buffer.from(pako.deflate(bundleBuffer)).toString('base64')
 
       await context.database.transaction(async (knex) => {
         const serviceOptions = { schema, knex, accountability: adminAccountability }
@@ -617,6 +625,7 @@ export default defineEndpoint({
 
         promises.push(bundleService.updateOne(bundleID, {
           content: compressed,
+          content_hash: bytesToHex(sha256(new Uint8Array(bundleBuffer))),
         }))
 
         if (state === 'alpha') {
@@ -680,7 +689,7 @@ export default defineEndpoint({
       if (type === 'version' && typeof bundle_id !== 'string')
         throw new InvalidQueryError({ reason: 'You must provide a bundle_id' })
 
-      const { userInfo } = await fetchUserContext(adminAccountability, accountability.user)
+      const { userInfo, settings } = await fetchUserContext(adminAccountability, accountability.user)
 
       const uuidInfo = (await UUIDService.readByQuery({
         fields: [
@@ -698,13 +707,6 @@ export default defineEndpoint({
       if (uuidInfo.user_created !== userId && !userInfo.is_contributor)
         throw new InvalidQueryError({ reason: 'You don\'t have permission to modify a bundle with that UUID because you are not the maintainer of it' })
 
-      if (type === 'bundle') {
-        await UUIDService.updateOne(ddf_uuid, {
-          deprecation_message: message === 'null' ? null : message as string,
-        })
-        return res.json({ success: true })
-      }
-
       const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
 
       const bundle = await bundleService.readOne(bundle_id as string, {
@@ -714,11 +716,21 @@ export default defineEndpoint({
       if (bundle.ddf_uuid !== ddf_uuid)
         throw new InvalidQueryError({ reason: 'The bundle does not match the UUID' })
 
-      await bundleService.updateOne(bundle_id as string, {
-        deprecation_message: message === 'null' ? null : message as string,
-      })
+      if (type === 'bundle') {
+        await UUIDService.updateOne(ddf_uuid, {
+          deprecation_message: message === 'null' ? null : message as string,
+        })
+        return res.json({ success: true })
+      }
 
-      return res.json({ success: true })
+      if (type === 'version') {
+        await bundleService.updateOne(bundle_id as string, {
+          deprecation_message: message === 'null' ? null : message as string,
+        })
+        return res.json({ success: true })
+      }
+
+      throw new InvalidQueryError({ reason: 'Unknown error' })
     }))
 
     router.get('/generateUUID', asyncHandler(async (req, res, _next) => {

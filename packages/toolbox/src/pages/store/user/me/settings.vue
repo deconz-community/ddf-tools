@@ -28,7 +28,7 @@ const settings = reactive({
 watch(toRef(store, 'profile'), () => {
   settings.first_name = store.profile?.first_name ?? ''
   settings.email = store.profile?.email ?? ''
-  if(settings.token === '')
+  if (settings.token === '')
     settings.token = store.profile?.token ?? ''
   settings.isNewToken = false
   settings.private_key = store.profile?.private_key ?? ''
@@ -124,38 +124,25 @@ async function generateToken() {
   <v-card class="ma-2" title="Account Details">
     <v-card-text>
       <div class="d-flex mb-5">
-        <v-avatar
-          size="125"
-          variant="outlined"
-          class="mr-4"
-        >
-          <v-img
-            v-if="store.profile?.avatar_url"
-            :src="store.profile?.avatar_url"
-            alt="avatar"
-            size="125"
-          />
-          <v-icon
-            v-else
-            icon="mdi-account"
-            size="100"
-            color="grey lighten-1"
-          />
+        <v-avatar size="125" variant="outlined" class="mr-4">
+          <v-img v-if="store.profile?.avatar_url" :src="store.profile?.avatar_url" alt="avatar" size="125" />
+          <v-icon v-else icon="mdi-account" size="100" color="grey lighten-1" />
         </v-avatar>
-        <v-card
-          class="ma-2 flex-grow-1"
-          :title="`${store.profile?.first_name ?? ''} ${store.profile?.last_name ?? ''}`"
-          :subtitle="store.profile?.email ?? undefined"
-        />
+        <v-card class="ma-2 flex-grow-1">
+          <v-card-title>
+            {{ store.profile?.first_name }}
+            <v-chip v-if="store.profile?.is_contributor" class="mx-2">Contributor</v-chip>
+          </v-card-title>
+          <v-card-subtitle v-if="store.profile?.email">
+            {{ store.profile?.email }}
+          </v-card-subtitle>
+          <v-card-text>
+            Hello
+          </v-card-text>
+        </v-card>
       </div>
-      <v-text-field
-        v-model="settings.first_name"
-        label="Username"
-      />
-      <v-text-field
-        v-model="settings.email"
-        label="Email"
-      />
+      <v-text-field v-model="settings.first_name" label="Username" />
+      <v-text-field v-model="settings.email" label="Email" />
       <!--
       <div class="d-flex">
         <v-avatar
@@ -187,26 +174,12 @@ async function generateToken() {
       -->
 
       <v-divider class="mb-5" />
-      <v-text-field
-        v-model="settings.token"
-        label="Static authentication token"
-        hint="This token is used to authenticate the user in various tools."
-        readonly
-        append-icon="mdi-reload"
-        @click:append="generateToken()"
-      />
-      <v-text-field
-        v-model="settings.private_key"
-        label="Signature private key"
-        :error-messages="errorMessage"
-        append-icon="mdi-reload"
-        @click:append="generateKeys"
-      />
-      <v-text-field
-        v-model="settings.public_key"
-        label="Signature public key"
-        readonly
-      />
+      <v-text-field v-model="settings.token" label="Static authentication token"
+        hint="This token is used to authenticate the user in various tools." readonly append-icon="mdi-reload"
+        @click:append="generateToken()" />
+      <v-text-field v-model="settings.private_key" label="Signature private key" :error-messages="errorMessage"
+        append-icon="mdi-reload" @click:append="generateKeys" />
+      <v-text-field v-model="settings.public_key" label="Signature public key" readonly />
     </v-card-text>
     <v-card-actions>
       <v-spacer />
@@ -217,11 +190,9 @@ async function generateToken() {
   </v-card>
 </template>
 
-<route lang="json">
-{
+<route lang="json">{
   "meta": {
     "requiresAuth": true,
     "hideLevelTwoSidebar": true
   }
-}
-</route>
+}</route>
