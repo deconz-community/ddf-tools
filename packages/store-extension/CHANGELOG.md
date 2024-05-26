@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.20.1
+
+### Patch Changes
+
+- 3210ad8: Fix bundle search
+
 ## 0.20.0
 
 ### Minor Changes
