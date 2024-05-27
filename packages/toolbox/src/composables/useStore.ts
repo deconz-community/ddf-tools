@@ -13,9 +13,25 @@ export type RequestOptions<Output extends object | unknown> = {
   maxWait?: number
 } & Omit<UseAsyncStateOptions<true, Output | null>, 'shallow' | 'resetOnExecute'>
 
-export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'avatar' | 'date_created' | 'public_key'>
+export type PublicUser = Pick<Collections.DirectusUser, 'id' | 'first_name' | 'last_name' | 'date_created' | 'public_key' | 'is_contributor'> & { avatar_url: string }
 
 export type BundleSignatureState = 'alpha' | 'beta' | 'stable'
+
+export function storeDownloadBundle(bundleId: string) {
+  return customEndpoint<{
+    success: Blob
+  }>({
+    method: 'GET',
+    path: `/bundle/download/${bundleId}`,
+    onResponse: async (response) => {
+      if (response.ok) {
+        return {
+          success: await response.blob(),
+        }
+      }
+    },
+  })
+}
 
 export function storeSignBundle(bundleId: string, state: BundleSignatureState = 'alpha') {
   return customEndpoint<{

@@ -69,6 +69,7 @@ function copyUserKeyToClipboard() {
         pill
         v-bind="{ ...menu_props, ...$attrs }"
         link
+        :color="user?.is_contributor ? 'primary' : 'secondary'"
       >
         <v-avatar start>
           <v-img :src="userAvatar" />
@@ -77,17 +78,21 @@ function copyUserKeyToClipboard() {
       </v-chip>
     </template>
 
-    <v-card width="300">
+    <v-card width="400">
       <v-list bg-color="black">
         <v-list-item>
-          <!--
           <template #prepend>
-            <v-avatar :image="userAvatar" />
+            <v-avatar :image="userAvatar" size="50" />
           </template>
-          -->
-
           <v-list-item-title>
             {{ userName }}
+            <v-chip
+              pill
+              :color="user?.is_contributor ? 'primary' : 'secondary'"
+              text="Contributor"
+              variant="flat"
+              class="ml-2 mb-1"
+            />
           </v-list-item-title>
 
           <v-list-item-subtitle v-if="user">

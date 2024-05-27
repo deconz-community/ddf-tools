@@ -226,7 +226,7 @@ import { decode } from '@deconz-community/ddf-bundler'
 
 const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddf'))
 const blob = new Blob([data])
-blob.name = 'aq1_vibration_sensor.ddf'
+blob.name = 'aq1_vibration_sensor'
 
 const bundle = await decode(blob)
 ```
@@ -237,7 +237,7 @@ import { Bundle, encode } from '@deconz-community/ddf-bundler'
 
 const bundle = Bundle()
 
-bundle.data.name = 'sample.ddf'
+bundle.data.name = 'sample'
 bundle.data.desc.product = 'Sample product'
 bundle.data.files.push({
   type: 'DDFC',

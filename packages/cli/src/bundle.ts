@@ -17,9 +17,9 @@ import { simpleGit } from 'simple-git'
 import ora from 'ora'
 import chalk from 'chalk'
 
-export function bundlerCommand() {
+export function bundleCommand() {
   program
-    .command('bundler')
+    .command('bundle')
     .description('Create a bundle from a file')
     .argument('<path>', 'Source DDF file / directory')
     .option('-g, --generic <path>', 'Generic directory path, by default it will search for a generic directory in the source directory')

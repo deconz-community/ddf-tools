@@ -14,12 +14,12 @@ describe('tests', () => {
 
     expect(bytesToHex(await getHash(new Uint8Array(data)))).toEqual(expectedFileHash)
     // @ts-expect-error ts(2540)
-    blob.name = 'starkvind_air_purifier.ddf'
+    blob.name = 'starkvind_air_purifier'
     const bundle = await decode(blob)
     expect(bundle.data.hash).toBeDefined()
     expect(bytesToHex(bundle.data.hash!)).toEqual(expectedHash)
 
-    expect(bundle.data.name).toEqual('starkvind_air_purifier.ddf')
+    expect(bundle.data.name).toEqual('starkvind_air_purifier')
     expect(bundle.data.desc.product).toEqual('STARKVIND Air purifier')
     expect(bundle.data.files.length).toEqual(36)
 
@@ -43,7 +43,7 @@ describe('tests', () => {
     const fixedDate = new Date('2023-04-27T18:34:00')
 
     bundle.data.desc.last_modified = fixedDate
-    bundle.data.name = 'sample.ddf'
+    bundle.data.name = 'sample'
     bundle.data.files = [
       {
         type: 'DDFC',
@@ -74,7 +74,7 @@ describe('tests', () => {
     const fixedOldDate = new Date('2001-04-27T18:34:00')
     const fixedDate = new Date('2023-04-27T18:34:00')
 
-    bundle.data.name = 'sample.ddf'
+    bundle.data.name = 'sample'
     bundle.data.files = [
       {
         type: 'DDFC',

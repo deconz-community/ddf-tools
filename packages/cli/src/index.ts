@@ -3,19 +3,19 @@
 import process from 'node:process'
 import { createRequire } from 'node:module'
 import { program } from '@commander-js/extra-typings'
-import { validator } from './validator'
-import { bundlerCommand } from './bundler'
+import { validateCommand } from './validate'
+import { bundleCommand } from './bundle'
 import { bulkCommand } from './bulk'
 
 const packageDefinition = createRequire(import.meta.url)('../package.json')
 
 program
   .name('ddf-tools')
-  .version(packageDefinition.version)
+  .version(packageDefinition.version, '--version')
   .description('A command line tool for working with DDFs.')
 
-validator()
-bundlerCommand()
+validateCommand()
+bundleCommand()
 bulkCommand()
 
 program.parse(process.argv)

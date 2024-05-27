@@ -13,9 +13,9 @@ interface FileDefinition {
   data: Record<string, unknown>
 }
 
-export function validator() {
+export function validateCommand() {
   program
-    .command('validator')
+    .command('validate')
     .description('Validate DDF files')
     .requiredOption('-d, --directory <path>', 'Directory to validate')
     .option('--no-skip', 'Validate all files even if they have the ddfvalidate option to false')

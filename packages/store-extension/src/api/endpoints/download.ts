@@ -37,7 +37,7 @@ export function downloadEndpoint({ router, context, services, schema }: GlobalCo
     readStream.end(decompressed)
 
     res.set('Content-disposition', `attachment; filename=${fileName}`)
-    res.set('Content-Type', 'text/plain')
+    res.set('Content-Type', 'application/x-deconz-ddf-bundle')
 
     readStream.pipe(res)
   }))

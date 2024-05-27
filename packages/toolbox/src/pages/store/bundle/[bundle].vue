@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { decode } from '@deconz-community/ddf-bundler'
 import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { useConfirm } from 'vuetify-use-dialog'
@@ -11,14 +12,16 @@ const props = defineProps<{
   bundle: string
 }>()
 
-const app = useAppMachine('app')
+const app = useApp()
 const store = useStore()
 const createConfirm = useConfirm()
 
 const activeTab = useRouteQuery('activeTab', 'readme')
+const activeGatewayId = useRouteQuery<string>('gatewayID', '')
+const activeGateway = useGateway(activeGatewayId)
 
-const isReady = computed(() => store.state?.matches('online') === true)
-const isDev = computed(() => app.state?.context.settings?.developerMode)
+const isDev = app.select(state => state.context.settings?.developerMode)
+const isReady = store.select(state => state.matches('online') === true)
 
 const bundle = store.request(computed(() => readBundles(props.bundle, {
   fields: [
@@ -48,18 +51,6 @@ const bundle = store.request(computed(() => readBundles(props.bundle, {
     },
   ],
 })))
-
-const ddfUuidInfo = store.request(computed(() => {
-  if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== 'string')
-    return undefined
-
-  return readDdfUuids(bundle.state.value.ddf_uuid, {
-    fields: [
-      'deprecation_message',
-      'user_created',
-    ],
-  })
-}))
 
 const otherVersions = store.request(computed(() => {
   if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== 'string')
@@ -176,14 +167,7 @@ async function updateState() {
 }
 
 const deprecation_message = computed(() => {
-  if (ddfUuidInfo.state.value && ddfUuidInfo.state.value.deprecation_message) {
-    return {
-      title: 'This bundle is deprecated',
-      text: ddfUuidInfo.state.value.deprecation_message,
-    }
-  }
-
-  else if (bundle.state.value && bundle.state.value.deprecation_message) {
+  if (bundle.state.value && bundle.state.value.deprecation_message) {
     return {
       title: 'This version is deprecated',
       text: bundle.state.value.deprecation_message,
@@ -273,6 +257,34 @@ async function reinstate() {
     toastError(error)
   }
 }
+
+async function installBundle() {
+  if (!activeGatewayId.value)
+    return
+
+  try {
+    const bundle = await store.client?.request(storeDownloadBundle(props.bundle))
+
+    if (!bundle || !bundle.success)
+      return toast.error(`Error while downloading bundle from the store`)
+
+    const uploadResult = await activeGateway.fetch('uploadDDFBundle', {
+      body: new File([bundle.success], 'bundle.ddf', {
+        type: 'application/x-deconz-ddf-bundle',
+      }),
+    })
+
+    uploadResult.forEach((result) => {
+      if (result.isOk())
+        toast.success(`Bundle uploaded to ${activeGateway.config?.name}`)
+      else
+        toast.error(`Error while uploading bundle to ${activeGateway.config?.name}`)
+    })
+  }
+  catch (error) {
+    toastError(error)
+  }
+}
 </script>
 
 <template>
@@ -282,7 +294,7 @@ async function reinstate() {
       <v-chip v-if="deprecation_message" variant="flat" color="orange">
         Deprecated
       </v-chip>
-      <chip-signatures v-else :signatures="bundle.state.value.signatures" only="system" class="ma-2" />
+      <chip-signatures v-else-if="bundle.state.value.signatures" :signatures="bundle.state.value.signatures" only="system" class="ma-2" />
       <v-chip class="ma-2" color="grey">
         {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
       </v-chip>
@@ -298,15 +310,15 @@ async function reinstate() {
         bg-color="primary"
       >
         <v-tab value="readme">
+          <v-icon icon="mdi-book-open-outline" class="mr-2" />
           Readme
         </v-tab>
-        <v-tab v-if="isDev" value="code">
-          Code
-        </v-tab>
         <v-tab value="versions">
+          <v-icon icon="mdi-tag-multiple" class="mr-2" />
           {{ otherVersions.state.value?.length || 0 }} Versions
         </v-tab>
         <v-tab v-if="settingsProps" value="settings">
+          <v-icon icon="mdi-cog" class="mr-2" />
           Settings
         </v-tab>
       </v-tabs>
@@ -350,13 +362,6 @@ async function reinstate() {
                   </v-table>
                 </template>
               </v-card>
-            </v-window-item>
-
-            <v-window-item value="code">
-              <pre class="ma-2">{{ {
-                bundle: bundle.state.value,
-                otherVersions: otherVersions.state.value,
-              } }}</pre>
             </v-window-item>
 
             <v-window-item value="versions">
@@ -475,25 +480,58 @@ async function reinstate() {
         </v-sheet>
 
         <v-sheet class="ma-2 pa-2" width="30%">
-          <v-btn
-            v-if="isDev"
-            block
-            color="primary"
-            prepend-icon="mdi-download"
-            class="mb-2"
-            disabled
-          >
-            Install (TODO)
-          </v-btn>
-          <v-btn
-            block color="primary"
-            prepend-icon="mdi-download"
-            :disabled="!downloadURL"
-            :href="downloadURL"
-          >
-            Download
-          </v-btn>
           <v-list class="d-flex flex-column">
+            <v-list-item title="Install">
+              <v-menu transition="slide-y-transition">
+                <template #activator="{ props: menuProps }">
+                  <v-btn-group class="d-flex">
+                    <v-tooltip :text="`Install bundle on gateway ${activeGateway.config?.name}`">
+                      <template #activator="{ props: tooltipProps }">
+                        <v-btn
+                          v-bind="tooltipProps"
+                          color="primary"
+                          icon="mdi-file-move-outline"
+                          width="50"
+                          class="mb-2"
+                          comfortable
+                          @click="installBundle()"
+                        />
+                      </template>
+                    </v-tooltip>
+
+                    <v-divider vertical :thickness="3" length="40" />
+                    <v-btn
+                      v-bind="menuProps"
+                      color="primary"
+                      class="mb-2 flex-grow-1"
+                      append-icon="mdi-chevron-down"
+                      comfortable
+                      :text="activeGateway.config?.name ?? 'Select gateway'"
+                    />
+                  </v-btn-group>
+                </template>
+                <v-list>
+                  <v-list-item
+                    v-for="(item, i) in app.gatewayIds"
+                    :key="i"
+                    @click="activeGatewayId = item"
+                  >
+                    <v-list-item-title>
+                      {{ item }}
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+              <v-btn
+                block color="primary"
+                prepend-icon="mdi-download"
+                :disabled="!downloadURL"
+                :href="downloadURL"
+              >
+                Download
+              </v-btn>
+            </v-list-item>
+
             <v-list-item title="Hash">
               <v-chip class="ma-2" color="grey">
                 {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}

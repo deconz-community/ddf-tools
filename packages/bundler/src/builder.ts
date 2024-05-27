@@ -49,7 +49,7 @@ export async function buildFromFiles(
 ) {
   const bundle = Bundle()
 
-  bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}.ddf`
+  bundle.data.name = `${ddfPath.substring(ddfPath.lastIndexOf('/') + 1, ddfPath.lastIndexOf('.'))}`
 
   const ddfSource = await getSource(ddfPath)
 

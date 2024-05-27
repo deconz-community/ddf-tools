@@ -19,7 +19,7 @@ async function inspect(hash: string) {
   responses.forEach((response) => {
     if (response.isOk()) {
       bundleRef.value = response.value
-      bundleRef.value.data.name = `${hash}.ddf`
+      bundleRef.value.data.name = hash
       inspectorIsActive.value = true
     }
     else {

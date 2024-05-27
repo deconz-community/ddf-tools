@@ -99,6 +99,7 @@ declare global {
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const storeDeprecateBundle: typeof import('./composables/useStore')['storeDeprecateBundle']
+  const storeDownloadBundle: typeof import('./composables/useStore')['storeDownloadBundle']
   const storeSignBundle: typeof import('./composables/useStore')['storeSignBundle']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
@@ -413,6 +414,7 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly storeDeprecateBundle: UnwrapRef<typeof import('./composables/useStore')['storeDeprecateBundle']>
+    readonly storeDownloadBundle: UnwrapRef<typeof import('./composables/useStore')['storeDownloadBundle']>
     readonly storeSignBundle: UnwrapRef<typeof import('./composables/useStore')['storeSignBundle']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
@@ -720,6 +722,7 @@ declare module '@vue/runtime-core' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly storeDeprecateBundle: UnwrapRef<typeof import('./composables/useStore')['storeDeprecateBundle']>
+    readonly storeDownloadBundle: UnwrapRef<typeof import('./composables/useStore')['storeDownloadBundle']>
     readonly storeSignBundle: UnwrapRef<typeof import('./composables/useStore')['storeSignBundle']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
