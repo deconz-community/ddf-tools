@@ -22,6 +22,15 @@ export default defineConfig({
     },
   },
 
+  build: {
+    rollupOptions: {
+      output: {
+        // assetFileNames: 'assets/[name].[ext]',
+        entryFileNames: '[name].js',
+      },
+    },
+  },
+
   plugins: [
     VueMacros({
       plugins: {
