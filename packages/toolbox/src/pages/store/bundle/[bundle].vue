@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { decode } from '@deconz-community/ddf-bundler'
 import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { useConfirm } from 'vuetify-use-dialog'
 import { VTextarea } from 'vuetify/components'
-import type { BundleDeprecateParams, BundleSignatureState } from '~/composables/useStore'
-import { listBundles, readBundles, readDdfUuids } from '~/interfaces/store'
+import type { BundleSignatureState } from '~/composables/useStore'
+import { listBundles, readBundles } from '~/interfaces/store'
 import { toastError } from '~/lib/handleError'
 
 const props = defineProps<{
@@ -19,6 +18,12 @@ const createConfirm = useConfirm()
 const activeTab = useRouteQuery('activeTab', 'readme')
 const activeGatewayId = useRouteQuery<string>('gatewayID', '')
 const activeGateway = useGateway(activeGatewayId)
+
+onMounted(() => {
+  watch(activeGatewayId, () => {
+    activeGateway.send({ type: 'REFRESH_BUNDLES' })
+  }, { immediate: true })
+})
 
 const isDev = app.select(state => state.context.settings?.developerMode)
 const isReady = store.select(state => state.matches('online') === true)
@@ -482,24 +487,26 @@ async function installBundle() {
         <v-sheet class="ma-2 pa-2" width="30%">
           <v-list class="d-flex flex-column">
             <v-list-item title="Install">
-              <v-menu transition="slide-y-transition">
-                <template #activator="{ props: menuProps }">
-                  <v-btn-group class="d-flex">
-                    <v-tooltip :text="`Install bundle on gateway ${activeGateway.config?.name}`">
-                      <template #activator="{ props: tooltipProps }">
-                        <v-btn
-                          v-bind="tooltipProps"
-                          color="primary"
-                          icon="mdi-file-move-outline"
-                          width="50"
-                          class="mb-2"
-                          comfortable
-                          @click="installBundle()"
-                        />
-                      </template>
-                    </v-tooltip>
+              <v-btn-group class="d-flex">
+                <v-tooltip :text="activeGateway.bundles?.has(props.bundle) ? `Re-install bundle on gateway ${activeGateway.config?.name}` : `Install bundle on gateway ${activeGateway.config?.name}`">
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn
+                      v-bind="tooltipProps"
+                      color="primary"
+                      :icon="activeGateway.bundles?.has(props.bundle) ? 'mdi-update' : 'mdi-file-move-outline'"
+                      :disabled="!activeGatewayId"
+                      width="50"
+                      class="mb-2"
+                      comfortable
+                      @click="installBundle()"
+                    />
+                  </template>
+                </v-tooltip>
 
-                    <v-divider vertical :thickness="3" length="40" />
+                <v-divider vertical :thickness="2" length="40" />
+
+                <v-menu transition="slide-y-transition">
+                  <template #activator="{ props: menuProps }">
                     <v-btn
                       v-bind="menuProps"
                       color="primary"
@@ -508,20 +515,26 @@ async function installBundle() {
                       comfortable
                       :text="activeGateway.config?.name ?? 'Select gateway'"
                     />
-                  </v-btn-group>
-                </template>
-                <v-list>
-                  <v-list-item
-                    v-for="(item, i) in app.gatewayIds"
-                    :key="i"
-                    @click="activeGatewayId = item"
-                  >
-                    <v-list-item-title>
-                      {{ item }}
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
+                  </template>
+                  <v-list>
+                    <gateway-data
+                      v-for="(gatewayId) in app.gatewayIds"
+                      :id="gatewayId"
+                      :key="gatewayId"
+                      v-slot="{ data, satisfiesVersion }"
+                      satisfies-version=">=2.27.0"
+                    >
+                      <v-list-item
+                        v-if="data.config"
+                        :title="(data.config.name ?? gatewayId)"
+                        :subtitle="`${gatewayId} - v${data.config.apiversion} ${satisfiesVersion ? '' : ' (Unsupported version)'}`"
+                        :disabled="!satisfiesVersion"
+                        @click="activeGatewayId = gatewayId"
+                      />
+                    </gateway-data>
+                  </v-list>
+                </v-menu>
+              </v-btn-group>
               <v-btn
                 block color="primary"
                 prepend-icon="mdi-download"

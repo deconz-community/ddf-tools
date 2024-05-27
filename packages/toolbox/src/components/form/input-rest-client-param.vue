@@ -15,8 +15,8 @@ const value = computed({
   get: () => model.value[props.name],
   set: value => model.value[props.name] = value,
 })
-
 // #endregion
+
 const gateway = useGateway(props.gateway)
 
 const sampleValue = computed(() => {

@@ -668,7 +668,8 @@ export const endpoints = {
     parameters: {
       apiKey: globalParameters.apiKey,
       next: makeParameter({
-        type: 'path',
+        type: 'query',
+        key: 'next',
         format: 'string',
         description: 'The token to get the next page of results',
         schema: z.optional(z.union([z.string(), z.number()])),
@@ -698,23 +699,6 @@ export const endpoints = {
     },
 
   }),
-
-  // This endpoint is not implemented in the backend
-  /*
-  getDDFBundleDescriptor: makeEndpoint({
-    description: 'Get DDF bundle descriptor',
-    method: 'get',
-    path: '/api/:apiKey/ddf/descriptors/:bundleHash',
-    parameters: {
-      apiKey: globalParameters.optionalApiKey,
-      bundleHash: globalParameters.bundleHash,
-    },
-    response: {
-      format: 'json',
-      schema: z.never(),
-    },
-  }),
-  */
 
   uploadDDFBundle: makeEndpoint({
     category: 'DDF',

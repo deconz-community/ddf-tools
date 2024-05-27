@@ -42,6 +42,7 @@
     "@vueuse/router": "^10.9.0",
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",
+    "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
     "immer": "^10.1.1",
     "markdown-vue": "^1.0.3",

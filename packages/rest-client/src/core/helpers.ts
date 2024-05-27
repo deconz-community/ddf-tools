@@ -76,6 +76,10 @@ export type ParameterDefinition<Schema extends ZodTypeAny = ZodTypeAny> = ({
   type: 'path'
   format: 'string'
 } | {
+  type: 'query'
+  key: string
+  format: 'string'
+} | {
   type: 'body'
   format: 'json' | 'blob'
 } | {

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { RequestResultForAlias } from '@deconz-community/rest-client'
+import { unzip } from 'fflate'
+
 const props = defineProps<{
   gateway: string
 }>()
@@ -10,23 +13,80 @@ const bundleSearch = ref('')
 const deviceSearch = ref('')
 
 const inputUploadBundle = ref<File[]>([])
+const uploadInProgress = ref(false)
+const uploadProgress = ref<number | null>(null)
+const uploadCount = ref(0)
 
 const isLoading = refDebounced(
   computed(() => !gateway.state?.matches({ online: { config: 'idle' } })),
   50,
 )
 
+async function fileToUint8Array(file: File): Promise<Uint8Array | null> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result === null
+      ? null
+      : new Uint8Array(reader.result as ArrayBuffer),
+    )
+    reader.onerror = reject
+    reader.readAsArrayBuffer(file)
+  })
+}
+
+async function extractZipFile(file: File) {
+  const extractedFiles: File[] = []
+
+  const blob = await fileToUint8Array(file)
+
+  if (blob === null)
+    throw new Error('Failed to read file')
+
+  unzip(blob, (err, unzipped) => {
+    if (err)
+      throw err
+    Object.entries(unzipped).forEach(([key, value]) => {
+      if (key.endsWith('.ddf'))
+        extractedFiles.push(new File([value], key))
+    })
+  })
+
+  return extractedFiles
+}
+
 async function upload() {
   if (inputUploadBundle.value.length === 0)
     return toast.error('You should select at least one DDF bundle')
+  uploadInProgress.value = true
+  uploadProgress.value = 0
+  uploadCount.value = inputUploadBundle.value.length
 
-  const results = (
-    await Promise.all(
-      inputUploadBundle.value.map(
-        async file => await gateway.fetch('uploadDDFBundle', { body: file }),
-      ),
-    )
-  ).flat()
+  const ddfToUpload: File[] = []
+
+  // Extract zip files
+  await Promise.all(inputUploadBundle.value.map(
+    async (file) => {
+      if (file.name.endsWith('.zip')) {
+        const extractedFiles = await extractZipFile(file)
+        ddfToUpload.push(...extractedFiles)
+      }
+      else {
+        ddfToUpload.push(file)
+      }
+    },
+  ))
+
+  const results: RequestResultForAlias<'uploadDDFBundle'> = []
+
+  // Upload DDF bundles
+  uploadCount.value = ddfToUpload.length
+  for (const [index, file] of ddfToUpload.entries()) {
+    uploadProgress.value = index
+    results.push(...await gateway.fetch('uploadDDFBundle', { body: file }))
+    await new Promise(resolve => setTimeout(resolve, 42))
+  }
+
+  uploadInProgress.value = false
 
   const errors = results.filter(result => result.isErr())
   const successes = results.filter(result => result.isOk())
@@ -81,12 +141,35 @@ onMounted(() => {
       <v-file-input
         v-model="inputUploadBundle"
         multiple
-        label="Open .ddf bundle from disk"
-        accept=".ddf"
+        label="Open .ddf bundle or zip of .ddf bundles from disk"
+        accept=".ddf,.zip"
       />
-      <v-btn @click="upload()">
-        Upload
-      </v-btn>
+      <div class="d-flex">
+        <v-btn
+          :loading="uploadInProgress"
+          color="secondary"
+          variant="outlined"
+          @click="upload()"
+        >
+          Upload
+        </v-btn>
+        <v-expand-transition>
+          <v-progress-linear
+            v-show="uploadInProgress"
+            v-model="uploadProgress"
+            :max="uploadCount"
+            color="success"
+            height="20"
+            rounded
+            striped
+            class="ml-2 align-self-center"
+          >
+            <template #default>
+              <strong>{{ uploadProgress }} / {{ uploadCount }}</strong>
+            </template>
+          </v-progress-linear>
+        </v-expand-transition>
+      </div>
     </template>
   </v-card>
 

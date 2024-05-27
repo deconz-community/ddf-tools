@@ -204,7 +204,6 @@ export const gatewayMachine = setup({
         const results = await gateway.request('getDDFBundleDescriptors', { next })
 
         results.forEach((result) => {
-          // console.log(result)
           if (result.isErr())
             throw new Error('Failed to fetch bundle')
 

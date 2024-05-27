@@ -39,6 +39,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     const requestParams: Record<string, any> = structuredClone(params)
 
     let url = endpoint.path
+    const queryParams: Record<string, any> = {}
     const baseURL = endpoint.baseURL ?? getValue(address)
 
     if (baseURL === undefined)
@@ -109,6 +110,16 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             break
           }
 
+          case 'query':{
+            const parsed = await endpoint.parameters[name as keyof typeof endpoint.parameters].schema.safeParseAsync(value)
+
+            if (!parsed.success)
+              return [Err(zodError('request', parsed.error))]
+
+            queryParams[definition.key] = parsed.data
+            break
+          }
+
           default:
             console.warn(`No parser for param of type ${definition.type}`)
             return [Err(clientError('PARAMS_PARSE_FAILED'))]
@@ -122,6 +133,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
       method: endpoint.method,
       baseURL,
       url,
+      params: queryParams,
       data: requestData,
       timeout,
       validateStatus: () => true,

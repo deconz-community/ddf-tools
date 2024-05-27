@@ -2,8 +2,17 @@
 // const store = useStore()
 const app = useApp()
 
+const selectedGateway = ref('')
+const previewToast = ref('')
+
 function test() {
-  toast('sample text')
+  toast.info('Event has been created', {
+    description: `Some more context of the notification ${Math.random()}`, // subtitle of the snackbar
+    progressBar: true,
+    loading: true,
+    id: 'my-toast',
+    // duration: Number.POSITIVE_INFINITY,
+  })
 }
 </script>
 
@@ -21,11 +30,13 @@ function test() {
       <v-btn @click="test()">
         Test
       </v-btn>
+      {{ previewToast }}
     </template>
   </v-card>
 
   <div class="ma-2">
-    <form-gateway-credentials v-if="app.gatewayIds[0]" :gateway="app.gatewayIds[0]" />
+    <select-gateway v-model="selectedGateway" required-version=">=1.27.0" multiple />
+    {{ selectedGateway }}
   </div>
 </template>
 
