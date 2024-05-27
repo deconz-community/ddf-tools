@@ -285,6 +285,10 @@ async function installBundle() {
       else
         toast.error(`Error while uploading bundle to ${activeGateway.config?.name}`)
     })
+
+    setTimeout(() => {
+      activeGateway.send({ type: 'REFRESH_BUNDLES' })
+    }, 3000)
   }
   catch (error) {
     toastError(error)
