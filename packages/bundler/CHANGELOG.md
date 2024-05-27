@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.27.1
+
+### Patch Changes
+
+- 00bc052: Removed ddf extension in the name
+
 ## 0.27.0
 
 ### Minor Changes
