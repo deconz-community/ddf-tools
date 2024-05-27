@@ -1,5 +1,13 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.20.2
+
+### Patch Changes
+
+- 00bc052: Change content type for download response
+- Updated dependencies [00bc052]
+  - @deconz-community/ddf-bundler@0.27.1
+
 ## 0.20.1
 
 ### Patch Changes

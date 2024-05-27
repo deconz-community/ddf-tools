@@ -1,5 +1,16 @@
 # @deconz-community/cli
 
+## 1.15.0
+
+### Minor Changes
+
+- 00bc052: Rename some commands
+
+### Patch Changes
+
+- Updated dependencies [00bc052]
+  - @deconz-community/ddf-bundler@0.27.1
+
 ## 1.14.1
 
 ### Patch Changes
