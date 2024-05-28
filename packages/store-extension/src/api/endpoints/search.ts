@@ -8,6 +8,7 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
     const serviceOptions = { schema, knex: context.database, accountability }
 
+    const vendor = typeof req.query.vendor === 'string' && req.query.vendor !== '' ? req.query.vendor : null
     const product = typeof req.query.product === 'string' && req.query.product !== '' ? req.query.product : null
     const manufacturer = typeof req.query.manufacturer === 'string' && req.query.manufacturer !== '' ? req.query.manufacturer : null
     const model = typeof req.query.model === 'string' && req.query.model !== '' ? req.query.model : null
@@ -21,8 +22,11 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
       .orderBy('max_date', 'desc')
       .groupBy('ddf_uuid')
 
+    if (vendor)
+      subquery.whereLike('vendor', `%${vendor}%`)
+
     if (product)
-      subquery.where(context.database.raw('LOWER(`product`) LIKE ?', [`%${product.toLowerCase()}%`]))
+      subquery.whereLike('product', `%${product}%`)
 
     if ((manufacturer) || (model)) {
       subquery
@@ -30,10 +34,10 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
         .join('device_identifiers', 'bundles_device_identifiers.device_identifiers_id', '=', 'device_identifiers.id')
 
       if (manufacturer)
-        subquery.where(context.database.raw('LOWER(`manufacturer`) LIKE ?', [`%${manufacturer.toLowerCase()}%`]))
+        subquery.whereLike('manufacturer', `%${manufacturer}%`)
 
       if (model)
-        subquery.where(context.database.raw('LOWER(`model`) LIKE ?', [`%${model.toLowerCase()}%`]))
+        subquery.whereLike('model', `%${model}%`)
     }
 
     if (hasKey) {
@@ -69,6 +73,7 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     const items = await bundleService.readByQuery({
       fields: [
         'id',
+        'vendor',
         'product',
         'ddf_uuid',
         'source_last_modified',
