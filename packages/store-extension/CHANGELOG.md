@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.21.0
+
+### Minor Changes
+
+- e1c7068: Add vendor field
+
 ## 0.20.3
 
 ### Patch Changes
