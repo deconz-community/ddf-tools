@@ -1,5 +1,16 @@
 # @deconz-community/cli
 
+## 1.15.1
+
+### Patch Changes
+
+- c771904: Update deps
+- Updated dependencies [c771904]
+- Updated dependencies [c771904]
+- Updated dependencies [c771904]
+  - @deconz-community/ddf-bundler@0.28.0
+  - @deconz-community/ddf-validator@2.30.1
+
 ## 1.15.0
 
 ### Minor Changes

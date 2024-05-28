@@ -1,5 +1,16 @@
 # @deconz-community/ddf-bundler
 
+## 0.28.0
+
+### Minor Changes
+
+- c771904: Add vendor to DESC chunk
+
+### Patch Changes
+
+- c771904: Removed matchexpr
+- c771904: Update deps
+
 ## 0.27.1
 
 ### Patch Changes
