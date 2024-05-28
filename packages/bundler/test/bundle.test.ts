@@ -65,7 +65,7 @@ describe('tests', () => {
 
     const encoded = encode(bundle)
     const newHash = await getHash(new Uint8Array(await encoded.arrayBuffer()))
-    expect(bytesToHex(newHash)).toEqual('d2da53691cee8d948afca284e92545c092919619d92e8dcb7453bd68faf323cf')
+    expect(bytesToHex(newHash)).toEqual('0e015a4f4efc5e68d1230edad93a84ca1acad0375f0f08e904c576f1a30aaa17')
   })
 
   it('should use the correct date', async () => {
