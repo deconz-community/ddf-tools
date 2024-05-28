@@ -198,6 +198,7 @@ export function uploadEndpoint(globalContext: GlobalContext) {
             id: hash,
             ddf_uuid: bundle.data.desc.uuid,
             content,
+            vendor: bundle.data.desc.vendor,
             product: bundle.data.desc.product,
             content_size: blob.size,
             content_hash: bytesToHex(sha256(new Uint8Array(bundleBuffer))),

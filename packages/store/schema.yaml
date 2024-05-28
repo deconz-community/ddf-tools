@@ -1,5 +1,5 @@
 version: 1
-directus: 10.11.1
+directus: 10.11.2
 vendor: sqlite
 collections:
   - collection: bundles
@@ -238,7 +238,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 6
+      sort: 7
       special:
         - user-created
       translations: null
@@ -278,7 +278,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 7
+      sort: 8
       special:
         - cast-timestamp
         - date-created
@@ -319,7 +319,7 @@ fields:
         template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
       readonly: true
       required: false
-      sort: 8
+      sort: 9
       special:
         - user-updated
       translations: null
@@ -359,7 +359,7 @@ fields:
       options: null
       readonly: true
       required: false
-      sort: 9
+      sort: 10
       special:
         - cast-timestamp
         - date-updated
@@ -399,12 +399,12 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 3
+      sort: 4
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: product
       table: bundles
@@ -437,7 +437,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 4
+      sort: 5
       special: null
       translations: null
       validation: null
@@ -478,7 +478,7 @@ fields:
           {{device_identifiers_id.model}}
       readonly: false
       required: false
-      sort: 14
+      sort: 15
       special:
         - m2m
       translations: null
@@ -501,7 +501,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 15
+      sort: 16
       special:
         - m2m
       translations: null
@@ -524,7 +524,7 @@ fields:
       options: {}
       readonly: false
       required: false
-      sort: 16
+      sort: 17
       special:
         - o2m
       translations: null
@@ -549,7 +549,7 @@ fields:
         showLink: true
       readonly: false
       required: false
-      sort: 17
+      sort: 18
       special: null
       translations: null
       validation: null
@@ -587,7 +587,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 12
+      sort: 13
       special: null
       translations: null
       validation: null
@@ -625,7 +625,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 11
+      sort: 12
       special: null
       translations: null
       validation: null
@@ -663,7 +663,7 @@ fields:
       options: null
       readonly: false
       required: false
-      sort: 18
+      sort: 19
       special: null
       translations: null
       validation: null
@@ -741,7 +741,7 @@ fields:
       options: {}
       readonly: true
       required: true
-      sort: 10
+      sort: 11
       special:
         - cast-timestamp
       translations: null
@@ -781,7 +781,7 @@ fields:
         language: markdown
       readonly: false
       required: false
-      sort: 5
+      sort: 6
       special: null
       translations: null
       validation: null
@@ -819,7 +819,7 @@ fields:
       options: null
       readonly: false
       required: true
-      sort: 13
+      sort: 14
       special: null
       translations: null
       validation: null
@@ -834,6 +834,44 @@ fields:
       numeric_precision: null
       numeric_scale: null
       is_nullable: true
+      is_unique: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: bundles
+    field: vendor
+    type: string
+    meta:
+      collection: bundles
+      conditions: null
+      display: raw
+      display_options: null
+      field: vendor
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: vendor
+      table: bundles
+      data_type: varchar
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: false
       is_unique: false
       is_primary_key: false
       is_generated: false

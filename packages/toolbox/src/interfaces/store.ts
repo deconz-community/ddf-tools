@@ -195,6 +195,7 @@ export namespace Collections {
   export interface Bundles {
     id: Types.String;
     ddf_uuid: Types.String | Collections.DdfUuids;
+    vendor: Types.String;
     product: Types.String;
     version_deconz: Types.String;
     info: Types.Optional<Types.String>;
