@@ -3,6 +3,8 @@ import { asyncHandler } from '../utils'
 import type { Collections } from '../../client'
 import type { GlobalContext } from '../types'
 
+const HARD_LIMIT = 20
+
 export function searchEndpoint({ router, context, services, schema }: GlobalContext) {
   router.get('/search', asyncHandler(async (req, res) => {
     const accountability = 'accountability' in req ? req.accountability as Accountability : null
@@ -14,7 +16,7 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     const model = typeof req.query.model === 'string' && req.query.model !== '' ? req.query.model : null
     const hasKey = typeof req.query.hasKey === 'string' && req.query.hasKey !== '' ? req.query.hasKey : null
     const showDeprecated = req.query.showDeprecated === 'true'
-    let limit = 20
+    let limit = HARD_LIMIT
 
     const subquery = context.database('bundles')
       .select('bundles.ddf_uuid')
@@ -61,11 +63,19 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
       })
 
     if (typeof req.query.limit === 'string' && req.query.limit !== '') {
-      limit = Math.min(Number.parseInt(req.query.limit), limit)
-      query.limit(limit)
-      if (typeof req.query.page === 'string' && req.query.page !== '')
-        query.offset(limit * (Number.parseInt(req.query.page) - 1))
+      limit = Number.parseInt(req.query.limit)
+
+      if (Number.isNaN(limit) || limit > HARD_LIMIT || limit < 1)
+        limit = HARD_LIMIT
+
+      if (typeof req.query.page === 'string' && req.query.page !== '') {
+        const page = Number.parseInt(req.query.page)
+        if (!Number.isNaN(page) && page > 1)
+          query.offset(limit * (page - 1))
+      }
     }
+
+    query.limit(limit)
 
     query.orderBy('bundles.source_last_modified', 'desc')
 
