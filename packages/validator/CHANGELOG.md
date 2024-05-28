@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.30.1
+
+### Patch Changes
+
+- c771904: Update deps
+
 ## 2.30.0
 
 ### Minor Changes

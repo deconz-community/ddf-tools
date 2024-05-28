@@ -1,5 +1,15 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.20.3
+
+### Patch Changes
+
+- c771904: Update deps
+- Updated dependencies [c771904]
+- Updated dependencies [c771904]
+- Updated dependencies [c771904]
+  - @deconz-community/ddf-bundler@0.28.0
+
 ## 0.20.2
 
 ### Patch Changes
