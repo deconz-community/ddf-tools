@@ -30,7 +30,7 @@ export function ddfSchema(generics: GenericsData) {
     ]).describe('Manufacturer name from Basic Cluster.'),
     'modelid': z.string().or(z.array(z.string())).describe('Model ID from Basic Cluster.'),
     'vendor': z.optional(z.string()).describe('Friendly name of the manufacturer.'),
-    'product': z.string().describe('Friendly name of the product.'),
+    'product': z.optional(z.string()).describe('Friendly name of the product.'),
     'comment': z.optional(z.string()),
     'matchexpr': z.optional(cf.javascript()).describe('Need to return true for the DDF be used.'),
     'path': z.optional(cf.filePath()).describe('DDF path, useless, can be removed.'),
