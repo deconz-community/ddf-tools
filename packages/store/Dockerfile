@@ -9,7 +9,10 @@ USER root
 RUN corepack enable && corepack prepare
 
 USER node
-RUN pnpm install @deconz-community/directus-extension-ddf-store@0.20.2
+
+# Install the Directus extensions
+RUN pnpm install @deconz-community/directus-extension-ddf-store@0.20.3
+RUN pnpm install directus-extension-field-actions@1.8.4
 
 # ddf-store
 # https://github.com/deconz-community/ddf-tools
