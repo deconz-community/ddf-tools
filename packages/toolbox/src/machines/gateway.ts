@@ -1,10 +1,14 @@
-import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate'
+import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, raise, sendTo, setup } from 'xstate'
 import type { ActorRef, AnyEventObject } from 'xstate'
 
-import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias } from '@deconz-community/rest-client'
+import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias, ResponseWatcher, ResponseWatcherParam } from '@deconz-community/rest-client'
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
 
 import { produce } from 'immer'
+import { decode } from '@deconz-community/ddf-bundler'
+import { sha256 } from '@noble/hashes/sha256'
+
+import { bytesToHex } from '@noble/hashes/utils'
 import type { GatewayCredentials } from './app'
 // import { deviceMachine } from './device'
 
@@ -22,7 +26,7 @@ export interface GatewayContext {
 
 export type AnyGatewayEvent = GatewayEvent |
   WebsocketEvent |
-  RefreshEvent |
+  RefreshEvent | UpdateEvent |
   RequestEvent<EndpointAlias>
 
 export type GatewayEvent = {
@@ -51,6 +55,12 @@ export type RefreshEvent = ({
   type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
 }) & {
   manual?: boolean
+}
+
+export interface UpdateEvent {
+  type: 'UPDATE_BUNDLES'
+  method: 'set' | 'delete' | 'replace'
+  data: Map<string, BundleDescriptor>
 }
 
 export interface RequestEventOptions<Alias extends EndpointAlias> {
@@ -285,6 +295,38 @@ export const gatewayMachine = setup({
     }),
     // #endregion
 
+    // #region request watcher
+    responseWatcher: fromCallback<UpdateEvent, { gateway: GatewayClient }>(
+      ({ input, sendBack }) => input.gateway.addResponseWatcher(async (response) => {
+        switch (response.alias) {
+          // #region uploadDDFBundle
+          case 'uploadDDFBundle':{
+            const { params, results } = response as unknown as ResponseWatcherParam<'uploadDDFBundle'>
+            for (const result of results) {
+              if (result.isOk()) {
+                const bundle = await decode(params.body)
+                sendBack({
+                  type: 'UPDATE_BUNDLES',
+                  method: 'set',
+                  data: new Map([
+                    [
+                      bytesToHex(bundle.data.hash!),
+                      {
+                        ...bundle.data.desc,
+                        file_hash: bytesToHex(sha256(new Uint8Array(await params.body.arrayBuffer()))),
+                      },
+                    ],
+                  ]),
+                })
+              }
+            }
+            break
+          }
+          // #endregion
+        }
+      }),
+    ),
+    // #endregion
   },
 
   actions: {
@@ -372,6 +414,12 @@ export const gatewayMachine = setup({
       type: 'parallel',
       entry: ['cleanupGatewayData'],
       exit: ['cleanupGatewayData'],
+      invoke: {
+        src: 'responseWatcher',
+        input: ({ context }) => ({
+          gateway: context.gateway!,
+        }),
+      },
 
       on: {
         DISCONNECT: 'offline.disabled',
@@ -389,16 +437,25 @@ export const gatewayMachine = setup({
             })
           }),
         },
-        /*
-        UPDATE_DEVICE_NAME: {
+        UPDATE_BUNDLES: {
           actions: assign({
-            devices_names: ({ context, event }) => produce(context.devices_names, (draft) => {
-              const { deviceID, name } = event
-              draft[deviceID] = name
-            }),
+            bundles: ({ event, context }) =>
+              event.method === 'replace'
+                ? event.data
+                : produce(context.bundles, (draft) => {
+                  switch (event.method) {
+                    case 'set':
+                      for (const [key, value] of event.data)
+                        draft.set(key, value)
+                      break
+                    case 'delete':
+                      for (const key of event.data.keys())
+                        draft.delete(key)
+                      break
+                  }
+                }),
           }),
         },
-        */
       },
 
       states: {
@@ -553,6 +610,7 @@ export const gatewayMachine = setup({
 
         // #region bundles state
         bundles: {
+
           initial: 'idle',
           states: {
             idle: {
@@ -567,11 +625,14 @@ export const gatewayMachine = setup({
                   manual: event.type === 'REFRESH_BUNDLES' ? event.manual : false,
                 }),
                 src: 'fetchBundles',
+                // TODO move in the fetchBundles invoke ?
                 onDone: {
                   target: 'idle',
-                  actions: [
-                    assign({ bundles: ({ event }) => event.output }),
-                  ],
+                  actions: raise(({ event }) => ({
+                    type: 'UPDATE_BUNDLES',
+                    method: 'replace',
+                    data: event.output,
+                  })),
                 },
                 // TODO Display an error message
                 onError: 'idle',

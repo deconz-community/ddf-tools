@@ -25,7 +25,6 @@ onMounted(() => {
   }, { immediate: true })
 })
 
-const isDev = app.select(state => state.context.settings?.developerMode)
 const isReady = store.select(state => state.matches('online') === true)
 
 const bundle = store.request(computed(() => readBundles(props.bundle, {
@@ -311,6 +310,7 @@ async function installBundle() {
 
     <v-card-subtitle>
       Published {{ useTimeAgo(bundle.state.value.source_last_modified).value }}
+      ({{ (new Date(bundle.state.value.source_last_modified)).toLocaleDateString() }})
     </v-card-subtitle>
 
     <v-card-text>
@@ -343,7 +343,7 @@ async function installBundle() {
                 type="warning"
               />
 
-              <v-card elevation="2" class="ma-2">
+              <v-card v-if="Array.isArray(bundle.state.value.device_identifiers)" elevation="2" class="ma-2">
                 <template #title>
                   Supported devices
                 </template>
@@ -556,11 +556,12 @@ async function installBundle() {
             </v-list-item>
             <v-list-item title="Published">
               {{ useTimeAgo(bundle.state.value.source_last_modified).value }}
+              ({{ (new Date(bundle.state.value.source_last_modified)).toLocaleDateString() }})
             </v-list-item>
             <v-list-item title="Version deconz">
               {{ bundle.state.value.version_deconz }}
             </v-list-item>
-            <v-list-item title="Supported devices">
+            <v-list-item v-if="bundle.state.value.device_identifiers" title="Supported devices">
               {{ bundle.state.value.device_identifiers.length }}
             </v-list-item>
             <v-list-item title="Bundle Size">
@@ -569,10 +570,11 @@ async function installBundle() {
             <v-list-item title="Total Files">
               {{ bundle.state.value.file_count ?? 'Unknown' }}
             </v-list-item>
-            <v-list-item title="Signed by">
+            <v-list-item v-if="bundle.state.value.signatures" title="Signed by">
               <chip-signatures :signatures="bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
             </v-list-item>
           </v-list>
+          <!--
           <v-btn
             v-if="isDev"
             color="red"
@@ -581,6 +583,7 @@ async function installBundle() {
           >
             Report (TODO)
           </v-btn>
+          -->
         </v-sheet>
       </v-sheet>
     </v-card-text>

@@ -8,7 +8,6 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Vuetify from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
-import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
@@ -140,10 +139,6 @@ export default defineConfig({
         ],
       },
     }),
-
-    // @ts-expect-error It's how this plugin works
-    monacoEditorPlugin.default({}),
-
   ],
 
   ssr: {

@@ -97,17 +97,15 @@ async function upload() {
   if (successes.length > 0)
     toast.success(`Successfully uploaded ${successes.length} DDF ${successes.length > 1 ? 'bundles' : 'bundle'}`)
 
-  gateway.send({ type: 'REFRESH_BUNDLES' })
-  gateway.send({ type: 'REFRESH_DEVICES' })
+  setTimeout(() => {
+    gateway.send({ type: 'REFRESH_DEVICES' })
+  }, 2500)
 }
 
 const bundles = computed(() => {
   return Array.from(gateway.bundles?.entries() || []).map(([hash, bundle]) => ({
     hash,
-    uuid: bundle.uuid,
-    product: bundle.product,
-    last_modified: new Date(bundle.last_modified),
-    used_by: [],
+    ...bundle,
   }))
 })
 
@@ -329,6 +327,8 @@ onMounted(() => {
                 <UseTimeAgo v-slot="{ timeAgo }" :time="item.last_modified">
                   {{ timeAgo }}
                 </UseTimeAgo>
+                <br>
+                ({{ item.last_modified.toLocaleDateString() }})
               </p>
             </template>
           </v-tooltip>
@@ -342,7 +342,7 @@ onMounted(() => {
 {
   "meta": {
     "layout": "gateway",
-    "requireAPI" : ">=2.27.0",
+    "requireAPI" : ">=2.27.1",
     "hideLevelTwoSidebar": false
   }
 }

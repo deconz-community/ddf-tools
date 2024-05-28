@@ -11,9 +11,9 @@ export interface ChunkDESC {
   uuid: string
   version_deconz: string
   last_modified: Date
+  vendor: string
   product: string
   links?: string[]
-  matchexpr?: string
   device_identifiers: [string, string][]
 }
 

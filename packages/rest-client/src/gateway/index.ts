@@ -18,6 +18,14 @@ type RequestFunctionType = <
   params: Params
 ) => Promise<RequestResultForAlias<Alias>>
 
+export interface ResponseWatcherParam<Alias extends EndpointAlias> {
+  alias: Alias
+  params: ExtractParamsForAlias<Alias>
+  results: RequestResultForAlias<Alias>
+}
+
+export type ResponseWatcher = <Alias extends EndpointAlias>(data: ResponseWatcherParam<Alias>) => void
+
 export interface ClientParams {
   address?: MaybeLazy<string | undefined>
   apiKey?: MaybeLazy<string | undefined>
@@ -32,6 +40,17 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     apiKey,
     timeout = 5000,
   } = clientParams
+
+  const responseWatchers = new Set<ResponseWatcher>()
+
+  const removeResponseWatcher = (watcher: ResponseWatcher) => {
+    responseWatchers.delete(watcher)
+  }
+
+  const addResponseWatcher = (watcher: ResponseWatcher) => {
+    responseWatchers.add(watcher)
+    return () => removeResponseWatcher(watcher)
+  }
 
   const request: RequestFunctionType = async function (alias, params) {
     const endpoint = endpoints[alias] as EndpointDefinition
@@ -144,8 +163,8 @@ export function gatewayClient(clientParams: ClientParams = {}) {
     const { deconzErrors, schema, removePrefix } = endpoint.response
     let { format } = endpoint.response
 
-    function packResponse<Data extends any[]>(value: Data): Data {
-      Object.defineProperty(value, 'statusCode', {
+    function packResponse<Data extends any[]>(response: Data): Data {
+      Object.defineProperty(response, 'statusCode', {
         value: status,
         writable: false,
         enumerable: false,
@@ -163,7 +182,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           }
           catch (e) { }
 
-          Object.defineProperty(value, 'rawResponse', {
+          Object.defineProperty(response, 'rawResponse', {
             value: lastValue,
             writable: false,
             enumerable: false,
@@ -173,7 +192,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
         }
 
         case 'blob':{
-          Object.defineProperty(value, 'rawResponse', {
+          Object.defineProperty(response, 'rawResponse', {
             value: {
               type: 'blob',
               length: responseData.byteLength,
@@ -187,7 +206,9 @@ export function gatewayClient(clientParams: ClientParams = {}) {
         default:
       }
 
-      return value
+      responseWatchers.forEach(watcher => watcher({ alias, params, results: response }))
+
+      return response
     }
 
     function getString(string: string) {
@@ -255,7 +276,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             if ('success' in item) {
               if (Array.isArray(item.success)) {
                 result.success = item.success
-                return
+                return // TODO why return here?
               }
 
               if (result.success === undefined)
@@ -382,6 +403,8 @@ export function gatewayClient(clientParams: ClientParams = {}) {
 
   return {
     request,
+    addResponseWatcher,
+    removeResponseWatcher,
     address,
     apiKey,
   }

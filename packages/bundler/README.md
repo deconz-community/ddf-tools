@@ -67,6 +67,16 @@ The UUID of the DDF, it's a unique identifier for the DDF.
 "331012bd-ce22-4a1b-9f4a-d092aa2cca92"
 ```
 
+#### vendor (required)
+
+The english device commercial name of the vendor.
+
+##### Example
+
+```json
+"Hue white and color ambiance gradient light"
+```
+
 #### product (required)
 
 The english device commercial name of the device.

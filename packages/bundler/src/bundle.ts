@@ -7,9 +7,10 @@ export function Bundle() {
     hash: undefined,
     desc: {
       uuid: '',
-      product: 'Unknown device',
       version_deconz: '>2.27.0',
       last_modified: new Date(0),
+      vendor: 'Unknown vendor',
+      product: 'Unknown product',
       device_identifiers: [],
     },
     files: [],
@@ -32,10 +33,9 @@ export function Bundle() {
         data.desc.last_modified = file.last_modified
     })
 
-    data.desc.matchexpr = ddfc.matchexpr
     data.desc.device_identifiers = []
 
-    const keys = ['uuid', 'product', 'version_deconz'] as const
+    const keys = ['uuid', 'vendor', 'product', 'version_deconz'] as const
     keys.forEach((key) => {
       if (ddfc[key] !== undefined)
         data.desc[key] = ddfc[key]
@@ -68,6 +68,13 @@ export function Bundle() {
     }
     else {
       throw new Error('The length of manufacturers and modelids does not match')
+    }
+
+    if (data.desc.device_identifiers.length > 0) {
+      if (data.desc.vendor === 'Unknown vendor')
+        data.desc.vendor = data.desc.device_identifiers[0][0]
+      if (data.desc.product === 'Unknown product')
+        data.desc.product = data.desc.device_identifiers[0][1]
     }
   }
 
