@@ -132,6 +132,15 @@ const pageCount = computed(() => {
                 </UseTimeAgo>
               </v-card-subtitle>
               <v-card-text>
+                <v-card v-if="item.raw.info" variant="flat">
+                  <v-card-title>
+                    Info
+                  </v-card-title>
+                  <v-card-text>
+                    {{ item.raw.info }}
+                  </v-card-text>
+                </v-card>
+
                 <v-card variant="flat">
                   <v-card-title>
                     Supported devices

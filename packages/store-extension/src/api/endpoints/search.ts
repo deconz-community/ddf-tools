@@ -81,14 +81,15 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     const items = await bundleService.readByQuery({
       fields: [
         'id',
+        'ddf_uuid',
         'vendor',
         'product',
-        'ddf_uuid',
+        'version_deconz',
+        'info',
         'source_last_modified',
         'content_hash',
         'device_identifiers.device_identifiers_id.manufacturer',
         'device_identifiers.device_identifiers_id.model',
-        'info',
         'signatures.key',
         'signatures.type',
       ],
