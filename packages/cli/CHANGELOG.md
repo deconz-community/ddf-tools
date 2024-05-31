@@ -1,5 +1,14 @@
 # @deconz-community/cli
 
+## 1.15.2
+
+### Patch Changes
+
+- 7b6c3d1: Update deps
+- Updated dependencies [7b6c3d1]
+  - @deconz-community/ddf-validator@2.30.2
+  - @deconz-community/ddf-bundler@0.28.1
+
 ## 1.15.1
 
 ### Patch Changes
