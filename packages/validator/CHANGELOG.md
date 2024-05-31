@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.30.2
+
+### Patch Changes
+
+- 7b6c3d1: Update deps
+
 ## 2.30.1
 
 ### Patch Changes
