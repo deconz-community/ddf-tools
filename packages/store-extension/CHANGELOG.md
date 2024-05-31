@@ -1,5 +1,20 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.22.0
+
+### Minor Changes
+
+- e19438f: Add vendor in search endpoint
+
+### Patch Changes
+
+- 7b6c3d1: Fix search result count for last page
+- 30d8b8c: Update search fields list
+- ce16826: Fix search pagination
+- 7b6c3d1: Update deps
+- Updated dependencies [7b6c3d1]
+  - @deconz-community/ddf-bundler@0.28.1
+
 ## 0.21.0
 
 ### Minor Changes
