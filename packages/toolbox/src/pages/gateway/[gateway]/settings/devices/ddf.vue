@@ -239,6 +239,7 @@ onMounted(() => {
         <template #item.ddf_hash="{ item }">
           <chip-ddf-hash
             v-if="item.ddf_hash"
+            source="gateway"
             :hash="item.ddf_hash"
             :gateway="props.gateway"
           />
@@ -314,6 +315,7 @@ onMounted(() => {
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.hash="{ item }">
           <chip-ddf-hash
+            source="gateway"
             :hash="item.hash"
             :gateway="props.gateway"
           />

@@ -1,33 +1,54 @@
 <script setup lang="ts">
+import { decode } from '@deconz-community/ddf-bundler'
 import type { Bundle } from '@deconz-community/ddf-bundler'
 
 const props = defineProps<{
-  gateway: string
+  source: 'store' | 'gateway'
+  gateway?: string
   hash: string
 }>()
 
 const gateway = useGateway(toRef(props, 'gateway'))
+const store = useStore()
 
 const inspectorIsActive = ref(false)
 const bundleRef = ref<ReturnType<typeof Bundle> | undefined>()
 
 async function inspect(hash: string) {
-  const responses = await gateway.fetch('downloadDDFBundleDecoded', {
-    hash,
-  })
+  switch (props.source) {
+    case 'store':{
+      const bundle = await store.client?.request(storeDownloadBundle(hash))
 
-  responses.forEach((response) => {
-    if (response.isOk()) {
-      bundleRef.value = response.value
+      if (!bundle || !bundle.success)
+        return toast.error(`Error while downloading bundle from the store`)
+
+      const decoded = await decode(bundle.success)
+
+      bundleRef.value = decoded
       bundleRef.value.data.name = hash
       inspectorIsActive.value = true
+
+      return
     }
-    else {
-      bundleRef.value = undefined
-      inspectorIsActive.value = false
-      toast.error('Failed to download bundle')
+    case 'gateway':{
+      const responses = await gateway.fetch('downloadDDFBundleDecoded', {
+        hash,
+      })
+
+      for (const response of responses) {
+        if (response.isOk()) {
+          bundleRef.value = response.value
+          bundleRef.value.data.name = hash
+          inspectorIsActive.value = true
+          return
+        }
+      }
     }
-  })
+  }
+
+  bundleRef.value = undefined
+  inspectorIsActive.value = false
+  toast.error('Failed to download bundle')
 }
 </script>
 

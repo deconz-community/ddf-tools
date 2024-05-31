@@ -178,6 +178,7 @@ async function save() {
             <!-- eslint-disable-next-line vue/valid-v-slot -->
             <template #item.hash="{ item }">
               <chip-ddf-hash
+                source="gateway"
                 :hash="item.hash"
                 :gateway="props.gateway"
               />

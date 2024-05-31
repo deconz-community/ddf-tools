@@ -17,6 +17,9 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     const hasKey = typeof req.query.hasKey === 'string' && req.query.hasKey !== '' ? req.query.hasKey : null
     const showDeprecated = req.query.showDeprecated === 'true'
     let limit = HARD_LIMIT
+    let page = typeof req.query.page === 'string' ? Number.parseInt(req.query.page) : 1
+    if (Number.isNaN(page) || page < 1)
+      page = 1
 
     const subquery = context.database('bundles')
       .select('bundles.ddf_uuid')
@@ -67,14 +70,9 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
 
       if (Number.isNaN(limit) || limit > HARD_LIMIT || limit < 1)
         limit = HARD_LIMIT
-
-      if (typeof req.query.page === 'string' && req.query.page !== '') {
-        const page = Number.parseInt(req.query.page)
-        if (!Number.isNaN(page) && page > 1)
-          query.offset(limit * (page - 1))
-      }
     }
 
+    query.offset(limit * (page - 1))
     query.limit(limit)
 
     query.orderBy('bundles.source_last_modified', 'desc')
@@ -104,7 +102,7 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
 
     let totalCount = Number.POSITIVE_INFINITY
     if (items.length < limit) {
-      totalCount = items.length
+      totalCount = items.length + limit * (page - 1)
     }
     else {
       const queryCount = query

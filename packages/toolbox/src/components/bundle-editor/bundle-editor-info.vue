@@ -48,21 +48,14 @@ function generateUUID() {
     @click:append="generateUUID()"
   />
 
-  <template v-for="devices, manufacturer in supportedDevices" :key="manufacturer">
-    <v-card>
-      <v-card-title>
-        Supported devices
-      </v-card-title>
-      <v-card-text>
-        <h3 class="ma-1 ml-4">
-          {{ manufacturer }}
-          <v-chip v-for="device, index in devices" :key="index" class="ma-1">
-            {{ device }}
-          </v-chip>
-        </h3>
-      </v-card-text>
-    </v-card>
-  </template>
+  <v-card>
+    <v-card-title>
+      Supported devices
+    </v-card-title>
+    <v-card-text>
+      <list-supported-devices :device-identifiers="bundle.data.desc.device_identifiers" />
+    </v-card-text>
+  </v-card>
 
   <template v-for="file in markdownFiles" :key="file.path">
     <v-card>

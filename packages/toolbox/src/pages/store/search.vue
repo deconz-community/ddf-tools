@@ -116,27 +116,30 @@ const pageCount = computed(() => {
         <template #default="{ items }">
           <template v-for="(item, i) in items" :key="i">
             <v-card variant="outlined" class="ma-2">
-              <v-card-title>
-                {{ item.raw.product }}
-                <chip-signatures :signatures="item.raw.signatures" class="ma-2" />
-                <v-chip class="ma-2" color="grey">
-                  {{ item.raw.id.slice(0, 10) }}
-                </v-chip>
+              <v-card-title class="d-flex text-wrap">
+                <div class="align-self-center">
+                  {{ item.raw.vendor }}
+                  {{ item.raw.product }}
+                </div>
+
+                <chip-signatures only="system" :signatures="item.raw.signatures" class="ma-2" />
+                <chip-ddf-hash source="store" :hash="item.raw.id" />
               </v-card-title>
               <v-card-subtitle>
+                <chip-signatures only="user" :signatures="item.raw.signatures" class="ma-2" />
                 <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.source_last_modified">
-                  Published {{ timeAgo }}
+                  published {{ timeAgo }} ({{ new Date(item.raw.source_last_modified).toLocaleDateString() }})
                 </UseTimeAgo>
               </v-card-subtitle>
               <v-card-text>
-                <v-list density="compact">
-                  <v-list-subheader>Supported devices</v-list-subheader>
-                  <v-list-item
-                    v-for="(device_identifier, k) in item.raw.device_identifiers"
-                    :key="k"
-                    :title="`${device_identifier.device_identifiers_id.manufacturer} • ${device_identifier.device_identifiers_id.model}`"
-                  />
-                </v-list>
+                <v-card variant="flat">
+                  <v-card-title>
+                    Supported devices
+                  </v-card-title>
+                  <v-card-text>
+                    <list-supported-devices :device-identifiers="item.raw.device_identifiers" />
+                  </v-card-text>
+                </v-card>
               </v-card-text>
               <v-card-actions>
                 <v-btn
