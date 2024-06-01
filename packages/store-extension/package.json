@@ -44,7 +44,7 @@
     "@directus/extensions-sdk": "11.0.6",
     "@directus/types": "^11.1.2",
     "@types/busboy": "^1.5.4",
-    "@types/node": "^20.12.13",
+    "@types/node": "^20.13.0",
     "@types/pako": "^2.0.3",
     "express": "^4.19.2",
     "typescript": "^5.4.5"

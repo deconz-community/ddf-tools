@@ -65,7 +65,7 @@
     "zod-empty": "^1.0.7"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.19.1",
+    "@antfu/eslint-config": "^2.19.2",
     "@directus/sdk": "^16.0.2",
     "@mdi/font": "^7.4.47",
     "@noble/curves": "^1.4.0",
@@ -74,7 +74,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/jsdom": "^21.1.7",
     "@types/md5": "^2.3.5",
-    "@types/node": "^20.12.13",
+    "@types/node": "^20.13.0",
     "@types/semver": "^7.5.8",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.11.0",
@@ -86,7 +86,7 @@
     "@xstate/cli": "^0.5.17",
     "@xstate/inspect": "^0.8.0",
     "color": "^4.2.3",
-    "eslint": "^9.3.0",
+    "eslint": "^9.4.0",
     "lint-staged": "^15.2.5",
     "md5": "^2.3.0",
     "sass": "^1.77.4",

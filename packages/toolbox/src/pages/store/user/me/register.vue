@@ -2,9 +2,13 @@
 import { registerUser } from '@directus/sdk'
 import { useVuelidate } from '@vuelidate/core'
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
+import { useRouteQuery } from '@vueuse/router'
 import { toastError } from '~/lib/handleError'
 
 const store = useStore()
+const router = useRouter()
+
+const queryToken = useRouteQuery<string>('token', '')
 
 const initialState = {
   username: '',
@@ -76,6 +80,7 @@ async function register() {
   try {
     await store.client?.request(registerUser(state.email, state.password, {
       first_name: state.username,
+      verification_url: import.meta.env.VITE_DIRECTUS_REGISTER_VERIFICATION_URL,
     }))
     clear()
     toast.success('Account created', {
@@ -89,10 +94,51 @@ async function register() {
     loading.value = false
   }
 }
+
+async function validateEmail() {
+  // Wait for release https://github.com/directus/directus/pull/22599
+  const registerUserVerify	= (token: string) => () => ({
+	    path: `/users/register/verify-email`,
+	    params: { token },
+	    method: 'GET',
+	  })
+
+  try {
+    if (!queryToken.value)
+      return toast.error('Invalid token')
+    await store.client?.request(registerUserVerify(queryToken.value) as any)
+    router.push('/')
+    toast.success('Email verified')
+  }
+  catch (error) {
+    console.error(error)
+    toastError(error)
+  }
+}
 </script>
 
 <template>
-  <v-card class="ma-2">
+  <v-card v-if="queryToken" class="ma-2">
+    <v-card-title>Email Verification</v-card-title>
+    <v-card-text>
+      <v-alert
+        class="mb-5"
+        type="info"
+        text="Click on the button below to verify your email."
+      />
+    </v-card-text>
+    <v-card-actions>
+      <v-btn
+        variant="tonal"
+        color="primary"
+        append-icon="mdi-account-plus"
+        text="Verify my email"
+        @click="validateEmail"
+      />
+    </v-card-actions>
+  </v-card>
+
+  <v-card v-else class="ma-2">
     <v-form @submit.prevent="register">
       <v-card-title>Create an account</v-card-title>
 

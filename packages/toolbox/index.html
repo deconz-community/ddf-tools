@@ -23,37 +23,6 @@
         `
       }, 2000)
     </script>
-    <script>
-      // From https://github.com/vuejs/router/issues/2054#issuecomment-2136520198
-      // This script merges query parameters into the hash part of the URL for the Vue Router to work properly
-      ;(function () {
-        const location = window.location
-        let path = location.pathname
-        let searchParams = new URLSearchParams(location.search)
-        let hash = location.hash
-
-        // Check if there is a hash and query parameters
-        if (hash && location.search) {
-          const hashParts = hash.split('?')
-          const hashBase = hashParts[0]
-          let hashParams = new URLSearchParams(hashParts[1])
-
-          // Merge the parameters
-          searchParams.forEach((value, key) => {
-            hashParams.set(key, value)
-          })
-
-          // Create a new URL with merged parameters
-          const newHash = `${hashBase}?${hashParams.toString()}`
-          const newUrl = `${path}${newHash}`
-
-          // Redirect to the new URL if it's different from the current one
-          if (newUrl !== location.href) {
-            window.location.replace(newUrl)
-          }
-        }
-      })()
-    </script>
     <script type="module" src="/src/main.ts"></script>
     <noscript>
       This website requires JavaScript to function properly. Please enable
