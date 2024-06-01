@@ -67,6 +67,47 @@ export function storeDeprecateBundle(params: BundleDeprecateParams) {
   })
 }
 
+export function bundleSearch(filters: {
+  page?: number
+  limit?: number
+  product?: string
+  manufacturer?: string
+  model?: string
+  hasKey?: string
+  showDeprecated?: boolean
+}): RestCommand<{
+  items: {
+    id: string
+    ddf_uuid: string
+    vendor: string
+    product: string
+    version_deconz: string
+    info: string | null
+    source_last_modified: string
+    content_hash: string
+    device_identifiers: {
+      device_identifiers_id: {
+        manufacturer: string
+        model: string
+      }
+    }[]
+    signatures: {
+      type: 'system' | 'user'
+      key: string
+    }[]
+  }[]
+  totalCount: number
+}, Schema> {
+  return () => {
+    const params = Object.fromEntries(Object.entries(filters).filter(([_, value]) => value !== ''))
+    return {
+      method: 'GET',
+      path: '/bundle/search',
+      params,
+    }
+  }
+}
+
 export function useStore() {
   const store = useAppMachine('store')
   const client = computed(() => store.state?.context.directus)

@@ -34,6 +34,7 @@
     "@noble/hashes": "^1.4.0",
     "@noble/secp256k1": "^2.1.0",
     "@statelyai/inspect": "^0.3.1",
+    "@swayable/vue-snarkdown": "^3.0.4",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "@vueuse/components": "^10.10.0",

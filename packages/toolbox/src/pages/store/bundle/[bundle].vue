@@ -550,9 +550,7 @@ async function installBundle() {
             </v-list-item>
 
             <v-list-item title="Hash">
-              <v-chip class="ma-2" color="grey">
-                {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
-              </v-chip>
+              <chip-ddf-hash source="store" :hash="bundle.state.value.id" />
             </v-list-item>
             <v-list-item title="Published">
               {{ useTimeAgo(bundle.state.value.source_last_modified).value }}

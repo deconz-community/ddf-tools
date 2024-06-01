@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 
+import { useTheme } from 'vuetify'
+
 const app = useAppMachine('app')
 const store = useStore()
 const storeUrl = useRouteQuery('storeUrl', '')
@@ -18,6 +20,19 @@ const developerMode = computed({
     app.send({ type: 'UPDATE_SETTINGS', settings: { developerMode: value } })
   },
 })
+
+const theme = useTheme()
+
+const isDarkTheme = computed({
+  get: () => app.state?.context.settings?.darkTheme ?? false,
+  set: (value) => {
+    app.send({ type: 'UPDATE_SETTINGS', settings: { darkTheme: value } })
+  },
+})
+
+watch(isDarkTheme, (value) => {
+  theme.global.name.value = value ? 'dark' : 'light'
+})
 </script>
 
 <template>
@@ -29,6 +44,11 @@ const developerMode = computed({
       <v-switch
         v-model="developerMode"
         label="Developer mode"
+        color="primary"
+      />
+      <v-switch
+        v-model="isDarkTheme"
+        label="Dark theme"
         color="primary"
       />
     </v-card-text>

@@ -15,6 +15,18 @@ import VuetifyUseDialog from 'vuetify-use-dialog'
 import BundleEditorFiles from '../components/bundle-editor/bundle-editor-files.vue'
 
 import type { UserModule } from '~/types'
+import { storageKey, storageSchema } from '~/machines/app'
+
+// #region Default theme
+let defaultTheme = 'dark'
+const saved = localStorage.getItem(storageKey)
+if (saved) {
+  const parsed = JSON.parse(saved)
+  const data = storageSchema.parse(parsed)
+
+  defaultTheme = data.settings?.darkTheme === false ? 'light' : 'dark'
+}
+// #endregion
 
 // Import Vuetify
 export const install: UserModule = ({ app }) => {
@@ -25,7 +37,7 @@ export const install: UserModule = ({ app }) => {
       BundleEditorFiles,
     },
     theme: {
-      defaultTheme: 'dark',
+      defaultTheme,
     },
     icons: {
       defaultSet: 'mdi',

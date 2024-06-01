@@ -10,13 +10,14 @@ enableMapSet()
 
 // https://stately.ai/docs/migration#use-params-to-pass-params-to-actions--guards
 
-const storageKey = 'app'
-const storageSchema = z.object({
+export const storageKey = 'app'
+export const storageSchema = z.object({
   store: z.optional(z.object({
     url: z.string(),
   })),
   settings: z.optional(z.object({
     developerMode: z.boolean().optional(),
+    darkTheme: z.boolean().optional(),
   })),
   credentials: z.record(z.object({
     id: z.string(),
@@ -193,6 +194,9 @@ export const appMachine = setup({
             Object.entries(event.settings).forEach(([key, value]) => {
               switch (key) {
                 case 'developerMode':
+                  draft[key] = value
+                  break
+                case 'darkTheme':
                   draft[key] = value
                   break
                 default:

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouteQuery } from '@vueuse/router'
 import type { RestCommand } from '@directus/sdk'
+import Snarkdown from '@swayable/vue-snarkdown'
 import type { Schema } from '~/interfaces/store'
 
 const store = useStore()
@@ -12,25 +13,6 @@ const model = useRouteQuery('model', '')
 const stableOnly = useRouteQuery('showStableOnly', 'false', { transform: (v: string) => v === 'true' })
 const showDeprecated = useRouteQuery('showDeprecated', 'false', { transform: (v: string) => v === 'true' })
 const itemsPerPage = ref(5)
-
-function bundleSearch(filters: {
-  page?: number
-  limit?: number
-  product?: string
-  manufacturer?: string
-  model?: string
-  hasKey?: string
-  showDeprecated?: boolean
-}): RestCommand<unknown, Schema> {
-  return () => {
-    const params = Object.fromEntries(Object.entries(filters).filter(([_, value]) => value !== ''))
-    return {
-      method: 'GET',
-      path: '/bundle/search',
-      params,
-    }
-  }
-}
 
 const bundleList = store.request(computed(() => {
   const keyStable = store.state?.context?.settings?.public_key_stable ?? ''
@@ -114,63 +96,62 @@ const pageCount = computed(() => {
         </template>
 
         <template #default="{ items }">
-          <template v-for="(item, i) in items" :key="i">
-            <v-card variant="outlined" class="ma-2">
-              <v-card-title class="d-flex text-wrap">
-                <div class="align-self-center">
-                  {{ item.raw.vendor }}
-                  {{ item.raw.product }}
-                </div>
+          <v-card v-for="(item, i) in items" :key="i" variant="outlined" class="ma-2">
+            <v-card-title class="d-flex align-center">
+              <v-chip
+                variant="outlined"
+                color="primary"
+                class="result-title-chip flex-grow-1 text-wrap text-break"
+                size="large"
+                prepend-icon="mdi-open-in-new"
+                label
+                :to="`/store/bundle/${item.raw.id}`"
+              >
+                {{ item.raw.vendor }}
+                {{ item.raw.product }}
+              </v-chip>
 
-                <chip-signatures only="system" :signatures="item.raw.signatures" class="ma-2" />
-                <chip-ddf-hash source="store" :hash="item.raw.id" />
-              </v-card-title>
-              <v-card-subtitle>
-                <chip-signatures only="user" :signatures="item.raw.signatures" class="ma-2" />
-                <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.source_last_modified">
-                  published {{ timeAgo }} ({{ new Date(item.raw.source_last_modified).toLocaleDateString() }})
-                </UseTimeAgo>
-              </v-card-subtitle>
-              <v-card-text>
-                <v-card v-if="item.raw.info" variant="flat">
-                  <v-card-title>
-                    Info
-                  </v-card-title>
-                  <v-card-text>
-                    {{ item.raw.info }}
-                  </v-card-text>
-                </v-card>
-
-                <v-card variant="flat">
-                  <v-card-title>
-                    Supported devices
-                  </v-card-title>
-                  <v-card-text>
-                    <list-supported-devices :device-identifiers="item.raw.device_identifiers" />
-                  </v-card-text>
-                </v-card>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn
-                  :to="`/store/bundle/${item.raw.id}`"
-                  elevation="2"
-                  variant="flat"
-                  color="primary"
-                >
-                  Open
-                </v-btn>
-                <v-btn
-                  v-if="store.client" :href="`${store.client.url}bundle/download/${item.raw.id}`"
-                  elevation="2"
-                  variant="flat"
-                  color="secondary"
-                  prepend-icon="mdi-download"
-                >
-                  Download
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </template>
+              <v-btn
+                v-if="store.client"
+                :href="`${store.client.url}bundle/download/${item.raw.id}`"
+                variant="outlined"
+                append-icon="mdi-download"
+                color="secondary"
+                class="ml-2 flex-shrink-0"
+              >
+                Download
+              </v-btn>
+            </v-card-title>
+            <v-card-subtitle class="d-flex flex-wrap align-center">
+              <chip-signatures only="user" :signatures="item.raw.signatures" class="ma-2" />
+              <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.source_last_modified">
+                published {{ timeAgo }} ({{ new Date(item.raw.source_last_modified).toLocaleDateString() }})
+              </UseTimeAgo>
+              <chip-signatures
+                only="system"
+                :signatures="item.raw.signatures"
+              />
+              <chip-ddf-hash source="store" :hash="item.raw.id" />
+            </v-card-subtitle>
+            <v-card-text>
+              <v-card v-if="item.raw.info" variant="elevated" class="ma-2">
+                <v-card-title>
+                  Information
+                </v-card-title>
+                <v-card-text>
+                  <Snarkdown :markdown="item.raw.info" />
+                </v-card-text>
+              </v-card>
+              <v-card variant="elevated" class="ma-2">
+                <v-card-title>
+                  Supported devices
+                </v-card-title>
+                <v-card-text>
+                  <list-supported-devices :device-identifiers="item.raw.device_identifiers" />
+                </v-card-text>
+              </v-card>
+            </v-card-text>
+          </v-card>
         </template>
 
         <template #footer>
@@ -183,6 +164,15 @@ const pageCount = computed(() => {
     </v-alert>
   </v-card>
 </template>
+
+<style scoped>
+.result-title-chip {
+  max-width: 100%;
+  height: auto;
+  min-height: 36px;
+  white-space: pre-wrap;
+}
+</style>
 
 <route lang="json">
 {
