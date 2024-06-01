@@ -24,7 +24,7 @@ const developerMode = computed({
 const theme = useTheme()
 
 const isDarkTheme = computed({
-  get: () => app.state?.context.settings?.darkTheme ?? false,
+  get: () => app.state?.context.settings?.darkTheme ?? true,
   set: (value) => {
     app.send({ type: 'UPDATE_SETTINGS', settings: { darkTheme: value } })
   },
