@@ -141,6 +141,8 @@ async function passwordReset() {
                 color="secondary"
                 @click="passwordReset()"
               />
+              <!--
+                Hide registration for now until we have a working email sender
               <v-btn
                 text="Register"
                 variant="flat"
@@ -148,6 +150,7 @@ async function passwordReset() {
                 :to="{ path: '/store/user/me/register' }"
                 @click="isActive.value = false"
               />
+              -->
               <v-btn
                 text="Login"
                 append-icon="mdi-login"
