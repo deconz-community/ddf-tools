@@ -1,5 +1,15 @@
 # @deconz-community/ddf-validator
 
+## 2.31.0
+
+### Minor Changes
+
+- c3f7666: Change bundle extension to .ddb
+
+### Patch Changes
+
+- d65998c: Update deps
+
 ## 2.30.2
 
 ### Patch Changes
