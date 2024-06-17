@@ -273,7 +273,7 @@ async function installBundle() {
       return toast.error(`Error while downloading bundle from the store`)
 
     const uploadResult = await activeGateway.fetch('uploadDDFBundle', {
-      body: new File([bundle.success], 'bundle.ddf', {
+      body: new File([bundle.success], 'bundle.ddb', {
         type: 'application/x-deconz-ddf-bundle',
       }),
     })

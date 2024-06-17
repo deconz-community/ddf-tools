@@ -713,7 +713,7 @@ export const endpoints = {
         format: 'blob',
         type: 'body',
         schema: z.instanceof(File),
-        sample: new File([], 'bundle.ddf'),
+        sample: new File([], 'bundle.ddb'),
       }),
     },
     response: {

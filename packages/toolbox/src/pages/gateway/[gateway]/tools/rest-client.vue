@@ -165,7 +165,7 @@ const extraTools = computed<Component[]>(() => {
 const downloadFileName = computed(() => {
   switch (endpointAlias.value) {
     case 'downloadDDFBundleBlob':
-      return `${params.value.hash}.ddf`
+      return `${params.value.hash}.ddb`
     default:
       return 'data.dat'
   }

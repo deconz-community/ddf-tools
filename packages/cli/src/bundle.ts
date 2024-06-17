@@ -327,7 +327,7 @@ export function bundleCommand() {
         const hash = bytesToHex(bundle.data.hash)
 
         if (output) {
-          const outputPath = path.join(output, `${bundle.data.name}-${hash.substring(0, 8)}.ddf`)
+          const outputPath = path.join(output, `${bundle.data.name}-${hash.substring(0, 8)}.ddb`)
           await fs.writeFile(outputPath, encoded.stream())
 
           spinner.clear()

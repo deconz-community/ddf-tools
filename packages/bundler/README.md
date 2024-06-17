@@ -234,7 +234,7 @@ Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
 import { readFile } from 'node:fs/promises'
 import { decode } from '@deconz-community/ddf-bundler'
 
-const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddf'))
+const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddb'))
 const blob = new Blob([data])
 blob.name = 'aq1_vibration_sensor'
 

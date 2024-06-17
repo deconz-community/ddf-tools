@@ -46,7 +46,7 @@ async function extractZipFile(file: File) {
     if (err)
       throw err
     Object.entries(unzipped).forEach(([key, value]) => {
-      if (key.endsWith('.ddf'))
+      if (key.endsWith('.ddb'))
         extractedFiles.push(new File([value], key))
     })
   })
@@ -139,8 +139,8 @@ onMounted(() => {
       <v-file-input
         v-model="inputUploadBundle"
         multiple
-        label="Open .ddf bundle or zip of .ddf bundles from disk"
-        accept=".ddf,.zip"
+        label="Open .ddb bundle or zip of .ddb bundles from disk"
+        accept=".ddb,.zip"
       />
       <div class="d-flex">
         <v-btn

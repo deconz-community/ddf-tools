@@ -191,8 +191,8 @@ if (import.meta.env.VITE_DEBUG === 'true') {
           <v-card-text>
             <v-file-input
               v-model="files"
-              label="Open .ddf bundle from disk"
-              accept=".ddf"
+              label="Open .ddb bundle from disk"
+              accept=".ddb"
             />
           </v-card-text>
         </v-card>

@@ -50,7 +50,7 @@ const hash = computed(() => {
 })
 
 async function download() {
-  saveAs(encode(bundle.value), `${bundle.value.data.name}.ddf`)
+  saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`)
 }
 
 const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)

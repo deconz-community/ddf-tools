@@ -81,15 +81,15 @@ async function upload() {
 <template>
   <v-card class="ma-2">
     <template #title>
-      Upload a DDF file
+      Upload a DDB file
     </template>
 
     <template #text>
       <v-file-input
         v-model="files"
         multiple
-        label="Open .ddf bundle from disk"
-        accept=".ddf"
+        label="Open .ddb bundle from disk"
+        accept=".ddb"
       />
     </template>
     <template #actions>

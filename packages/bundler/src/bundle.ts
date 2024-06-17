@@ -3,7 +3,7 @@ import { asArray } from './utils'
 
 export function Bundle() {
   const data: BundleData = {
-    name: 'bundle.ddf',
+    name: 'bundle',
     hash: undefined,
     desc: {
       uuid: '',

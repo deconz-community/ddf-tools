@@ -7,7 +7,7 @@ import { Bundle, decode, encode, getHash } from '../index'
 
 describe('tests', () => {
   it('should parse without errors', async () => {
-    const data = await readFile(path.join(__dirname, 'ddf/starkvind_air_purifier.ddf'))
+    const data = await readFile(path.join(__dirname, 'ddb/starkvind_air_purifier.ddb'))
     const expectedFileHash = '690d5564228784720462d6497d5ca7cb53d8a2a3195e3a47b762cd16fa70bf8c'
     const expectedHash = '239554d340589d629cefc4834a9b1883cce1e397def85ce3bd66c305a70739c2'
     const blob = new Blob([data])

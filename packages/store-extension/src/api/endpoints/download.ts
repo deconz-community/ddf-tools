@@ -29,7 +29,7 @@ export function downloadEndpoint({ router, context, services, schema }: GlobalCo
     if (!bundle.content)
       throw new InvalidQueryError({ reason: 'Bundle not found' })
 
-    const fileName = `${slugify(`${bundle.product}-${req.params.id.substring(req.params.id.length - 10)}`)}.ddf`
+    const fileName = `${slugify(`${bundle.product}-${req.params.id.substring(req.params.id.length - 10)}`)}.ddb`
 
     const buffer = Buffer.from(bundle.content, 'base64')
     const decompressed = Buffer.from(pako.inflate(buffer))
