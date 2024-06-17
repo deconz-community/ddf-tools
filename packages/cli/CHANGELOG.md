@@ -1,5 +1,19 @@
 # @deconz-community/cli
 
+## 1.16.0
+
+### Minor Changes
+
+- c3f7666: Change bundle extension to .ddb
+
+### Patch Changes
+
+- d65998c: Update deps
+- Updated dependencies [c3f7666]
+- Updated dependencies [d65998c]
+  - @deconz-community/ddf-validator@2.31.0
+  - @deconz-community/ddf-bundler@0.29.0
+
 ## 1.15.2
 
 ### Patch Changes

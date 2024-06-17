@@ -1,5 +1,15 @@
 # @deconz-community/ddf-bundler
 
+## 0.29.0
+
+### Minor Changes
+
+- c3f7666: Change bundle extension to .ddb
+
+### Patch Changes
+
+- d65998c: Update deps
+
 ## 0.28.1
 
 ### Patch Changes
