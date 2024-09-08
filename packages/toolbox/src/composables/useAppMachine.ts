@@ -195,6 +195,7 @@ export function createAppMachine() {
         id: 'app',
         systemId: 'app',
         inspect: {
+          // TODO: update subscription method : https://github.com/statelyai/xstate/pull/4936
           next: (snapshot) => {
             if (
               snapshot.type !== '@xstate.actor'
@@ -203,8 +204,9 @@ export function createAppMachine() {
               || snapshot.actorRef.options === null
               || !('systemId' in snapshot.actorRef.options)
               || typeof snapshot.actorRef.options.systemId !== 'string'
-            )
+            ) {
               return inspect?.next?.(snapshot)
+            }
 
             const type = snapshot.actorRef.id
 

@@ -1,5 +1,5 @@
 version: 1
-directus: 10.11.2
+directus: 11.1.0
 vendor: sqlite
 collections:
   - collection: bundles
@@ -1511,26 +1511,6 @@ fields:
       validation: null
       validation_message: null
       width: full
-  - collection: directus_sessions
-    field: next_token
-    type: string
-    meta: null
-    schema:
-      name: next_token
-      table: directus_sessions
-      data_type: varchar
-      default_value: null
-      max_length: 64
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
   - collection: directus_settings
     field: private_key_stable
     type: string
@@ -2408,30 +2388,6 @@ relations:
       constraint_name: null
       on_update: NO ACTION
       on_delete: NO ACTION
-  - collection: directus_settings
-    field: public_registration_role
-    related_collection: directus_roles
-    meta: null
-    schema:
-      table: directus_settings
-      column: public_registration_role
-      foreign_key_table: directus_roles
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: SET NULL
-  - collection: directus_webhooks
-    field: migrated_flow
-    related_collection: directus_flows
-    meta: null
-    schema:
-      table: directus_webhooks
-      column: migrated_flow
-      foreign_key_table: directus_flows
-      foreign_key_column: id
-      constraint_name: null
-      on_update: NO ACTION
-      on_delete: SET NULL
   - collection: signatures
     field: bundle
     related_collection: bundles

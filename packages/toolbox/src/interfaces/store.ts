@@ -4,18 +4,35 @@
  */
 
 import type * as Directus from "@directus/sdk";
-import type { Query as Query$ } from "@directus/sdk";
-import {
-  readSingleton as readSingleton$,
-  readItems as readItems$,
-  readItem as readItem$,
-} from "@directus/sdk";
+
+import * as DirectusSDK from "@directus/sdk";
+
+type DirectusSDK = typeof DirectusSDK;
+
+/*
+declare module "@directus/sdk" {
+  type DirectusAccess<Schema = any> = Directus.MergeCoreCollection<
+    Schema,
+    "directus_access", {
+      id: string;
+    }
+  >;
+
+  type DirectusPolicies<Schema = any> = Directus.MergeCoreCollection<
+    Schema,
+    "directus_policies", {
+      id: string;
+    }
+  >;
+}
+*/
 
 export namespace Types {
   // Internal
   export type Nullable<T> = T | null;
   export type Optional<T> = Nullable<T>;
   export type UnknownType<T> = T | unknown;
+  export type PrimaryKey<T> = T;
 
   // Numbers
   export type BigInteger = number;
@@ -193,7 +210,7 @@ export namespace Collections {
    * The bundles collection.
    */
   export interface Bundles {
-    id: Types.String;
+    id: Types.PrimaryKey<Types.String>;
     ddf_uuid: Types.String | Collections.DdfUuids;
     vendor: Types.String;
     product: Types.String;
@@ -218,7 +235,7 @@ export namespace Collections {
    * The bundles device identifiers collection.
    */
   export interface BundlesDeviceIdentifiers {
-    id: Types.Integer;
+    id: Types.PrimaryKey<Types.Integer>;
     bundles_id: Types.Optional<Types.String | Collections.Bundles>;
     device_identifiers_id: Types.Optional<
       Types.String | Collections.DeviceIdentifiers
@@ -229,7 +246,7 @@ export namespace Collections {
    * The bundles sub devices collection.
    */
   export interface BundlesSubDevices {
-    id: Types.Integer;
+    id: Types.PrimaryKey<Types.Integer>;
     bundles_id: Types.Optional<Types.String | Collections.Bundles>;
     sub_devices_type: Types.Optional<Types.String | Collections.SubDevices>;
   }
@@ -238,7 +255,7 @@ export namespace Collections {
    * The ddf uuids collection.
    */
   export interface DdfUuids {
-    id: Types.String;
+    id: Types.PrimaryKey<Types.String>;
     user_created: Types.Optional<Types.String | Collections.DirectusUser>;
     date_created: Types.Optional<Types.DateTime>;
     user_updated: Types.Optional<Types.String | Collections.DirectusUser>;
@@ -251,7 +268,7 @@ export namespace Collections {
    * The device identifiers collection.
    */
   export interface DeviceIdentifiers {
-    id: Types.String;
+    id: Types.PrimaryKey<Types.String>;
     manufacturer: Types.Optional<Types.String>;
     model: Types.Optional<Types.String>;
     bundles: Collections.BundlesDeviceIdentifiers[];
@@ -261,7 +278,7 @@ export namespace Collections {
    * The signatures collection.
    */
   export interface Signatures {
-    id: Types.String;
+    id: Types.PrimaryKey<Types.String>;
     bundle: Types.String | Collections.Bundles;
     key: Types.String;
     type: "System" | "User" | Types.String;
@@ -271,7 +288,7 @@ export namespace Collections {
    * The sub devices collection.
    */
   export interface SubDevices {
-    type: Types.String;
+    type: Types.PrimaryKey<Types.String>;
     name: Types.String;
     endpoint: Types.Optional<"/lights" | "/sensors" | Types.String>;
     bundles: Collections.BundlesSubDevices[];
@@ -468,36 +485,408 @@ export interface Schema extends System {
   sub_devices: Collections.SubDevices[];
 }
 
+export interface TypedCollectionItemsWrapper<Collection extends object> {
+  /**
+   * Creates many items in the collection.
+   */
+  create<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    items: Partial<Collection>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>[]
+  >;
+
+  /**
+   * Read many items from the collection.
+   */
+  query<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>[]
+  >;
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  find<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>
+    | undefined
+  >;
+
+  /**
+   * Update many items in the collection.
+   */
+  update<const Query extends DirectusSDK.Query<Schema, Collection[]>>(
+    keys: string[] | number[],
+    patch: Partial<Collection>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>[]
+  >;
+
+  /**
+   * Remove many items in the collection.
+   */
+  remove<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    keys: string[] | number[],
+  ): Promise<void>;
+}
+
+export interface TypedCollectionItemWrapper<Collection extends object> {
+  /**
+   * Create a single item in the collection.
+   */
+  create<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    item: Partial<Collection>,
+    query?: Query,
+  ): Promise<DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>>;
+
+  /**
+   * Read a single item from the collection.
+   */
+  get<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>
+    | undefined
+  >;
+
+  /**
+   * Update a single item from the collection.
+   */
+  update<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    key: string | number,
+    patch: Partial<Collection>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<Schema, Collection, Query["fields"]>
+    | undefined
+  >;
+
+  /**
+   * Remove many items in the collection.
+   */
+  remove<const Query extends DirectusSDK.Query<Schema, Collection>>(
+    key: string | number,
+  ): Promise<void>;
+}
+
 /**
  * Helper functions
  */
 
 /**
- * List bundles items.
+ * Create many bundles items.
  */
-export function listBundles<
-  const Query extends Query$<Schema, Collections.Bundles>,
+export function createBundlesItems<
+  const Query extends Directus.Query<Schema, Collections.Bundles[]>,
+>(items: Partial<Collections.Bundles>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "bundles", Query>(
+    "bundles",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single bundles item.
+ */
+export function createBundlesItem<
+  const Query extends DirectusSDK.Query<Schema, Collections.Bundles[]>, // Is this a mistake? Why []?
+>(item: Partial<Collections.Bundles>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "bundles", Query>(
+    "bundles",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many bundles items.
+ */
+export function readBundlesItems<
+  const Query extends Directus.Query<Schema, Collections.Bundles>,
 >(query?: Query) {
-  return readItems$<Schema, "bundles", Query>("bundles", query);
+  return DirectusSDK.readItems<Schema, "bundles", Query>("bundles", query);
+}
+
+/**
+ * Read many bundles items.
+ */
+export const listBundles = readBundlesItems;
+
+/**
+ * Gets a single known bundles item by id.
+ */
+export function readBundlesItem<
+  const Query extends Directus.Query<Schema, Collections.Bundles>,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "bundles", Query>("bundles", key, query);
 }
 
 /**
  * Gets a single known bundles item by id.
  */
-export function readBundles<
-  const Query extends Query$<Schema, Collections.Bundles>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "bundles", Query>("bundles", key, query);
+export const readBundles = readBundlesItem;
+
+/**
+ * Read many bundles items.
+ */
+export function updateBundlesItems<
+  const Query extends Directus.Query<Schema, Collections.Bundles[]>,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.Bundles>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "bundles", Query>(
+    "bundles",
+    keys,
+    patch,
+    query,
+  );
 }
 
 /**
- * List bundles device identifiers items.
+ * Gets a single known bundles item by id.
  */
-export function listBundlesDeviceIdentifiers<
-  const Query extends Query$<Schema, Collections.BundlesDeviceIdentifiers>,
->(query?: Query) {
-  return readItems$<Schema, "bundles_device_identifiers", Query>(
+export function updateBundlesItem<
+  const Query extends Directus.Query<Schema, Collections.Bundles[]>,
+>(key: string | number, patch: Partial<Collections.Bundles>, query?: Query) {
+  return DirectusSDK.updateItem<Schema, "bundles", Query>(
+    "bundles",
+    key,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Deletes many bundles items.
+ */
+export function deleteBundlesItems<
+  const Query extends Directus.Query<Schema, Collections.Bundles[]>,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "bundles", Query>("bundles", keys);
+}
+
+/**
+ * Deletes a single known bundles item by id.
+ */
+export function deleteBundlesItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "bundles">("bundles", key);
+}
+
+export class BundlesItems
+  implements TypedCollectionItemsWrapper<Collections.Bundles>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<Schema, Collections.Bundles>,
+  >(
+    items: Partial<Collections.Bundles>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>[]
+  > {
+    return (await this.client.request(
+      createBundlesItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>[]
+  > {
+    return await this.client.request(readBundlesItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>
+    | undefined
+  > {
+    const items = await this.client.request(
+      readBundlesItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.Bundles[]>,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.Bundles>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>[]
+  > {
+    return await this.client.request(updateBundlesItems(keys, patch, query));
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    keys: string[] | number[],
+  ): Promise<void> {}
+}
+
+export class BundlesItem
+  implements TypedCollectionItemWrapper<Collections.Bundles>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    item: Partial<Collections.Bundles>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>
+  > {
+    return (await this.client.request(
+      createBundlesItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>
+    | undefined
+  > {
+    return await this.client.request(readBundlesItem(key, query));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    key: string | number,
+    patch: Partial<Collections.Bundles>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<Schema, Collections.Bundles, Query["fields"]>
+    | undefined
+  > {
+    return (await this.client.request(
+      updateBundlesItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<const Query extends Directus.Query<Schema, Collections.Bundles>>(
+    key: string | number,
+  ): Promise<void> {
+    return await this.client.request(deleteBundlesItem(key));
+  }
+}
+
+/**
+ * Create many bundles device identifiers items.
+ */
+export function createBundlesDeviceIdentifiersItems<
+  const Query extends Directus.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers[]
+  >,
+>(items: Partial<Collections.BundlesDeviceIdentifiers>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "bundles_device_identifiers", Query>(
     "bundles_device_identifiers",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single bundles device identifiers item.
+ */
+export function createBundlesDeviceIdentifiersItem<
+  const Query extends DirectusSDK.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers[]
+  >, // Is this a mistake? Why []?
+>(item: Partial<Collections.BundlesDeviceIdentifiers>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many bundles device identifiers items.
+ */
+export function readBundlesDeviceIdentifiersItems<
+  const Query extends Directus.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers
+  >,
+>(query?: Query) {
+  return DirectusSDK.readItems<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    query,
+  );
+}
+
+/**
+ * Read many bundles device identifiers items.
+ */
+export const listBundlesDeviceIdentifiers = readBundlesDeviceIdentifiersItems;
+
+/**
+ * Gets a single known bundles device identifiers item by id.
+ */
+export function readBundlesDeviceIdentifiersItem<
+  const Query extends Directus.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers
+  >,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    key,
     query,
   );
 }
@@ -505,24 +894,342 @@ export function listBundlesDeviceIdentifiers<
 /**
  * Gets a single known bundles device identifiers item by id.
  */
-export function readBundlesDeviceIdentifiers<
-  const Query extends Query$<Schema, Collections.BundlesDeviceIdentifiers>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "bundles_device_identifiers", Query>(
+export const readBundlesDeviceIdentifiers = readBundlesDeviceIdentifiersItem;
+
+/**
+ * Read many bundles device identifiers items.
+ */
+export function updateBundlesDeviceIdentifiersItems<
+  const Query extends Directus.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers[]
+  >,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.BundlesDeviceIdentifiers>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "bundles_device_identifiers", Query>(
     "bundles_device_identifiers",
-    key,
+    keys,
+    patch,
     query,
   );
 }
 
 /**
- * List bundles sub devices items.
+ * Gets a single known bundles device identifiers item by id.
  */
-export function listBundlesSubDevices<
-  const Query extends Query$<Schema, Collections.BundlesSubDevices>,
->(query?: Query) {
-  return readItems$<Schema, "bundles_sub_devices", Query>(
+export function updateBundlesDeviceIdentifiersItem<
+  const Query extends Directus.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers[]
+  >,
+>(
+  key: string | number,
+  patch: Partial<Collections.BundlesDeviceIdentifiers>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItem<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    key,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Deletes many bundles device identifiers items.
+ */
+export function deleteBundlesDeviceIdentifiersItems<
+  const Query extends Directus.Query<
+    Schema,
+    Collections.BundlesDeviceIdentifiers[]
+  >,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "bundles_device_identifiers", Query>(
+    "bundles_device_identifiers",
+    keys,
+  );
+}
+
+/**
+ * Deletes a single known bundles device identifiers item by id.
+ */
+export function deleteBundlesDeviceIdentifiersItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "bundles_device_identifiers">(
+    "bundles_device_identifiers",
+    key,
+  );
+}
+
+export class BundlesDeviceIdentifiersItems
+  implements TypedCollectionItemsWrapper<Collections.BundlesDeviceIdentifiers>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(
+    items: Partial<Collections.BundlesDeviceIdentifiers>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesDeviceIdentifiers,
+      Query["fields"]
+    >[]
+  > {
+    return (await this.client.request(
+      createBundlesDeviceIdentifiersItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesDeviceIdentifiers,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(readBundlesDeviceIdentifiersItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.BundlesDeviceIdentifiers,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readBundlesDeviceIdentifiersItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers[]
+    >,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.BundlesDeviceIdentifiers>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesDeviceIdentifiers,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(
+      updateBundlesDeviceIdentifiersItems(keys, patch, query),
+    );
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(keys: string[] | number[]): Promise<void> {}
+}
+
+export class BundlesDeviceIdentifiersItem
+  implements TypedCollectionItemWrapper<Collections.BundlesDeviceIdentifiers>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(
+    item: Partial<Collections.BundlesDeviceIdentifiers>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesDeviceIdentifiers,
+      Query["fields"]
+    >
+  > {
+    return (await this.client.request(
+      createBundlesDeviceIdentifiersItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.BundlesDeviceIdentifiers,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return await this.client.request(
+      readBundlesDeviceIdentifiersItem(key, query),
+    );
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(
+    key: string | number,
+    patch: Partial<Collections.BundlesDeviceIdentifiers>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.BundlesDeviceIdentifiers,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateBundlesDeviceIdentifiersItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.BundlesDeviceIdentifiers
+    >,
+  >(key: string | number): Promise<void> {
+    return await this.client.request(deleteBundlesDeviceIdentifiersItem(key));
+  }
+}
+
+/**
+ * Create many bundles sub devices items.
+ */
+export function createBundlesSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.BundlesSubDevices[]>,
+>(items: Partial<Collections.BundlesSubDevices>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "bundles_sub_devices", Query>(
     "bundles_sub_devices",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single bundles sub devices item.
+ */
+export function createBundlesSubDevicesItem<
+  const Query extends DirectusSDK.Query<
+    Schema,
+    Collections.BundlesSubDevices[]
+  >, // Is this a mistake? Why []?
+>(item: Partial<Collections.BundlesSubDevices>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many bundles sub devices items.
+ */
+export function readBundlesSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+>(query?: Query) {
+  return DirectusSDK.readItems<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    query,
+  );
+}
+
+/**
+ * Read many bundles sub devices items.
+ */
+export const listBundlesSubDevices = readBundlesSubDevicesItems;
+
+/**
+ * Gets a single known bundles sub devices item by id.
+ */
+export function readBundlesSubDevicesItem<
+  const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    key,
     query,
   );
 }
@@ -530,42 +1237,584 @@ export function listBundlesSubDevices<
 /**
  * Gets a single known bundles sub devices item by id.
  */
-export function readBundlesSubDevices<
-  const Query extends Query$<Schema, Collections.BundlesSubDevices>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "bundles_sub_devices", Query>(
+export const readBundlesSubDevices = readBundlesSubDevicesItem;
+
+/**
+ * Read many bundles sub devices items.
+ */
+export function updateBundlesSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.BundlesSubDevices[]>,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.BundlesSubDevices>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "bundles_sub_devices", Query>(
     "bundles_sub_devices",
+    keys,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Gets a single known bundles sub devices item by id.
+ */
+export function updateBundlesSubDevicesItem<
+  const Query extends Directus.Query<Schema, Collections.BundlesSubDevices[]>,
+>(
+  key: string | number,
+  patch: Partial<Collections.BundlesSubDevices>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItem<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    key,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Deletes many bundles sub devices items.
+ */
+export function deleteBundlesSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.BundlesSubDevices[]>,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "bundles_sub_devices", Query>(
+    "bundles_sub_devices",
+    keys,
+  );
+}
+
+/**
+ * Deletes a single known bundles sub devices item by id.
+ */
+export function deleteBundlesSubDevicesItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "bundles_sub_devices">(
+    "bundles_sub_devices",
+    key,
+  );
+}
+
+export class BundlesSubDevicesItems
+  implements TypedCollectionItemsWrapper<Collections.BundlesSubDevices>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<
+      Schema,
+      Collections.BundlesSubDevices
+    >,
+  >(
+    items: Partial<Collections.BundlesSubDevices>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesSubDevices,
+      Query["fields"]
+    >[]
+  > {
+    return (await this.client.request(
+      createBundlesSubDevicesItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesSubDevices,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(readBundlesSubDevicesItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.BundlesSubDevices,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readBundlesSubDevicesItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices[]>,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.BundlesSubDevices>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesSubDevices,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(
+      updateBundlesSubDevicesItems(keys, patch, query),
+    );
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(keys: string[] | number[]): Promise<void> {}
+}
+
+export class BundlesSubDevicesItem
+  implements TypedCollectionItemWrapper<Collections.BundlesSubDevices>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(
+    item: Partial<Collections.BundlesSubDevices>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.BundlesSubDevices,
+      Query["fields"]
+    >
+  > {
+    return (await this.client.request(
+      createBundlesSubDevicesItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.BundlesSubDevices,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return await this.client.request(readBundlesSubDevicesItem(key, query));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(
+    key: string | number,
+    patch: Partial<Collections.BundlesSubDevices>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.BundlesSubDevices,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateBundlesSubDevicesItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.BundlesSubDevices>,
+  >(key: string | number): Promise<void> {
+    return await this.client.request(deleteBundlesSubDevicesItem(key));
+  }
+}
+
+/**
+ * Create many ddf uuids items.
+ */
+export function createDdfUuidsItems<
+  const Query extends Directus.Query<Schema, Collections.DdfUuids[]>,
+>(items: Partial<Collections.DdfUuids>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "ddf_uuids", Query>(
+    "ddf_uuids",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single ddf uuids item.
+ */
+export function createDdfUuidsItem<
+  const Query extends DirectusSDK.Query<Schema, Collections.DdfUuids[]>, // Is this a mistake? Why []?
+>(item: Partial<Collections.DdfUuids>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "ddf_uuids", Query>(
+    "ddf_uuids",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many ddf uuids items.
+ */
+export function readDdfUuidsItems<
+  const Query extends Directus.Query<Schema, Collections.DdfUuids>,
+>(query?: Query) {
+  return DirectusSDK.readItems<Schema, "ddf_uuids", Query>("ddf_uuids", query);
+}
+
+/**
+ * Read many ddf uuids items.
+ */
+export const listDdfUuids = readDdfUuidsItems;
+
+/**
+ * Gets a single known ddf uuids item by id.
+ */
+export function readDdfUuidsItem<
+  const Query extends Directus.Query<Schema, Collections.DdfUuids>,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "ddf_uuids", Query>(
+    "ddf_uuids",
     key,
     query,
   );
 }
 
 /**
- * List ddf uuids items.
+ * Gets a single known ddf uuids item by id.
  */
-export function listDdfUuids<
-  const Query extends Query$<Schema, Collections.DdfUuids>,
->(query?: Query) {
-  return readItems$<Schema, "ddf_uuids", Query>("ddf_uuids", query);
+export const readDdfUuids = readDdfUuidsItem;
+
+/**
+ * Read many ddf uuids items.
+ */
+export function updateDdfUuidsItems<
+  const Query extends Directus.Query<Schema, Collections.DdfUuids[]>,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.DdfUuids>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "ddf_uuids", Query>(
+    "ddf_uuids",
+    keys,
+    patch,
+    query,
+  );
 }
 
 /**
  * Gets a single known ddf uuids item by id.
  */
-export function readDdfUuids<
-  const Query extends Query$<Schema, Collections.DdfUuids>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "ddf_uuids", Query>("ddf_uuids", key, query);
+export function updateDdfUuidsItem<
+  const Query extends Directus.Query<Schema, Collections.DdfUuids[]>,
+>(key: string | number, patch: Partial<Collections.DdfUuids>, query?: Query) {
+  return DirectusSDK.updateItem<Schema, "ddf_uuids", Query>(
+    "ddf_uuids",
+    key,
+    patch,
+    query,
+  );
 }
 
 /**
- * List device identifiers items.
+ * Deletes many ddf uuids items.
  */
-export function listDeviceIdentifiers<
-  const Query extends Query$<Schema, Collections.DeviceIdentifiers>,
->(query?: Query) {
-  return readItems$<Schema, "device_identifiers", Query>(
+export function deleteDdfUuidsItems<
+  const Query extends Directus.Query<Schema, Collections.DdfUuids[]>,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "ddf_uuids", Query>("ddf_uuids", keys);
+}
+
+/**
+ * Deletes a single known ddf uuids item by id.
+ */
+export function deleteDdfUuidsItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "ddf_uuids">("ddf_uuids", key);
+}
+
+export class DdfUuidsItems
+  implements TypedCollectionItemsWrapper<Collections.DdfUuids>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<Schema, Collections.DdfUuids>,
+  >(
+    items: Partial<Collections.DdfUuids>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DdfUuids,
+      Query["fields"]
+    >[]
+  > {
+    return (await this.client.request(
+      createDdfUuidsItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<const Query extends Directus.Query<Schema, Collections.DdfUuids>>(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DdfUuids,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(readDdfUuidsItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<const Query extends Directus.Query<Schema, Collections.DdfUuids>>(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.DdfUuids,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readDdfUuidsItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.DdfUuids[]>,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.DdfUuids>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DdfUuids,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(updateDdfUuidsItems(keys, patch, query));
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.DdfUuids>,
+  >(keys: string[] | number[]): Promise<void> {}
+}
+
+export class DdfUuidsItem
+  implements TypedCollectionItemWrapper<Collections.DdfUuids>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<Schema, Collections.DdfUuids>,
+  >(
+    item: Partial<Collections.DdfUuids>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<Schema, Collections.DdfUuids, Query["fields"]>
+  > {
+    return (await this.client.request(
+      createDdfUuidsItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<const Query extends Directus.Query<Schema, Collections.DdfUuids>>(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.DdfUuids,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return await this.client.request(readDdfUuidsItem(key, query));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.DdfUuids>,
+  >(
+    key: string | number,
+    patch: Partial<Collections.DdfUuids>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.DdfUuids,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateDdfUuidsItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.DdfUuids>,
+  >(key: string | number): Promise<void> {
+    return await this.client.request(deleteDdfUuidsItem(key));
+  }
+}
+
+/**
+ * Create many device identifiers items.
+ */
+export function createDeviceIdentifiersItems<
+  const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers[]>,
+>(items: Partial<Collections.DeviceIdentifiers>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "device_identifiers", Query>(
     "device_identifiers",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single device identifiers item.
+ */
+export function createDeviceIdentifiersItem<
+  const Query extends DirectusSDK.Query<
+    Schema,
+    Collections.DeviceIdentifiers[]
+  >, // Is this a mistake? Why []?
+>(item: Partial<Collections.DeviceIdentifiers>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many device identifiers items.
+ */
+export function readDeviceIdentifiersItems<
+  const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+>(query?: Query) {
+  return DirectusSDK.readItems<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    query,
+  );
+}
+
+/**
+ * Read many device identifiers items.
+ */
+export const listDeviceIdentifiers = readDeviceIdentifiersItems;
+
+/**
+ * Gets a single known device identifiers item by id.
+ */
+export function readDeviceIdentifiersItem<
+  const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    key,
     query,
   );
 }
@@ -573,48 +1822,1136 @@ export function listDeviceIdentifiers<
 /**
  * Gets a single known device identifiers item by id.
  */
-export function readDeviceIdentifiers<
-  const Query extends Query$<Schema, Collections.DeviceIdentifiers>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "device_identifiers", Query>(
+export const readDeviceIdentifiers = readDeviceIdentifiersItem;
+
+/**
+ * Read many device identifiers items.
+ */
+export function updateDeviceIdentifiersItems<
+  const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers[]>,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.DeviceIdentifiers>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "device_identifiers", Query>(
     "device_identifiers",
+    keys,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Gets a single known device identifiers item by id.
+ */
+export function updateDeviceIdentifiersItem<
+  const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers[]>,
+>(
+  key: string | number,
+  patch: Partial<Collections.DeviceIdentifiers>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItem<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    key,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Deletes many device identifiers items.
+ */
+export function deleteDeviceIdentifiersItems<
+  const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers[]>,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "device_identifiers", Query>(
+    "device_identifiers",
+    keys,
+  );
+}
+
+/**
+ * Deletes a single known device identifiers item by id.
+ */
+export function deleteDeviceIdentifiersItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "device_identifiers">(
+    "device_identifiers",
+    key,
+  );
+}
+
+export class DeviceIdentifiersItems
+  implements TypedCollectionItemsWrapper<Collections.DeviceIdentifiers>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<
+      Schema,
+      Collections.DeviceIdentifiers
+    >,
+  >(
+    items: Partial<Collections.DeviceIdentifiers>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DeviceIdentifiers,
+      Query["fields"]
+    >[]
+  > {
+    return (await this.client.request(
+      createDeviceIdentifiersItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DeviceIdentifiers,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(readDeviceIdentifiersItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.DeviceIdentifiers,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readDeviceIdentifiersItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers[]>,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.DeviceIdentifiers>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DeviceIdentifiers,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(
+      updateDeviceIdentifiersItems(keys, patch, query),
+    );
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(keys: string[] | number[]): Promise<void> {}
+}
+
+export class DeviceIdentifiersItem
+  implements TypedCollectionItemWrapper<Collections.DeviceIdentifiers>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(
+    item: Partial<Collections.DeviceIdentifiers>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.DeviceIdentifiers,
+      Query["fields"]
+    >
+  > {
+    return (await this.client.request(
+      createDeviceIdentifiersItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.DeviceIdentifiers,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return await this.client.request(readDeviceIdentifiersItem(key, query));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(
+    key: string | number,
+    patch: Partial<Collections.DeviceIdentifiers>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.DeviceIdentifiers,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateDeviceIdentifiersItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.DeviceIdentifiers>,
+  >(key: string | number): Promise<void> {
+    return await this.client.request(deleteDeviceIdentifiersItem(key));
+  }
+}
+
+/**
+ * Create many signatures items.
+ */
+export function createSignaturesItems<
+  const Query extends Directus.Query<Schema, Collections.Signatures[]>,
+>(items: Partial<Collections.Signatures>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "signatures", Query>(
+    "signatures",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single signatures item.
+ */
+export function createSignaturesItem<
+  const Query extends DirectusSDK.Query<Schema, Collections.Signatures[]>, // Is this a mistake? Why []?
+>(item: Partial<Collections.Signatures>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "signatures", Query>(
+    "signatures",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many signatures items.
+ */
+export function readSignaturesItems<
+  const Query extends Directus.Query<Schema, Collections.Signatures>,
+>(query?: Query) {
+  return DirectusSDK.readItems<Schema, "signatures", Query>(
+    "signatures",
+    query,
+  );
+}
+
+/**
+ * Read many signatures items.
+ */
+export const listSignatures = readSignaturesItems;
+
+/**
+ * Gets a single known signatures item by id.
+ */
+export function readSignaturesItem<
+  const Query extends Directus.Query<Schema, Collections.Signatures>,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "signatures", Query>(
+    "signatures",
     key,
     query,
   );
 }
 
 /**
- * List signatures items.
+ * Gets a single known signatures item by id.
  */
-export function listSignatures<
-  const Query extends Query$<Schema, Collections.Signatures>,
->(query?: Query) {
-  return readItems$<Schema, "signatures", Query>("signatures", query);
+export const readSignatures = readSignaturesItem;
+
+/**
+ * Read many signatures items.
+ */
+export function updateSignaturesItems<
+  const Query extends Directus.Query<Schema, Collections.Signatures[]>,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.Signatures>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "signatures", Query>(
+    "signatures",
+    keys,
+    patch,
+    query,
+  );
 }
 
 /**
  * Gets a single known signatures item by id.
  */
-export function readSignatures<
-  const Query extends Query$<Schema, Collections.Signatures>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "signatures", Query>("signatures", key, query);
+export function updateSignaturesItem<
+  const Query extends Directus.Query<Schema, Collections.Signatures[]>,
+>(key: string | number, patch: Partial<Collections.Signatures>, query?: Query) {
+  return DirectusSDK.updateItem<Schema, "signatures", Query>(
+    "signatures",
+    key,
+    patch,
+    query,
+  );
 }
 
 /**
- * List sub devices items.
+ * Deletes many signatures items.
  */
-export function listSubDevices<
-  const Query extends Query$<Schema, Collections.SubDevices>,
+export function deleteSignaturesItems<
+  const Query extends Directus.Query<Schema, Collections.Signatures[]>,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "signatures", Query>(
+    "signatures",
+    keys,
+  );
+}
+
+/**
+ * Deletes a single known signatures item by id.
+ */
+export function deleteSignaturesItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "signatures">("signatures", key);
+}
+
+export class SignaturesItems
+  implements TypedCollectionItemsWrapper<Collections.Signatures>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<Schema, Collections.Signatures>,
+  >(
+    items: Partial<Collections.Signatures>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.Signatures,
+      Query["fields"]
+    >[]
+  > {
+    return (await this.client.request(
+      createSignaturesItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<Schema, Collections.Signatures>,
+  >(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.Signatures,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(readSignaturesItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<Schema, Collections.Signatures>,
+  >(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.Signatures,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readSignaturesItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.Signatures[]>,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.Signatures>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.Signatures,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(updateSignaturesItems(keys, patch, query));
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.Signatures>,
+  >(keys: string[] | number[]): Promise<void> {}
+}
+
+export class SignaturesItem
+  implements TypedCollectionItemWrapper<Collections.Signatures>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<Schema, Collections.Signatures>,
+  >(
+    item: Partial<Collections.Signatures>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.Signatures,
+      Query["fields"]
+    >
+  > {
+    return (await this.client.request(
+      createSignaturesItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<const Query extends Directus.Query<Schema, Collections.Signatures>>(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.Signatures,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return await this.client.request(readSignaturesItem(key, query));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.Signatures>,
+  >(
+    key: string | number,
+    patch: Partial<Collections.Signatures>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.Signatures,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateSignaturesItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.Signatures>,
+  >(key: string | number): Promise<void> {
+    return await this.client.request(deleteSignaturesItem(key));
+  }
+}
+
+/**
+ * Create many sub devices items.
+ */
+export function createSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.SubDevices[]>,
+>(items: Partial<Collections.SubDevices>[], query?: Query) {
+  return DirectusSDK.createItems<Schema, "sub_devices", Query>(
+    "sub_devices",
+    items,
+    query,
+  );
+}
+
+/**
+ * Create a single sub devices item.
+ */
+export function createSubDevicesItem<
+  const Query extends DirectusSDK.Query<Schema, Collections.SubDevices[]>, // Is this a mistake? Why []?
+>(item: Partial<Collections.SubDevices>, query?: Query) {
+  return DirectusSDK.createItem<Schema, "sub_devices", Query>(
+    "sub_devices",
+    item,
+    query,
+  );
+}
+
+/**
+ * Read many sub devices items.
+ */
+export function readSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.SubDevices>,
 >(query?: Query) {
-  return readItems$<Schema, "sub_devices", Query>("sub_devices", query);
+  return DirectusSDK.readItems<Schema, "sub_devices", Query>(
+    "sub_devices",
+    query,
+  );
+}
+
+/**
+ * Read many sub devices items.
+ */
+export const listSubDevices = readSubDevicesItems;
+
+/**
+ * Gets a single known sub devices item by id.
+ */
+export function readSubDevicesItem<
+  const Query extends Directus.Query<Schema, Collections.SubDevices>,
+>(key: string | number, query?: Query) {
+  return DirectusSDK.readItem<Schema, "sub_devices", Query>(
+    "sub_devices",
+    key,
+    query,
+  );
 }
 
 /**
  * Gets a single known sub devices item by id.
  */
-export function readSubDevices<
-  const Query extends Query$<Schema, Collections.SubDevices>,
->(key: string | number, query?: Query) {
-  return readItem$<Schema, "sub_devices", Query>("sub_devices", key, query);
+export const readSubDevices = readSubDevicesItem;
+
+/**
+ * Read many sub devices items.
+ */
+export function updateSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.SubDevices[]>,
+>(
+  keys: string[] | number[],
+  patch: Partial<Collections.SubDevices>,
+  query?: Query,
+) {
+  return DirectusSDK.updateItems<Schema, "sub_devices", Query>(
+    "sub_devices",
+    keys,
+    patch,
+    query,
+  );
 }
+
+/**
+ * Gets a single known sub devices item by id.
+ */
+export function updateSubDevicesItem<
+  const Query extends Directus.Query<Schema, Collections.SubDevices[]>,
+>(key: string | number, patch: Partial<Collections.SubDevices>, query?: Query) {
+  return DirectusSDK.updateItem<Schema, "sub_devices", Query>(
+    "sub_devices",
+    key,
+    patch,
+    query,
+  );
+}
+
+/**
+ * Deletes many sub devices items.
+ */
+export function deleteSubDevicesItems<
+  const Query extends Directus.Query<Schema, Collections.SubDevices[]>,
+>(keys: string[] | number[]) {
+  return DirectusSDK.deleteItems<Schema, "sub_devices", Query>(
+    "sub_devices",
+    keys,
+  );
+}
+
+/**
+ * Deletes a single known sub devices item by id.
+ */
+export function deleteSubDevicesItem(key: string | number) {
+  return DirectusSDK.deleteItem<Schema, "sub_devices">("sub_devices", key);
+}
+
+export class SubDevicesItems
+  implements TypedCollectionItemsWrapper<Collections.SubDevices>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<Schema, Collections.SubDevices>,
+  >(
+    items: Partial<Collections.SubDevices>[],
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.SubDevices,
+      Query["fields"]
+    >[]
+  > {
+    return (await this.client.request(
+      createSubDevicesItems(items, query as any),
+    )) as any; // Seems like a bug in the SDK.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<Schema, Collections.SubDevices>,
+  >(
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.SubDevices,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(readSubDevicesItems(query));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<Schema, Collections.SubDevices>,
+  >(
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.SubDevices,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readSubDevicesItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // TODO: fix
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.SubDevices[]>,
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collections.SubDevices>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.SubDevices,
+      Query["fields"]
+    >[]
+  > {
+    return await this.client.request(updateSubDevicesItems(keys, patch, query));
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.SubDevices>,
+  >(keys: string[] | number[]): Promise<void> {}
+}
+
+export class SubDevicesItem
+  implements TypedCollectionItemWrapper<Collections.SubDevices>
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<Schema, Collections.SubDevices>,
+  >(
+    item: Partial<Collections.SubDevices>,
+    query?: Query,
+  ): Promise<
+    DirectusSDK.ApplyQueryFields<
+      Schema,
+      Collections.SubDevices,
+      Query["fields"]
+    >
+  > {
+    return (await this.client.request(
+      createSubDevicesItem(item, query as any),
+    )) as any;
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<const Query extends Directus.Query<Schema, Collections.SubDevices>>(
+    key: string | number,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.SubDevices,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return await this.client.request(readSubDevicesItem(key, query));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.SubDevices>,
+  >(
+    key: string | number,
+    patch: Partial<Collections.SubDevices>,
+    query?: Query,
+  ): Promise<
+    | DirectusSDK.ApplyQueryFields<
+        Schema,
+        Collections.SubDevices,
+        Query["fields"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateSubDevicesItem(key, patch, query as any),
+    )) as any;
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<Schema, Collections.SubDevices>,
+  >(key: string | number): Promise<void> {
+    return await this.client.request(deleteSubDevicesItem(key));
+  }
+}
+
+/**
+ * The Directus Client.
+ */
+
+export type DirectusRestCommands<T extends Record<any, any>> = keyof {
+  [K in keyof T as T[K] extends (
+    ...any: any[]
+  ) => Directus.RestCommand<any, any>
+    ? K
+    : never]: K;
+};
+
+export type TypedClient = {
+  /**
+   * Manages multiple items from the Bundles collection.
+   */
+  bundles: TypedCollectionItemsWrapper<Collections.Bundles>;
+
+  /**
+   * Manages individual items from the Bundles collection.
+   */
+  bundle: TypedCollectionItemWrapper<Collections.Bundles>;
+
+  /**
+   * Manages multiple items from the BundlesDeviceIdentifiers collection.
+   */
+  bundles_device_identifiers: TypedCollectionItemsWrapper<Collections.BundlesDeviceIdentifiers>;
+
+  /**
+   * Manages individual items from the BundlesDeviceIdentifiers collection.
+   */
+  bundles_device_identifier: TypedCollectionItemWrapper<Collections.BundlesDeviceIdentifiers>;
+
+  /**
+   * Manages multiple items from the BundlesSubDevices collection.
+   */
+  bundles_sub_devices: TypedCollectionItemsWrapper<Collections.BundlesSubDevices>;
+
+  /**
+   * Manages individual items from the BundlesSubDevices collection.
+   */
+  bundles_sub_device: TypedCollectionItemWrapper<Collections.BundlesSubDevices>;
+
+  /**
+   * Manages multiple items from the DdfUuids collection.
+   */
+  ddf_uuids: TypedCollectionItemsWrapper<Collections.DdfUuids>;
+
+  /**
+   * Manages individual items from the DdfUuids collection.
+   */
+  ddf_uuid: TypedCollectionItemWrapper<Collections.DdfUuids>;
+
+  /**
+   * Manages multiple items from the DeviceIdentifiers collection.
+   */
+  device_identifiers: TypedCollectionItemsWrapper<Collections.DeviceIdentifiers>;
+
+  /**
+   * Manages individual items from the DeviceIdentifiers collection.
+   */
+  device_identifier: TypedCollectionItemWrapper<Collections.DeviceIdentifiers>;
+
+  /**
+   * Manages multiple items from the Signatures collection.
+   */
+  signatures: TypedCollectionItemsWrapper<Collections.Signatures>;
+
+  /**
+   * Manages individual items from the Signatures collection.
+   */
+  signature: TypedCollectionItemWrapper<Collections.Signatures>;
+
+  /**
+   * Manages multiple items from the SubDevices collection.
+   */
+  sub_devices: TypedCollectionItemsWrapper<Collections.SubDevices>;
+
+  /**
+   * Manages individual items from the SubDevices collection.
+   */
+  sub_device: TypedCollectionItemWrapper<Collections.SubDevices>;
+} & DirectusCommands;
+
+type ExcludedDirectusCommands = "withOptions" | "withToken" | "withSearch";
+
+/**
+ * This is almost a sanity check for protecting against breaking changes in the SDK.
+ * If this is erroring for you, the SDK probably changed and there's an update needed.
+ */
+
+const excludedDirectusCommands: {
+  [K in keyof Omit<
+    DirectusSDK,
+    Exclude<keyof DirectusCommands, ExcludedDirectusCommands>
+  >]: true;
+} = {
+  ["auth"]: true,
+  ["authentication"]: true,
+  ["createDirectus"]: true,
+  ["rest"]: true,
+  ["formatFields"]: true,
+  ["generateUid"]: true,
+  ["getAuthEndpoint"]: true,
+  ["graphql"]: true,
+  ["memoryStorage"]: true,
+  ["messageCallback"]: true,
+  ["pong"]: true,
+  ["queryToParams"]: true,
+  ["realtime"]: true,
+  ["sleep"]: true,
+  ["staticToken"]: true,
+  ["throwIfCoreCollection"]: true,
+  ["throwIfEmpty"]: true,
+  ["withOptions"]: true,
+  ["withToken"]: true,
+  ["withSearch"]: true,
+} as const;
+
+type _InjectSchemaSystemTypes<T, Schema> =
+  T extends Directus.Query<any, infer C>
+    ? Directus.Query<Schema, C>
+    : T extends Directus.DirectusActivity<any>
+      ? Directus.DirectusActivity<Schema>
+      : T extends Directus.DirectusCollection<any>
+        ? Directus.DirectusCollection<Schema>
+        : T extends Directus.DirectusField<any>
+          ? Directus.DirectusField<Schema>
+          : T extends Directus.DirectusFile<any>
+            ? Directus.DirectusFile<Schema>
+            : T extends Directus.DirectusFolder<any>
+              ? Directus.DirectusFolder<Schema>
+              : T extends Directus.DirectusPermission<any>
+                ? Directus.DirectusPermission<Schema>
+                : T extends Directus.DirectusPreset<any>
+                  ? Directus.DirectusPreset<Schema>
+                  : T extends Directus.DirectusRelation<any>
+                    ? Directus.DirectusRelation<Schema>
+                    : T extends Directus.DirectusRevision<any>
+                      ? Directus.DirectusRevision<Schema>
+                      : T extends Directus.DirectusRole<any>
+                        ? Directus.DirectusRole<Schema>
+                        : T extends Directus.DirectusSettings<any>
+                          ? Directus.DirectusSettings<Schema>
+                          : T extends Directus.DirectusUser<any>
+                            ? Directus.DirectusUser<Schema>
+                            : T extends Directus.DirectusWebhook<any>
+                              ? Directus.DirectusWebhook<Schema>
+                              : T extends Directus.DirectusDashboard<any>
+                                ? Directus.DirectusDashboard<Schema>
+                                : T extends Directus.DirectusPanel<any>
+                                  ? Directus.DirectusPanel<Schema>
+                                  : T extends Directus.DirectusNotification<any>
+                                    ? Directus.DirectusNotification<Schema>
+                                    : T extends Directus.DirectusShare<any>
+                                      ? Directus.DirectusShare<Schema>
+                                      : T extends Directus.DirectusFlow<any>
+                                        ? Directus.DirectusFlow<Schema>
+                                        : T extends Directus.DirectusOperation<any>
+                                          ? Directus.DirectusOperation<Schema>
+                                          : T extends Directus.DirectusTranslation<any>
+                                            ? Directus.DirectusTranslation<Schema>
+                                            : T extends Directus.DirectusVersion<any>
+                                              ? Directus.DirectusVersion<Schema>
+                                              : T extends Directus.DirectusExtension<any>
+                                                ? Directus.DirectusExtension<Schema>
+                                                : T extends Directus.DirectusUser<any>
+                                                  ? Directus.DirectusUser<Schema>
+                                                  : T;
+
+type InjectSchemaSystemTypes<T, Schema> =
+  T extends Partial<infer Nested>
+    ? Partial<_InjectSchemaSystemTypes<Nested, Schema>>
+    : _InjectSchemaSystemTypes<T, Schema>;
+
+type InjectSchema<T, Schema> = T extends []
+  ? []
+  : T extends [infer Param]
+    ? [InjectSchema<Param, Schema>]
+    : T extends [infer Param, ...infer Rest]
+      ? [InjectSchema<Param, Schema>, ...InjectSchema<Rest, Schema>]
+      : InjectSchemaSystemTypes<T, Schema>;
+
+export type DirectusCommands = {
+  [K in DirectusRestCommands<DirectusSDK>]: (
+    ...args: InjectSchema<Parameters<DirectusSDK[K]>, Schema>
+  ) => Promise<
+    ReturnType<DirectusSDK[K]> extends Directus.RestCommand<infer Output, any>
+      ? Output
+      : unknown
+  >;
+};
+
+function isDirectusRestCommand(
+  pair: [any, any],
+): pair is [string, (...args: any[]) => Directus.RestCommand<any, any>] {
+  return (
+    !((pair?.[0] as any) in excludedDirectusCommands) &&
+    typeof pair?.[1] === "function"
+  );
+}
+
+function isDirectusRestClient<Schema>(
+  client: DirectusSDK.DirectusClient<Schema>,
+): client is DirectusSDK.DirectusClient<Schema> &
+  DirectusSDK.RestClient<Schema> {
+  return client && "request" in client;
+}
+
+export const schema = () => {
+  return <Schema,>(client: Directus.DirectusClient<Schema>): TypedClient => {
+    if (!isDirectusRestClient(client)) {
+      throw new Error("Directus client must have the REST plugin enabled.");
+    }
+
+    return Object.fromEntries([
+      ...Object.entries(DirectusSDK)
+        .filter(isDirectusRestCommand)
+        .map(([key, value]) => {
+          return [
+            key,
+            (...args: any[]): any => {
+              return client.request(value(...args));
+            },
+          ];
+        }),
+
+      ["bundles", new BundlesItems(client as any)],
+      ["bundle", new BundlesItem(client as any)],
+
+      [
+        "bundles_device_identifiers",
+        new BundlesDeviceIdentifiersItems(client as any),
+      ],
+      [
+        "bundles_device_identifier",
+        new BundlesDeviceIdentifiersItem(client as any),
+      ],
+
+      ["bundles_sub_devices", new BundlesSubDevicesItems(client as any)],
+      ["bundles_sub_device", new BundlesSubDevicesItem(client as any)],
+
+      ["ddf_uuids", new DdfUuidsItems(client as any)],
+      ["ddf_uuid", new DdfUuidsItem(client as any)],
+
+      ["device_identifiers", new DeviceIdentifiersItems(client as any)],
+      ["device_identifier", new DeviceIdentifiersItem(client as any)],
+
+      ["signatures", new SignaturesItems(client as any)],
+      ["signature", new SignaturesItem(client as any)],
+
+      ["sub_devices", new SubDevicesItems(client as any)],
+      ["sub_device", new SubDevicesItem(client as any)],
+    ]);
+  };
+};
+
+export interface BindableClient {
+  with: <
+    Client extends DirectusSDK.DirectusClient<any>,
+    Extension extends object,
+  >(
+    createExtension: (client: Client) => Extension,
+  ) => this & Extension;
+}
+
+export const bindings = () => {
+  return <Schema, Client extends DirectusSDK.DirectusClient<Schema>>(
+    client: Client,
+  ): BindableClient => {
+    return {
+      with(createExtension: any) {
+        const extension = createExtension(this);
+        const extensions = Object.entries(
+          extension,
+        ).reduce<PropertyDescriptorMap>((properties, [name, value]) => {
+          return {
+            ...properties,
+            [name]: {
+              value,
+              configurable: true,
+              writable: true,
+              enumerable: true,
+            },
+          };
+        }, {});
+
+        Object.defineProperties(this, extensions);
+
+        return this;
+      },
+    } as any;
+  };
+};
+
+export function createDirectusWithTypes(
+  url: string,
+): Directus.DirectusClient<Schema> & Directus.RestClient<Schema> & TypedClient {
+  return DirectusSDK.createDirectus<Schema>(url)
+    .with(bindings())
+    .with(DirectusSDK.rest())
+    .with(schema());
+}
+
+export const createTypedClient = createDirectusWithTypes;

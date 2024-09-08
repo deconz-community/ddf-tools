@@ -33,6 +33,7 @@ export type StorageSchema = z.output<typeof storageSchema>
 
 export type GatewayCredentials = StorageSchema['credentials'][string]
 
+// TODO: Maybe replace ActorRefFrom, see https://github.com/statelyai/xstate/pull/5011
 export interface AppContext {
   settings: StorageSchema['settings']
   discovery: ActorRefFrom<typeof discoveryMachine>
