@@ -74,7 +74,7 @@ export const groupSchema = z.strictObject({
     .describe('The last action which was send to the group.'),
   devicemembership: z.array(z.string())
     .describe('If this group was created by a device (switch or sensor) this list contains the device ids.'),
-  etag: z.string()
+  etag: z.string().or(z.null())
     .describe('HTTP etag which changes whenever the group changes.'),
   scenes: z.array(z.strictObject({
     id: z.string()

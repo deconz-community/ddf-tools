@@ -71,7 +71,8 @@ export const lightSchema = z.object({
   swversion: z.string().or(z.null()).optional()
     .describe('Firmware version.'),
 
-  etag: z.string(),
+  etag: z.string().or(z.null())
+    .describe('HTTP etag which changes whenever the light changes.'),
 
   config: z.object({}).passthrough().optional()
     .describe('Configuration of the light.'),

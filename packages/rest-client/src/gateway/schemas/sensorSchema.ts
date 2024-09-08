@@ -21,7 +21,7 @@ export const sensorSchema = z.object({
     .describe('The state of the sensor. Refer to Change sensor state for further details.'),
   mode: z.number().optional()
     .describe('The mode of the sensor. 1 = Scenes mode 2 = Two groups mode 3 = Color temperature mode (only available for dresden elektronik Lighting Switch)'),
-  etag: z.string()
+  etag: z.string().or(z.null())
     .describe('HTTP etag which changes whenever the sensor changes.'),
   uniqueid: z.string().optional()
     .describe('The unique identifiers including the MAC address of the sensor.'),
