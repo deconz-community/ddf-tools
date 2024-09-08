@@ -68,7 +68,8 @@ export const lightSchema = z.object({
     .describe('Indicates if the light can change color. '
     + 'Deprecated - use state instead: if light has no color colormode, hue and xy will not be shown.'),
 
-  swversion: z.string().or(z.null()).describe('Firmware version.'),
+  swversion: z.string().or(z.null()).optional()
+    .describe('Firmware version.'),
 
   etag: z.string(),
 

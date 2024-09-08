@@ -31,7 +31,7 @@ export const sensorSchema = z.object({
     .describe('Timestamp representing the last time a message from the sensor was received. UTC with resolution of minutes.'),
   lastseen: deconzDate.optional()
     .describe('Timestamp representing the last time a message from the sensor was received. UTC with resolution of minutes.'),
-  swversion: z.string().or(z.null())
+  swversion: z.string().or(z.null()).optional()
     .describe('The software version of the sensor.'),
 }).describe('Sensor of the gateway.')
 

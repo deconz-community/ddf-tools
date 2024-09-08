@@ -31,7 +31,7 @@ export const deviceSchema = z.object({
     type: z.string(),
     uniqueid: z.string(),
   })),
-  swversion: z.string().or(z.null()).describe('Firmware version.'),
+  swversion: z.string().or(z.null()).optional().describe('Firmware version.'),
   uniqueid: z.string(),
 }).passthrough()
 
