@@ -223,6 +223,16 @@ onMounted(() => {
         item-value="uniqueId"
       >
         <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.productid="{ item }">
+          <template v-if="item.productid">
+            {{ item.productid }}
+          </template>
+          <template v-else>
+            {{ item.manufacturername }} {{ item.modelid }}
+          </template>
+        </template>
+
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.ddf_policy="{ item }">
           <chip-ddf-policy
             :gateway="props.gateway"
