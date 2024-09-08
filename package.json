@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-tools",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.9.0",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
@@ -34,13 +34,13 @@
     "dev:toolbox": "pnpm --dir packages/toolbox run dev"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.21.1",
-    "@changesets/cli": "^2.27.5",
+    "@antfu/eslint-config": "^3.4.1",
+    "@changesets/cli": "^2.27.8",
     "@eslint/eslintrc": "^3.1.0",
-    "eslint": "^9.5.0",
+    "eslint": "^9.10.0",
     "eslint-plugin-xstate": "^3.2.1",
-    "taze": "^0.13.8",
-    "turbo": "^2.0.4",
+    "taze": "^0.16.7",
+    "turbo": "^2.1.1",
     "vue-eslint-parser": "^9.4.3"
   },
   "maintainers": [
