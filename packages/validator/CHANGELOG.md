@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.31.1
+
+### Patch Changes
+
+- 787d3fa: Update dependencies
+
 ## 2.31.0
 
 ### Minor Changes
