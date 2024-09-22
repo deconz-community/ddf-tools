@@ -1,16 +1,16 @@
-import { z } from 'zod'
-import { Err, Ok } from 'ts-results-es'
 import { decode } from '@deconz-community/ddf-bundler'
-import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
+import { Err, Ok } from 'ts-results-es'
+import { z } from 'zod'
 import { clientError, customError } from '../core/errors'
-import { configSchema, writableConfigSchema } from './schemas/configSchema'
+import { assertStatusCode, makeEndpoint, makeParameter } from '../core/helpers'
 import { deviceUUIDRegex, globalParameters } from './parameters'
-import { deviceSchema, introspectButtonEventItemSchema, introspectGenericItemSchema } from './schemas/deviceSchema'
-import { ddfdDescriptorSchema } from './schemas/ddfSchema'
 import { alarmSystemArmmodesRead, alarmSystemArmmodesWrite, alarmSystemSchema, alarmSystemsSchema } from './schemas/alarmSystemSchema'
-import { sensorSchema, sensorsSchema } from './schemas/sensorSchema'
+import { configSchema, writableConfigSchema } from './schemas/configSchema'
+import { ddfdDescriptorSchema } from './schemas/ddfSchema'
+import { deviceSchema, introspectButtonEventItemSchema, introspectGenericItemSchema } from './schemas/deviceSchema'
 import { groupSchema, groupsSchema, writableGroupActionSchema } from './schemas/groupSchema'
 import { lightSchema, lightsSchema, writablelightStateSchema } from './schemas/lightSchema'
+import { sensorSchema, sensorsSchema } from './schemas/sensorSchema'
 
 export const endpoints = {
 
@@ -125,15 +125,12 @@ export const endpoints = {
         description: 'Payload',
         type: 'body',
         format: 'json',
-        schema: alarmSystemSchema.shape.config
-          .omit({
-            armmode: true,
-            configured: true,
-          })
-          .extend({
-            code0: z.string().min(4).max(16).optional(),
-          })
-          .partial(),
+        schema: alarmSystemSchema.shape.config.omit({
+          armmode: true,
+          configured: true,
+        }).extend({
+          code0: z.string().min(4).max(16).optional(),
+        }).partial(),
         sample: () => ({
           code0: Math.random().toString(10).slice(2, 10),
           disarmed_entry_delay: 0,
@@ -154,10 +151,7 @@ export const endpoints = {
       format: 'jsonArray',
       removePrefix: /^\/alarmsystems\/\d+\/config\//,
       deconzErrors: [7],
-      schema: alarmSystemSchema.shape.config
-        .omit({ armmode: true })
-        .partial()
-        .transform(data => Ok(data)),
+      schema: alarmSystemSchema.shape.config.omit({ armmode: true }).partial().transform(data => Ok(data)),
     },
   }),
 
@@ -278,8 +272,7 @@ export const endpoints = {
         key: 'Authorization',
         format: 'string',
         description: 'Gateway password',
-        schema: z.string().optional()
-          .transform(data => data ? `Basic ${btoa(`delight:${data}`)}` : undefined),
+        schema: z.string().optional().transform(data => data ? `Basic ${btoa(`delight:${data}`)}` : undefined),
         sample: '',
       }),
       body: makeParameter({
@@ -672,7 +665,11 @@ export const endpoints = {
         key: 'next',
         format: 'string',
         description: 'The token to get the next page of results',
-        schema: z.optional(z.union([z.string(), z.number()])),
+        schema: z.optional(z.union([z.string(), z.number()])).transform((data) => {
+          if (typeof data === 'string' && data.length === 0)
+            return undefined
+          return data
+        }),
         sample: '',
       }),
     },
@@ -1406,8 +1403,7 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/sensors\/\d+\/config\//,
-      schema: z.object({}).passthrough()
-        .transform(data => Ok(data)),
+      schema: z.object({}).passthrough().transform(data => Ok(data)),
     },
   }),
 
@@ -1434,8 +1430,7 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/sensors\/\d+\/state\//,
-      schema: z.object({}).passthrough()
-        .transform(data => Ok(data)),
+      schema: z.object({}).passthrough().transform(data => Ok(data)),
     },
   }),
 
@@ -1453,11 +1448,10 @@ export const endpoints = {
         format: 'json',
         type: 'body',
         schema: z.object({
-          reset: z.boolean().optional()
-            .describe('If this parameter is omitted, it will implicitly be set to false and the sensor is marked as deleted in the database. '
-            + 'If set to true, deCONZ is trying to reset the whole physical device by issuing a leave request. '
-            + 'It is required that the device is awake (able to receive commands) or supports this type of request respectively and on success, '
-            + 'the device is deleted as a node and reset to factory defaults.'),
+          reset: z.boolean().optional().describe('If this parameter is omitted, it will implicitly be set to false and the sensor is marked as deleted in the database. '
+          + 'If set to true, deCONZ is trying to reset the whole physical device by issuing a leave request. '
+          + 'It is required that the device is awake (able to receive commands) or supports this type of request respectively and on success, '
+          + 'the device is deleted as a node and reset to factory defaults.'),
         }),
         sample: {
           reset: false,
