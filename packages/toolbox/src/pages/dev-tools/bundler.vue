@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { buildFromFiles, Bundle, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
 import type { Source } from '@deconz-community/ddf-bundler'
-import { Bundle, buildFromFiles, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
 
 const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
 // const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'

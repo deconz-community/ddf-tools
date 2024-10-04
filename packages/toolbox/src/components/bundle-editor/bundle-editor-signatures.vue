@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { createSignature, verifySignature } from '@deconz-community/ddf-bundler'
-import type { ChunkSignature } from '@deconz-community/ddf-bundler'
-import { useConfirm } from 'vuetify-use-dialog'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { secp256k1 } from '@noble/curves/secp256k1'
-
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { VDataTable } from 'vuetify/components'
+import { useConfirm } from 'vuetify-use-dialog'
+
+import type { ChunkSignature } from '@deconz-community/ddf-bundler'
 
 const props = defineProps<{
   modelValue: ChunkSignature[]

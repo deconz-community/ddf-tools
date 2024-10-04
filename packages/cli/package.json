@@ -2,7 +2,7 @@
   "name": "@deconz-community/cli",
   "type": "module",
   "version": "1.16.1",
-  "packageManager": "pnpm@9.9.0",
+  "packageManager": "pnpm@9.12.0",
   "description": "A command line tool for working with DDFs.",
   "author": {
     "name": "Zehir",
@@ -60,17 +60,17 @@
     "commander": "^12.1.0",
     "fast-glob": "^3.3.2",
     "ora": "^8.1.0",
-    "simple-git": "^3.26.0",
+    "simple-git": "^3.27.0",
     "zod": "^3.23.8",
-    "zod-validation-error": "^3.3.1"
+    "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
     "@directus/types": "^12.0.1",
     "@liuli-util/vite-plugin-node": "^0.9.0",
     "@types/node": "^20.16.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.3",
-    "vite-node": "^2.0.5"
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vite-node": "^2.1.2"
   }
 }

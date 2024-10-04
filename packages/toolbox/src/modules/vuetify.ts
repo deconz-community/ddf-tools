@@ -4,18 +4,19 @@ import '@mdi/font/css/materialdesignicons.css'
 
 // Ensure you are using css-loader
 
+import { createVuetify } from 'vuetify'
+
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
+
 // Labs
 // https://next.vuetifyjs.com/en/labs/introduction/
 import * as labs from 'vuetify/labs/components'
-
-import { createVuetify } from 'vuetify'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import VuetifyUseDialog from 'vuetify-use-dialog'
 
-import BundleEditorFiles from '../components/bundle-editor/bundle-editor-files.vue'
+import { storageKey, storageSchema } from '~/machines/app'
 
 import type { UserModule } from '~/types'
-import { storageKey, storageSchema } from '~/machines/app'
+import BundleEditorFiles from '../components/bundle-editor/bundle-editor-files.vue'
 
 // #region Default theme
 let defaultTheme = 'dark'
