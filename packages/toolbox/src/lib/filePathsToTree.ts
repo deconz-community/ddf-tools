@@ -4,7 +4,7 @@
 
 const sep = '/'
 
-interface Node<Data> {
+export interface Node<Data> {
   name: string
   path: string
   children: Node<Data>[]

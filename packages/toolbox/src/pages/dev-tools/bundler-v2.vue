@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { buildFromFiles, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
-import type { Bundle, Source } from '@deconz-community/ddf-bundler'
+import type { Source } from '@deconz-community/ddf-bundler'
+import { buildFromFiles, Bundle, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
 
 const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
 // const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
@@ -22,69 +22,54 @@ const sampleList = {
 const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'
 
 const error = ref('')
-const bundle = ref<ReturnType<typeof Bundle> | undefined>()
 
-const leftSideBar = ref(false)
+const bundle = ref<ReturnType<typeof Bundle>>(Bundle())
 
-const items = [
-  {
-    title: 'Foo',
-    value: 'foo',
-  },
-  {
-    title: 'Bar',
-    value: 'bar',
-  },
-  {
-    title: 'Fizz',
-    value: 'fizz',
-  },
-  {
-    title: 'Buzz',
-    value: 'buzz',
-  },
-]
+const genericDirectoryUrl = ref<string>(sampleList[defaultSample][0])
+const fileUrl = ref<string>(sampleList[defaultSample][1])
+
+async function buildFromGithub() {
+  error.value = ''
+
+  const sources = new Map<string, Source>()
+
+  try {
+    const newBundle = await buildFromFiles(
+      genericDirectoryUrl.value,
+      fileUrl.value,
+      async (path) => {
+        if (sources.has(path))
+          return sources.get(path)!
+
+        const result = await fetch(path)
+        if (result.status !== 200)
+          throw new Error(result.statusText)
+        const data = await result.blob()
+
+        const source = createSource(data, {
+          path,
+          last_modified: new Date(),
+        })
+        sources.set(path, source)
+        return source
+      },
+    )
+
+    newBundle.data.hash = await generateHash(newBundle.data)
+    bundle.value = newBundle
+  }
+  catch (e) {
+    error.value = 'Something went wrong while loading the bundle.'
+    console.warn(e)
+  }
+}
+
+// TMP for testing
+buildFromGithub()
 </script>
 
 <template>
-  <v-card>
-    <v-layout>
-      <v-app-bar
-        color="primary"
-        prominent
-      >
-        <v-app-bar-nav-icon variant="text" @click.stop="leftSideBar = !leftSideBar" />
-
-        <v-toolbar-title>Bundler V2</v-toolbar-title>
-
-        <v-spacer />
-
-        <template v-if="$vuetify.display.mdAndUp">
-          <v-btn icon="mdi-magnify" variant="text" />
-
-          <v-btn icon="mdi-filter" variant="text" />
-        </template>
-
-        <v-btn icon="mdi-dots-vertical" variant="text" />
-      </v-app-bar>
-
-      <v-navigation-drawer
-        v-model="leftSideBar"
-        :location="$vuetify.display.mobile ? undefined /*'bottom'*/ : undefined"
-        temporary
-      >
-        <v-list
-          :items="items"
-        />
-      </v-navigation-drawer>
-
-      <v-main style="height: 500px;">
-        <v-card-text>
-          The navigation drawer will appear from the bottom on smaller size screens.
-        </v-card-text>
-      </v-main>
-    </v-layout>
-  </v-card>
+  <bundle-editor-v2 v-model="bundle" class="fill-height" />
 </template>
 
 <route lang="json">
