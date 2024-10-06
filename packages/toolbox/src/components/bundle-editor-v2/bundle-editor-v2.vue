@@ -31,7 +31,20 @@ async function createNew() {
 // #region Left Menu
 const showLeftMenu = ref(true)
 const selectedLeftMenu = ref(['info'])
-const openedFiles = ref<{ path: string, persistent: boolean }[]>([])
+const openedFiles = ref<{
+  path: string
+  icon: VListItem['$props']['prependIcon']
+  persistent: boolean
+}[]>([])
+
+const openedFileIndex = computed(() => {
+  return openedFiles.value.findIndex(candidate => candidate.path === selectedLeftMenu.value[0])
+})
+
+const fileTree = computed(() => filePathsToVuetifyList(
+  bundle.value.data.files.map(file => file.path),
+  node => bundle.value.data.files.find(file => file.path === node.path)!,
+))
 
 function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>) => TextFile) {
   interface ListItem {
@@ -73,12 +86,11 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
       value,
       props: {
         prependIcon,
-        onClick: (event) => {
+        onClick: () => {
           const currentTime = new Date().getTime()
           const timeDiff = currentTime - lastClickTime
           // Double click
-          if (timeDiff < 300 && timeDiff > 0) {
-            event.stopPropagation()
+          if (timeDiff < 500 && timeDiff > 0) {
             const openedFile = openedFiles.value.find(candidate => candidate.path === value)
             if (openedFile) {
               openedFile.persistent = true
@@ -96,23 +108,38 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
 }
 
 watch(selectedLeftMenu, (newValue, oldValue) => {
-  // Prevent empty selection
-  if (newValue.length === 0)
-    selectedLeftMenu.value = oldValue
-
   // Remove non-persistent files
   openedFiles.value = openedFiles.value.filter(value => value.persistent)
 
+  if (newValue.length === 0) {
+    if (openedFiles.value.find(value => value.path === oldValue[0])) {
+      selectedLeftMenu.value = oldValue
+      return
+    }
+
+    const nextFile = openedFiles.value[0]?.path
+    if (nextFile)
+      selectedLeftMenu.value = [nextFile]
+    else
+      selectedLeftMenu.value = ['info']
+
+    return
+  }
+
+  const filePath = newValue[0]
+
+  if (!filePath)
+    return
+
   // Add new opened file
-  if (!openedFiles.value.some(value => value.path === newValue[0])) {
-    openedFiles.value.push({ path: newValue[0], persistent: false })
+  if (filePath.startsWith('file://') && !openedFiles.value.some(value => value.path === filePath)) {
+    openedFiles.value.push({
+      path: filePath,
+      icon: fileTree.value.find(candidate => candidate.value === filePath)?.props.prependIcon,
+      persistent: false,
+    })
   }
 })
-
-const fileTree = computed(() => filePathsToVuetifyList(
-  bundle.value.data.files.map(file => file.path),
-  node => bundle.value.data.files.find(file => file.path === node.path)!,
-))
 
 const leftMenu = computed(() => {
   const menu: Record<string, any>[] = [
@@ -178,6 +205,8 @@ const topMenu = [
 ]
 
 // #endregion
+
+selectedLeftMenu.value = ['file://starkvind_air_purifier.json']
 </script>
 
 <template>
@@ -236,11 +265,46 @@ const topMenu = [
 
       <v-main>
         <v-card-text>
-          The navigation drawer will appear from the bottom on smaller size screens.
-          <hr>
-          {{ openedFiles }}
-          <hr>
-          {{ selectedLeftMenu }}
+          <v-slide-group
+            v-model:model-value="openedFileIndex"
+            center-active
+            class="mb-2"
+            show-arrows
+          >
+            <v-slide-group-item
+              v-for="file in openedFiles"
+              :key="file.path"
+              v-slot="{ isSelected }"
+            >
+              <v-btn-group density="compact">
+                <v-tooltip :text="file.path.replace(/file:\//, '')" open-delay="200">
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn
+                      v-bind="tooltipProps"
+                      :color="isSelected ? 'primary' : undefined"
+                      :prepend-icon="file.icon"
+                      :text="file.path.split('/').pop()"
+                      :style="file.persistent ? '' : 'font-style: italic'"
+                      @click="() => selectedLeftMenu = [file.path]"
+                    />
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip :text="`Close ${file.path.startsWith('file://') ? 'file' : 'tab'}`" open-delay="200">
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn
+                      v-bind="tooltipProps"
+                      :color="isSelected ? 'primary' : undefined"
+                      icon="mdi-close"
+                      @click="() => { openedFiles = openedFiles.filter(candidate => candidate.path !== file.path); selectedLeftMenu = [] }"
+                    />
+                  </template>
+                </v-tooltip>
+              </v-btn-group>
+            </v-slide-group-item>
+          </v-slide-group>
+
+          Insert content here
         </v-card-text>
       </v-main>
     </v-layout>
