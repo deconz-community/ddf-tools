@@ -78,8 +78,6 @@
     }
   },
   "scripts": {
-    "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
-    "pretest": "pnpm run compile-web",
     "vscode:prepublish": "pnpm run package-web",
     "compile-web": "webpack",
     "watch-web": "webpack --watch",
