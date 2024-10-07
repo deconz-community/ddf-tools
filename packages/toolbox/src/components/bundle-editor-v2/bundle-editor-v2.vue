@@ -166,7 +166,7 @@ const topMenu = [
     title: 'File',
     items: [
       {
-        title: 'New',
+        title: 'New bundle',
         props: {
           prependIcon: 'mdi-file',
           onClick: () => createNew(),

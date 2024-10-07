@@ -1,21 +1,20 @@
-/* eslint-disable no-console */
-import path from 'node:path'
+import type { Source, ValidationError } from '@deconz-community/ddf-bundler'
+import type { PrimaryKey } from '@directus/types'
 import fs from 'node:fs/promises'
+import path from 'node:path'
 import process from 'node:process'
 import { program } from '@commander-js/extra-typings'
-import glob from 'fast-glob'
-import type { Source, ValidationError } from '@deconz-community/ddf-bundler'
 import { buildFromFiles, createSource, encode, generateHash, sign } from '@deconz-community/ddf-bundler'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { createValidator } from '@deconz-community/ddf-validator'
+import { createDirectus, rest, serverHealth, staticToken } from '@directus/sdk'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import chalk from 'chalk'
+import glob from 'fast-glob'
+import ora from 'ora'
+import { simpleGit } from 'simple-git'
+import { v4 as uuidv4 } from 'uuid'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
-import { createDirectus, rest, serverHealth, staticToken } from '@directus/sdk'
-import { v4 as uuidv4 } from 'uuid'
-import type { PrimaryKey } from '@directus/types'
-import { simpleGit } from 'simple-git'
-import ora from 'ora'
-import chalk from 'chalk'
 
 export function bundleCommand() {
   program
@@ -383,11 +382,11 @@ export function bundleCommand() {
           try {
             const { result } = await client.request<
             // TODO: import type from the store extension
-            { result: Record<string, {
-              success: boolean
-              createdId?: PrimaryKey | undefined
-              message?: string | undefined
-            }> }
+              { result: Record<string, {
+                success: boolean
+                createdId?: PrimaryKey | undefined
+                message?: string | undefined
+              }> }
             >(() => {
               return {
                 method: 'POST',

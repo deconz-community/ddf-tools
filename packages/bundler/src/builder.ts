@@ -1,5 +1,5 @@
-import { Bundle } from './bundle'
 import type { TextFile } from './types'
+import { Bundle } from './bundle'
 import { asArray } from './utils'
 
 export type SourceMetadata = {
