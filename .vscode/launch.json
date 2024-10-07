@@ -9,7 +9,21 @@
             "request": "launch",
             "name": "Launch Chrome for Toolbox",
             "url": "http://localhost:4000/",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}/packages/toolbox/public"
+        },
+        {
+            "name": "Run Web Extension",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension",
+                "--extensionDevelopmentKind=web"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/packages/vscode-extension/dist/web/**/*.js"
+            ],
+            "preLaunchTask": "${defaultBuildTask}"
         }
-    ]
+    ],
 }

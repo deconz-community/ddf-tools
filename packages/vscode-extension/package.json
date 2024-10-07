@@ -1,0 +1,110 @@
+{
+  "name": "deconz-community-ddf-tools",
+  "displayName": "DDF Tools",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.ddb",
+    "onLanguage:ddb",
+    "onFileSystem:ddb"
+  ],
+  "browser": "./dist/web/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "ddb",
+        "aliases": [
+          "DDF Bundle"
+        ],
+        "extensions": [
+          ".ddb"
+        ]
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "deconz-community-ddf-tools.ddbEditor",
+        "displayName": "DDB Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.ddb"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "deconz-community-ddf-tools.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "deconz-community-ddf-tools.mountBundleFileSystem",
+        "title": "Mount DDF Bundle"
+      },
+      {
+        "command": "deconz-community-ddf-tools.extractBundle",
+        "title": "Extract DDF Bundle to directory"
+      },
+      {
+        "command": "deconz-community-ddf-tools.makeBundle",
+        "title": "Make DDF Bundle from json"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceLangId == ddb",
+          "command": "deconz-community-ddf-tools.mountBundleFileSystem",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == ddb",
+          "command": "deconz-community-ddf-tools.extractBundle",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceLangId == json",
+          "command": "deconz-community-ddf-tools.makeBundle",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
+    "pretest": "pnpm run compile-web",
+    "vscode:prepublish": "pnpm run package-web",
+    "compile-web": "webpack",
+    "watch-web": "webpack --watch",
+    "package-web": "webpack --mode production --devtool hidden-source-map",
+    "lint": "eslint src",
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+  },
+  "devDependencies": {
+    "@deconz-community/ddf-bundler": "workspace:^",
+    "@deconz-community/ddf-validator": "workspace:^",
+    "@types/assert": "^1.5.10",
+    "@types/vscode": "^1.94.0",
+    "@types/webpack-env": "^1.18.5",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vscode/test-web": "^0.0.61",
+    "assert": "^2.1.0",
+    "eslint": "^9.11.1",
+    "null-loader": "^4.0.1",
+    "process": "^0.11.10",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@vscode-elements/elements": "^1.6.1"
+  }
+}
