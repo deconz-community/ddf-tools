@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-bundler",
   "type": "module",
   "version": "0.29.1",
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@9.12.1",
   "description": "Creating and editing DDF bundles for deconz",
   "author": {
     "name": "Zehir",
@@ -65,10 +65,10 @@
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
     "@types/node": "^20.16.5",
-    "@typescript-eslint/eslint-plugin": "^8.8.0",
-    "@typescript-eslint/parser": "^8.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
     "dts-bundle-generator": "^9.5.1",
-    "eslint": "^9.11.1",
+    "eslint": "^9.12.0",
     "lint-staged": "^15.2.10",
     "stylelint": "^16.9.0",
     "stylelint-config-recommended": "^14.0.1",

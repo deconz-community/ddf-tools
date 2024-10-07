@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-tools",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@9.12.1",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
@@ -37,7 +37,7 @@
     "@antfu/eslint-config": "^3.7.3",
     "@changesets/cli": "^2.27.9",
     "@eslint/eslintrc": "^3.1.0",
-    "eslint": "^9.11.1",
+    "eslint": "^9.12.0",
     "eslint-plugin-xstate": "^3.2.1",
     "taze": "^0.17.2",
     "turbo": "^2.1.3",
