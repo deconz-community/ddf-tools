@@ -1,5 +1,5 @@
 {
-  "name": "deconz-community-ddf-tools",
+  "name": "@deconz-community/ddf-tools-vscode-extension",
   "private": true,
   "displayName": "DDF Tools",
   "description": "",
