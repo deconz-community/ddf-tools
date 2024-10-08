@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { TextFile } from '@deconz-community/ddf-bundler'
+import type { BundleFile, TextFile } from '@deconz-community/ddf-bundler'
 import type { VListItem } from 'vuetify/lib/components/index.mjs'
-import { Bundle, generateHash } from '@deconz-community/ddf-bundler'
+import { Bundle, encode, generateHash } from '@deconz-community/ddf-bundler'
 import { useVModel } from '@vueuse/core'
+import { saveAs } from 'file-saver'
 import type { Node } from '~/lib/filePathsToTree'
 import { filePathsToTree } from '~/lib/filePathsToTree'
 
@@ -197,12 +198,45 @@ const topMenu = [
         title: 'Download',
         props: {
           prependIcon: 'mdi-download',
-          onClick: () => { console.log('TODO: download') },
+          onClick: () => {
+            saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`)
+          },
         },
       },
     ],
   },
 ]
+
+// #endregion
+
+// #region File editor
+const defaultFile: BundleFile = {
+  type: 'SCJS',
+  path: 'new_file.js',
+  last_modified: new Date(),
+  data: '',
+} as const
+const editedFile = ref<BundleFile>({ ...defaultFile })
+
+const editedFilePath = computed<string | undefined>(() => {
+  const filePath = selectedLeftMenu.value[0]
+  if (!filePath || !filePath.startsWith('file://'))
+    return undefined
+
+  return filePath.replace('file://', '')
+})
+
+watch(editedFilePath, (newFilePath) => {
+  if (newFilePath === undefined)
+    return
+
+  const file = bundle.value.data.files.find(candidate => candidate.path === newFilePath)
+
+  if (file === undefined)
+    return
+
+  editedFile.value = file
+})
 
 // #endregion
 
@@ -225,19 +259,9 @@ selectedLeftMenu.value = ['file://starkvind_air_purifier.json']
           </v-menu>
         </v-btn>
 
-        <v-toolbar-title>{{ bundle?.data.name }}.ddb - Bundler V2</v-toolbar-title>
-
-        <!--
         <v-spacer />
-
-        <template v-if="$vuetify.display.mdAndUp">
-          <v-btn icon="mdi-magnify" variant="text" />
-
-          <v-btn icon="mdi-filter" variant="text" />
-        </template>
-
-        <v-btn icon="mdi-dots-vertical" variant="text" />
-        -->
+        <v-toolbar-title>{{ bundle?.data.name }}.ddb - Bundler V2</v-toolbar-title>
+        <v-spacer />
       </v-app-bar>
 
       <v-navigation-drawer
@@ -264,48 +288,56 @@ selectedLeftMenu.value = ['file://starkvind_air_purifier.json']
       </v-navigation-drawer>
 
       <v-main>
-        <v-card-text>
-          <v-slide-group
-            v-model:model-value="openedFileIndex"
-            center-active
-            class="mb-2"
-            show-arrows
+        <v-slide-group
+          v-model:model-value="openedFileIndex"
+          center-active
+          class="mb-2"
+          show-arrows
+        >
+          <v-slide-group-item
+            v-for="file in openedFiles"
+            :key="file.path"
+            v-slot="{ isSelected }"
           >
-            <v-slide-group-item
-              v-for="file in openedFiles"
-              :key="file.path"
-              v-slot="{ isSelected }"
+            <!-- TODO add the capability to change the order with drag and drop -->
+            <v-btn-group
+              density="default"
+              rounded="0"
             >
-              <v-btn-group density="compact">
-                <v-tooltip :text="file.path.replace(/file:\//, '')" open-delay="200">
-                  <template #activator="{ props: tooltipProps }">
-                    <v-btn
-                      v-bind="tooltipProps"
-                      :color="isSelected ? 'primary' : undefined"
-                      :prepend-icon="file.icon"
-                      :text="file.path.split('/').pop()"
-                      :style="file.persistent ? '' : 'font-style: italic'"
-                      @click="() => selectedLeftMenu = [file.path]"
-                    />
-                  </template>
-                </v-tooltip>
+              <v-tooltip :text="file.path.replace(/file:\//, '')" open-delay="200">
+                <template #activator="{ props: tooltipProps }">
+                  <v-btn
+                    variant="outlined"
+                    v-bind="tooltipProps"
+                    :color="isSelected ? 'primary' : undefined"
+                    :prepend-icon="file.icon"
+                    :text="file.path.split('/').pop()"
+                    :style="file.persistent ? '' : 'font-style: italic'"
+                    @click="() => selectedLeftMenu = [file.path]"
+                  />
+                </template>
+              </v-tooltip>
 
-                <v-tooltip :text="`Close ${file.path.startsWith('file://') ? 'file' : 'tab'}`" open-delay="200">
-                  <template #activator="{ props: tooltipProps }">
-                    <v-btn
-                      v-bind="tooltipProps"
-                      :color="isSelected ? 'primary' : undefined"
-                      icon="mdi-close"
-                      @click="() => { openedFiles = openedFiles.filter(candidate => candidate.path !== file.path); selectedLeftMenu = [] }"
-                    />
-                  </template>
-                </v-tooltip>
-              </v-btn-group>
-            </v-slide-group-item>
-          </v-slide-group>
+              <v-tooltip :text="`Close ${file.path.startsWith('file://') ? 'file' : 'tab'}`" open-delay="200">
+                <template #activator="{ props: tooltipProps }">
+                  <v-btn
+                    v-bind="tooltipProps"
+                    variant="outlined"
+                    :color="isSelected ? 'primary' : undefined"
+                    icon="mdi-close"
+                    @click="() => { openedFiles = openedFiles.filter(candidate => candidate.path !== file.path); selectedLeftMenu = [] }"
+                  />
+                </template>
+              </v-tooltip>
+            </v-btn-group>
+          </v-slide-group-item>
+        </v-slide-group>
 
-          Insert content here
-        </v-card-text>
+        Insert content here
+
+        {{ selectedLeftMenu }}
+
+        {{ editedFile }}
       </v-main>
     </v-layout>
   </v-card>
