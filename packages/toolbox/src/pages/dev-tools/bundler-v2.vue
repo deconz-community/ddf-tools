@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Source } from '@deconz-community/ddf-bundler'
-import { buildFromFiles, Bundle, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
+import type { Bundle, Source } from '@deconz-community/ddf-bundler'
+import { buildFromFiles, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
 
 const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
 // const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
@@ -23,7 +23,7 @@ const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'
 
 const error = ref('')
 
-const bundle = ref<ReturnType<typeof Bundle>>(Bundle())
+const bundle = ref<ReturnType<typeof Bundle> | undefined>()
 
 const genericDirectoryUrl = ref<string>(sampleList[defaultSample][0])
 const fileUrl = ref<string>(sampleList[defaultSample][1])
@@ -69,7 +69,7 @@ buildFromGithub()
 </script>
 
 <template>
-  <bundle-editor-v2 v-model="bundle" class="fill-height" />
+  <bundle-editor-v2 v-if="bundle" v-model="bundle" class="fill-height" />
 </template>
 
 <route lang="json">
