@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { v4 as uuidv4 } from 'uuid'
-
 import type { Bundle } from '@deconz-community/ddf-bundler'
+
+import { v4 as uuidv4 } from 'uuid'
 
 const props = defineProps<{
   bundle: ReturnType<typeof Bundle>

@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import type { BundleFile, TextFile } from '@deconz-community/ddf-bundler'
+import type { VueMonacoEditorEmitsOptions } from '@guolao/vue-monaco-editor'
 import type { VListItem } from 'vuetify/lib/components/index.mjs'
 import { Bundle, encode, generateHash } from '@deconz-community/ddf-bundler'
 import { useVModel } from '@vueuse/core'
 import { saveAs } from 'file-saver'
 import type { Node } from '~/lib/filePathsToTree'
 import { filePathsToTree } from '~/lib/filePathsToTree'
+
+type Editor = Parameters<VueMonacoEditorEmitsOptions['mount']>[0]
+type Monaco = Parameters<VueMonacoEditorEmitsOptions['mount']>[1]
 
 defineOptions({
   inheritAttrs: false,
@@ -18,15 +22,11 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue'])
 
 const bundle = useVModel(props, 'modelValue', emit)
+const isDirty = ref(false)
+const codeEditor = shallowRef<Editor>()
+const monacoEditor = shallowRef<Monaco>()
 
 // #region Constants
-
-const defaultFile: BundleFile = {
-  type: 'SCJS',
-  path: 'new_file.js',
-  last_modified: new Date(),
-  data: '',
-} as const
 
 const filesTypes = [
   { type: 'DDFC', icon: 'mdi-code-json', desc: 'JSON DDF File', format: 'json' },
@@ -40,42 +40,18 @@ const filesTypes = [
 
 // #endregion
 
-// #region File editor
-
-interface EditedFile {
-  sourceFile: BundleFile
-  data: string
-  icon: VListItem['$props']['prependIcon']
-  isPersistent: boolean
-  // isDirty?: boolean
-  isDisplayed: boolean
-  // TODO save scroll position
-  // TODO add undo monaco history save state
-}
-
-const openedFiles = ref<EditedFile[]>([])
-// Any displayed file need to be in the openedFiles array
-const displayedFile = ref<EditedFile | undefined>()
-const displayedFileIndex = ref(0)
-
-watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
-  if (oldDisplayedFile) {
-    oldDisplayedFile.isDisplayed = false
-  }
-
-  openedFiles.value = openedFiles.value.filter(file => file.isPersistent)
-
-  if (newDisplayedFile) {
-    displayedFileIndex.value = openedFiles.value.findIndex(file => file === newDisplayedFile)
-    newDisplayedFile.isDisplayed = true
-  }
-})
-
-// #endregion
-
 // #region Left Menu
 const showLeftMenu = ref(true)
-const selectedLeftMenu = ref(['info'])
+const selectedLeftMenu = ref(['readme'])
+
+watch(selectedLeftMenu, (newValue, oldValue) => {
+  if (newValue[0] === undefined)
+    selectedLeftMenu.value = oldValue
+
+  if (isDirty.value && newValue[0] === 'readme')
+    bundle.value.generateDESC()
+})
+
 const isFileSelected = computed(() => selectedLeftMenu.value[0]?.startsWith('file://'))
 
 const fileTree = computed(() => filePathsToVuetifyList(
@@ -113,7 +89,7 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
           const currentTime = new Date().getTime()
           const timeDiff = currentTime - lastClickTime
           const isDoubleClick = timeDiff < 500 && timeDiff > 0
-          openFile(path, { persistent: isDoubleClick })
+          openFile(path, { isPersistent: isDoubleClick })
           lastClickTime = currentTime
         },
       },
@@ -127,8 +103,11 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
 const leftMenu = computed(() => {
   const menu: Record<string, any>[] = [
     {
-      title: 'Info',
-      value: 'info',
+      title: 'Read Me',
+      value: 'readme',
+      props: {
+        prependIcon: 'mdi-file-document',
+      },
     },
   ]
 
@@ -138,6 +117,63 @@ const leftMenu = computed(() => {
   menu.push({ type: 'divider' })
 
   return menu
+})
+
+// #endregion
+
+// #region File editor
+
+const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, monaco) => {
+  codeEditor.value = editor
+  monacoEditor.value = monaco
+}
+
+interface EditedFile {
+  sourceFile: BundleFile
+  data: string
+  icon: VListItem['$props']['prependIcon']
+  isPersistent: boolean
+  isDirty: boolean
+  isDisplayed: boolean
+}
+
+const newFile: EditedFile = {
+  sourceFile: {
+    type: 'SCJS',
+    path: 'new_file.js',
+    last_modified: new Date(),
+    data: '',
+  },
+  data: '',
+  icon: 'mdi-file-plus',
+  isPersistent: false,
+  isDirty: true,
+  isDisplayed: true,
+} as const
+
+const openedFiles = ref<EditedFile[]>([])
+// Any displayed file need to be in the openedFiles array
+const displayedFile = ref<EditedFile>(structuredClone(newFile))
+const displayedFileIndex = ref(0)
+
+watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
+  if (oldDisplayedFile) {
+    oldDisplayedFile.isDisplayed = false
+  }
+
+  openedFiles.value = openedFiles.value.filter(file => file.isPersistent || file === newDisplayedFile)
+
+  if (newDisplayedFile) {
+    if (selectedLeftMenu.value[0] !== `file://${newDisplayedFile.sourceFile.path}`)
+      selectedLeftMenu.value = [`file://${newDisplayedFile.sourceFile.path}`]
+
+    displayedFileIndex.value = openedFiles.value.findIndex(file => file === newDisplayedFile)
+    newDisplayedFile.isDisplayed = true
+  }
+  else {
+    displayedFile.value = structuredClone(newFile)
+    selectedLeftMenu.value = ['readme']
+  }
 })
 
 // #endregion
@@ -163,20 +199,6 @@ const topMenu = [
         },
       },
       {
-        title: 'Save',
-        props: {
-          prependIcon: 'mdi-content-save',
-          onClick: () => { console.log('TODO: Save') },
-        },
-      },
-      {
-        title: 'Save as',
-        props: {
-          prependIcon: 'mdi-content-save-settings',
-          onClick: () => { console.log('TODO: Save as') },
-        },
-      },
-      {
         title: 'Download',
         props: {
           prependIcon: 'mdi-download',
@@ -191,7 +213,20 @@ const topMenu = [
 
 // #endregion
 
-// #region File editor
+// #region Read Me
+
+const markdownFilesTypes = {
+  CHLG: 'Changelog',
+  INFO: 'Information',
+  WARN: 'Warning',
+  KWIS: 'Known issue',
+} as const
+
+const markdownFiles = computed(() => {
+  if (!bundle.value)
+    return []
+  return bundle.value.data.files.filter(file => objectKeys(markdownFilesTypes).includes(file.type as any))
+})
 
 // #endregion
 
@@ -202,7 +237,7 @@ async function createNew() {
   bundle.value = newBundle
 }
 
-function openFile(path: string, { persistent: isPersistent = false, isDisplayed = true } = {}) {
+function openFile(path: string, { isPersistent = false, isDisplayed = true } = {}) {
   if (path.startsWith('file://')) {
     path = path.replace('file://', '')
   }
@@ -229,11 +264,11 @@ function openFile(path: string, { persistent: isPersistent = false, isDisplayed 
       data: sourceFile.data,
       icon: fileTree.value.find(candidate => candidate.value === path)?.props.prependIcon,
       isPersistent,
+      isDirty: false,
       isDisplayed: false, // Will be updated lated by the displayedFile watcher
     }
 
     openedFiles.value.push(openingFile)
-    triggerRef(openedFiles) // TODO nedded ?
 
     if (isDisplayed) {
       displayedFile.value = openingFile
@@ -254,6 +289,9 @@ function saveFile(pathOrOpenedFileIndex: string | number) {
   }
   savingFile.sourceFile.data = savingFile.data
   savingFile.sourceFile.last_modified = new Date()
+  savingFile.isDirty = false
+
+  isDirty.value = true
 }
 
 function renameFile(oldPath: string, newPath: string) {
@@ -273,8 +311,8 @@ function closeFile(path: string, saveBeforeClose = false) {
   if (saveBeforeClose)
     saveFile(closingIndex)
 
-  if (closingIndex > 0 && openedFiles.value[closingIndex].isDisplayed) {
-    displayedFile.value = openedFiles.value[closingIndex - 1]
+  if (openedFiles.value[closingIndex].isDisplayed) {
+    displayedFile.value = openedFiles.value[closingIndex - 1] ?? openedFiles.value[closingIndex + 1]
   }
 
   openedFiles.value.splice(closingIndex, 1)
@@ -282,8 +320,8 @@ function closeFile(path: string, saveBeforeClose = false) {
 
 // #endregion
 
-nextTick(() => {
-  openFile('file://starkvind_air_purifier.json', { persistent: true })
+onMounted(() => {
+  openFile('file://starkvind_air_purifier.json', { isPersistent: true })
 })
 </script>
 
@@ -302,12 +340,9 @@ nextTick(() => {
             <v-list :items="menu.items" />
           </v-menu>
         </v-btn>
-
-        <div class="d-flex">
-          <v-spacer class="flex-shrink-1" />
-          <v-toolbar-title>{{ bundle?.data.name }}.ddb - Bundler V2</v-toolbar-title>
-          <v-spacer class="flex-shrink-1" />
-        </div>
+        <v-spacer />
+        <v-toolbar-title>{{ bundle?.data.name }}.ddb - Bundler V2</v-toolbar-title>
+        <v-spacer />
       </v-app-bar>
 
       <v-navigation-drawer
@@ -334,6 +369,28 @@ nextTick(() => {
         </v-list>
       </v-navigation-drawer>
 
+      <v-main v-show="selectedLeftMenu[0] === 'readme'">
+        <v-card class="ma-2">
+          <v-card-title>
+            Supported devices
+          </v-card-title>
+          <v-card-text>
+            <list-supported-devices :device-identifiers="bundle.data.desc.device_identifiers" />
+          </v-card-text>
+        </v-card>
+
+        <template v-for="file in markdownFiles" :key="file.path">
+          <v-card class="ma-2">
+            <v-card-title>
+              {{ markdownFilesTypes[file.type as keyof typeof markdownFilesTypes] }}
+            </v-card-title>
+            <v-card-text>
+              <vue-markdown :source="file.data as string" />
+            </v-card-text>
+          </v-card>
+        </template>
+      </v-main>
+
       <v-main v-show="isFileSelected" class="d-flex flex-column">
         <v-slide-group
           v-model:model-value="displayedFileIndex"
@@ -341,9 +398,8 @@ nextTick(() => {
           show-arrows
         >
           <v-slide-group-item
-            v-for="file in openedFiles"
-            :key="file.sourceFile.path"
-            v-slot="{ isSelected }"
+            v-for="(file, index) in openedFiles"
+            :key="index"
           >
             <!-- TODO add the capability to change the order with drag and drop -->
             <v-btn-group
@@ -355,11 +411,24 @@ nextTick(() => {
                   <v-btn
                     variant="outlined"
                     v-bind="tooltipProps"
-                    :color="isSelected ? 'primary' : undefined"
+                    :color="file.isDisplayed ? 'primary' : undefined"
                     :prepend-icon="file.icon"
                     :text="file.sourceFile.path.split('/').pop()"
                     :style="file.isPersistent ? '' : 'font-style: italic'"
                     @click="() => openFile(file.sourceFile.path, { isDisplayed: true })"
+                  />
+                </template>
+              </v-tooltip>
+
+              <v-tooltip text="Save file" open-delay="200">
+                <template #activator="{ props: tooltipProps }">
+                  <v-btn
+                    v-show="file.isDirty"
+                    v-bind="tooltipProps"
+                    variant="outlined"
+                    :color="file.isDisplayed ? 'primary' : undefined"
+                    icon="mdi-content-save"
+                    @click="() => saveFile(file.sourceFile.path)"
                   />
                 </template>
               </v-tooltip>
@@ -369,7 +438,7 @@ nextTick(() => {
                   <v-btn
                     v-bind="tooltipProps"
                     variant="outlined"
-                    :color="isSelected ? 'primary' : undefined"
+                    :color="file.isDisplayed ? 'primary' : undefined"
                     icon="mdi-close"
                     @click="() => closeFile(file.sourceFile.path)"
                   />
@@ -379,13 +448,15 @@ nextTick(() => {
           </v-slide-group-item>
         </v-slide-group>
         <div class="flex-grow-1">
-          <template v-if="displayedFile">
-            <VueMonacoEditor
-              v-model:value="displayedFile.data"
-              theme="vs-dark"
-              :language="filesTypes.find((type) => type.type === displayedFile!.sourceFile.type)?.format ?? 'plaintext'"
-            />
-          </template>
+          <!-- TODO fix editor height on resize -->
+          <VueMonacoEditor
+            v-model:value="displayedFile.data"
+            :path="displayedFile.sourceFile.path"
+            theme="vs-dark"
+            :language="filesTypes.find((type) => type.type === displayedFile!.sourceFile.type)?.format ?? 'plaintext'"
+            @change="() => displayedFile.isDirty = true"
+            @mount="handleMonacoEditorMount"
+          />
         </div>
       </v-main>
     </v-layout>

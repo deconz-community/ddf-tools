@@ -8,7 +8,7 @@ export const install: UserModule = ({ app }) => {
   app.use(VueMonacoEditorPlugin, {
     paths: {
       // The recommended CDN config
-      vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs',
+      vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs',
     },
   })
 }
