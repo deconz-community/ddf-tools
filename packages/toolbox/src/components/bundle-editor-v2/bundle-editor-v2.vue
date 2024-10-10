@@ -9,6 +9,7 @@ import { saveAs } from 'file-saver'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { Node } from '~/lib/filePathsToTree'
 import { filePathsToTree } from '~/lib/filePathsToTree'
+import { duktapeJS } from './duktapeJS'
 
 type Editor = Parameters<VueMonacoEditorEmitsOptions['mount']>[0]
 type Monaco = Parameters<VueMonacoEditorEmitsOptions['mount']>[1]
@@ -362,6 +363,20 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
     run: () => closeFile(displayedFile.value.sourceFile.path),
   })
 
+  monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+    noSemanticValidation: true,
+    noSyntaxValidation: false,
+  })
+
+  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+    target: monaco.languages.typescript.ScriptTarget.ES5,
+    allowNonTsExtensions: true,
+    allowJs: true,
+    lib: ['es5'],
+  })
+
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(duktapeJS(), 'duktape.d.ts')
+
   watch(schema, () => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
@@ -378,6 +393,7 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
 
 onMounted(() => {
   openFile('file://starkvind_air_purifier.json', { isPersistent: true })
+  openFile('file://starkvind_parse_speed.js', { isPersistent: true })
 })
 </script>
 
