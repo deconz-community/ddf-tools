@@ -62,7 +62,8 @@
     "xstate": "^5.18.2",
     "xstate-ninja": "^2.1.0",
     "zod": "^3.23.8",
-    "zod-empty": "^1.0.7"
+    "zod-empty": "^1.0.7",
+    "zod-to-json-schema": "^3.23.3"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.7.3",

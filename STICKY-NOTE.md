@@ -16,3 +16,5 @@ Add a note for the frimware version of the 2 DDF of TRADFRI on/off switch
 - [Vuetify resize drawer](https://webdevnerdstuff.github.io/vuetify-resize-drawer/#example)
 - [Vuetify color picker field](https://webdevnerdstuff.github.io/vuetify-color-field/)
 - [Vuetify date picker field](https://webdevnerdstuff.github.io/vuetify-date-field/)
+- [Monaco Zod error reporter](https://github.com/MonoidDev/zod-toolkit/blob/master/packages/zod-monaco-reporter/src/ZodMonacoReporter.tsx)
+- [Monaco Zod Json editor](https://github.com/baranwang/monaco-enhancer/tree/main)

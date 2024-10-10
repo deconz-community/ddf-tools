@@ -3,8 +3,10 @@ import type { BundleFile, TextFile } from '@deconz-community/ddf-bundler'
 import type { VueMonacoEditorEmitsOptions } from '@guolao/vue-monaco-editor'
 import type { VListItem } from 'vuetify/lib/components/index.mjs'
 import { Bundle, encode, generateHash } from '@deconz-community/ddf-bundler'
+import { createValidator } from '@deconz-community/ddf-validator'
 import { useVModel } from '@vueuse/core'
 import { saveAs } from 'file-saver'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { Node } from '~/lib/filePathsToTree'
 import { filePathsToTree } from '~/lib/filePathsToTree'
 
@@ -25,6 +27,27 @@ const bundle = useVModel(props, 'modelValue', emit)
 const isDirty = ref(false)
 const codeEditor = shallowRef<Editor>()
 const monacoEditor = shallowRef<Monaco>()
+const schema = shallowRef(zodToJsonSchema(createValidator().getSchema()))
+
+function updateSchema() {
+  const validator = createValidator()
+
+  validator.bulkValidate(
+    // Generic files
+    bundle.value.data.files
+      .filter(file => file.type === 'JSON')
+      .map((file) => {
+        return {
+          path: file.path,
+          data: JSON.parse(file.data as string),
+        }
+      }),
+    // DDF file
+    [],
+  )
+
+  schema.value = zodToJsonSchema(validator.getSchema())
+}
 
 // #region Constants
 
@@ -101,18 +124,18 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
 }
 
 const leftMenu = computed(() => {
-  const menu: Record<string, any>[] = [
-    {
-      title: 'Read Me',
-      value: 'readme',
-      props: {
-        prependIcon: 'mdi-file-document',
-      },
-    },
-  ]
+  const menu: Record<string, any>[] = []
 
-  menu.push({ type: 'divider' })
   menu.push({ type: 'subheader', title: `${bundle.value.data.name}.ddb` })
+  menu.push({
+    title: 'Read Me',
+    value: 'readme',
+    props: {
+      prependIcon: 'mdi-file-document',
+    },
+  })
+  menu.push({ type: 'subheader', title: 'Content' })
+
   menu.push(...fileTree.value)
   menu.push({ type: 'divider' })
 
@@ -122,11 +145,6 @@ const leftMenu = computed(() => {
 // #endregion
 
 // #region File editor
-
-const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, monaco) => {
-  codeEditor.value = editor
-  monacoEditor.value = monaco
-}
 
 interface EditedFile {
   sourceFile: BundleFile
@@ -164,11 +182,12 @@ watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
   openedFiles.value = openedFiles.value.filter(file => file.isPersistent || file === newDisplayedFile)
 
   if (newDisplayedFile) {
-    if (selectedLeftMenu.value[0] !== `file://${newDisplayedFile.sourceFile.path}`)
-      selectedLeftMenu.value = [`file://${newDisplayedFile.sourceFile.path}`]
-
+    selectedLeftMenu.value = [`file://${newDisplayedFile.sourceFile.path}`]
     displayedFileIndex.value = openedFiles.value.findIndex(file => file === newDisplayedFile)
     newDisplayedFile.isDisplayed = true
+    if (newDisplayedFile.sourceFile.type === 'DDFC') {
+      updateSchema()
+    }
   }
   else {
     displayedFile.value = structuredClone(newFile)
@@ -318,6 +337,43 @@ function closeFile(path: string, saveBeforeClose = false) {
   openedFiles.value.splice(closingIndex, 1)
 }
 
+function fileChanged() {
+  if (displayedFile.value.isDirty === false)
+    displayedFile.value.isDirty = true
+
+  if (displayedFile.value.isPersistent === false)
+    displayedFile.value.isPersistent = true
+}
+
+const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, monaco) => {
+  codeEditor.value = editor
+  monacoEditor.value = monaco
+
+  editor.addAction({
+    id: 'save-file',
+    label: 'Save file',
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+    run: () => saveFile(displayedFileIndex.value),
+  })
+
+  editor.addAction({
+    id: 'close-file',
+    label: 'Close file',
+    run: () => closeFile(displayedFile.value.sourceFile.path),
+  })
+
+  watch(schema, () => {
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: true,
+      schemas: [{
+        uri: '',
+        fileMatch: ['*.json'],
+        schema: schema.value,
+      }],
+    })
+  })
+}
+
 // #endregion
 
 onMounted(() => {
@@ -433,7 +489,7 @@ onMounted(() => {
                 </template>
               </v-tooltip>
 
-              <v-tooltip :text="`Close ${file.sourceFile.path.startsWith('file://') ? 'file' : 'tab'}`" open-delay="200">
+              <v-tooltip text="Close file" open-delay="200">
                 <template #activator="{ props: tooltipProps }">
                   <v-btn
                     v-bind="tooltipProps"
@@ -454,7 +510,7 @@ onMounted(() => {
             :path="displayedFile.sourceFile.path"
             theme="vs-dark"
             :language="filesTypes.find((type) => type.type === displayedFile!.sourceFile.type)?.format ?? 'plaintext'"
-            @change="() => displayedFile.isDirty = true"
+            @change="fileChanged"
             @mount="handleMonacoEditorMount"
           />
         </div>

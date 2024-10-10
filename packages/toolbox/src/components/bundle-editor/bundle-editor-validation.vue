@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Bundle, ValidationError } from '@deconz-community/ddf-bundler'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
-import type { Bundle, ValidationError } from '@deconz-community/ddf-bundler'
 
 const props = defineProps<{
   bundle: ReturnType<typeof Bundle>
