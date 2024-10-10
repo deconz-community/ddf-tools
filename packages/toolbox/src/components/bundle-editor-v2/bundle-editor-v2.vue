@@ -87,6 +87,9 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
   interface ListItem {
     title: string
     value: string
+    data?: {
+      errorCount?: number
+    }
     props: VListItem['$props']
     children: ListItem[] | undefined
   }
@@ -107,6 +110,9 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
     return {
       title: node.name,
       value: path,
+      data: {
+        errorCount: 0, // TODO
+      },
       props: {
         prependIcon,
         onClick: () => {
@@ -437,7 +443,9 @@ onMounted(() => {
             </template>
             <v-icon v-else-if="item.props?.prependIcon" :icon="item.props.prependIcon" />
           </template>
-          <template #append />
+          <template #append="{ item }">
+            <v-icon v-if="item.data?.errorCount > 0" icon="mdi-alert" color="orange" />
+          </template>
         </v-list>
       </v-navigation-drawer>
 
