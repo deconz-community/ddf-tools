@@ -37,15 +37,15 @@ ddf-tools --help
 
 ### Commands
 
-#### Validator
+#### Validate
 
-The validator command will validate the DDFs in the given directory.
+The validate command will validate the DDFs in the given directory.
 Make sure both the DDF and the Generics files are present in the directory.
 You can use the flag `--no-skip` to validate the DDFs with option ddfvalidate set to false.
 
 ```bash
-ddf-tools validator --help
-ddf-tools validator --directory /path/to/ddf
+ddf-tools validate --help
+ddf-tools validate --directory /path/to/ddf
 ```
 
 #### Bundler
