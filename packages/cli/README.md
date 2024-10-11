@@ -48,16 +48,16 @@ ddf-tools validate --help
 ddf-tools validate --directory /path/to/ddf
 ```
 
-#### Bundler
+#### Bundle
 
-The bundler command will bundle the DDFs from the given json DDF source file.
+The bundle command will bundle the DDFs from the given json DDF source file.
 Make sure the DDFs are valid before bundling them.
 
 ```bash
-ddf-tools bundler --help
-ddf-tools bundler -o ./output/ devices/ikea/starkvind_air_purifier.json
-ddf-tools bundler -o ./output/ devices/
-ddf-tools bundler --upload --store-token <token> devices/
+ddf-tools bundle --help
+ddf-tools bundle -o ./output/ devices/ikea/starkvind_air_purifier.json
+ddf-tools bundle -o ./output/ devices/
+ddf-tools bundle --upload --store-token <token> devices/
 ```
 
 ##### Argument <path> (required)
