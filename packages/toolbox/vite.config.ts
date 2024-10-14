@@ -6,7 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import VueMacros from 'unplugin-vue-macros/vite'
 import { defineConfig } from 'vite'
 import Pages from 'vite-plugin-pages'
-// import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts'
 import Vuetify from 'vite-plugin-vuetify'
 
@@ -112,7 +112,7 @@ export default defineConfig({
     }),
 
     // https://github.com/antfu/vite-plugin-pwa
-    /*
+
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
@@ -140,7 +140,6 @@ export default defineConfig({
         ],
       },
     }),
-    */
   ],
 
   ssr: {
