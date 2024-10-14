@@ -8,17 +8,17 @@ const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-r
 
 const genericDirectoryUrl = `${baseDEUrl}/generic`
 
+const status = ref<'waitingForDDF' | 'loading' | 'missingFiles' | 'ready'>('waitingForDDF')
+
 const ddfc = ref('')
+const bundle = ref<ReturnType<typeof Bundle> | undefined>()
+
 const extraFiles = ref<{
   path: string
   content: string
   title: string
   language: Language
 }[]>([])
-
-const status = ref<'waitingForDDF' | 'loading' | 'missingFiles' | 'ready'>('waitingForDDF')
-
-const bundle = ref<ReturnType<typeof Bundle> | undefined>()
 
 const missingFilesCount = computed(() => extraFiles.value.filter(file => !file.content).length)
 
@@ -27,12 +27,12 @@ function slugify(text: string) {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')
+    .replace(/\s+/g, '_')
     .replace(/\(.*?\)/g, '')
-    .replace(/[^\w\-]+/g, '')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '')
+    .replace(/\W+/g, '')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_+/, '')
+    .replace(/_+$/, '')
 }
 
 async function build() {
@@ -46,6 +46,7 @@ async function build() {
   const ddfcBlob = new Blob([ddfc.value], { type: 'application/json' })
 
   const prefix = 'file://local/'
+
   const ddfcPath = `${prefix}ddf.json`
 
   sources.set(ddfcPath, createSource(ddfcBlob, {
@@ -65,73 +66,102 @@ async function build() {
     manufacturername = manufacturername.toLowerCase()
   }
 
-  let missingExtraFilesCount = 0
+  let newName = 'ddf'
+
+  if (typeof ddfcData.product === 'string') {
+    newName = slugify(ddfcData.product)
+  }
+  else if (typeof ddfcData.modelid === 'string') {
+    newName = slugify(ddfcData.modelid)
+  }
+  else if (Array.isArray(ddfcData.modelid) && typeof ddfcData.modelid[0] === 'string') {
+    newName = slugify(ddfcData.modelid[0])
+  }
+
+  const newDdfcPath = `${prefix}${newName}.json`
+
+  sources.set(newDdfcPath, sources.get(ddfcPath)!)
+  sources.delete(ddfcPath)
+
+  const extraFilesList: string[] = []
 
   const newBundle = await buildFromFiles(
     genericDirectoryUrl,
-    ddfcPath,
+    newDdfcPath,
     async (path) => {
       if (sources.has(path))
         return sources.get(path)!
 
-      let data: Blob
-
-      if (path.startsWith('file://')) {
+      // #region Get extra file used by the DDF
+      async function getExtraFile(path: string): Promise<Blob> {
         const result = extraFiles.value.find(file => file.path === path)
         if (result) {
-          data = new Blob([result.content])
+          return new Blob([result.content])
         }
-        else {
-          const fileName = path.replace(prefix, '')
 
-          let language: Language = 'plaintext'
-          if (path.endsWith('.json')) {
-            language = 'json'
-          }
-          else if (path.endsWith('.js')) {
-            language = 'javascript'
-          }
-          else if (path.endsWith('.md')) {
-            language = 'markdown'
-          }
+        const fileName = path.replace(prefix, '')
 
-          const extraFile = {
-            path,
-            content: '',
-            title: fileName,
-            language,
-          }
+        let language: Language = 'plaintext'
+        if (path.endsWith('.json')) {
+          language = 'json'
+        }
+        else if (path.endsWith('.js')) {
+          language = 'javascript'
+        }
+        else if (path.endsWith('.md')) {
+          language = 'markdown'
+        }
 
+        const extraFile = {
+          path,
+          content: '',
+          title: fileName,
+          language,
+        }
+
+        try {
           const result = await fetch(`${baseDEUrl}/${manufacturername}/${fileName}`)
           if (result?.status === 200) {
             extraFile.content = await result.text()
           }
-          else {
-            missingExtraFilesCount++
+        }
+        catch { }
+
+        extraFiles.value.push(extraFile)
+        extraFilesList.push(extraFile.path)
+
+        return new Blob([extraFile.content])
+      }
+      // #endregion
+
+      // #region Get generic files used by the DDF
+      async function getGenericFile(path: string): Promise<Blob> {
+        try {
+          const result = await fetch(path)
+          if (result?.status === 200) {
+            return result.blob()
           }
+        }
+        catch {}
 
-          extraFiles.value.push(extraFile)
-          data = new Blob([extraFile.content])
+        const extraFile = {
+          path,
+          content: '',
+          title: path.replace(`${baseDEUrl}/`, ''),
+          language: 'json' as Language,
         }
-      }
-      else {
-        const result = await fetch(path)
-        if (result?.status === 200) {
-          data = await result.blob()
-        }
-        else {
-          missingExtraFilesCount++
-          extraFiles.value.push({
-            path,
-            content: '',
-            title: path.replace(prefix, ''),
-            language: 'json',
-          })
-          data = new Blob([])
-        }
-      }
 
-      const source = createSource(data, {
+        extraFiles.value.push(extraFile)
+        extraFilesList.push(path)
+        return new Blob([])
+      }
+      // #endregion
+
+      const data = path.startsWith('file://')
+        ? getExtraFile(path)
+        : getGenericFile(path)
+
+      const source = createSource(await data, {
         path,
         last_modified: new Date(),
       })
@@ -140,24 +170,18 @@ async function build() {
     },
   )
 
-  if (missingExtraFilesCount === 0) {
-    status.value = 'ready'
-    toast.success('Bundle has been successfully created.')
-  }
-  else {
+  extraFiles.value = extraFiles.value.filter(file => extraFilesList.includes(file.path))
+
+  if (extraFiles.value.some(file => file.content.length === 0)) {
     status.value = 'missingFiles'
     toast.error('Some extra files are missing, please provide them below.')
   }
+  else {
+    status.value = 'ready'
+    toast.success('Bundle has been successfully created.')
+  }
 
-  if (typeof ddfcData.product === 'string') {
-    newBundle.data.name = slugify(ddfcData.product)
-  }
-  else if (typeof ddfcData.modelid === 'string') {
-    newBundle.data.name = slugify(ddfcData.modelid)
-  }
-  else if (Array.isArray(ddfcData.modelid) && typeof ddfcData.modelid[0] === 'string') {
-    newBundle.data.name = slugify(ddfcData.modelid[0])
-  }
+  newBundle.data.name = newName
 
   bundle.value = newBundle
 }
