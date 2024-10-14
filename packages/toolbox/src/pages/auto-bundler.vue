@@ -38,6 +38,7 @@ function slugify(text: string) {
 async function build() {
   if (!ddfc.value) {
     status.value = 'waitingForDDF'
+    extraFiles.value = []
     return
   }
 
@@ -83,79 +84,76 @@ async function build() {
   sources.set(newDdfcPath, sources.get(ddfcPath)!)
   sources.delete(ddfcPath)
 
-  const extraFilesList: string[] = []
+  // #region Get extra file used by the DDF
+  async function getExtraFile(path: string): Promise<Blob> {
+    const result = extraFiles.value.find(file => file.path === path)
+    if (result) {
+      return new Blob([result.content])
+    }
+
+    const fileName = path.replace(prefix, '')
+
+    let language: Language = 'plaintext'
+    if (path.endsWith('.json')) {
+      language = 'json'
+    }
+    else if (path.endsWith('.js')) {
+      language = 'javascript'
+    }
+    else if (path.endsWith('.md')) {
+      language = 'markdown'
+    }
+
+    const extraFile = {
+      path,
+      content: '',
+      title: fileName,
+      language,
+    }
+
+    try {
+      const result = await fetch(`${baseDEUrl}/${manufacturername}/${fileName}`)
+      if (result?.status === 200) {
+        extraFile.content = await result.text()
+      }
+    }
+    catch { }
+
+    extraFiles.value.push(extraFile)
+
+    return new Blob([extraFile.content])
+  }
+  // #endregion
+
+  // #region Get generic files used by the DDF
+  async function getGenericFile(path: string): Promise<Blob> {
+    try {
+      const result = await fetch(path)
+      if (result?.status === 200) {
+        return result.blob()
+      }
+    }
+    catch {}
+
+    const extraFile = {
+      path,
+      content: '',
+      title: path.replace(`${baseDEUrl}/`, ''),
+      language: 'json' as Language,
+    }
+
+    extraFiles.value.push(extraFile)
+    return new Blob([])
+  }
+  // #endregion
 
   const newBundle = await buildFromFiles(
     genericDirectoryUrl,
     newDdfcPath,
     async (path) => {
-      if (sources.has(path))
+      if (sources.has(path)) {
         return sources.get(path)!
-
-      // #region Get extra file used by the DDF
-      async function getExtraFile(path: string): Promise<Blob> {
-        const result = extraFiles.value.find(file => file.path === path)
-        if (result) {
-          return new Blob([result.content])
-        }
-
-        const fileName = path.replace(prefix, '')
-
-        let language: Language = 'plaintext'
-        if (path.endsWith('.json')) {
-          language = 'json'
-        }
-        else if (path.endsWith('.js')) {
-          language = 'javascript'
-        }
-        else if (path.endsWith('.md')) {
-          language = 'markdown'
-        }
-
-        const extraFile = {
-          path,
-          content: '',
-          title: fileName,
-          language,
-        }
-
-        try {
-          const result = await fetch(`${baseDEUrl}/${manufacturername}/${fileName}`)
-          if (result?.status === 200) {
-            extraFile.content = await result.text()
-          }
-        }
-        catch { }
-
-        extraFiles.value.push(extraFile)
-        extraFilesList.push(extraFile.path)
-
-        return new Blob([extraFile.content])
       }
-      // #endregion
-
-      // #region Get generic files used by the DDF
-      async function getGenericFile(path: string): Promise<Blob> {
-        try {
-          const result = await fetch(path)
-          if (result?.status === 200) {
-            return result.blob()
-          }
-        }
-        catch {}
-
-        const extraFile = {
-          path,
-          content: '',
-          title: path.replace(`${baseDEUrl}/`, ''),
-          language: 'json' as Language,
-        }
-
-        extraFiles.value.push(extraFile)
-        extraFilesList.push(path)
-        return new Blob([])
-      }
-      // #endregion
 
       const data = path.startsWith('file://')
         ? getExtraFile(path)
@@ -170,6 +168,7 @@ async function build() {
     },
   )
 
+  const extraFilesList = sources.keys().toArray()
   extraFiles.value = extraFiles.value.filter(file => extraFilesList.includes(file.path))
 
   if (extraFiles.value.some(file => file.content.length === 0)) {
@@ -252,7 +251,7 @@ watch(ddfc, debouncedBuild)
 
       <v-card v-show="extraFiles.length > 0">
         <v-card-title>
-          Extra files
+          {{ extraFiles.length }} extra files
         </v-card-title>
         <v-card-text>
           <div
