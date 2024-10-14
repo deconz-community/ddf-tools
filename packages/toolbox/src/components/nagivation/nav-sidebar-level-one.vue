@@ -40,6 +40,8 @@ const links = computed(() => {
     list.push('divider')
   }
 
+  list.push({ icon: 'mdi-robot', title: 'Auto DDF Bundler', to: '/auto-bundler' })
+
   list.push({ icon: 'mdi-cog', title: 'App Settings', to: '/settings' })
 
   return list
