@@ -17,6 +17,7 @@ const sampleList = {
   'Mijia open/close sensor MCCGQ01LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
   'Mijia smart plug ZNCZ04LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
   'Danalock V3': [genericDE, `${baseDEUrl}/danalock/danalock_v3.json`],
+  '1-gang dimmer module (ZM-105-M)': [genericDE, `${baseDEUrl}/moes/Moes_MS-105-M_1_gang_dimmer_module.json`],
 } as const
 
 const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'

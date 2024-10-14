@@ -42,6 +42,31 @@ export function createSource<Metadata extends SourceMetadata>(rawData: Blob, met
   }
 }
 
+export function getCommonParentDirectory(...paths: string[]): string | undefined {
+  if (paths.length === 0) {
+    return undefined
+  }
+
+  const sep = '/'
+
+  const splitPaths = paths.map(p => p.split(sep))
+
+  const minLength = Math.min(...splitPaths.map(segments => segments.length))
+  const commonSegments = []
+
+  for (let i = 0; i < minLength; i++) {
+    const segment = splitPaths[0][i]
+    if (splitPaths.every(segments => segments[i] === segment)) {
+      commonSegments.push(segment)
+    }
+    else {
+      break
+    }
+  }
+
+  return commonSegments.length > 0 ? commonSegments.join(sep) : undefined
+}
+
 export async function buildFromFiles(
   genericDirectory: string,
   ddfPath: string,
@@ -53,9 +78,19 @@ export async function buildFromFiles(
 
   const ddfSource = await getSource(ddfPath)
 
+  /* TODO Waiting for deconz plugin support of DDFC in subdirectory
+  const ddfDir = ddfPath.substring(0, ddfPath.lastIndexOf('/'))
+
+  const bundleRoot = getCommonParentDirectory(genericDirectory, ddfDir)
+
+  if (bundleRoot === undefined) {
+    throw new Error('No common parent directory found between genericDirectory and ddfPath')
+  }
+  */
+
   bundle.data.files = [{
     data: await ddfSource.stringData,
-    path: ddfPath.substring(ddfPath.lastIndexOf('/') + 1),
+    path: ddfPath.substring(ddfPath.lastIndexOf('/') + 1), // ddfPath.substring(bundleRoot!.length + 1),
     type: 'DDFC',
     last_modified: ddfSource.metadata.last_modified,
   }]
@@ -65,7 +100,7 @@ export async function buildFromFiles(
   if (ddfc.schema !== 'devcap1.schema.json')
     throw new Error('Invalid schema')
 
-  // Build a list of used constants to only include them in the bundle from the constants.json file
+  // #region Build a list of used constants to only include them in the bundle from the constants.json file
   const usedConstants: {
     manufacturers: string[]
     deviceTypes: string[]
@@ -88,6 +123,7 @@ export async function buildFromFiles(
       usedConstants.manufacturers.push(name)
     })
   }
+  // #endregion
 
   const filesToAdd: {
     url: string
@@ -96,6 +132,7 @@ export async function buildFromFiles(
     patch?: (data: string) => string
   }[] = []
 
+  // #region Download markdown files
   const fileMap = {
     CHLG: 'md:changelog',
     INFO: 'md:info',
@@ -103,7 +140,6 @@ export async function buildFromFiles(
     KWIS: 'md:known_issues',
   } as const
 
-  // Download markdown files
   Object.entries(fileMap).forEach(([type, key]) => {
     if (ddfc[key] !== undefined) {
       for (const filePath of asArray<unknown>(ddfc[key])) {
@@ -118,8 +154,9 @@ export async function buildFromFiles(
       }
     }
   })
+  // #endregion
 
-  // Download script files
+  // #region Download generic and scripts files
   if (Array.isArray(ddfc.subdevices)) {
     ddfc.subdevices.forEach((subdevice) => {
       if (subdevice.type.startsWith('$TYPE_') && !usedConstants.deviceTypes.includes(subdevice.type))
@@ -179,8 +216,9 @@ export async function buildFromFiles(
       }
     })
   }
+  // #endregion
 
-  // Download constants.json
+  // #region Download constants.json
   filesToAdd.push({
     url: new URL(`${genericDirectory}/constants.json`).href,
     path: 'generic/constants_min.json',
@@ -197,6 +235,7 @@ export async function buildFromFiles(
       return JSON.stringify(newData, null, 4)
     },
   })
+  // #endregion
 
   const paths: string[] = []
   const uniquesFilesToAdd = filesToAdd.filter((file) => {
@@ -217,33 +256,21 @@ export async function buildFromFiles(
     if (fileToAdd.path === 'generic/constants_min.json')
       last_modified = undefined
 
+    /* TODO Waiting for deconz plugin support of DDFC in subdirectory
+    const path = fileToAdd.path.startsWith('generic/') && fileToAdd.type !== 'DDFC'
+      ? fileToAdd.path
+      : (new URL(`${ddfDir}/${fileToAdd.path}`).href).substring(bundleRoot!.length + 1)
+      */
+
     bundle.data.files.push({
       type: fileToAdd.type,
       data,
       last_modified,
       path: fileToAdd.path,
     })
-  }),
-  )
+  }))
 
-  bundle.data.files.sort((a, b) => {
-    // Sort files by path but with generics last
-    const aIsGeneric = a.path.startsWith('generic/')
-    const bIsGeneric = b.path.startsWith('generic/')
-    if (aIsGeneric && bIsGeneric) {
-      if (a.path === 'generic/constants_min.json')
-        return -1
-      if (b.path === 'generic/constants_min.json')
-        return 1
-      return a.path.localeCompare(b.path)
-    }
-    if (aIsGeneric)
-      return 1
-    if (bIsGeneric)
-      return -1
-    return a.path.localeCompare(b.path)
-  })
-
+  bundle.sortFiles()
   bundle.generateDESC()
 
   return bundle

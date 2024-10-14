@@ -78,5 +78,25 @@ export function Bundle() {
     }
   }
 
-  return { data, generateDESC }
+  const sortFiles = () => {
+    data.files.sort((a, b) => {
+    // Sort files by path but with generics last
+      const aIsGeneric = a.path.startsWith('generic/')
+      const bIsGeneric = b.path.startsWith('generic/')
+      if (aIsGeneric && bIsGeneric) {
+        if (a.path === 'generic/constants_min.json')
+          return -1
+        if (b.path === 'generic/constants_min.json')
+          return 1
+        return a.path.localeCompare(b.path)
+      }
+      if (aIsGeneric)
+        return 1
+      if (bIsGeneric)
+        return -1
+      return a.path.localeCompare(b.path)
+    })
+  }
+
+  return { data, generateDESC, sortFiles }
 }

@@ -4,6 +4,7 @@ import type { VueMonacoEditorEmitsOptions } from '@guolao/vue-monaco-editor'
 import type { VListItem } from 'vuetify/lib/components/index.mjs'
 import { Bundle, decode, encode, generateHash } from '@deconz-community/ddf-bundler'
 import { createValidator } from '@deconz-community/ddf-validator'
+import { bytesToHex } from '@noble/hashes/utils'
 import { useVModel } from '@vueuse/core'
 import { saveAs } from 'file-saver'
 import { zodToJsonSchema } from 'zod-to-json-schema'
@@ -61,20 +62,38 @@ const icons = {
     icon: 'mdi-language-javascript',
     color: '#3498db',
   },
-  markdown: {
-    icon: 'mdi-language-markdown',
-    color: '#ecf0f1',
+  markdown: (type: string) => {
+    let color = '#ecf0f1'
+    switch (type) {
+      case 'CHLG':
+        color = '#3498db'
+        break
+      case 'INFO':
+        color = '#2ecc71'
+        break
+      case 'WARN':
+        color = '#f1c40f'
+        break
+      case 'KWIS':
+        color = '#e74c3c'
+        break
+    }
+
+    return {
+      icon: 'mdi-language-markdown',
+      color,
+    }
   },
 } as const
 
 const filesTypes = [
-  { type: 'DDFC', ...icons.json, desc: 'JSON DDF File', format: 'json' },
-  { type: 'SCJS', ...icons.javascript, desc: 'Javascript file for read, write or parse', format: 'javascript' },
-  { type: 'JSON', ...icons.json, desc: 'Generic files for items / constants', format: 'json' },
-  { type: 'CHLG', ...icons.markdown, desc: 'Changelog', format: 'markdown' },
-  { type: 'INFO', ...icons.markdown, desc: 'Informational note', format: 'markdown' },
-  { type: 'WARN', ...icons.markdown, desc: 'Warning note', format: 'markdown' },
-  { type: 'KWIS', ...icons.markdown, desc: 'Know issue', format: 'markdown' },
+  { type: 'DDFC', ...icons.json, ext: 'json', desc: 'JSON DDF File', format: 'json' },
+  { type: 'SCJS', ...icons.javascript, ext: 'js', desc: 'Javascript file for read, write or parse', format: 'javascript' },
+  { type: 'JSON', ...icons.json, ext: 'json', desc: 'Generic files for items / constants', format: 'json' },
+  { type: 'CHLG', ...icons.markdown('CHLG'), ext: 'md', desc: 'Changelog', format: 'markdown' },
+  { type: 'INFO', ...icons.markdown('INFO'), ext: 'md', desc: 'Informational note', format: 'markdown' },
+  { type: 'WARN', ...icons.markdown('WARN'), ext: 'md', desc: 'Warning note', format: 'markdown' },
+  { type: 'KWIS', ...icons.markdown('KWIS'), ext: 'md', desc: 'Know issue', format: 'markdown' },
 ] as const
 
 // #endregion
@@ -117,6 +136,7 @@ type FileListItem = {
 }
 
 function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>) => TextFile) {
+  // TODO: Fix when path start with ../
   function convertLeaf(node: Node<TextFile>): FileListItem {
     const data: (FileListItem & { type: undefined })['data'] = {
       errorCount: 0,
@@ -136,9 +156,9 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
       }
     }
 
-    const path = (data.isDirectory
+    const path = data.isDirectory
       ? `folder://${node.path}`
-      : `file://${node.path}`).replaceAll('/../', '/__parent_directory__/')
+      : `file://${node.path}`
 
     let lastClickTime = 0
 
@@ -147,6 +167,7 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
       value: path,
       data,
       props: {
+        key: path,
         onClick: () => {
           const currentTime = new Date().getTime()
           const timeDiff = currentTime - lastClickTime
@@ -298,8 +319,16 @@ const topMenu = [
         title: 'New file',
         props: {
           prependIcon: 'mdi-file-plus',
-          onClick: () => newFile(),
         },
+        children: filesTypes.filter(fileType => fileType.type !== 'DDFC').map((fileType) => {
+          return {
+            title: fileType.desc,
+            props: {
+              prependIcon: fileType.icon,
+              onClick: () => newFile(fileType.type),
+            },
+          }
+        }),
       },
       {
         title: 'Save',
@@ -336,20 +365,108 @@ const markdownFiles = computed(() => {
   return bundle.value.data.files.filter(file => objectKeys(markdownFilesTypes).includes(file.type as any))
 })
 
+const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
+
+const hash = computed(() => {
+  return bytesToHex(bundle.value.data.hash ?? new Uint8Array())
+})
+
 // #endregion
 
 // #region Actions
 async function createNew() {
+  // closeAllFiles()
   const newBundle = Bundle()
-  newBundle.data.hash = await generateHash(newBundle.data)
+
+  newBundle.data.files.push({
+    type: 'DDFC',
+    data: JSON.stringify(
+      {
+        schema: 'devcap1.schema.json',
+        manufacturername: 'Sample Manufacturer',
+        modelid: 'Sample model id',
+        status: 'Draft',
+        subdevices: [],
+      },
+      null,
+      2,
+    ),
+    path: 'new_bundle.json',
+    last_modified: new Date(),
+  })
   bundle.value = newBundle
 }
 
-function newFile() {
-  console.warn('TODO: newFile')
+function newFile(type: TextFile['type'] = 'SCJS') {
+  // TODO check if the DDFC is open and not saved
+  openedFiles.value
+    .filter(file => file.sourceFile.type === 'DDFC' && file.isDirty)
+    .map(file => saveFile(file.sourceFile.path))
+
+  const fileType = filesTypes.find(fileType => fileType.type === type)
+
+  if (!fileType) {
+    console.error(`File type not found: ${type}`)
+    return
+  }
+
+  let path = `new_file.${fileType?.ext}`
+
+  if (bundle.value.data.files.some(file => file.path === path)) {
+    let i = 1
+    while (bundle.value.data.files.some(
+      file => file.path === `new_file_${i}.${fileType?.ext}`,
+    )) { i++ }
+    path = `new_file_${i}.${fileType?.ext}`
+  }
+
+  const newFileData = {
+    type,
+    path,
+    last_modified: new Date(),
+    data: '',
+  }
+
+  bundle.value.data.files.push(newFileData)
+
+  /*
+  TODO: Add the file to the DDFC file
+  switch (type) {
+    case 'CHLG':{
+      const ddfcFile = bundle.value.data.files.find(file => file.type === 'DDFC')
+      if (!ddfcFile) {
+        console.error('DDFC file not found')
+        return
+      }
+
+      const ddfcPath = ddfcFile.path
+      const file = openFile(ddfcPath)
+
+      if (!file) {
+        console.error('DDFC file not found')
+        return
+      }
+
+      const ddfc = JSON.parse(file.data)
+      if (ddfc['md:changelogs'] === undefined) {
+        ddfc['md:changelogs'] = [newFileData.path]
+      }
+      else {
+        ddfc['md:changelogs'].push(newFileData.path)
+      }
+
+      file.data = JSON.stringify(ddfc, null, 2)
+    }
+      break
+  }
+      */
+
+  bundle.value.sortFiles()
+
+  openFile(newFileData.path, { isPersistent: true })
 }
 
-function openFile(path: string, { isPersistent = false, isDisplayed = true } = {}) {
+function openFile(path: string, { isPersistent = false, isDisplayed = true } = {}): EditedFile | undefined {
   if (path.startsWith('file://')) {
     path = path.replaceAll('/__parent_directory__/', '/../').replace('file://', '')
   }
@@ -362,32 +479,35 @@ function openFile(path: string, { isPersistent = false, isDisplayed = true } = {
     if (isDisplayed && displayedFile.value !== alreadyOpenedFile) {
       displayedFile.value = alreadyOpenedFile
     }
+
+    return alreadyOpenedFile
   }
-  else {
-    const sourceFile = bundle.value.data.files.find(candidate => candidate.path === path)
 
-    if (!sourceFile) {
-      console.error(`File not found: ${path}`)
-      return
-    }
+  const sourceFile = bundle.value.data.files.find(candidate => candidate.path === path)
 
-    const fileInTree = fileTree.value.find(candidate => !('type' in candidate) && candidate.value === path) as (FileListItem & { type: undefined }) | undefined
-    const openingFile: EditedFile = {
-      sourceFile,
-      data: sourceFile.data,
-      icon: fileInTree?.data?.icon,
-      iconColor: fileInTree?.data?.iconColor,
-      isPersistent,
-      isDirty: false,
-      isDisplayed: false, // Will be updated lated by the displayedFile watcher
-    }
-
-    openedFiles.value.push(openingFile)
-
-    if (isDisplayed) {
-      displayedFile.value = openingFile
-    }
+  if (!sourceFile) {
+    console.error(`File not found: ${path}`)
+    return
   }
+
+  const fileInTree = fileTree.value.find(candidate => !('type' in candidate) && candidate.value === path) as (FileListItem & { type: undefined }) | undefined
+  const openingFile: EditedFile = {
+    sourceFile,
+    data: sourceFile.data,
+    icon: fileInTree?.data?.icon,
+    iconColor: fileInTree?.data?.iconColor,
+    isPersistent,
+    isDirty: false,
+    isDisplayed: false, // Will be updated lated by the displayedFile watcher
+  }
+
+  openedFiles.value.push(openingFile)
+
+  if (isDisplayed) {
+    displayedFile.value = openingFile
+  }
+
+  return openingFile
 }
 
 function saveFile(pathOrOpenedFileIndex: string | number) {
@@ -444,13 +564,15 @@ function fileChanged() {
     displayedFile.value.isPersistent = true
 }
 
-watch(bundle, () => {
-  closeAllFiles()
+watchImmediate(bundle, () => {
+  openedFiles.value = []
 
   const DDFCPath = bundle.value.data.files.find(file => file.type === 'DDFC')?.path
-
-  if (DDFCPath)
-    openFile(`file://${DDFCPath}`, { isPersistent: true })
+  const SCJSPath = bundle.value.data.files.find(file => file.type === 'SCJS')?.path
+  openFile(`file://${DDFCPath}`, { isPersistent: true })
+  if (SCJSPath)
+    openFile(`file://${SCJSPath}`, { isPersistent: true })
+  openFile(`file://${DDFCPath}`)
 })
 
 const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, monaco) => {
@@ -470,6 +592,14 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
     id: 'close-file',
     label: 'Close file',
     run: () => closeFile(displayedFile.value.sourceFile.path),
+  })
+
+  filesTypes.forEach((fileType) => {
+    editor.addAction({
+      id: `new-file-${fileType.type}`,
+      label: `New File : ${fileType.desc}`,
+      run: () => newFile(fileType.type),
+    })
   })
 
   languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -574,11 +704,6 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
 }
 
 // #endregion
-
-onMounted(() => {
-  openFile('file://starkvind_air_purifier.json', { isPersistent: true })
-  // openFile('file://starkvind_parse_speed.js', { isPersistent: true })
-})
 </script>
 
 <template>
@@ -648,10 +773,23 @@ onMounted(() => {
       <v-main v-show="selectedLeftMenu[0] === 'readme'">
         <v-card class="ma-2">
           <v-card-title>
-            Supported devices
+            {{ bundle.data.desc.product }}
           </v-card-title>
+          <v-card-subtitle>
+            For deconz {{ bundle.data.desc.version_deconz }}
+            • Last modified {{ timeAgo }}
+            <br>
+            Hash : {{ hash }}
+          </v-card-subtitle>
           <v-card-text>
-            <list-supported-devices :device-identifiers="bundle.data.desc.device_identifiers" />
+            <v-card class="ma-2">
+              <v-card-title>
+                Supported devices
+              </v-card-title>
+              <v-card-text>
+                <list-supported-devices :device-identifiers="bundle.data.desc.device_identifiers" />
+              </v-card-text>
+            </v-card>
           </v-card-text>
         </v-card>
 
@@ -674,8 +812,8 @@ onMounted(() => {
           show-arrows
         >
           <v-slide-group-item
-            v-for="(file, index) in openedFiles"
-            :key="index"
+            v-for="file in openedFiles"
+            :key="file.sourceFile.path"
           >
             <!-- TODO add the capability to change the order with drag and drop -->
             <v-btn-group
