@@ -2,7 +2,7 @@
 import type { BundleFile, TextFile } from '@deconz-community/ddf-bundler'
 import type { VueMonacoEditorEmitsOptions } from '@guolao/vue-monaco-editor'
 import type { VListItem } from 'vuetify/lib/components/index.mjs'
-import { Bundle, encode, generateHash } from '@deconz-community/ddf-bundler'
+import { Bundle, decode, encode, generateHash } from '@deconz-community/ddf-bundler'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { useVModel } from '@vueuse/core'
 import { saveAs } from 'file-saver'
@@ -52,14 +52,29 @@ function updateSchema() {
 
 // #region Constants
 
+const icons = {
+  json: {
+    icon: 'mdi-code-json',
+    color: '#2ecc71',
+  },
+  javascript: {
+    icon: 'mdi-language-javascript',
+    color: '#3498db',
+  },
+  markdown: {
+    icon: 'mdi-language-markdown',
+    color: '#ecf0f1',
+  },
+} as const
+
 const filesTypes = [
-  { type: 'DDFC', icon: 'mdi-code-json', desc: 'JSON DDF File', format: 'json' },
-  { type: 'SCJS', icon: 'mdi-language-javascript', desc: 'Javascript file for read, write or parse', format: 'javascript' },
-  { type: 'JSON', icon: 'mdi-code-json', desc: 'Generic files for items / constants', format: 'json' },
-  { type: 'CHLG', icon: 'mdi-language-markdown', desc: 'Changelog', format: 'markdown' },
-  { type: 'INFO', icon: 'mdi-language-markdown', desc: 'Informational note', format: 'markdown' },
-  { type: 'WARN', icon: 'mdi-language-markdown', desc: 'Warning note', format: 'markdown' },
-  { type: 'KWIS', icon: 'mdi-language-markdown', desc: 'Know issue', format: 'markdown' },
+  { type: 'DDFC', ...icons.json, desc: 'JSON DDF File', format: 'json' },
+  { type: 'SCJS', ...icons.javascript, desc: 'Javascript file for read, write or parse', format: 'javascript' },
+  { type: 'JSON', ...icons.json, desc: 'Generic files for items / constants', format: 'json' },
+  { type: 'CHLG', ...icons.markdown, desc: 'Changelog', format: 'markdown' },
+  { type: 'INFO', ...icons.markdown, desc: 'Informational note', format: 'markdown' },
+  { type: 'WARN', ...icons.markdown, desc: 'Warning note', format: 'markdown' },
+  { type: 'KWIS', ...icons.markdown, desc: 'Know issue', format: 'markdown' },
 ] as const
 
 // #endregion
@@ -83,38 +98,55 @@ const fileTree = computed(() => filePathsToVuetifyList(
   node => bundle.value.data.files.find(file => file.path === node.path)!,
 ))
 
-function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>) => TextFile) {
-  interface ListItem {
-    title: string
-    value: string
-    data?: {
-      errorCount?: number
-    }
-    props: VListItem['$props']
-    children: ListItem[] | undefined
+type FileListItem = {
+  type: 'divider'
+} | {
+  type: 'subheader'
+  title: string
+} | {
+  title: string
+  value: string
+  data?: {
+    errorCount?: number
+    isDirectory?: boolean
+    icon?: string
+    iconColor?: string
   }
+  props?: VListItem['$props']
+  children?: FileListItem[]
+}
 
-  function convertLeaf(node: Node<TextFile>): ListItem {
-    // TODO not really pretty code
-    let prependIcon = 'mdi-folder'
+function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>) => TextFile) {
+  function convertLeaf(node: Node<TextFile>): FileListItem {
+    const data: (FileListItem & { type: undefined })['data'] = {
+      errorCount: 0,
+      isDirectory: true,
+    }
 
     if (node.data) {
+      data.isDirectory = false
       const fileType = filesTypes.find(type => type.type === node.data!.type)
-      prependIcon = fileType?.icon ?? 'mdi-file'
+      if (fileType) {
+        data.icon = fileType.icon
+        data.iconColor = fileType.color
+      }
+      else {
+        data.icon = 'mdi-file'
+        data.iconColor = 'grey'
+      }
     }
 
-    const path = prependIcon === 'mdi-folder' ? `folder://${node.path}` : `file://${node.path}`
+    const path = (data.isDirectory
+      ? `folder://${node.path}`
+      : `file://${node.path}`).replaceAll('/../', '/__parent_directory__/')
 
     let lastClickTime = 0
 
     return {
       title: node.name,
       value: path,
-      data: {
-        errorCount: 0, // TODO
-      },
+      data,
       props: {
-        prependIcon,
         onClick: () => {
           const currentTime = new Date().getTime()
           const timeDiff = currentTime - lastClickTime
@@ -131,19 +163,21 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
 }
 
 const leftMenu = computed(() => {
-  const menu: Record<string, any>[] = []
+  const menu: FileListItem[] = []
 
   menu.push({ type: 'subheader', title: `${bundle.value.data.name}.ddb` })
   menu.push({
     title: 'Read Me',
     value: 'readme',
-    props: {
-      prependIcon: 'mdi-file-document',
+    data: {
+      icon: 'mdi-book-open',
+      iconColor: '#16a085',
     },
   })
   menu.push({ type: 'subheader', title: 'Content' })
 
   menu.push(...fileTree.value)
+
   menu.push({ type: 'divider' })
 
   return menu
@@ -156,13 +190,14 @@ const leftMenu = computed(() => {
 interface EditedFile {
   sourceFile: BundleFile
   data: string
-  icon: VListItem['$props']['prependIcon']
+  icon?: string
+  iconColor?: string
   isPersistent: boolean
   isDirty: boolean
   isDisplayed: boolean
 }
 
-const newFile: EditedFile = {
+const newFileData: EditedFile = {
   sourceFile: {
     type: 'SCJS',
     path: 'new_file.js',
@@ -178,7 +213,7 @@ const newFile: EditedFile = {
 
 const openedFiles = ref<EditedFile[]>([])
 // Any displayed file need to be in the openedFiles array
-const displayedFile = ref<EditedFile>(structuredClone(newFile))
+const displayedFile = ref<EditedFile>(structuredClone(newFileData))
 const displayedFileIndex = ref(0)
 
 watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
@@ -197,7 +232,7 @@ watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
     }
   }
   else {
-    displayedFile.value = structuredClone(newFile)
+    displayedFile.value = structuredClone(newFileData)
     selectedLeftMenu.value = ['readme']
   }
 })
@@ -208,7 +243,7 @@ watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
 
 const topMenu = [
   {
-    title: 'File',
+    title: 'Bundle',
     items: [
       {
         title: 'New bundle',
@@ -218,10 +253,31 @@ const topMenu = [
         },
       },
       {
-        title: 'Open',
+        title: 'Open from disk',
         props: {
           prependIcon: 'mdi-folder-open',
-          onClick: () => { console.log('TODO: Open') },
+          onClick: async () => {
+            const scope = effectScope()
+            scope.run(() => {
+              const { open, onCancel, onChange } = useFileDialog({
+                multiple: false,
+                accept: '.ddb',
+                directory: false,
+              })
+
+              onChange(async (files) => {
+                if (files !== null && files.length === 1) {
+                  bundle.value = await decode(files[0])
+                }
+
+                scope.stop()
+              })
+
+              onCancel(scope.stop)
+
+              open()
+            })
+          },
         },
       },
       {
@@ -231,6 +287,32 @@ const topMenu = [
           onClick: () => {
             saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`)
           },
+        },
+      },
+    ],
+  },
+  {
+    title: 'File',
+    items: [
+      {
+        title: 'New file',
+        props: {
+          prependIcon: 'mdi-file-plus',
+          onClick: () => newFile(),
+        },
+      },
+      {
+        title: 'Save',
+        props: {
+          prependIcon: 'mdi-content-save',
+          onClick: () => saveFile(displayedFileIndex.value),
+        },
+      },
+      {
+        title: 'Close',
+        props: {
+          prependIcon: 'mdi-close',
+          onClick: () => closeFile(displayedFile.value.sourceFile.path),
         },
       },
     ],
@@ -263,9 +345,13 @@ async function createNew() {
   bundle.value = newBundle
 }
 
+function newFile() {
+  console.warn('TODO: newFile')
+}
+
 function openFile(path: string, { isPersistent = false, isDisplayed = true } = {}) {
   if (path.startsWith('file://')) {
-    path = path.replace('file://', '')
+    path = path.replaceAll('/__parent_directory__/', '/../').replace('file://', '')
   }
 
   const alreadyOpenedFile = openedFiles.value.find(candidate => candidate.sourceFile.path === path)
@@ -285,10 +371,12 @@ function openFile(path: string, { isPersistent = false, isDisplayed = true } = {
       return
     }
 
+    const fileInTree = fileTree.value.find(candidate => !('type' in candidate) && candidate.value === path) as (FileListItem & { type: undefined }) | undefined
     const openingFile: EditedFile = {
       sourceFile,
       data: sourceFile.data,
-      icon: fileTree.value.find(candidate => candidate.value === path)?.props.prependIcon,
+      icon: fileInTree?.data?.icon,
+      iconColor: fileInTree?.data?.iconColor,
       isPersistent,
       isDirty: false,
       isDisplayed: false, // Will be updated lated by the displayedFile watcher
@@ -344,6 +432,10 @@ function closeFile(path: string, saveBeforeClose = false) {
   openedFiles.value.splice(closingIndex, 1)
 }
 
+function closeAllFiles() {
+  openedFiles.value.forEach(file => closeFile(file.sourceFile.path))
+}
+
 function fileChanged() {
   if (displayedFile.value.isDirty === false)
     displayedFile.value.isDirty = true
@@ -352,9 +444,20 @@ function fileChanged() {
     displayedFile.value.isPersistent = true
 }
 
+watch(bundle, () => {
+  closeAllFiles()
+
+  const DDFCPath = bundle.value.data.files.find(file => file.type === 'DDFC')?.path
+
+  if (DDFCPath)
+    openFile(`file://${DDFCPath}`, { isPersistent: true })
+})
+
 const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, monaco) => {
   codeEditor.value = editor
   monacoEditor.value = monaco
+  const { languages } = monaco
+  const jsonLanguageId = languages.json.jsonDefaults.languageId
 
   editor.addAction({
     id: 'save-file',
@@ -369,22 +472,97 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
     run: () => closeFile(displayedFile.value.sourceFile.path),
   })
 
-  monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+  languages.typescript.javascriptDefaults.setDiagnosticsOptions({
     noSemanticValidation: true,
     noSyntaxValidation: false,
   })
 
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-    target: monaco.languages.typescript.ScriptTarget.ES5,
+  languages.typescript.javascriptDefaults.setCompilerOptions({
+    target: languages.typescript.ScriptTarget.ES5,
     allowNonTsExtensions: true,
     allowJs: true,
     lib: ['es5'],
   })
 
-  monaco.languages.typescript.javascriptDefaults.addExtraLib(duktapeJS(), 'duktape.d.ts')
+  languages.typescript.javascriptDefaults.addExtraLib(duktapeJS(), 'duktape.d.ts')
 
-  watch(schema, () => {
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+  languages.registerTypeDefinitionProvider(jsonLanguageId, {
+    provideTypeDefinition: async (model, position, token) => {
+      // TODO open the generic file in the editor
+      // It's the right click + go to type definition feature
+      console.log('provideTypeDefinition', model, position, token)
+      return null
+    },
+  })
+
+  languages.registerHoverProvider(jsonLanguageId, {
+    provideHover: async (model, position, token) => {
+      // console.log('provideHover', model, position, token)
+      return null
+    },
+  })
+
+  languages.registerInlayHintsProvider(jsonLanguageId, {
+    provideInlayHints: async (model, range, token) => {
+      // console.log('provideInlayHints', model, range, token)
+      return null
+    },
+  })
+  /*
+  languages.registerCodeActionProvider(jsonLanguageId, {
+    provideCodeActions: async (model, range, context, token) => {
+      console.log('provideCodeActions', model, range, context, token)
+      return {
+        actions: [
+          {
+            title: 'test',
+            command: {
+              id: 'save-file',
+              title: 'Save file',
+            },
+          },
+        ],
+      }
+    },
+  })
+  */
+
+  setTimeout(() => {
+
+    /*
+    languages.setMonarchTokensProvider(jsonLanguageId, {
+      tokenizer: {
+        root: [
+          [/"eval"\s*:\s*"(.*)"/, {
+            token: 'source.js',
+            nextEmbedded: 'javascript',
+            next: '@evalContent',
+            log: 'eval detected', // Ajout d'un log pour vérifier
+          }],
+          [/"[^"]*"/, 'string'],
+          [/\b\d+\b/, 'number'],
+          [/[{}[\],]/, 'delimiter'],
+          [/:/, 'delimiter.colon'],
+          [/\s+/, 'white'],
+        ],
+        evalContent: [
+          [/[^"]+/, 'source.js'],
+          [/"/, { token: 'string.quote', next: '@pop' }],
+        ],
+      },
+    })
+    */
+  }, 100)
+
+  watchImmediate(schema, () => {
+    // console.log(schema.value.anyOf[0].properties.subdevices.items.properties.items.items.properties.read.anyOf[1].properties.script)
+    // anyOf[0].properties.subdevices.items.properties.items.items.properties.parse.anyOf[0].properties.eval
+    // "#/anyOf/0/properties/subdevices/items/properties/items/items/properties/read/anyOf/1/properties/script"
+
+    // languages.json.jsonDefaults.setModeConfiguration
+
+    languages.json.jsonDefaults.setDiagnosticsOptions({
+      ...languages.json.jsonDefaults.diagnosticsOptions,
       validate: true,
       schemas: [{
         uri: '',
@@ -399,7 +577,7 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
 
 onMounted(() => {
   openFile('file://starkvind_air_purifier.json', { isPersistent: true })
-  openFile('file://starkvind_parse_speed.js', { isPersistent: true })
+  // openFile('file://starkvind_parse_speed.js', { isPersistent: true })
 })
 </script>
 
@@ -435,16 +613,34 @@ onMounted(() => {
           :items="leftMenu"
           select-strategy="single-leaf"
           open-strategy="multiple"
+          nav
         >
           <template #prepend="{ item, isActive }">
-            <template v-if="item.props?.prependIcon === 'mdi-folder'">
-              <v-icon v-if="isActive" icon="mdi-chevron-down" />
-              <v-icon v-else icon="mdi-chevron-right" />
+            <template v-if="!('type' in item)">
+              <VIcon
+                v-if="item.data?.isDirectory"
+                :icon="isActive ? 'mdi-folder-open' : 'mdi-folder'"
+              />
+              <VIcon
+                v-else-if="item.data?.icon"
+                :icon="item.data?.icon"
+                :color="item.data?.iconColor"
+              />
+              <VIcon
+                v-else
+                icon="mdi-file"
+                :color="item.data?.iconColor"
+              />
             </template>
-            <v-icon v-else-if="item.props?.prependIcon" :icon="item.props.prependIcon" />
           </template>
           <template #append="{ item }">
-            <v-icon v-if="item.data?.errorCount > 0" icon="mdi-alert" color="orange" />
+            <template v-if="!('type' in item)">
+              <VIcon
+                v-if="item.data?.errorCount !== undefined && item.data?.errorCount > 0"
+                icon="mdi-alert"
+                color="orange"
+              />
+            </template>
           </template>
         </v-list>
       </v-navigation-drawer>

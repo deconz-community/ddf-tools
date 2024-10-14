@@ -17,4 +17,12 @@ Add a note for the frimware version of the 2 DDF of TRADFRI on/off switch
 - [Vuetify color picker field](https://webdevnerdstuff.github.io/vuetify-color-field/)
 - [Vuetify date picker field](https://webdevnerdstuff.github.io/vuetify-date-field/)
 - [Monaco Zod error reporter](https://github.com/MonoidDev/zod-toolkit/blob/master/packages/zod-monaco-reporter/src/ZodMonacoReporter.tsx)
-- [Monaco Zod Json editor](https://github.com/baranwang/monaco-enhancer/tree/main)
+- [Monaco Zod Json editor](https://github.com/baranwang/monaco-enhancer)
+
+## Monaco Editor JSON
+https://stackoverflow.com/questions/78021090/how-to-find-line-number-by-path-in-monaco-editor-json
+https://github.com/YECHUNAN/json-color-token
+https://stackoverflow.com/questions/79082718/monaco-editor-add-javascript-display-inside-json-property
+https://github.com/microsoft/monaco-editor/issues/1890
+https://microsoft.github.io/monaco-editor/playground.html?source=v0.52.0#example-extending-language-services-inlay-hints-provider-example
+https://github.com/microsoft/vscode-extension-samples/tree/main
