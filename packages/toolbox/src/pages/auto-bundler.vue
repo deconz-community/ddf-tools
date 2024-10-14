@@ -226,17 +226,20 @@ watch(ddfc, debouncedBuild)
         v-show="status === 'waitingForDDF'"
         type="info"
         class="ma-2"
+        title="Waiting for DDF"
         text="Please provide a DDF JSON file to create the bundle."
       />
       <v-alert
         v-show="missingFilesCount > 0"
         type="error"
         class="ma-2"
+        title="Missing files"
         text="Some extra files are missing, please provide them below."
       />
       <v-alert
         v-show="status === 'ready'"
         type="success"
+        title="Bundle ready"
         class="ma-2"
       >
         Bundle is ready for download.
