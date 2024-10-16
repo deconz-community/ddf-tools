@@ -1,5 +1,5 @@
-import { InvalidQueryError } from '@directus/errors'
 import type { GlobalContext } from '../types'
+import { InvalidQueryError } from '@directus/errors'
 import { asyncHandler } from '../utils'
 
 export function userinfoEndpoint({ router, context, services, schema }: GlobalContext) {

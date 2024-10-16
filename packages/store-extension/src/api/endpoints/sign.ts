@@ -1,8 +1,8 @@
-import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
 import type { GlobalContext, KeySet } from '../types'
-import { asyncHandler, fetchUserContext } from '../utils'
+import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import { updateBundleSignatures } from '../signature-editor'
+import { asyncHandler, fetchUserContext } from '../utils'
 
 export function signEndpoint(globalContext: GlobalContext) {
   const { router } = globalContext

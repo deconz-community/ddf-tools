@@ -1,7 +1,7 @@
-import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
 import type { Collections } from '../../client'
 import type { GlobalContext } from '../types'
+import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import { asyncHandler } from '../utils'
 
 export function generateUUIDEndpoint(globalContext: GlobalContext) {

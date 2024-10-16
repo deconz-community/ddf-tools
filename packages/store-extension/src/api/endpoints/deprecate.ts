@@ -1,9 +1,9 @@
-import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
 import type { Collections } from '../../client'
 import type { GlobalContext, KeySet } from '../types'
-import { asyncHandler, fetchUserContext } from '../utils'
+import { ForbiddenError, InvalidQueryError } from '@directus/errors'
 import { updateBundleSignatures } from '../signature-editor'
+import { asyncHandler, fetchUserContext } from '../utils'
 
 export function deprecateEndpoint(globalContext: GlobalContext) {
   const { router, context, services, schema } = globalContext

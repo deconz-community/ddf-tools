@@ -1,17 +1,17 @@
-import { Buffer } from 'node:buffer'
-import type { Accountability, PrimaryKey } from '@directus/types'
-import { createSignature, decode, encode, generateHash, verifySignature } from '@deconz-community/ddf-bundler'
 import type { RecordNotUniqueError } from '@directus/errors'
+import type { Accountability, PrimaryKey } from '@directus/types'
+import type { Collections } from '../../client'
+import type { BlobsPayload } from '../multipart-handler'
+import type { GlobalContext } from '../types'
+import { Buffer } from 'node:buffer'
+import { createSignature, decode, encode, generateHash, verifySignature } from '@deconz-community/ddf-bundler'
 import { ErrorCode, ForbiddenError, InvalidQueryError, isDirectusError } from '@directus/errors'
+import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
-import { secp256k1 } from '@noble/curves/secp256k1'
 import pako from 'pako'
-import type { GlobalContext } from '../types'
-import type { Collections } from '../../client'
-import { asyncHandler, fetchUserContext } from '../utils'
-import type { BlobsPayload } from '../multipart-handler'
 import { multipartHandler } from '../multipart-handler'
+import { asyncHandler, fetchUserContext } from '../utils'
 
 // TODO migrate to @deconz-community/types
 type UploadResponse = Record<string, {
@@ -192,7 +192,8 @@ export function uploadEndpoint(globalContext: GlobalContext) {
 
           const info = bundle.data.files
             .filter(file => file.type === 'INFO')
-            .map(file => file.path).join('\n')
+            .map(file => file.path)
+            .join('\n')
 
           const newBundle = await bundleService.createOne({
             id: hash,

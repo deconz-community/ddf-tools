@@ -1,11 +1,11 @@
-import { Stream } from 'node:stream'
-import { Buffer } from 'node:buffer'
-import { InvalidQueryError } from '@directus/errors'
 import type { Accountability } from '@directus/types'
-import slugify from '@sindresorhus/slugify'
-import pako from 'pako'
 import type { Collections } from '../../client'
 import type { GlobalContext } from '../types'
+import { Buffer } from 'node:buffer'
+import { Stream } from 'node:stream'
+import { InvalidQueryError } from '@directus/errors'
+import slugify from '@sindresorhus/slugify'
+import pako from 'pako'
 import { asyncHandler } from '../utils'
 
 export function downloadEndpoint({ router, context, services, schema }: GlobalContext) {

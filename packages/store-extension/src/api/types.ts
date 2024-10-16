@@ -1,7 +1,7 @@
-import type { defineEndpoint } from '@directus/extensions-sdk'
 import type * as Services from '@directus/api/dist/services/index'
+import type { defineEndpoint } from '@directus/extensions-sdk'
 
-type InstallFunction = Extract<Parameters<typeof defineEndpoint>[0], Function>
+type InstallFunction = Extract<Parameters<typeof defineEndpoint>[0], { handler: unknown }>['handler']
 
 export interface GlobalContext {
   router: Parameters<InstallFunction>[0]

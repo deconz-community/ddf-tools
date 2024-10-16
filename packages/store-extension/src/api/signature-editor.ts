@@ -1,12 +1,12 @@
-import { Buffer } from 'node:buffer'
 import type { Accountability } from '@directus/types'
-import { InvalidQueryError } from '@directus/errors'
-import pako from 'pako'
-import { createSignature, decode, encode } from '@deconz-community/ddf-bundler'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
-import { sha256 } from '@noble/hashes/sha256'
 import type { Collections } from '../client'
 import type { GlobalContext, KeySet } from './types'
+import { Buffer } from 'node:buffer'
+import { createSignature, decode, encode } from '@deconz-community/ddf-bundler'
+import { InvalidQueryError } from '@directus/errors'
+import { sha256 } from '@noble/hashes/sha256'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import pako from 'pako'
 
 export async function updateBundleSignatures(
   globalContext: GlobalContext,

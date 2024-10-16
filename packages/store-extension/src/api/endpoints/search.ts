@@ -1,7 +1,7 @@
 import type { Accountability } from '@directus/types'
-import { asyncHandler } from '../utils'
 import type { Collections } from '../../client'
 import type { GlobalContext } from '../types'
+import { asyncHandler } from '../utils'
 
 const HARD_LIMIT = 20
 

@@ -1,12 +1,12 @@
-import { defineEndpoint } from '@directus/extensions-sdk'
 import type * as Services from '@directus/api/dist/services/index'
+import { defineEndpoint } from '@directus/extensions-sdk'
 
-import { searchEndpoint } from './endpoints/search'
-import { uploadEndpoint } from './endpoints/upload'
-import { downloadEndpoint } from './endpoints/download'
-import { signEndpoint } from './endpoints/sign'
 import { deprecateEndpoint } from './endpoints/deprecate'
+import { downloadEndpoint } from './endpoints/download'
 import { generateUUIDEndpoint } from './endpoints/generateuuid'
+import { searchEndpoint } from './endpoints/search'
+import { signEndpoint } from './endpoints/sign'
+import { uploadEndpoint } from './endpoints/upload'
 import { userinfoEndpoint } from './endpoints/userinfo'
 
 export default defineEndpoint({
