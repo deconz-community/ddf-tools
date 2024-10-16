@@ -78,7 +78,6 @@ export async function buildFromFiles(
 
   const ddfSource = await getSource(ddfPath)
 
-  /* TODO Waiting for deconz plugin support of DDFC in subdirectory
   const ddfDir = ddfPath.substring(0, ddfPath.lastIndexOf('/'))
 
   const bundleRoot = getCommonParentDirectory(genericDirectory, ddfDir)
@@ -86,11 +85,10 @@ export async function buildFromFiles(
   if (bundleRoot === undefined) {
     throw new Error('No common parent directory found between genericDirectory and ddfPath')
   }
-  */
 
   bundle.data.files = [{
     data: await ddfSource.stringData,
-    path: ddfPath.substring(ddfPath.lastIndexOf('/') + 1), // ddfPath.substring(bundleRoot!.length + 1),
+    path: ddfPath.substring(bundleRoot!.length + 1),
     type: 'DDFC',
     last_modified: ddfSource.metadata.last_modified,
   }]
@@ -195,7 +193,7 @@ export async function buildFromFiles(
                     throw new Error('No srcitem')
                   decoded.parse.srcitem = newItem
                 }
-                catch (error) {
+                catch {
                   return data
                 }
 
@@ -253,14 +251,10 @@ export async function buildFromFiles(
 
     let last_modified: Date | undefined = source.metadata.last_modified
 
-    if (fileToAdd.path === 'generic/constants_min.json')
-      last_modified = undefined
-
-    /* TODO Waiting for deconz plugin support of DDFC in subdirectory
-    const path = fileToAdd.path.startsWith('generic/') && fileToAdd.type !== 'DDFC'
-      ? fileToAdd.path
-      : (new URL(`${ddfDir}/${fileToAdd.path}`).href).substring(bundleRoot!.length + 1)
-      */
+    if (fileToAdd.path === 'generic/constants_min.json') {
+      const generic = await getSource('generic/constants.json')
+      last_modified = generic.metadata.last_modified
+    }
 
     bundle.data.files.push({
       type: fileToAdd.type,

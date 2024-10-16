@@ -126,12 +126,14 @@ The list of device identifier, it's generated from each combinaison of `manufact
 U32 'EXTF'
 U32 FileType (see below)
 U16 PathLength
-U8 [PathLength] filepath
+U8 [PathLength] Filepath
 U16 ModificationTimeLength
 U8 [ModificationTimeLength] ModificationTime in ISO 8601 format
 U32 FileSize
 U8 Data[FileSize]
 ```
+
+See [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) for the date format.
 
 #### FileType
 
@@ -140,8 +142,8 @@ FileType is a tag to know what kind of file the chunk contain.
 | Tag  | Description                              | Data      | Format     |
 |------|------------------------------------------|-----------|------------|
 | DDFC | DDF JSON file (devcap1.schema.json)      | Text file | json       |
-| SCJS | Javascript file for read, write or parse | Text file | javascript |
 | JSON | Generic files for items / constants      | Text file | json       |
+| SCJS | Javascript file for read, write or parse | Text file | javascript |
 | CHLG | Changelog                                | Text file | markdown   |
 | INFO | Informational note                       | Text file | markdown   |
 | WARN | Warning note                             | Text file | markdown   |
@@ -150,6 +152,50 @@ FileType is a tag to know what kind of file the chunk contain.
 | BTNM | Button maps* WIP NOT USED                | Text file | json       |
 | IMGP | Image in PNG can be used in UI           | Binary    | png        |
 -->
+
+#### FilePath
+
+The file name of the path must be unique in the bundle. You can use the same file name in different directories.
+
+The path of the file in the bundle. There is 2 types of path, `Repository` and `DDF Relative`.
+
+The `Repository` path is the absolute path of the file from the GitHub repository from the (devices directory)[https://github.com/dresden-elektronik/deconz-rest-plugin/tree/master/devices].
+For example `deconz-rest-plugin/devices/tuya/ZY-M100_human_breathing_presence.json` became `tuya/ZY-M100_human_breathing_presence.json` once bundled.
+
+The `DDF Relative` path is the path exactly how they are written in the DDF json file. It's always relative to the path of the DDF json file.
+For example if the DDF json file contain :
+```json
+{
+  "parse": {
+    "dpid": 104,
+    "script": "../generic/illuminance_cluster/lux_to_lightlevel.js",
+    "fn": "tuya"
+  }
+}
+```
+The path of the file on the disk is `deconz-rest-plugin/devices/generic/illuminance_cluster/lux_to_lightlevel.js` and became `../generic/illuminance_cluster/lux_to_lightlevel.js` once bundled.
+
+##### Path format by FileType
+
+<!--
+deConz way to load file;
+- DDFC Path is not used;
+- JSON Path
+  - Check for the constants2.schema.json value
+  - Load all files that start with generic/items
+- SCJS Just compare the file name with the DDF definition
+- Any other file type is not used
+-->
+
+| Tag  | Path format  | Example                                               |
+|------|--------------|-------------------------------------------------------|
+| DDFC | Repository   | `tuya/ZY-M100_human_breathing_presence.json`          |
+| JSON | Repository   | `generic/items/attr_id_item.json`                     |
+| SCJS | DDF Relative | `../generic/illuminance_cluster/lux_to_lightlevel.js` |
+| CHLG | DDF Relative | `ZY-M100_changelog.md`                                |
+| INFO | DDF Relative | `ZY-M100_info.md`                                     |
+| WARN | DDF Relative | `ZY-M100_warning.md`                                  |
+| KWIS | DDF Relative | `ZY-M100_known_issues.md`                             |
 
 ### DDFB.VALI - DDF Validation result - unique - optional
 
