@@ -23,8 +23,10 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
 
     const subquery = context.database('bundles')
       .select('bundles.ddf_uuid')
-      .max('bundles.source_last_modified as max_date')
-      .orderBy('max_date', 'desc')
+      .max('bundles.source_last_modified as max_source_last_modified')
+      .max('bundles.date_created as max_date_created')
+      .orderBy('max_source_last_modified', 'desc')
+      .orderBy('max_date_created', 'desc')
       .groupBy('ddf_uuid')
 
     if (vendor)
@@ -62,7 +64,8 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
       .from('bundles')
       .join(subquery.as('subquery'), function () {
         this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
-          .andOn('bundles.source_last_modified', '=', 'subquery.max_date')
+          .andOn('bundles.source_last_modified', '=', 'subquery.max_source_last_modified')
+          .andOn('bundles.date_created', '=', 'subquery.max_date_created')
       })
 
     if (typeof req.query.limit === 'string' && req.query.limit !== '') {
@@ -76,6 +79,7 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
     query.limit(limit)
 
     query.orderBy('bundles.source_last_modified', 'desc')
+    query.orderBy('bundles.date_created', 'desc')
 
     const bundleService = new services.ItemsService<Collections.Bundles>('bundles', serviceOptions)
     const items = await bundleService.readByQuery({
@@ -115,7 +119,8 @@ export function searchEndpoint({ router, context, services, schema }: GlobalCont
         .clear('join')
         .join(subquery.clone().as('subquery'), function () {
           this.on('bundles.ddf_uuid', '=', 'subquery.ddf_uuid')
-            .andOn('bundles.source_last_modified', '=', 'subquery.max_date')
+            .andOn('bundles.source_last_modified', '=', 'subquery.max_source_last_modified')
+            .andOn('bundles.date_created', '=', 'subquery.max_date_created')
         })
 
       if (showDeprecated === false)
