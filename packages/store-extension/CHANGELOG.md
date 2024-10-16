@@ -1,5 +1,11 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.24.1
+
+### Patch Changes
+
+- 3e33a85: Fix search when there is multiple result for the same source modified date
+
 ## 0.24.0
 
 ### Minor Changes
