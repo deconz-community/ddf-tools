@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useTimeAgo } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
-import { useConfirm } from 'vuetify-use-dialog'
 import { VTextarea } from 'vuetify/components'
+import { useConfirm } from 'vuetify-use-dialog'
 import type { BundleSignatureState } from '~/composables/useStore'
 import { listBundles, readBundles } from '~/interfaces/store'
 import { toastError } from '~/lib/handleError'
@@ -78,7 +78,7 @@ const otherVersions = store.request(computed(() => {
         _eq: bundle.state.value.ddf_uuid,
       },
     },
-    sort: ['-source_last_modified'],
+    sort: ['-source_last_modified', '-date_created'],
   })
 }))
 
