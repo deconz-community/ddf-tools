@@ -250,7 +250,7 @@ export async function buildFromFiles(
     let last_modified: Date | undefined = source.metadata.last_modified
 
     if (fileToAdd.path === 'generic/constants_min.json') {
-      const generic = await getSource('generic/constants.json')
+      const generic = await getSource(new URL(`${genericDirectory}/constants.json`).href)
       last_modified = generic.metadata.last_modified
     }
 
