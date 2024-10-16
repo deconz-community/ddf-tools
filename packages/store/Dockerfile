@@ -3,7 +3,7 @@
 
 # Use the official Directus image as the base image
 
-FROM directus/directus:11.1.0
+FROM directus/directus:11.1.1
 
 USER root
 RUN corepack enable && corepack prepare
@@ -11,7 +11,7 @@ RUN corepack enable && corepack prepare
 USER node
 
 # Install the Directus extensions
-RUN pnpm install @deconz-community/directus-extension-ddf-store@0.23.1
+RUN pnpm install @deconz-community/directus-extension-ddf-store@0.23.2
 RUN pnpm install directus-extension-field-actions@1.9.0
 
 # ddf-store
