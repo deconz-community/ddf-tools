@@ -1,7 +1,7 @@
 {
   "name": "@deconz-community/directus-extension-ddf-store",
   "type": "module",
-  "version": "0.23.2",
+  "version": "0.24.0",
   "description": "Extension for Directus to store DDF files in the database, used only by the Deconz Community",
   "keywords": [
     "directus",

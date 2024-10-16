@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.32.0
+
+### Minor Changes
+
+- cafc422: Update deps
+
 ## 2.31.1
 
 ### Patch Changes

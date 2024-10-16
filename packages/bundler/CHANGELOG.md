@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.31.0
+
+### Minor Changes
+
+- cafc422: Update deps
+
 ## 0.30.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @deconz-community/directus-extension-ddf-store
 
+## 0.24.0
+
+### Minor Changes
+
+- cafc422: Update deps
+
+### Patch Changes
+
+- Updated dependencies [cafc422]
+  - @deconz-community/ddf-bundler@0.31.0
+
 ## 0.23.2
 
 ### Patch Changes
