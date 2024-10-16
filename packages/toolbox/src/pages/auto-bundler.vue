@@ -56,16 +56,6 @@ async function build() {
   }))
 
   const ddfcData = await sources.get(ddfcPath)!.jsonData
-  let manufacturername: string = Array.isArray(ddfcData.manufacturername)
-    ? ddfcData.manufacturername[0]
-    : ddfcData.manufacturername
-
-  if (typeof manufacturername === 'string') {
-    if (manufacturername.startsWith('$MF_')) {
-      manufacturername = manufacturername.replace('$MF_', '')
-    }
-    manufacturername = manufacturername.toLowerCase()
-  }
 
   let newName = 'ddf'
 
@@ -111,13 +101,37 @@ async function build() {
       language,
     }
 
-    try {
-      const result = await fetch(`${baseDEUrl}/${manufacturername}/${fileName}`)
-      if (result?.status === 200) {
-        extraFile.content = await result.text()
+    // Try to get the file from the manufacturer folder
+    /* if (extraFile.content.length === 0) */ {
+      let manufacturername: string = Array.isArray(ddfcData.manufacturername)
+        ? ddfcData.manufacturername[0]
+        : ddfcData.manufacturername
+
+      if (typeof manufacturername === 'string') {
+        if (manufacturername.startsWith('$MF_')) {
+          manufacturername = manufacturername.replace('$MF_', '')
+        }
+
+        try {
+          const result = await fetch(`${baseDEUrl}/${manufacturername.toLowerCase()}/${fileName}`)
+          if (result?.status === 200) {
+            extraFile.content = await result.text()
+          }
+        }
+        catch { }
       }
     }
-    catch { }
+
+    // Try to get the file from the vendor folder
+    if (typeof ddfcData.vendor === 'string' && extraFile.content.length === 0) {
+      try {
+        const result = await fetch(`${baseDEUrl}/${ddfcData.vendor.toLocaleLowerCase()}/${fileName}`)
+        if (result?.status === 200) {
+          extraFile.content = await result.text()
+        }
+      }
+      catch { }
+    }
 
     extraFiles.value.push(extraFile)
 

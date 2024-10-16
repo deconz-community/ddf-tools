@@ -82,13 +82,11 @@ export async function buildFromFiles(
 
   const bundleRoot = getCommonParentDirectory(genericDirectory, ddfDir)
 
-  if (bundleRoot === undefined) {
-    throw new Error('No common parent directory found between genericDirectory and ddfPath')
-  }
-
   bundle.data.files = [{
     data: await ddfSource.stringData,
-    path: ddfPath.substring(bundleRoot!.length + 1),
+    path: bundleRoot !== undefined
+      ? ddfPath.substring(bundleRoot.length + 1)
+      : ddfPath.substring(ddfPath.lastIndexOf('/') + 1),
     type: 'DDFC',
     last_modified: ddfSource.metadata.last_modified,
   }]
