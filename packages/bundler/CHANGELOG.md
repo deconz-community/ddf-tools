@@ -1,5 +1,13 @@
 # @deconz-community/ddf-bundler
 
+## 0.30.0
+
+### Minor Changes
+
+- 0cf0685: Add last modified date for constants_min.json file
+- 3025839: Add sortFiles function
+- 0cf0685: Update DDFC file path with the new format (See read me)
+
 ## 0.29.1
 
 ### Patch Changes
