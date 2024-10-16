@@ -1,5 +1,17 @@
 # @deconz-community/cli
 
+## 1.17.0
+
+### Minor Changes
+
+- cafc422: Update deps
+
+### Patch Changes
+
+- Updated dependencies [cafc422]
+  - @deconz-community/ddf-validator@2.32.0
+  - @deconz-community/ddf-bundler@0.31.0
+
 ## 1.16.2
 
 ### Patch Changes
