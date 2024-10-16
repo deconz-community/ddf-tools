@@ -26,7 +26,6 @@ declare module 'vue' {
     ChipGatewayState: typeof import('./components/chip/chip-gateway-state.vue')['default']
     ChipSignatures: typeof import('./components/chip/chip-signatures.vue')['default']
     ChipUser: typeof import('./components/chip/chip-user.vue')['default']
-    FileUploadCard: typeof import('./components/auto-bundler/file-upload-card.vue')['default']
     FormGatewayCredentials: typeof import('./components/form/form-gateway-credentials.vue')['default']
     GatewayBadge: typeof import('./components/gateway-badge.vue')['default']
     GatewayData: typeof import('./components/provider/gateway-data.vue')['default']
