@@ -1,7 +1,7 @@
-import { z } from 'zod'
-import { constantsSchema2 } from '../schema'
 import type { ddfSchema } from '../schema'
 import type { GenericsData } from '../types'
+import { z } from 'zod'
+import { constantsSchema2 } from '../schema'
 
 type DDF = z.infer<ReturnType<typeof ddfSchema>>
 type Constants2 = z.infer<ReturnType<typeof constantsSchema2>>
@@ -47,6 +47,7 @@ function validateManufacturerNameAndModelID(data: DDF, ctx: z.RefinementCtx, _ge
     })
   }
 }
+// TODO: https://github.com/dresden-elektronik/deconz-rest-plugin/pull/8033
 
 function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.RefinementCtx, _generics: GenericsData) {
   // If there no bindings there is nothing to check
@@ -86,7 +87,7 @@ function validateRefreshIntervalAndBindingReportTime(data: DDF, ctx: z.Refinemen
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: `The refresh interval (${item['refresh.interval']} - 60 = ${item['refresh.interval'] - 60})`
-              + ` should be greater than the binding max refresh value (${bindingsReportTime[path]}) with a margin of 60 seconds`,
+                + ` should be greater than the binding max refresh value (${bindingsReportTime[path]}) with a margin of 60 seconds`,
               path: ['subdevices', device_index, 'items', item_index, 'refresh.interval'],
             })
           }
