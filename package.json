@@ -44,7 +44,10 @@
     "vue-eslint-parser": "^9.4.3"
   },
   "resolutions": {
+    "@eslint/plugin-kit": "^0.2.3",
     "@nuxt/kit": "^3.14.1592",
+    "cross-spawn": "^7.0.6",
+    "express": "^4.21.1",
     "micromatch": "^4.0.8",
     "rollup": "^4.27.4",
     "serve-static": "^1.16.2",
