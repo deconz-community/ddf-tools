@@ -45,9 +45,9 @@
   },
   "resolutions": {
     "@nuxt/kit": "^3.14.1592",
-    "ip": "^2.0.1",
     "rollup": "^4.27.4",
     "serve-static": "^1.16.2",
+    "socks": "^2.8.3",
     "vue": "^3.5.13"
   },
   "maintainers": [
