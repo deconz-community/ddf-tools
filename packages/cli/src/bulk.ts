@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
-import fs from 'node:fs/promises'
 import type { Command } from '@commander-js/extra-typings'
+import fs from 'node:fs/promises'
 import { program } from '@commander-js/extra-typings'
-import glob from 'fast-glob'
 import { createDirectus, rest, staticToken } from '@directus/sdk'
+import glob from 'fast-glob'
 import { z } from 'zod'
 
 export function bulkCommand() {

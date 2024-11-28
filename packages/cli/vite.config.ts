@@ -1,11 +1,15 @@
 import path, { resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import { node } from '@liuli-util/vite-plugin-node'
+import { VitePluginNode } from 'vite-plugin-node'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    node(),
+    // TODO: Do I need this ?
+    VitePluginNode({
+      adapter: 'express',
+      appPath: resolve(__dirname, 'src/index.ts'),
+    }),
   ],
 
   build: {

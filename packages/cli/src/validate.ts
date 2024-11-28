@@ -1,12 +1,11 @@
-/* eslint-disable no-console */
 import { readFile } from 'node:fs/promises'
 import { program } from '@commander-js/extra-typings'
-import glob from 'fast-glob'
 import { createValidator } from '@deconz-community/ddf-validator'
-import { fromZodError } from 'zod-validation-error'
-import { ZodError } from 'zod'
 import chalk from 'chalk'
+import glob from 'fast-glob'
 import ora from 'ora'
+import { ZodError } from 'zod'
+import { fromZodError } from 'zod-validation-error'
 
 interface FileDefinition {
   path: string

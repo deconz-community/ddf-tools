@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import process from 'node:process'
 import { createRequire } from 'node:module'
+import process from 'node:process'
 import { program } from '@commander-js/extra-typings'
-import { validateCommand } from './validate'
-import { bundleCommand } from './bundle'
 import { bulkCommand } from './bulk'
+import { bundleCommand } from './bundle'
+import { validateCommand } from './validate'
 
 const packageDefinition = createRequire(import.meta.url)('../package.json')
 
