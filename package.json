@@ -45,6 +45,7 @@
   },
   "resolutions": {
     "@nuxt/kit": "^3.14.1592",
+    "rollup": "^4.27.4",
     "serve-static": "^1.16.2",
     "vue": "^3.5.13"
   },
