@@ -5,7 +5,7 @@
   "description": "",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.94.0"
+    "vscode": "^1.95.0"
   },
   "categories": [
     "Other"
@@ -88,22 +88,22 @@
   "devDependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
     "@deconz-community/ddf-validator": "workspace:^",
-    "@types/assert": "^1.5.10",
-    "@types/vscode": "^1.94.0",
+    "@types/assert": "^1.5.11",
+    "@types/vscode": "^1.95.0",
     "@types/webpack-env": "^1.18.5",
-    "@typescript-eslint/eslint-plugin": "^8.9.0",
-    "@typescript-eslint/parser": "^8.9.0",
-    "@vscode/test-web": "^0.0.62",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "@vscode/test-web": "^0.0.64",
     "assert": "^2.1.0",
-    "eslint": "^9.12.0",
+    "eslint": "^9.15.0",
     "null-loader": "^4.0.1",
     "process": "^0.11.10",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.6.3",
-    "webpack": "^5.95.0",
+    "typescript": "^5.7.2",
+    "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@vscode-elements/elements": "^1.7.0"
+    "@vscode-elements/elements": "^1.9.0"
   }
 }

@@ -1,8 +1,8 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { describe, expect, it } from 'vitest'
 import { bytesToHex } from '@noble/hashes/utils'
+import { describe, expect, it } from 'vitest'
 import { Bundle, decode, encode, getHash } from '../index'
 
 describe('tests', () => {
