@@ -84,7 +84,6 @@
     "@vorms/resolvers": "^1.1.0",
     "@vueuse/core": "^12.0.0",
     "@xstate/cli": "^0.5.17",
-    "@xstate/inspect": "^0.8.0",
     "color": "^4.2.3",
     "eslint": "^9.15.0",
     "lint-staged": "^15.2.10",

@@ -9,12 +9,9 @@ Current version avaliable at https://deconz-community.github.io/ddf-tools/
 ### Gateway
 - Manage API Keys
 
-
 ## Development
 ### Know issues
 https://github.com/vuetifyjs/vuetify-loader/issues/312
-https://github.com/rlaffers/xstate-ninja/issues/9
-https://github.com/rlaffers/xstate-ninja/issues/10
 
 ### Docs
 
