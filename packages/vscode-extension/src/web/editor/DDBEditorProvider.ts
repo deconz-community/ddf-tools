@@ -89,6 +89,7 @@ export class DDBEditorProvider implements vscode.CustomEditorProvider {
                 <script nonce="${nonce}" src="${vsCodeElementsUri}" type="module"></script>
             </head>
             <body>
+            <h1>Editor 3</h1>
                 <vscode-badge>308 Settings Found</vscode-badge>
 
                 <script>
