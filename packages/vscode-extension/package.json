@@ -87,6 +87,7 @@
     "dev": "node ./scripts/extension_dev.cjs"
   },
   "dependencies": {
+    "@noble/hashes": "^1.6.1",
     "@vscode-elements/elements": "^1.9.0"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@ export type BufferDataR = BufferData | BufferDataR[]
 export function dataEncoder(chunks: BufferData[] = []) {
   const textEncoder = new TextEncoder()
 
-  const text = (value: string) => {
+  const text = (value: string): Uint8Array => {
     return textEncoder.encode(value)
   }
 
@@ -56,7 +56,7 @@ export function dataEncoder(chunks: BufferData[] = []) {
     })
   }
 
-  const chunk = (tag: string, data: BufferDataR, lengthMethod: ((num: number) => ArrayBuffer) = Uint32) => {
+  const chunk = (tag: string, data: BufferDataR, lengthMethod: ((num: number) => ArrayBuffer) = Uint32): BufferDataR => {
     const length = getDataLength(data)
     if (length > 0) {
       return [
@@ -79,7 +79,7 @@ export function dataEncoder(chunks: BufferData[] = []) {
   }
 }
 
-export function encodeDDFB(encoder: ReturnType<typeof dataEncoder>, data: ReturnType<typeof Bundle>['data']) {
+export function encodeDDFB(encoder: ReturnType<typeof dataEncoder>, data: ReturnType<typeof Bundle>['data']): BufferDataR {
   return encoder.chunk(DDF_BUNDLE_MAGIC, [
     encoder.chunk('DESC', encoder.text(JSON.stringify(data.desc))),
     data.files.map(file => encoder.chunk('EXTF', [

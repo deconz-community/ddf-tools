@@ -1,27 +1,42 @@
+import type { BundleData } from '@deconz-community/ddf-bundler'
+import { decode, generateHash, getHash } from '@deconz-community/ddf-bundler'
+import { bytesToHex } from '@noble/hashes/utils'
+
 import * as vscode from 'vscode'
+
+type BundleObject = Awaited<ReturnType<typeof decode>>
 
 export class DDBDocument implements vscode.CustomDocument {
   static async create(uri: vscode.Uri): Promise<DDBDocument> {
-    // Lire le contenu du fichier
-    const fileData = await vscode.workspace.fs.readFile(uri)
-    return new DDBDocument(uri, fileData)
+    const rawData = await vscode.workspace.fs.readFile(uri)
+    const bundle = await decode(new Blob([rawData]))
+    return new DDBDocument(uri, rawData, bundle)
   }
 
   private readonly _uri: vscode.Uri
-  private _documentData: Uint8Array
+  private _rawData: Uint8Array
+  private _bundle: BundleObject
   private readonly _onDidDispose = new vscode.EventEmitter<void>()
 
-  private constructor(uri: vscode.Uri, initialContent: Uint8Array) {
+  private constructor(uri: vscode.Uri, _rawData: Uint8Array, bundle: BundleObject) {
     this._uri = uri
-    this._documentData = initialContent
+    this._rawData = _rawData
+    this._bundle = bundle
   }
 
   public get uri(): vscode.Uri {
     return this._uri
   }
 
-  public get documentData(): Uint8Array {
-    return this._documentData
+  public get bundleData(): BundleData {
+    return this._bundle.data
+  }
+
+  public async getHash(forceRecompute = false): Promise<string> {
+    if (forceRecompute || !this._bundle.data.hash) {
+      this._bundle.data.hash = await generateHash(this._bundle.data)
+    }
+    return bytesToHex(this._bundle.data.hash)
   }
 
   dispose(): void {

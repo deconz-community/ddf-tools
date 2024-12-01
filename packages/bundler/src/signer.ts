@@ -1,12 +1,12 @@
+import type { BufferData } from './encoder'
+
+import type { ChunkSignature } from './types'
+
 import { secp256k1 } from '@noble/curves/secp256k1'
-
 import { sha256 } from '@noble/hashes/sha256'
-
 import { DDF_BUNDLE_MAGIC } from './const'
 import { dataDecoder } from './decoder'
-import type { BufferData } from './encoder'
 import { dataEncoder } from './encoder'
-import type { ChunkSignature } from './types'
 import { isUint8ArrayEqual } from './utils'
 
 export async function getHash(chunk: Uint8Array): Promise<Uint8Array> {
