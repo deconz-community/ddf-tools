@@ -45,8 +45,11 @@ export function makeBundleCommand(log: vscode.OutputChannel) {
       await vscode.commands.executeCommand('vscode.openWith', targetUri, DDBEditorProvider.viewType)
     }
     catch (error) {
-      log.appendLine(`Failed to create bundle: ${error.toString()}`)
-      vscode.window.showErrorMessage(`Failed to create bundle: ${error.message}`)
+      if (typeof error === 'string')
+        log.appendLine(`Failed to create bundle: ${error.toString()}`)
+
+      if (error instanceof Error)
+        vscode.window.showErrorMessage(`Failed to create bundle: ${error.message}`)
     }
   }
 

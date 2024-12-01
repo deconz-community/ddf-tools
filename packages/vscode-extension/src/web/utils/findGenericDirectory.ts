@@ -17,7 +17,8 @@ export async function findGenericDirectory(filePath: Uri): Promise<Uri | undefin
     }
   }
   catch (error) {
-    window.showErrorMessage(`Failed to find generic directory: ${error.message}`)
+    if (error instanceof Error)
+      window.showErrorMessage(`Failed to find generic directory: ${error.message}`)
     return undefined
   }
 }
