@@ -29,3 +29,6 @@ https://microsoft.github.io/monaco-editor/playground.html?source=v0.52.0#example
 https://github.com/microsoft/vscode-extension-samples/tree/main
 
 https://github.com/anparfenov/vue-window-component
+
+## Waiting for fix
+https://github.com/rlaffers/eslint-plugin-xstate/issues/30
