@@ -46,7 +46,8 @@
   "remoteUser": "node",
   "appPort": [
     "4000:4000",
-    "8055:8055"
+    "8055:8055",
+    "8080:8080"
   ],
   "portsAttributes": {
     "4000": {
@@ -54,6 +55,9 @@
     },
     "8055": {
       "label": "Store - Directus"
+    },
+    "8080": {
+      "label": "VS Code Extension - Live Server"
     }
   }
 }

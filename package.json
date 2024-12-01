@@ -31,7 +31,8 @@
     "taze": "taze",
     "build:toolbox": "pnpm --dir packages/toolbox run build",
     "dev:store": "pnpm --dir packages/store run dev",
-    "dev:toolbox": "pnpm --dir packages/toolbox run dev"
+    "dev:toolbox": "pnpm --dir packages/toolbox run dev",
+    "dev:extension": "pnpm --dir packages/vscode-extension run dev"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.11.2",

@@ -83,7 +83,8 @@
     "watch-web": "webpack --watch",
     "package-web": "webpack --mode production --devtool hidden-source-map",
     "lint": "eslint src",
-    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+    "run-in-browser": "vscode-test-web --browserType=chromium --headless --host=0.0.0.0 --port=8080 --extensionDevelopmentPath=. ./sample",
+    "dev": "node ./scripts/extension_dev.cjs"
   },
   "dependencies": {
     "@vscode-elements/elements": "^1.9.0"
@@ -95,6 +96,7 @@
     "@types/vscode": "^1.95.0",
     "@types/webpack-env": "^1.18.5",
     "@vscode/test-web": "^0.0.64",
+    "concurrently": "^9.1.0",
     "eslint": "^9.16.0",
     "null-loader": "^4.0.1",
     "ts-loader": "^9.5.1",
