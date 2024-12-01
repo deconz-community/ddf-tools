@@ -1,11 +1,11 @@
+import type { UserModule } from '~/types'
 import { setupLayouts } from 'virtual:generated-layouts'
-import { createRouter, createWebHashHistory } from 'vue-router'
 import { createApp } from 'vue'
 
-import App from './App.vue'
-import type { UserModule } from '~/types'
-
+import { createRouter, createWebHashHistory } from 'vue-router'
 import generatedRoutes from '~pages'
+
+import App from './App.vue'
 
 const routes = setupLayouts(generatedRoutes)
 

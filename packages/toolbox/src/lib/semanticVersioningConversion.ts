@@ -9,14 +9,14 @@
  * @param  {string} version SemVer string
  * @return {number}         Numeric version
  */
-export function convertVersionToInt32(version: string) {
+export function convertVersionToInt32(version: string): number {
   // Split a given version string into three parts.
   const parts = version.split('.')
   // Check if we got exactly three parts, otherwise throw an error.
   if (parts.length !== 3)
     throw new Error('Received invalid version string')
     // Convert all parts into integers.
-  const partsInt = parts.map(part => parseInt(part))
+  const partsInt = parts.map(part => Number.parseInt(part))
   // Make sure that no part is larger than 1023 or else it
   // won't fit into a 32-bit integer.
   partsInt.forEach((part) => {
@@ -33,11 +33,11 @@ export function convertVersionToInt32(version: string) {
 }
 
 /**
-   * Converts a 32-bit integer into a semantic versioning (SemVer) compatible string.
-   * @param  {number} v Numeric version
-   * @return {string}   SemVer string
-   */
-export function convertInt32VersionToString(v: number) {
+ * Converts a 32-bit integer into a semantic versioning (SemVer) compatible string.
+ * @param  {number} v Numeric version
+ * @return {string}   SemVer string
+ */
+export function convertInt32VersionToString(v: number): string {
   // Works by shifting the numeric version to the right and then masking it
   // with 0b1111111111 (or 1023 in decimal).
   return `${v >> 20 & 1023}.${v >> 10 & 1023}.${v & 1023}`

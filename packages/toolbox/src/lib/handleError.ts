@@ -1,6 +1,6 @@
-import { ZodError } from 'zod'
-
 import type { ValidationError } from '@deconz-community/ddf-bundler'
+
+import { ZodError } from 'zod'
 
 export async function toastError(error: ZodError | Error | unknown) {
   handleError(error).forEach((error) => {

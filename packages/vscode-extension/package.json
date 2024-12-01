@@ -1,15 +1,15 @@
 {
   "name": "@deconz-community/ddf-tools-vscode-extension",
-  "private": true,
   "displayName": "DDF Tools",
-  "description": "",
   "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.95.0"
-  },
+  "private": true,
+  "description": "",
   "categories": [
     "Other"
   ],
+  "engines": {
+    "vscode": "^1.95.0"
+  },
   "activationEvents": [
     "workspaceContains:**/*.ddb",
     "onLanguage:ddb",
@@ -85,9 +85,14 @@
     "lint": "eslint src",
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
   },
+  "dependencies": {
+    "@vscode-elements/elements": "^1.9.0"
+  },
   "devDependencies": {
+    "@antfu/eslint-config": "^3.11.2",
     "@deconz-community/ddf-bundler": "workspace:^",
     "@deconz-community/ddf-validator": "workspace:^",
+    "@eslint/eslintrc": "^3.2.0",
     "@types/assert": "^1.5.11",
     "@types/vscode": "^1.95.0",
     "@types/webpack-env": "^1.18.5",
@@ -102,8 +107,5 @@
     "typescript": "^5.7.2",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "@vscode-elements/elements": "^1.9.0"
   }
 }
