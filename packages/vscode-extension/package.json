@@ -95,7 +95,7 @@
     "@typescript-eslint/parser": "^8.16.0",
     "@vscode/test-web": "^0.0.64",
     "assert": "^2.1.0",
-    "eslint": "^9.15.0",
+    "eslint": "^9.16.0",
     "null-loader": "^4.0.1",
     "process": "^0.11.10",
     "ts-loader": "^9.5.1",
