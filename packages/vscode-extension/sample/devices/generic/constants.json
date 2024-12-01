@@ -1,0 +1,6 @@
+{
+    "schema": "constants.schema.json",
+    "$MF_IKEA": "IKEA of Sweden",
+    "$TYPE_AIR_PURIFIER": "ZHAAirPurifier",
+    "$TYPE_PARTICULATEMATTER_SENSOR": "ZHAParticulateMatter"
+}
