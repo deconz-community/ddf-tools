@@ -4,6 +4,7 @@ import { doesFileExist } from '../utils/doesFileExist'
 import { removeFileExtension } from '../utils/removeFileExtension'
 
 export function extractBundleCommand(log: vscode.OutputChannel) {
+  // TODO: Handle the case where we merge generic directory instead of creating a new one
   async function extractBundle(uri: vscode.Uri) {
     if (!uri) {
       return vscode.window.showErrorMessage('No file selected')
@@ -27,21 +28,37 @@ export function extractBundleCommand(log: vscode.OutputChannel) {
 
       await vscode.workspace.fs.createDirectory(targetDirectory)
 
+      let ddfcPath: string | undefined
+
       await Promise.all(bundle.data.files.map((file) => {
         if (file.path.includes('../')) {
           throw new Error(`Invalid file path: ${file.path}`)
         }
-        let filePath = targetDirectory.with({ path: `${targetDirectory.path}/${file.path}` })
 
-        if (filePath.fsPath.endsWith('constants_min.json')) {
-          filePath = filePath.with({ path: filePath.path.replace('constants_min.json', 'constants.json') })
+        let localPath = file.path
+
+        if (localPath.endsWith('constants_min.json')) {
+          localPath = localPath.replace('constants_min.json', 'constants.json')
+          file.data = file.data.replace('"constants2.schema.json"', '"constants.schema.json"')
         }
+
+        if (!['DDFC', 'JSON'].includes(file.type)) {
+          if (!ddfcPath)
+            throw new Error('DDFC file not found in the bundle')
+
+          localPath = `${ddfcPath.substring(0, ddfcPath.lastIndexOf('/'))}/${localPath}`
+        }
+
+        const fullPath = targetDirectory.with({
+          path: `${targetDirectory.path}/${localPath}`,
+        })
 
         if (file.type === 'DDFC') {
-          targetJson = filePath
+          ddfcPath = file.path
+          targetJson = fullPath
         }
 
-        return vscode.workspace.fs.writeFile(filePath, textEncoder.encode(file.data))
+        return vscode.workspace.fs.writeFile(fullPath, textEncoder.encode(file.data))
       }))
 
       log.appendLine(`Bundle extracted to ${targetDirectory.fsPath}`)
