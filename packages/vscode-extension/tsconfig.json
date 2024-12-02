@@ -13,6 +13,7 @@
         "src/*"
       ]
     },
+    "resolveJsonModule": true,
     "strict": true,
     "outDir": "dist",
     "sourceMap": true /* enable all strict type-checking options */

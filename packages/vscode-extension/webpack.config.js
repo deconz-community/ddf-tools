@@ -123,7 +123,53 @@ const webViewConfig = {
   ],
 }
 
+/** @type WebpackConfig */
+const languageServerConfig = {
+  // context: path.join(__dirname, 'server'),
+  mode: 'none',
+  target: 'webworker', // web extensions run in a webworker context
+  entry: {
+    browserServerMain: './src/web/language/server.ts',
+  },
+  output: {
+    filename: 'languageServer.js',
+    path: path.join(__dirname, 'dist', 'web'),
+    libraryTarget: 'var',
+    library: 'serverExportVar',
+    devtoolModuleFilenameTemplate: '../[resource-path]',
+  },
+  resolve: {
+    mainFields: ['module', 'main'],
+    extensions: ['.ts', '.js'], // support ts-files and js-files
+    alias: {},
+    fallback: {
+      // path: require.resolve("path-browserify")
+    },
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'ts-loader',
+          },
+        ],
+      },
+    ],
+  },
+  externals: {
+    vscode: 'commonjs vscode', // ignored because it doesn't exist
+  },
+  performance: {
+    hints: false,
+  },
+  devtool: 'nosources-source-map',
+}
+
 module.exports = [
   webExtensionConfig,
   webViewConfig,
+  languageServerConfig,
 ]

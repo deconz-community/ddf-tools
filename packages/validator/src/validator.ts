@@ -1,6 +1,6 @@
+import type { FileDefinition, FileDefinitionWithError, GenericsData } from './types'
 import { version } from '../package.json'
 import { mainSchema } from './schema'
-import type { FileDefinition, FileDefinitionWithError, GenericsData } from './types'
 
 export function createValidator(generics: GenericsData = {
   attributes: [],

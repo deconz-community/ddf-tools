@@ -7,10 +7,11 @@ import { makeBundleCommand } from './command/makeBundle'
 import { DDBEditorProvider } from './editor/DDBEditorProvider'
 // import { DDBFileSystemProvider } from './editor/DDBFileSystemProvider'
 import { registerDDFValidation } from './editor/DDFValidation'
+import { registerLanguageClient, unRegisterLanguageClient } from './language/client'
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const outputChannel = vscode.window.createOutputChannel('DDB Editor')
   outputChannel.appendLine('Extension activated')
   // console.clear();
@@ -48,7 +49,8 @@ export function activate(context: vscode.ExtensionContext) {
     ),
   )
 
-  registerDDFValidation(context)
+  // await registerDDFValidation(context)
+  await registerLanguageClient(context)
 
   /*
     const ddbFileSystemProvider = new DDBFileSystemProvider(outputChannel);
@@ -71,4 +73,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export async function deactivate() {
+// await unRegisterLanguageClient()
+}
