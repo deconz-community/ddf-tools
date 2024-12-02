@@ -9,6 +9,9 @@ export class DDBEditorProvider implements vscode.CustomEditorProvider {
   constructor(extensionUri: vscode.Uri, outputChannel: vscode.OutputChannel) {
     this.extensionUri = extensionUri
     this.outputChannel = outputChannel
+
+    // TODO: Download signatures from the store and store them in memory here
+    this.outputChannel.appendLine('DDBEditorProvider initialized')
   }
 
   public openCustomDocument(uri: vscode.Uri, _openContext: vscode.CustomDocumentOpenContext, _token: vscode.CancellationToken): DDBDocument | Thenable<DDBDocument> {
