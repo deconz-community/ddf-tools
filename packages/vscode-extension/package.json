@@ -83,7 +83,7 @@
     "watch-web": "webpack --watch",
     "package-web": "webpack --mode production --devtool hidden-source-map",
     "lint": "eslint src",
-    "run-in-browser": "vscode-test-web --browserType=chromium --browserOption=--force-dark-mode --permission=clipboard-read --permission=clipboard-write --extensionDevelopmentPath=. ./sample",
+    "run-in-browser": "vscode-test-web --browserType=chromium --browserOption=--force-dark-mode --permission=clipboard-read --permission=clipboard-write --extensionDevelopmentPath=. ./sample-data",
     "dev": "pnpm compile-web && node ./scripts/extension_dev.cjs"
   },
   "dependencies": {

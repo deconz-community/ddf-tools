@@ -32,6 +32,8 @@
     "**/*.test.ts",
     "**/test",
     "node_modules",
+    "test-data",
+    "sample-data",
     "pb_hooks"
   ]
 }

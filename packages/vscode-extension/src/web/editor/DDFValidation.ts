@@ -6,7 +6,7 @@ export function registerDDFValidation(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
       if (document.languageId === 'json') {
-        DDFValidate(document, diagnosticCollection)
+        validate(document, diagnosticCollection)
       }
     }),
   )
@@ -14,7 +14,7 @@ export function registerDDFValidation(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document.languageId === 'json') {
-        DDFValidate(event.document, diagnosticCollection)
+        validate(event.document, diagnosticCollection)
       }
     }),
   )
@@ -22,7 +22,7 @@ export function registerDDFValidation(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((document) => {
       if (document.languageId === 'json') {
-        DDFValidate(document, diagnosticCollection)
+        validate(document, diagnosticCollection)
       }
     }),
   )
@@ -30,12 +30,13 @@ export function registerDDFValidation(context: vscode.ExtensionContext) {
   // Validate open documents on startup
   vscode.workspace.textDocuments.forEach((document) => {
     if (document.languageId === 'json') {
-      DDFValidate(document, diagnosticCollection)
+      validate(document, diagnosticCollection)
     }
   })
 }
 
-function DDFValidate(document: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection) {
+function validate(document: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection) {
+  console.log('DDFValidate')
   console.log(document)
   // const diagnostics = validateJson(document);
   // diagnosticCollection.set(document.uri, diagnostics);

@@ -17,6 +17,13 @@ const webpack = require('webpack')
 const commonConfig = {
   mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   resolve: {
+    alias: {
+      '@deconz-community/ddf-bundler': path.resolve(__dirname, '../bundler/index.ts'),
+      '@deconz-community/ddf-validator': path.resolve(__dirname, '../validator/index.ts'),
+      '@deconz-community/rest-client': path.resolve(__dirname, '../rest-client/index.ts'),
+      '~/': `${path.resolve(__dirname, 'src')}/`,
+    },
+
     mainFields: ['browser', 'module', 'main'], // look for `browser` entry point in imported node modules
     extensions: ['.ts', '.js'], // support ts-files and js-files
     fallback: {

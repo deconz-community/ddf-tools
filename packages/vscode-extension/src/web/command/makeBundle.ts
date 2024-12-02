@@ -7,7 +7,11 @@ import { findGenericDirectory } from '../utils/findGenericDirectory'
 import { removeFileExtension } from '../utils/removeFileExtension'
 
 export function makeBundleCommand(log: vscode.OutputChannel) {
-  async function makeBundle(uri: vscode.Uri) {
+  async function makeBundle(uri: vscode.Uri | undefined) {
+    if (!uri) {
+      uri = vscode.window.activeTextEditor?.document.uri
+    }
+
     if (!uri) {
       return vscode.window.showErrorMessage('No file selected')
     }

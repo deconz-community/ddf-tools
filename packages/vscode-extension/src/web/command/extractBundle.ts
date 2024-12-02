@@ -5,9 +5,28 @@ import { removeFileExtension } from '../utils/removeFileExtension'
 
 export function extractBundleCommand(log: vscode.OutputChannel) {
   // TODO: Handle the case where we merge generic directory instead of creating a new one
-  async function extractBundle(uri: vscode.Uri) {
+  async function getSelectedFile(): Promise<vscode.Uri | undefined> {
+    const options: vscode.OpenDialogOptions = {
+      canSelectMany: false,
+      openLabel: 'Select Bundle File',
+      filters: {
+        'Bundle Files': ['ddb'],
+      },
+    }
+
+    const fileUri = await vscode.window.showOpenDialog(options)
+    if (fileUri && fileUri[0]) {
+      return fileUri[0]
+    }
+    return undefined
+  }
+
+  async function extractBundle(uri: vscode.Uri | undefined) {
     if (!uri) {
-      return vscode.window.showErrorMessage('No file selected')
+      uri = await getSelectedFile()
+      if (!uri) {
+        return vscode.window.showErrorMessage('No file selected')
+      }
     }
 
     log.appendLine(`Extracting bundle from ${uri.fsPath}`)
@@ -28,7 +47,10 @@ export function extractBundleCommand(log: vscode.OutputChannel) {
 
       await vscode.workspace.fs.createDirectory(targetDirectory)
 
-      let ddfcPath: string | undefined
+      const ddfcPath = bundle.data.files.find(file => file.type === 'DDFC')?.path
+
+      if (!ddfcPath)
+        throw new Error('DDFC file not found in the bundle')
 
       await Promise.all(bundle.data.files.map((file) => {
         if (file.path.includes('../')) {
@@ -37,15 +59,12 @@ export function extractBundleCommand(log: vscode.OutputChannel) {
 
         let localPath = file.path
 
-        if (localPath.endsWith('constants_min.json')) {
+        if (file.type === 'JSON' && localPath.endsWith('constants_min.json')) {
           localPath = localPath.replace('constants_min.json', 'constants.json')
           file.data = file.data.replace('"constants2.schema.json"', '"constants.schema.json"')
         }
 
         if (!['DDFC', 'JSON'].includes(file.type)) {
-          if (!ddfcPath)
-            throw new Error('DDFC file not found in the bundle')
-
           localPath = `${ddfcPath.substring(0, ddfcPath.lastIndexOf('/'))}/${localPath}`
         }
 
@@ -54,7 +73,6 @@ export function extractBundleCommand(log: vscode.OutputChannel) {
         })
 
         if (file.type === 'DDFC') {
-          ddfcPath = file.path
           targetJson = fullPath
         }
 

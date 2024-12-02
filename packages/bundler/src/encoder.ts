@@ -82,14 +82,23 @@ export function dataEncoder(chunks: BufferData[] = []) {
 export function encodeDDFB(encoder: ReturnType<typeof dataEncoder>, data: ReturnType<typeof Bundle>['data']): BufferDataR {
   return encoder.chunk(DDF_BUNDLE_MAGIC, [
     encoder.chunk('DESC', encoder.text(JSON.stringify(data.desc))),
-    data.files.map(file => encoder.chunk('EXTF', [
-      encoder.text(file.type),
-      encoder.withLength(encoder.text(file.path), encoder.Uint16),
-      file.last_modified
-        ? encoder.withLength(encoder.text(file.last_modified.toISOString()), encoder.Uint16)
-        : encoder.Uint16(0),
-      encoder.withLength(typeof file.data === 'string' ? encoder.text(file.data) : file.data),
-    ])),
+    data.files
+      .sort((a, b) => {
+        if (a.type === 'DDFC')
+          return -1
+        if (b.type === 'DDFC')
+          return 1
+
+        return a.path.localeCompare(b.path)
+      })
+      .map(file => encoder.chunk('EXTF', [
+        encoder.text(file.type),
+        encoder.withLength(encoder.text(file.path), encoder.Uint16),
+        file.last_modified
+          ? encoder.withLength(encoder.text(file.last_modified.toISOString()), encoder.Uint16)
+          : encoder.Uint16(0),
+        encoder.withLength(typeof file.data === 'string' ? encoder.text(file.data) : file.data),
+      ])),
     data.validation ? encoder.chunk('VALI', encoder.text(JSON.stringify(data.validation))) : [],
   ])
 }

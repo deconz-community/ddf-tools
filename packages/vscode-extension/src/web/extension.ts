@@ -5,7 +5,7 @@ import * as vscode from 'vscode'
 import { extractBundleCommand } from './command/extractBundle'
 import { makeBundleCommand } from './command/makeBundle'
 import { DDBEditorProvider } from './editor/DDBEditorProvider'
-import { DDBFileSystemProvider } from './editor/DDBFileSystemProvider'
+// import { DDBFileSystemProvider } from './editor/DDBFileSystemProvider'
 import { registerDDFValidation } from './editor/DDFValidation'
 
 // This method is called when your extension is activated

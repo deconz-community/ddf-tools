@@ -5,8 +5,14 @@
       "ES2020",
       "WebWorker"
     ],
+    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "node",
+    "paths": {
+      "~/*": [
+        "src/*"
+      ]
+    },
     "strict": true,
     "outDir": "dist",
     "sourceMap": true /* enable all strict type-checking options */
