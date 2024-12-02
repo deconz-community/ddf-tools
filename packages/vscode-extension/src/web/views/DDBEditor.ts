@@ -17,6 +17,18 @@ declare function acquireVsCodeApi(): Webview
 
 const vscode = acquireVsCodeApi()
 
+function createTableRow(...cells: string[]): HTMLElement {
+  const row = document.createElement('vscode-table-row')
+
+  cells.forEach((cellText) => {
+    const cell = document.createElement('vscode-table-cell')
+    cell.textContent = cellText
+    row.appendChild(cell)
+  })
+
+  return row
+}
+
 window.addEventListener('message', (event) => {
   const message = event.data
   switch (message.type) {
@@ -38,12 +50,15 @@ window.addEventListener('message', (event) => {
           tag.textContent = value
       })
 
-      document.getElementById('supported_devices')!.innerHTML = desc.device_identifiers.map(([manu, model]) => {
-        return `<vscode-table-row>`
-          + `<vscode-table-cell>${manu}</vscode-table-cell>`
-          + `<vscode-table-cell>${model}</vscode-table-cell>`
-          + `</vscode-table-row>`
-      }).join('')
+      const supported_devices = document.getElementById('supported_devices')
+      if (!supported_devices)
+        throw new Error('Table for supported devices not found')
+
+      supported_devices.innerHTML = ''
+
+      desc.device_identifiers.forEach(([manu, model]) => {
+        supported_devices.appendChild(createTableRow(manu, model))
+      })
 
       break
     }
