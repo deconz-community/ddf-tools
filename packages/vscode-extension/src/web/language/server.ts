@@ -1,113 +1,77 @@
-import type { ColorInformation, ColorPresentation, InitializeParams, InitializeResult, ServerCapabilities, TextDocumentIdentifier } from 'vscode-languageserver'
-import { Color, Range, TextDocuments, TextEdit } from 'vscode-languageserver'
-
+import type { JSONSchema } from 'vscode-json-languageservice'
+import type { InitializeParams } from 'vscode-languageserver/browser'
+import { createValidator } from '@deconz-community/ddf-validator'
+import { getLanguageService } from 'vscode-json-languageservice'
 import { TextDocument } from 'vscode-languageserver-textdocument'
-/* ---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *-------------------------------------------------------------------------------------------- */
-import { BrowserMessageReader, BrowserMessageWriter, createConnection } from 'vscode-languageserver/browser'
+import { BrowserMessageReader, BrowserMessageWriter, createConnection, TextDocuments, TextDocumentSyncKind } from 'vscode-languageserver/browser'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 
 console.log('running server lsp-web-extension-sample')
 
-/* browser specific setup code */
-
 const messageReader = new BrowserMessageReader(globalThis as any)
 const messageWriter = new BrowserMessageWriter(globalThis as any)
-
 const connection = createConnection(messageReader, messageWriter)
 
-/* from here on, all code is non-browser specific and could be shared with a regular extension */
+const documents = new TextDocuments(TextDocument)
 
-connection.onInitialize((_params: InitializeParams): InitializeResult => {
-  const capabilities: ServerCapabilities = {
-    colorProvider: {}, // provide a color provider
-  }
-  return { capabilities }
+const jsonLanguageService = getLanguageService({})
+
+const validator = createValidator()
+const schema = zodToJsonSchema(validator.getSchema())
+
+jsonLanguageService.configure({
+  schemas: [{
+    uri: 'ddfc://schemas/ddf-schema.json',
+    fileMatch: ['*.json'],
+    schema: schema as JSONSchema,
+  }],
 })
 
-// Track open, change and close text document events
-const documents = new TextDocuments(TextDocument)
+/* from here on, all code is non-browser specific and could be shared with a regular extension */
+connection.onInitialize((_params: InitializeParams) => {
+  return {
+    capabilities: {
+      textDocumentSync: TextDocumentSyncKind.Full,
+      // Tell the client that the server supports code completion
+      completionProvider: {
+        resolveProvider: false,
+      },
+      hoverProvider: true,
+      /*
+      diagnosticProvider: {
+        interFileDependencies: false,
+        workspaceDiagnostics: false,
+      },
+      */
+    },
+  }
+})
+
+// jsonLanguageService.doValidation()
+
+connection.onHover(async (textDocumentPosition, _token) => {
+  const document = documents.get(textDocumentPosition.textDocument.uri)
+  if (!document)
+    return null
+
+  return jsonLanguageService.doHover(
+    document,
+    textDocumentPosition.position,
+    jsonLanguageService.parseJSONDocument(document),
+  )
+})
+
+connection.onCompletion(async (textDocumentPosition, _token) => {
+  const document = documents.get(textDocumentPosition.textDocument.uri)
+  if (!document)
+    return null
+
+  return jsonLanguageService.doComplete(
+    document,
+    textDocumentPosition.position,
+    jsonLanguageService.parseJSONDocument(document),
+  )
+})
+
 documents.listen(connection)
-
-// Register providers
-connection.onDocumentColor(params => getColorInformation(params.textDocument))
-connection.onColorPresentation(params => getColorPresentation(params.color, params.range))
-
-// Listen on the connection
 connection.listen()
-
-const colorRegExp = /#([0-9A-F]{6})/gi
-
-function getColorInformation(textDocument: TextDocumentIdentifier) {
-  const colorInfos: ColorInformation[] = []
-
-  const document = documents.get(textDocument.uri)
-  if (document) {
-    const text = document.getText()
-
-    colorRegExp.lastIndex = 0
-    let match
-    while (true) {
-      match = colorRegExp.exec(text)
-      if (match === null)
-        break
-
-      const offset = match.index
-      const length = match[0].length
-
-      const range = Range.create(document.positionAt(offset), document.positionAt(offset + length))
-      const color = parseColor(text, offset)
-      colorInfos.push({ color, range })
-    }
-  }
-
-  return colorInfos
-}
-
-function getColorPresentation(color: Color, range: Range) {
-  const result: ColorPresentation[] = []
-  const red256 = Math.round(color.red * 255); const green256 = Math.round(color.green * 255); const blue256 = Math.round(color.blue * 255)
-
-  function toTwoDigitHex(n: number): string {
-    const r = n.toString(16)
-    return r.length !== 2 ? `0${r}` : r
-  }
-
-  const label = `#${toTwoDigitHex(red256)}${toTwoDigitHex(green256)}${toTwoDigitHex(blue256)}`
-  result.push({ label, textEdit: TextEdit.replace(range, label) })
-
-  return result
-}
-
-// eslint-disable-next-line no-restricted-syntax
-const enum CharCode {
-  Digit0 = 48,
-  Digit9 = 57,
-
-  A = 65,
-  F = 70,
-
-  a = 97,
-  f = 102,
-}
-
-function parseHexDigit(charCode: CharCode): number {
-  if (charCode >= CharCode.Digit0 && charCode <= CharCode.Digit9) {
-    return charCode - CharCode.Digit0
-  }
-  if (charCode >= CharCode.A && charCode <= CharCode.F) {
-    return charCode - CharCode.A + 10
-  }
-  if (charCode >= CharCode.a && charCode <= CharCode.f) {
-    return charCode - CharCode.a + 10
-  }
-  return 0
-}
-
-function parseColor(content: string, offset: number): Color {
-  const r = (16 * parseHexDigit(content.charCodeAt(offset + 1)) + parseHexDigit(content.charCodeAt(offset + 2))) / 255
-  const g = (16 * parseHexDigit(content.charCodeAt(offset + 3)) + parseHexDigit(content.charCodeAt(offset + 4))) / 255
-  const b = (16 * parseHexDigit(content.charCodeAt(offset + 5)) + parseHexDigit(content.charCodeAt(offset + 6))) / 255
-  return Color.create(r, g, b, 1)
-}

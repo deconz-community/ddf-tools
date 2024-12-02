@@ -633,6 +633,12 @@ importers:
       '@vscode-elements/elements':
         specifier: ^1.9.0
         version: 1.9.0
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
+      vscode-json-languageservice:
+        specifier: ^5.4.1
+        version: 5.4.1
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1
@@ -3901,6 +3907,9 @@ packages:
   '@vscode-elements/elements@1.9.0':
     resolution: {integrity: sha512-OjoACdO2elyZ8qVxaClN/JUODejusYC1YVOU6ekHULdWuVoU1nAXRh31Smm89M+Z7UezaAH2mXIP9aZ3q4nnjA==}
 
+  '@vscode/l10n@0.0.18':
+    resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
+
   '@vscode/test-web@0.0.64':
     resolution: {integrity: sha512-V7fTb3K1HzlqwT+VrxIq+vZLqPYzoItu6Tg3vd6sbd87ll0srICQNiH/W7IBUn76zHf7v5xzEXzNOnhSQJ2/YQ==}
     engines: {node: '>=16'}
@@ -6929,8 +6938,8 @@ packages:
     resolution: {integrity: sha512-WYDyuc/uFcGp6YtM2H0uKmUwieOuzeE/5YocFJLnLfclZ4inf3mRn8ZVy1s7Hxji7Jxm6Ss8gqpexD/GlKoGgg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  jsonc-parser@3.2.0:
-    resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
+  jsonc-parser@3.3.1:
+    resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
 
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
@@ -10162,6 +10171,9 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  vscode-json-languageservice@5.4.1:
+    resolution: {integrity: sha512-5czFGNyVPxz3ZJYl8R3a3SuIj5gjhmGF4Wv05MRPvD4DEnHK6b8km4VbNMJNHBlTCh7A0aHzUbPVzo+0C18mCA==}
 
   vscode-jsonrpc@8.2.0:
     resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
@@ -15114,6 +15126,8 @@ snapshots:
     dependencies:
       lit: 3.2.1
 
+  '@vscode/l10n@0.0.18': {}
+
   '@vscode/test-web@0.0.64':
     dependencies:
       '@koa/cors': 5.0.0
@@ -18573,7 +18587,7 @@ snapshots:
       espree: 9.6.1
       semver: 7.6.3
 
-  jsonc-parser@3.2.0: {}
+  jsonc-parser@3.3.1: {}
 
   jsonfile@4.0.0:
     optionalDependencies:
@@ -20379,7 +20393,7 @@ snapshots:
 
   pkg-types@1.0.3:
     dependencies:
-      jsonc-parser: 3.2.0
+      jsonc-parser: 3.3.1
       mlly: 1.4.2
       pathe: 1.1.2
 
@@ -20976,7 +20990,7 @@ snapshots:
       es-module-lexer: 1.5.4
       esbuild: 0.17.19
       joycon: 3.1.1
-      jsonc-parser: 3.2.0
+      jsonc-parser: 3.3.1
       rollup: 4.28.0
     transitivePeerDependencies:
       - supports-color
@@ -22600,6 +22614,14 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vscode-json-languageservice@5.4.1:
+    dependencies:
+      '@vscode/l10n': 0.0.18
+      jsonc-parser: 3.3.1
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-languageserver-types: 3.17.5
+      vscode-uri: 3.0.8
 
   vscode-jsonrpc@8.2.0: {}
 
