@@ -12,3 +12,5 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # [Optional] Uncomment if you want to install more global node packages
 RUN su node -c "npm install --location=global pnpm turbo @changesets/cli isolated-vm"
+RUN su node -c "npx playwright install-deps"
+RUN su node -c "npx playwright install chromium"
