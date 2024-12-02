@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DDB Editor</title>
+        <script nonce="nonce-placeholder" src="DDBEditor.ts" type="module"></script>
+    </head>
+    <body>
+        <h1 id="h1">H1</h1>
+        <h3 id="h3">H3</h3>
+        <h5 id="h5">H5</h5>
+        <vscode-divider></vscode-divider>
+        <h3>Supported Devices</h3>
+        <vscode-table zebra bordered-rows>
+            <vscode-table-header slot="header">
+                <vscode-table-header-cell>Manufacturer name</vscode-table-header-cell>
+                <vscode-table-header-cell>Model ID</vscode-table-header-cell>
+            </vscode-table-header>
+            <vscode-table-body slot="body" id="supported_devices">
+            </vscode-table-body>
+        </vscode-table>
+    </body>
+</html>

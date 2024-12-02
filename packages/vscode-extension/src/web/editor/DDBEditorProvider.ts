@@ -16,6 +16,65 @@ export class DDBEditorProvider implements vscode.CustomEditorProvider {
     return DDBDocument.create(uri)
   }
 
+  public async resolveCustomEditor(
+    document: DDBDocument,
+    webviewPanel: vscode.WebviewPanel,
+    _token: vscode.CancellationToken,
+  ): Promise<void> {
+    // Configurer le webview
+    webviewPanel.webview.options = {
+      enableScripts: true,
+    }
+
+    // Initialiser le contenu du webview
+    webviewPanel.webview.html = await this.getHtmlForWebview(webviewPanel.webview)
+
+    // Gérer les messages du webview
+    webviewPanel.webview.onDidReceiveMessage((e) => {
+      switch (e.type) {
+        case 'update':
+          // this.updateBinaryDocument(document, e.data);
+      }
+    })
+
+    // Initialiser le contenu du webview avec le contenu du document
+    webviewPanel.webview.postMessage({
+      type: 'updateBundleData',
+      bundle: document.bundleData,
+      hash: await document.getHash(),
+    })
+
+    webviewPanel.onDidChangeViewState(async (e) => {
+      if (!e.webviewPanel.visible)
+        return
+
+      webviewPanel.webview.postMessage({
+        type: 'updateBundleData',
+        bundle: document.bundleData,
+        hash: await document.getHash(),
+      })
+    })
+  }
+
+  private getNonce() {
+    let text = ''
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    for (let i = 0; i < 32; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length))
+    }
+    return text
+  }
+
+  private async getHtmlForWebview(webview: vscode.Webview): Promise<string> {
+    const mainUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'dist', 'views'))
+    const file = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(mainUri, 'DDBEditor.html'))
+    const textDecoder = new TextDecoder()
+    const html = textDecoder.decode(file)
+    return html
+      .replace('DDBEditor.ts', vscode.Uri.joinPath(mainUri, 'DDBEditor.js').fsPath)
+      .replace('nonce-placeholder', this.getNonce())
+  }
+
   saveCustomDocument(_document: DDBDocument, _cancellation: vscode.CancellationToken): Thenable<void> {
     throw new Error('Method not implemented.')
   }
@@ -33,119 +92,4 @@ export class DDBEditorProvider implements vscode.CustomEditorProvider {
   }
 
   onDidChangeCustomDocument!: vscode.Event<vscode.CustomDocumentEditEvent<DDBDocument>> | vscode.Event<vscode.CustomDocumentContentChangeEvent<DDBDocument>>
-
-  public async resolveCustomEditor(
-    document: DDBDocument,
-    webviewPanel: vscode.WebviewPanel,
-    _token: vscode.CancellationToken,
-  ): Promise<void> {
-    // Configurer le webview
-    webviewPanel.webview.options = {
-      enableScripts: true,
-    }
-
-    // Initialiser le contenu du webview
-    webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview)
-
-    // Gérer les messages du webview
-    webviewPanel.webview.onDidReceiveMessage((e) => {
-      switch (e.type) {
-        case 'update':
-          // this.updateBinaryDocument(document, e.data);
-      }
-    })
-
-    // Initialiser le contenu du webview avec le contenu du document
-    webviewPanel.webview.postMessage({
-      type: 'updateBundleData',
-      bundle: document.bundleData,
-      hash: await document.getHash(),
-    })
-  }
-
-  private getNonce() {
-    let text = ''
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    for (let i = 0; i < 32; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length))
-    }
-    return text
-  }
-
-  private getHtmlForWebview(webview: vscode.Webview): string {
-    const nonce = this.getNonce()
-
-    const vsCodeElementsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'node_modules/@vscode-elements/elements/dist', 'bundled.js'))
-
-    // Retourner le HTML pour le webview
-    return /* html */`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>DDB Editor</title>
-        <script nonce="${nonce}" src="${vsCodeElementsUri}" type="module"></script>
-      </head>
-      <body>
-        <h1 id="h1">H1</h1>
-        <h3 id="h3">H3</h3>
-        <h5 id="h5">H5</h5>
-        <vscode-divider></vscode-divider>
-        <h3>Supported Devices</h3>
-        <vscode-table zebra bordered-rows>
-          <vscode-table-header slot="header">
-            <vscode-table-header-cell>Manufacturer name</vscode-table-header-cell>
-            <vscode-table-header-cell>Model ID</vscode-table-header-cell>
-          </vscode-table-header>
-          <vscode-table-body slot="body" id="supported_devices">
-          </vscode-table-body>
-        </vscode-table>
-
-        <script>
-          const vscode = acquireVsCodeApi();
-
-          window.addEventListener('message', event => {
-            const message = event.data;
-            switch (message.type) {
-              case 'updateBundleData':
-                console.log('updateBundleData', message.bundle);
-
-                const desc = message.bundle.desc;
-
-                const textMap = {
-                  h1: (desc.vendor ?? '') + ' ' + (desc.product ?? ''),
-                  h3: 'For deconz ' + desc.version_deconz,
-                  h5: 'Hash: ' + message.hash,
-                }
-
-                Object.entries(textMap).forEach(([key, value]) => {
-                  const tag = document.getElementById(key);
-                  if(tag) tag.innerText = value
-                })
-
-                document.getElementById('supported_devices').innerHTML = desc.device_identifiers.map(([manu,model]) => {
-                  console.log({manu,model})
-                  return '<vscode-table-row>' +
-                      '<vscode-table-cell>'+manu+'</vscode-table-cell>' +
-                      '<vscode-table-cell>'+model+'</vscode-table-cell>' +
-                    '</vscode-table-row>'
-                }).join('')
-                
-                break;
-            }
-          });
-
-          
-          /*
-          vscode.postMessage({
-              type: 'update',
-              data: btoa(binaryString)
-          });
-          */
-        </script>
-      </body>
-      </html>
-      `
-  }
 }
