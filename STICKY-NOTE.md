@@ -32,3 +32,6 @@ https://github.com/anparfenov/vue-window-component
 
 ## Waiting for fix
 https://github.com/rlaffers/eslint-plugin-xstate/issues/30
+
+## Other stuff
+Zod deep required : https://github.com/colinhacks/zod/issues/2251
