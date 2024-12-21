@@ -35,3 +35,4 @@ https://github.com/rlaffers/eslint-plugin-xstate/issues/30
 
 ## Other stuff
 Zod deep required : https://github.com/colinhacks/zod/issues/2251
+An other UI Library : https://primevue.org/treetable/
