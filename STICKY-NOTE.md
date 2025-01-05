@@ -37,3 +37,4 @@ Add a note for the frimware version of the 2 DDF of TRADFRI on/off switch
 - Zod deep required : https://github.com/colinhacks/zod/issues/2251
 - An other UI Library : https://primevue.org/treetable/
 - https://www.ag-grid.com/vue-data-grid/getting-started/
+- https://giscus.app/fr
