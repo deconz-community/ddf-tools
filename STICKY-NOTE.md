@@ -19,6 +19,7 @@ Add a note for the frimware version of the 2 DDF of TRADFRI on/off switch
 - [Monaco Zod error reporter](https://github.com/MonoidDev/zod-toolkit/blob/master/packages/zod-monaco-reporter/src/ZodMonacoReporter.tsx)
 - [Monaco Zod Json editor](https://github.com/baranwang/monaco-enhancer)
 - [Monaco inline box example](https://microsoft.github.io/monaco-editor/playground.html?source=v0.36.1#example-interacting-with-the-editor-listening-to-mouse-events)
+- [Single file build](https://github.com/richardtallent/vite-plugin-singlefile)
 
 ## Monaco Editor JSON
 - https://stackoverflow.com/questions/78021090/how-to-find-line-number-by-path-in-monaco-editor-json
