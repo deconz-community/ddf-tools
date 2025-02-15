@@ -1,13 +1,13 @@
-import axios from 'axios'
 import type { Result } from 'ts-results-es'
+import type { CommonErrors } from '../core/errors'
+import type { EndpointAlias, EndpointDefinition, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, RequestResultForAlias } from '../core/helpers'
+import type { MaybeLazy } from '../core/types'
+import axios from 'axios'
 import { Err } from 'ts-results-es'
 import { z } from 'zod'
-import type { EndpointAlias, EndpointDefinition, ExtractParamsForAlias, ExtractParamsNamesForAlias, ExtractParamsSchemaForAlias, RequestResultForAlias } from '../core/helpers'
-import { getValue } from '../core/helpers'
-import type { MaybeLazy } from '../core/types'
 
-import type { CommonErrors } from '../core/errors'
 import { clientError, deconzError, httpError, zodError } from '../core/errors'
+import { getValue } from '../core/helpers'
 import { endpoints } from './endpoints'
 
 type RequestFunctionType = <
@@ -180,7 +180,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             lastValue = decoder.decode(responseData)
             lastValue = JSON.parse(lastValue)
           }
-          catch (e) { }
+          catch { }
 
           Object.defineProperty(response, 'rawResponse', {
             value: lastValue,

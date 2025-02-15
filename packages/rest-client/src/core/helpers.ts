@@ -1,10 +1,10 @@
-import type { ZodType, ZodTypeAny } from 'zod'
-import { z } from 'zod'
-
 import type { Result, ResultOkType } from 'ts-results-es'
+import type { ZodType, ZodTypeAny } from 'zod'
+
 import type { endpoints } from '../gateway/endpoints'
-import type { LazyTypes, MaybeLazy } from './types'
 import type { CommonErrors, DeconzErrorCodes } from './errors'
+import type { LazyTypes, MaybeLazy } from './types'
+import { z } from 'zod'
 
 // #region Utility types
 export type ResolveZod<Input> = Input extends ZodType<any, any, any> ? z.infer<Input> : never
@@ -12,7 +12,6 @@ export type ResolveZod<Input> = Input extends ZodType<any, any, any> ? z.infer<I
 // https://www.youtube.com/watch?v=2lCCKiWGlC0
 export type Prettify<T> = {
   [K in keyof T]: T[K];
-// eslint-disable-next-line ts/ban-types
 } & {}
 
 // https://jobs.ataccama.com/blog/how-to-convert-object-props-with-undefined-type-to-optional-properties-in-typescript
@@ -30,8 +29,8 @@ type Response<Alias extends EndpointAlias> = typeof endpoints[Alias]['response']
 type Parameters<Alias extends EndpointAlias> = typeof endpoints[Alias]['parameters']
 
 export type RequestResultForAlias<Alias extends EndpointAlias> = Result<
-ExtractResponseSchemaForAlias<Alias>,
-ExtractErrorsForAlias<Alias>
+  ExtractResponseSchemaForAlias<Alias>,
+  ExtractErrorsForAlias<Alias>
 >[]
 
 export type ExtractResponseSchemaForAlias<Alias extends EndpointAlias> =
@@ -55,7 +54,7 @@ Prettify<UndefinedToOptional<{
 export type ExtractParamsSchemaForAlias<
   Alias extends EndpointAlias,
   ParamName extends ExtractParamsNamesForAlias<Alias>,
-    // @ts-expect-error schema is defined
+  // @ts-expect-error schema is defined
 > = Parameters<Alias>[ParamName]['schema']
 
 export const KNOWN_PARAMS = [

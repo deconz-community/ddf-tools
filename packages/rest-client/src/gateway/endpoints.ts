@@ -180,7 +180,7 @@ export const endpoints = {
     category: 'Alarm Systems',
     name: 'Remove device to alarm system',
     description: 'Removes a device from an alarm system. Note that the respective sensor or light resource is '
-    + 'not deleted, only the link to the alarm system.',
+      + 'not deleted, only the link to the alarm system.',
     method: 'delete',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId/device/:deviceUniqueID',
     parameters: {
@@ -202,8 +202,8 @@ export const endpoints = {
     category: 'Alarm Systems',
     name: 'Update alarm system state',
     description: 'To arm or disarm an alarm system, the REST-API provides four requests, one for each mode. '
-    + 'The request body is required to specify a valid code0 PIN code, which is verified to protect against '
-    + 'unauthorized access.',
+      + 'The request body is required to specify a valid code0 PIN code, which is verified to protect against '
+      + 'unauthorized access.',
     method: 'put',
     path: '/api/:apiKey/alarmsystems/:alarmSystemId/:armMode',
     parameters: {
@@ -246,7 +246,7 @@ export const endpoints = {
     category: 'Authentication',
     name: 'Create Challenge',
     description: 'Creates a new authentication challenge which should be used as HMAC-Sha256(challenge, install code). '
-    + 'Both challenge and install code must be in lowercase hex format.',
+      + 'Both challenge and install code must be in lowercase hex format.',
     method: 'get',
     path: '/api/challenge',
     parameters: {},
@@ -262,8 +262,8 @@ export const endpoints = {
     category: 'Authentication',
     name: 'Create API Key',
     description: 'Creates a new API key which provides authorized access to the REST-API. '
-    + 'The request will only succeed if the gateway is unlocked, is having a hmac-sha256 challenge or an valid HTTP basic '
-    + 'authentification credentials are provided in the HTTP request header see authorization.',
+      + 'The request will only succeed if the gateway is unlocked, is having a hmac-sha256 challenge or an valid HTTP basic '
+      + 'authentification credentials are provided in the HTTP request header see authorization.',
     method: 'post',
     path: '/api',
     parameters: {
@@ -595,7 +595,7 @@ export const endpoints = {
     category: 'Authentication',
     name: 'Password reset',
     description: 'Resets the username and password to default username = "delight" and password = "delight". '
-    + 'The request can only succeed within 10 minutes after gateway start.',
+      + 'The request can only succeed within 10 minutes after gateway start.',
     method: 'delete',
     path: '/api/config/password',
     parameters: {},
@@ -1382,8 +1382,8 @@ export const endpoints = {
     category: 'Sensors',
     name: 'Update sensor config',
     description: 'Update a sensor config with the specified parameters. Sensors expose certain configuration parameters '
-    + 'depending on their defined or known capabilities. To get an overview on which parameters are available for a '
-    + 'particular device, get the sensor state of either all Get all sensors or a single sensor Get sensor.',
+      + 'depending on their defined or known capabilities. To get an overview on which parameters are available for a '
+      + 'particular device, get the sensor state of either all Get all sensors or a single sensor Get sensor.',
     method: 'put',
     path: '/api/:apiKey/sensors/:sensorId/config',
     parameters: {
@@ -1449,9 +1449,9 @@ export const endpoints = {
         type: 'body',
         schema: z.object({
           reset: z.boolean().optional().describe('If this parameter is omitted, it will implicitly be set to false and the sensor is marked as deleted in the database. '
-          + 'If set to true, deCONZ is trying to reset the whole physical device by issuing a leave request. '
-          + 'It is required that the device is awake (able to receive commands) or supports this type of request respectively and on success, '
-          + 'the device is deleted as a node and reset to factory defaults.'),
+            + 'If set to true, deCONZ is trying to reset the whole physical device by issuing a leave request. '
+            + 'It is required that the device is awake (able to receive commands) or supports this type of request respectively and on success, '
+            + 'the device is deleted as a node and reset to factory defaults.'),
         }),
         sample: {
           reset: false,

@@ -1,8 +1,8 @@
 import type { Result } from 'ts-results-es'
-import { Err, Ok } from 'ts-results-es'
-import type { GatewayClient } from './gateway'
-import { gatewayClient } from './gateway'
 import type { ExtractResponseSchemaForAlias } from './core/helpers'
+import type { GatewayClient } from './gateway'
+import { Err, Ok } from 'ts-results-es'
+import { gatewayClient } from './gateway'
 
 interface GatewayInfo {
   gateway: GatewayClient
@@ -80,7 +80,7 @@ export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
         }))
         return undefined
       }
-      catch (e) {
+      catch {
         return Err({
           code: 'unreachable',
           message: 'No response from the gateway',

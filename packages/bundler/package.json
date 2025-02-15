@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-bundler",
   "type": "module",
   "version": "0.31.0",
-  "packageManager": "pnpm@9.14.4",
+  "packageManager": "pnpm@10.4.0",
   "description": "Creating and editing DDF bundles for deconz",
   "author": {
     "name": "Zehir",
@@ -60,21 +60,21 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@noble/curves": "^1.7.0"
+    "@noble/curves": "^1.8.1"
   },
   "devDependencies": {
-    "@noble/hashes": "^1.6.1",
-    "@typescript-eslint/eslint-plugin": "^8.16.0",
-    "@typescript-eslint/parser": "^8.16.0",
+    "@noble/hashes": "^1.7.1",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
     "dts-bundle-generator": "^9.5.1",
-    "eslint": "^9.16.0",
-    "lint-staged": "^15.2.10",
-    "stylelint": "^16.11.0",
-    "stylelint-config-recommended": "^14.0.1",
+    "eslint": "^9.20.1",
+    "lint-staged": "^15.4.3",
+    "stylelint": "^16.14.1",
+    "stylelint-config-recommended": "^15.0.0",
     "stylelint-config-sass-guidelines": "^12.1.0",
-    "taze": "^0.18.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.1",
-    "vitest": "^2.1.6"
+    "taze": "^18.5.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
   }
 }
