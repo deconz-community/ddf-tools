@@ -1,5 +1,21 @@
 # @deconz-community/cli
 
+## 1.18.0
+
+### Minor Changes
+
+- f210c3c: Update deps
+- 8277393: Update deps
+
+### Patch Changes
+
+- Updated dependencies [f210c3c]
+- Updated dependencies [e7929b8]
+- Updated dependencies [f210c3c]
+- Updated dependencies [8277393]
+  - @deconz-community/ddf-bundler@0.32.0
+  - @deconz-community/ddf-validator@2.33.0
+
 ## 1.17.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @deconz-community/ddf-validator
 
+## 2.33.0
+
+### Minor Changes
+
+- f210c3c: Update deps
+- 8277393: Update deps
+
 ## 2.32.0
 
 ### Minor Changes
