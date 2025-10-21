@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "cap/measured_value/min",
-  "datatype": "Double",
-  "access": "R",
-  "public": true,
-  "default": 0,
-  "description": "Minimum value of state/measured_value."
-}

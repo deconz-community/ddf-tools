@@ -1,8 +1,10 @@
 {
   "schema": "devcap1.schema.json",
+  "uuid": "75aad11e-f313-4ce0-a5b1-5c62566ed1d6",
   "manufacturername": "$MF_IKEA",
   "modelid": "TRADFRI bulb E27 WS opal 1000lm",
-  "product": "TRADFRI bulb E27 WS opal 1000lm",
+  "vendor": "IKEA",
+  "product": "Tradfri LED bulb E27 1000 lumen, dimmable white spectrum, opal white (LED1732G11)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -31,6 +33,23 @@
         },
         {
           "name": "attr/name"
+        },
+        {
+          "name": "attr/productid",
+          "parse": {
+            "fn": "zcl:attr",
+            "ep": 1,
+            "cl": "0x0000",
+            "at": "0x000A",
+            "eval": "Item.val = Attr.val"
+          },
+          "read": {
+            "fn": "zcl:attr",
+            "ep": 1,
+            "cl": "0x0000",
+            "at": "0x000A"
+          },
+          "refresh.interval": 86400
         },
         {
           "name": "attr/swversion"
@@ -69,19 +88,19 @@
         },
         {
           "name": "state/bri",
-          "refresh.interval": 5
+          "refresh.interval": 360
         },
         {
           "name": "state/colormode",
-          "refresh.interval": 300
+          "refresh.interval": 360
         },
         {
           "name": "state/ct",
-          "refresh.interval": 5
+          "refresh.interval": 360
         },
         {
           "name": "state/on",
-          "refresh.interval": 5
+          "refresh.interval": 360
         },
         {
           "name": "state/reachable"
@@ -114,7 +133,7 @@
           "at": "0x0000",
           "dt": "0x10",
           "min": 1,
-          "max": 1800
+          "max": 300
         }
       ]
     },
@@ -127,8 +146,8 @@
         {
           "at": "0x0000",
           "dt": "0x20",
-          "min": 5,
-          "max": 1800,
+          "min": 1,
+          "max": 300,
           "change": "0x00000001"
         }
       ]

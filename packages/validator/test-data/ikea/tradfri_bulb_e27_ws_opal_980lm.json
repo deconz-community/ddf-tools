@@ -1,8 +1,10 @@
 {
   "schema": "devcap1.schema.json",
+  "uuid": "43b5d1f9-25c9-4ca9-bd89-0300571221fc",
   "manufacturername": "$MF_IKEA",
   "modelid": "TRADFRI bulb E27 WS opal 980lm",
-  "product": "TRADFRI bulb E27 WS opal 980lm",
+  "vendor": "IKEA",
+  "product": "Tradfri LED bulb E26/E27 980 lumen, dimmable, white spectrum, opal white (LED1545G12)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -66,24 +68,17 @@
         },
         {
           "name": "cap/color/capabilities",
-          "read": {
-            "fn": "zcl:attr",
-            "ep": "0x01",
-            "cl": "0x0300",
-            "at": [
-              "0x400a",
-              "0x400b",
-              "0x400c",
-              "0x4010"
-            ]
-          },
           "refresh.interval": 86400
         },
         {
-          "name": "cap/color/ct/max"
+          "name": "cap/color/ct/max",
+          "refresh.interval": 86400,
+          "default": "0xfeff"
         },
         {
-          "name": "cap/color/ct/min"
+          "name": "cap/color/ct/min",
+          "refresh.interval": 86400,
+          "default": 0
         },
         {
           "name": "cap/on/off_with_effect"
@@ -92,25 +87,31 @@
           "name": "cap/transition_block"
         },
         {
-          "name": "config/bri/execute_if_off",
-          "read": {
-            "fn": "zcl:attr",
-            "ep": "0x01",
-            "cl": "0x0008",
-            "at": [
-              "0x000f",
-              "0x0010",
-              "0x0011",
-              "0x4000"
-            ]
-          },
-          "refresh.interval": 3600
+          "name": "config/bri/couple_ct"
+        },
+        {
+          "name": "config/bri/execute_if_off"
         },
         {
           "name": "config/bri/on_level",
           "read": {
             "fn": "none"
           }
+        },
+        {
+          "name": "config/bri/options",
+          "read": {
+            "fn": "zcl:attr",
+            "ep": "0x01",
+            "cl": "0x0008",
+            "at": [
+              "0x000F",
+              "0x0010",
+              "0x0011",
+              "0x4000"
+            ]
+          },
+          "refresh.interval": 3600
         },
         {
           "name": "config/bri/onoff_transitiontime",
@@ -144,12 +145,6 @@
         },
         {
           "name": "state/colormode",
-          "values": [
-            [
-              "\"ct\"",
-              "color temperature"
-            ]
-          ],
           "static": "ct"
         },
         {
@@ -163,6 +158,20 @@
     }
   ],
   "bindings": [
+    {
+      "bind": "unicast",
+      "src.ep": 1,
+      "dst.ep": 1,
+      "cl": "0x0000",
+      "report": [
+        {
+          "at": "0x4000",
+          "dt": "0x42",
+          "min": 0,
+          "max": 65535
+        }
+      ]
+    },
     {
       "bind": "unicast",
       "src.ep": 1,
@@ -188,7 +197,7 @@
           "dt": "0x20",
           "min": 1,
           "max": 300,
-          "change": "0x01"
+          "change": "0x00000001"
         }
       ]
     },
@@ -201,9 +210,29 @@
         {
           "at": "0x0007",
           "dt": "0x21",
+          "min": 5,
+          "max": 1800,
+          "change": "0x00000001"
+        },
+        {
+          "at": "0x0003",
+          "dt": "0x21",
+          "min": 5,
+          "max": 1795,
+          "change": "0x0000000A"
+        },
+        {
+          "at": "0x0004",
+          "dt": "0x21",
+          "min": 5,
+          "max": 1795,
+          "change": "0x0000000A"
+        },
+        {
+          "at": "0x0008",
+          "dt": "0x30",
           "min": 1,
-          "max": 300,
-          "change": "0x0001"
+          "max": 1800
         }
       ]
     }
