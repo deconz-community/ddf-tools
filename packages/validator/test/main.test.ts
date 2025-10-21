@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import glob from 'fast-glob'
-import { describe, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { fromZodError } from 'zod-validation-error'
 
 import { createValidator } from '../index'
