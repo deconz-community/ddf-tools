@@ -1,10 +1,9 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "006efd51-4464-45b8-836b-97e846db5106",
   "manufacturername": "$MF_LUMI",
   "modelid": "lumi.plug.maus01",
-  "vendor": "Xiaomi Aqara",
-  "product": "Smart plug (ZNCZ12LM)",
+  "vendor": "Xiaomi",
+  "product": "Aqara smart plug ZNCZ12LM",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -41,7 +40,7 @@
             "ep": 1,
             "fn": "xiaomi:special",
             "idx": "0x08",
-            "script": "xiaomi_swversion.js"
+            "script": "xiaomi_firmware.js"
           },
           "read": {
             "fn": "none"
@@ -104,7 +103,7 @@
             "ep": 1,
             "fn": "xiaomi:special",
             "idx": "0x08",
-            "script": "xiaomi_swversion.js"
+            "script": "xiaomi_firmware.js"
           },
           "read": {
             "fn": "none"
@@ -121,6 +120,9 @@
         },
         {
           "name": "config/reachable"
+        },
+        {
+          "name": "config/temperature"
         },
         {
           "name": "state/current",
@@ -209,7 +211,7 @@
             "ep": 1,
             "fn": "xiaomi:special",
             "idx": "0x08",
-            "script": "xiaomi_swversion.js"
+            "script": "xiaomi_firmware.js"
           },
           "read": {
             "fn": "none"
@@ -226,6 +228,9 @@
         },
         {
           "name": "config/reachable"
+        },
+        {
+          "name": "config/temperature"
         },
         {
           "name": "state/consumption",

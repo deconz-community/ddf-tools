@@ -1,6 +1,5 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "0c2352ed-e57d-40df-9cd8-2ed8e34101b9",
   "manufacturername": [
     "$MF_AQARA",
     "$MF_LUMI"
@@ -9,8 +8,7 @@
     "lumi.light.acn132",
     "lumi.light.acn132"
   ],
-  "vendor": "Xiaomi Aqara",
-  "product": "LED strip T1 (LGYCDD01LM)",
+  "product": "Aqara LED Strip T1",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [

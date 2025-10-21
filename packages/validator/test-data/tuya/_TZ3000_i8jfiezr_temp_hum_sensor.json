@@ -1,10 +1,9 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "fb9f9e4f-e1dc-46d7-9d5d-ebe6d54af094",
   "manufacturername": "_TZ3000_i8jfiezr",
   "modelid": "TS0201",
   "vendor": "RTX",
-  "product": "Temperature and humidity sensor (TS0201)",
+  "product": "TS0201",
   "sleeper": true,
   "status": "Gold",
   "subdevices": [
@@ -37,19 +36,8 @@
         },
         {
           "name": "attr/swversion",
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001",
-            "script": "tuya_swversion.js"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001"
-          }
+          "parse": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001", "script": "tuya_swversion.js"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001"}
         },
         {
           "name": "attr/type"
@@ -108,19 +96,8 @@
         },
         {
           "name": "attr/swversion",
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001",
-            "script": "tuya_swversion.js"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001"
-          }
+          "parse": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001", "script": "tuya_swversion.js"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001"}
         },
         {
           "name": "attr/type"

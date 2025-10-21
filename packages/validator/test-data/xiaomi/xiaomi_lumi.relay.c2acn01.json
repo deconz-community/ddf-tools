@@ -1,10 +1,8 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "4fc4be68-d226-4fca-b249-885f3c52b8b4",
   "manufacturername": "$MF_LUMI",
   "modelid": "lumi.relay.c2acn01",
-  "vendor": "Xiaomi Aqara",
-  "product": "2 way control module wireless relay (LLKZMK11LM)",
+  "product": "wireless relay with neutral",
   "sleeper": false,
   "status": "Silver",
   "subdevices": [
@@ -66,7 +64,7 @@
         }
       ]
     },
-    {
+   {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
       "uuid": [
@@ -123,8 +121,8 @@
           "name": "state/reachable"
         }
       ]
-    },
-    {
+     },
+     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
       "uuid": [
@@ -178,6 +176,9 @@
           "name": "config/reachable"
         },
         {
+          "name": "config/temperature"
+        },
+        {
           "name": "state/current",
           "parse": {
             "at": "0x00F7",
@@ -194,7 +195,7 @@
         },
         {
           "name": "state/power",
-          "refresh.interval": 360,
+          "refresh.interval":360,
           "read": {
             "at": "0x0055",
             "cl": "0x000C",
@@ -274,6 +275,9 @@
         },
         {
           "name": "config/reachable"
+        },
+        {
+          "name": "config/temperature"
         },
         {
           "name": "state/consumption",
