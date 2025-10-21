@@ -1,8 +1,10 @@
 {
   "schema": "devcap1.schema.json",
+  "uuid": "5c04457c-fde5-45e7-8342-07d15ffaae44",
   "manufacturername": "$MF_LUMI",
   "modelid": "lumi.curtain",
-  "product": "Xiaomi Aqara Smart Curtain Controller",
+  "vendor": "Xiaomi Aqara",
+  "product": "Smart Curtain Controller (ZNCLDJ11LM)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -33,6 +35,15 @@
           "name": "attr/name"
         },
         {
+          "name": "cap/otau/file_version"
+        },
+        {
+          "name": "cap/otau/image_type"
+        },
+        {
+          "name": "cap/otau/manufacturer_code"
+        },
+        {
           "name": "attr/swversion",
           "parse": {
             "fn": "zcl:attr",
@@ -60,15 +71,15 @@
           "parse": {
             "fn": "zcl:attr",
             "ep": 1,
-            "cl": "0x0102",
-            "at": "0x0008",
+            "cl": "0x000D",
+            "at": "0x0055",
             "eval": "Item.val = 100 - Attr.val"
           },
           "read": {
             "fn": "zcl:attr",
             "ep": 1,
-            "cl": "0x0102",
-            "at": "0x0008"
+            "cl": "0x000D",
+            "at": "0x0055"
           },
           "refresh.interval": 300
         },
@@ -77,9 +88,9 @@
           "parse": {
             "fn": "zcl:attr",
             "ep": 1,
-            "cl": "0x0102",
-            "at": "0x0008",
-            "eval": "Item.val = Attr.val === 100"
+            "cl": "0x000D",
+            "at": "0x0055",
+            "eval": "Item.val = Attr.val > 0"
           },
           "read": {
             "fn": "none"
