@@ -1,5 +1,18 @@
 # @deconz-community/ddf-validator
 
+## 2.33.0
+
+### Minor Changes
+
+- 156be49: Update dependencies
+- f210c3c: Update deps
+- 8277393: Update deps
+
+### Patch Changes
+
+- 156be49: Add support for `ui_name` in sub devices
+- b10b38c: Update tests files
+
 ## 2.32.0
 
 ### Minor Changes

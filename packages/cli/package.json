@@ -1,7 +1,7 @@
 {
   "name": "@deconz-community/cli",
   "type": "module",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "packageManager": "pnpm@10.18.3",
   "description": "A command line tool for working with DDFs.",
   "author": {
