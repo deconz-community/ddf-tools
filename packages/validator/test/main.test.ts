@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
-import { describe, expect, test } from 'vitest'
 import glob from 'fast-glob'
+import { describe, expect } from 'vitest'
 import { fromZodError } from 'zod-validation-error'
 
 import { createValidator } from '../index'
@@ -31,7 +31,7 @@ describe('parse', async () => {
       return b.path.localeCompare(a.path)
     })
 
-    test.each(genericFilesData)('should load generic file $path', (file) => {
+    it.each(genericFilesData)('should load generic file $path', (file) => {
       try {
         if ('ddfvalidate' in file.data && file.data.ddfvalidate === false)
           return
@@ -40,15 +40,15 @@ describe('parse', async () => {
       }
       catch (error) {
         expect.unreachable(`${fromZodError(error, {
-            prefixSeparator: '\n    ',
-            issueSeparator: '\n    ',
-          }).message}`)
+          prefixSeparator: '\n    ',
+          issueSeparator: '\n    ',
+        }).message}`)
       }
     })
   })
 
   describe('should validate DDF', async () => {
-    test.each(ddfFiles)('validating \'%s\'', async (filePath) => {
+    it.each(ddfFiles)('validating \'%s\'', async (filePath) => {
       try {
         const data = await readFile(filePath, 'utf-8')
         const decoded = JSON.parse(data)

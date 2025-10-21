@@ -70,6 +70,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^20.19.23",
     "@typescript-eslint/eslint-plugin": "^8.46.2",

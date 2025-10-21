@@ -13,7 +13,6 @@ dist-ssr
 *.local
 coverage
 .turbo
-test-data
 
 # Editor directories and files
 .history/*
