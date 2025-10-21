@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.33.2
+
+### Patch Changes
+
+- fbdfba6: Fix test
+
 ## 2.33.1
 
 ### Patch Changes
