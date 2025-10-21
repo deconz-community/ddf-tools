@@ -1,6 +1,5 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "a2ba8dae-84af-4464-b263-e91d3473d9f6",
   "manufacturername": [
     "$MF_IKEA",
     "$MF_IKEA"
@@ -9,8 +8,7 @@
     "TRADFRI Signal Repeater",
     "TRADFRI signal repeater"
   ],
-  "vendor": "IKEA",
-  "product": "Tradfri signal repeater (E1746)",
+  "product": "TRADFRI Signal Repeater",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [

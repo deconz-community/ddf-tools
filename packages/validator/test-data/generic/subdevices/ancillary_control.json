@@ -2,7 +2,6 @@
   "schema": "subdevice1.schema.json",
   "type": "$TYPE_ANCILLARY_CONTROL",
   "name": "ZHAAncillaryControl",
-  "ui_name": "Ancillary control",
   "restapi": "/sensors",
   "order": 20,
   "uuid": [
@@ -12,17 +11,15 @@
   ],
   "items": [
     "config/battery",
+    "config/enrolled",
     "config/on",
+    "config/pending",
     "config/reachable",
     "state/action",
     "state/lastupdated",
-    "state/seconds_remaining",
-    "state/panel"
-  ],
-  "items_optional": [
-    "config/enrolled",
-    "config/pending",
     "state/lowbattery",
+    "state/seconds_remaining",
+    "state/panel",
     "state/tampered"
   ]
 }

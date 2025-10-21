@@ -1,6 +1,5 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "58de429d-7b30-468c-9c0b-47b1dbed178d",
   "manufacturername": [
     "_TZ3000_pmz6mjyu",
     "_TZ3000_zmy1waw6"
@@ -10,9 +9,9 @@
     "TS011F"
   ],
   "vendor": "Moes",
-  "product": "Wired Switch 2 gangs (MS-104BZ)",
+  "product": "MS-104BZ Wired Switch 2 gangs",
   "sleeper": false,
-  "status": "Gold",
+  "status": "Silver",
   "subdevices": [
     {
       "type": "$TYPE_ON_OFF_LIGHT",

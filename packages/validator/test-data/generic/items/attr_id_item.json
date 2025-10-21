@@ -3,7 +3,7 @@
   "id": "attr/id",
   "datatype": "String",
   "access": "R",
-  "public": false,
+  "public": true,
   "implicit": true,
   "managed": true,
   "description": "Identifier of the resource, unique within an endpoint."

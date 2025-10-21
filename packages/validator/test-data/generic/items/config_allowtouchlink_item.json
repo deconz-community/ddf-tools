@@ -4,6 +4,5 @@
   "datatype": "Bool",
   "access": "RW",
   "public": false,
-  "default": false,
   "description": "When true the device can initiate touchlink."
 }

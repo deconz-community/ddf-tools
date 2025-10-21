@@ -1,10 +1,9 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "2492f20f-5bff-4f59-9ba5-f4767a5ccd42",
   "manufacturername": "_TYZB01_hjsgdkfl",
   "modelid": "TS0201",
-  "vendor": "BlitzWolf",
-  "product": "Temperature and humidity sensor with display (BW-IS4)",
+  "product": "BW-IS4",
+  "vendor": "Blitzwolf",
   "sleeper": true,
   "status": "Gold",
   "subdevices": [
@@ -48,19 +47,8 @@
         {
           "name": "attr/swversion",
           "refresh.interval": 86400,
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001"
-          }
+          "parse": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001", "script": "../tuya/tuya_swversion.js"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001"}
         },
         {
           "name": "attr/type"
@@ -140,19 +128,8 @@
         {
           "name": "attr/swversion",
           "refresh.interval": 86400,
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001"
-          }
+          "parse": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001", "script": "tuya_swversion.js"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001"}
         },
         {
           "name": "attr/type"

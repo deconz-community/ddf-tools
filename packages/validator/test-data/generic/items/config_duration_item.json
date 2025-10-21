@@ -8,6 +8,5 @@
     0,
     65535
   ],
-  "default": 60,
   "description": "The duration until presence is automatically turned back to false."
 }

@@ -1,10 +1,8 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "605e6c67-92fb-4c0e-a195-7e0261a012d2",
   "manufacturername": "$MF_IKEA",
   "modelid": "TRADFRI bulb E14 WS opal 600lm",
-  "vendor": "IKEA",
-  "product": "Tradfri LED bulb E14 600 lumen, dimmable white spectrum, opal white (LED1733G7)",
+  "product": "TRADFRI bulb E14 WS opal 600lm",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -33,23 +31,6 @@
         },
         {
           "name": "attr/name"
-        },
-        {
-          "name": "attr/productid",
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x000A",
-            "eval": "Item.val = Attr.val"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x000A"
-          },
-          "refresh.interval": 86400
         },
         {
           "name": "attr/swversion"
@@ -86,19 +67,19 @@
         },
         {
           "name": "state/bri",
-          "refresh.interval": 360
+          "refresh.interval": 5
         },
         {
           "name": "state/colormode",
-          "refresh.interval": 360
+          "refresh.interval": 300
         },
         {
           "name": "state/ct",
-          "refresh.interval": 360
+          "refresh.interval": 5
         },
         {
           "name": "state/on",
-          "refresh.interval": 360
+          "refresh.interval": 5
         },
         {
           "name": "state/reachable"
@@ -130,8 +111,8 @@
         {
           "at": "0x0000",
           "dt": "0x10",
-          "min": 1,
-          "max": 300
+          "min": 5,
+          "max": 180
         }
       ]
     },
@@ -144,8 +125,8 @@
         {
           "at": "0x0000",
           "dt": "0x20",
-          "min": 1,
-          "max": 300,
+          "min": 5,
+          "max": 180,
           "change": "0x00000005"
         }
       ]

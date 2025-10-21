@@ -4,7 +4,6 @@
   "datatype": "UInt16",
   "access": "R",
   "public": true,
-  "default": 1,
   "description": "Minimum dim level of the device.",
   "parse": {
     "fn": "zcl:attr",

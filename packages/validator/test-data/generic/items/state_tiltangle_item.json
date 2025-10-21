@@ -8,6 +8,5 @@
     0,
     360
   ],
-  "default": 0,
   "description": "The current tilt angle."
 }

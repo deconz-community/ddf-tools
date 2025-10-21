@@ -2,7 +2,6 @@
   "schema": "subdevice1.schema.json",
   "type": "$TYPE_MOISTURE_SENSOR",
   "name": "ZHAMoisture",
-  "ui_name": "Moisture sensor",
   "restapi": "/sensors",
   "order": 23,
   "uuid": [

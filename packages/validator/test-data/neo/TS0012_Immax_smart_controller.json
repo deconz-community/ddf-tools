@@ -1,10 +1,9 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "076dc726-f9b8-4ffd-bb9e-1f9c48556416",
   "manufacturername": "_TZ3000_llfaquvp",
   "modelid": "TS0012",
-  "vendor": "Neo",
-  "product": "Immax Smart controller (TS0012)",
+  "vendor": "NEO",
+  "product": "Immax NEO Smart controller",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -35,20 +34,9 @@
           "name": "attr/name"
         },
         {
-          "name": "attr/swversion",
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001"
-          }
+          "name": "attr/swversion",                   
+          "parse": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001", "script": "../tuya/tuya_swversion.js"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001"}
         },
         {
           "name": "attr/type"
@@ -91,20 +79,9 @@
           "name": "attr/name"
         },
         {
-          "name": "attr/swversion",
-          "parse": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0000",
-            "at": "0x0001"
-          }
+          "name": "attr/swversion",                   
+          "parse": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001", "script": "../tuya/tuya_swversion.js"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0000", "at": "0x0001"}
         },
         {
           "name": "attr/type"

@@ -1,10 +1,8 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "563992e6-fe20-416b-a7ba-b9ebfe362b90",
   "manufacturername": "dresden elektronik",
   "modelid": "Kobold",
-  "vendor": "dresden elektronik",
-  "product": "Smart dimmer switch (Kobold)",
+  "product": "Kobold",
   "sleeper": false,
   "supportsMgmtBind": true,
   "status": "Gold",
@@ -34,15 +32,6 @@
         },
         {
           "name": "attr/name"
-        },
-        {
-          "name": "cap/otau/file_version"
-        },
-        {
-          "name": "cap/otau/image_type"
-        },
-        {
-          "name": "cap/otau/manufacturer_code"
         },
         {
           "name": "attr/swversion"
@@ -98,15 +87,7 @@
     },
     {
       "type": "$TYPE_SWITCH",
-      "fingerprint": {
-        "profile": "0x0104",
-        "device": "0x0104",
-        "endpoint": "0x02",
-        "out": [
-          "0x0006",
-          "0x0008"
-        ]
-      },
+      "fingerprint": { "profile": "0x0104", "device": "0x0104", "endpoint": "0x02", "out": ["0x0006", "0x0008"] },
       "restapi": "/sensors",
       "uuid": [
         "$address.ext",
@@ -114,23 +95,12 @@
         "0x0006"
       ],
       "buttons": {
-        "1": {
-          "name": "Push"
-        }
+        "1": {"name": "Push"}
       },
       "buttonevents": {
-        "1001": {
-          "action": "HOLD",
-          "button": 1
-        },
-        "1002": {
-          "action": "SHORT_RELEASE",
-          "button": 1
-        },
-        "1003": {
-          "action": "LONG_RELEASE",
-          "button": 1
-        }
+        "1001": {"action": "HOLD", "button": 1},
+        "1002": {"action": "SHORT_RELEASE", "button": 1},
+        "1003": {"action": "LONG_RELEASE", "button": 1}
       },
       "items": [
         {
@@ -186,12 +156,7 @@
       "src.ep": 1,
       "cl": "0x0006",
       "report": [
-        {
-          "at": "0x0000",
-          "dt": "0x10",
-          "min": 65535,
-          "max": 65535
-        }
+          {"at": "0x0000", "dt": "0x10", "min": 65535, "max": 65535 }
       ]
     },
     {
@@ -199,13 +164,7 @@
       "src.ep": 1,
       "cl": "0x0008",
       "report": [
-        {
-          "at": "0x0000",
-          "dt": "0x20",
-          "min": 65535,
-          "max": 65535,
-          "change": "0x01"
-        }
+          {"at": "0x0000", "dt": "0x20", "min": 65535, "max": 65535, "change": "0x01" }
       ]
     },
     {

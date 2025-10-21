@@ -1,10 +1,8 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "977d449e-6cb9-4ab4-a498-09ac6e566700",
   "manufacturername": "sengled",
   "modelid": "E1C-NB7",
-  "vendor": "Sengled",
-  "product": "Smart plug with power monitoring (E1C-NB7)",
+  "product": "E1C-NB7",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -48,8 +46,7 @@
           "default": "none"
         },
         {
-          "name": "state/on",
-          "refresh.interval": 360
+          "name": "state/on"
         },
         {
           "name": "state/reachable"
@@ -105,6 +102,23 @@
         },
         {
           "name": "state/lastupdated"
+        },
+        {
+          "name": "state/power",
+          "refresh.interval": 360,
+          "read": {
+            "at": "0x0400",
+            "cl": "0x0702",
+            "ep": 0,
+            "fn": "zcl:attr"
+          },
+          "parse": {
+            "at": "0x0400",
+            "cl": "0x0702",
+            "ep": 0,
+            "eval": "if (Attr.val != -32768) { Item.val = Attr.val / 10; }"
+          },
+          "default": 0
         }
       ]
     },

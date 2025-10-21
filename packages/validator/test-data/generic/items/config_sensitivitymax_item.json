@@ -8,6 +8,5 @@
     0,
     255
   ],
-  "default": 0,
   "description": "The maximum sensor sensitivity."
 }

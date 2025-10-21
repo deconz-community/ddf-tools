@@ -1,10 +1,8 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "6d99ff61-ec81-4398-85bf-e091e7de2b1a",
   "manufacturername": "OSRAM",
   "modelid": "Classic B40 TW - LIGHTIFY",
-  "vendor": "Osram",
-  "product": "Lightify Classic B40 TW",
+  "product": "Classic B40 TW - LIGHTIFY",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [

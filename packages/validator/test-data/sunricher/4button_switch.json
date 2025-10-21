@@ -1,6 +1,5 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "d835ceb3-dc5c-4f8a-80cc-84f5d3900319",
   "manufacturername": [
     "EcoDim",
     "EcoDim",
@@ -8,8 +7,7 @@
     "NAMRON AS",
     "NAMRON AS",
     "ROBB smarrt",
-    "ROBB smarrt",
-    "NAMRON  AS"
+    "ROBB smarrt"
   ],
   "modelid": [
     "ED-10012",
@@ -18,23 +16,17 @@
     "4512719",
     "4512729",
     "ROB_200-008",
-    "ROB_200-008-0",
-    "4512719"
+    "ROB_200-008-0"
   ],
   "matchexpr": "R.endpoints.length === 2",
-  "vendor": "Sunricher",
-  "product": "4 button wall switch",
+  "product": "4 Button Wall Switch",
   "sleeper": true,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0006"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0006"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0001",
@@ -50,12 +42,7 @@
           "0x0008"
         ]
       },
-      "meta": {
-        "group.endpoints": [
-          1,
-          2
-        ]
-      },
+      "meta": {"group.endpoints": [1, 2] },
       "items": [
         {
           "name": "attr/id"
@@ -86,18 +73,8 @@
         },
         {
           "name": "config/battery",
-          "parse": {
-            "at": "0x0021",
-            "cl": "0x0001",
-            "ep": 1,
-            "eval": "Item.val = Attr.val"
-          },
-          "read": {
-            "fn": "zcl:attr",
-            "ep": 1,
-            "cl": "0x0001",
-            "at": "0x0021"
-          },
+          "parse": {"at": "0x0021", "cl": "0x0001", "ep": 1, "eval": "Item.val = Attr.val"},
+          "read": {"fn": "zcl:attr", "ep": 1, "cl": "0x0001", "at": "0x0021"},
           "refresh.interval": 4000,
           "awake": true
         },

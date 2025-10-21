@@ -4,7 +4,6 @@
   "datatype": "UInt16",
   "access": "R",
   "public": true,
-  "default": 0,
   "description": "The supported color modes as bitmap.",
   "parse": {
     "fn": "zcl:attr",

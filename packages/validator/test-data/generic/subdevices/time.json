@@ -2,7 +2,6 @@
   "schema": "subdevice1.schema.json",
   "type": "$TYPE_TIME",
   "name": "ZHATime",
-  "ui_name": "Time",
   "restapi": "/sensors",
   "order": 20,
   "uuid": [

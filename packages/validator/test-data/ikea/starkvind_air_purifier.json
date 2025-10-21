@@ -1,6 +1,5 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "11beee69-0025-48cd-be1c-1355301c61a1",
   "manufacturername": [
     "$MF_IKEA",
     "$MF_IKEA"
@@ -9,8 +8,7 @@
     "STARKVIND Air purifier",
     "STARKVIND Air purifier table"
   ],
-  "vendor": "IKEA",
-  "product": "Starkvind Air purifier (E2006/E2007)",
+  "product": "STARKVIND Air purifier",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
@@ -332,6 +330,7 @@
         "$address.ext",
         "0x01",
         "0x042a"
+
       ],
       "fingerprint": {
         "endpoint": "0x01",

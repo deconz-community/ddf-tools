@@ -1,10 +1,9 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "80a358eb-56ce-4fdd-8dfe-374693301d17",
   "manufacturername": "Immax",
   "modelid": "Keyfob-ZB3.0",
-  "vendor": "Immax",
-  "product": "Neo smart keyfob (07046L)",
+  "vendor": "Immax Neo",
+  "product": "Keyfob 07046L",
   "sleeper": true,
   "status": "Gold",
   "subdevices": [

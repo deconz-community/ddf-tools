@@ -1,10 +1,9 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "a523df0f-0b8a-4950-92b7-293f30423e29",
   "manufacturername": "Sinope Technologies",
   "modelid": "OTH4000-ZB",
   "vendor": "Ouellet",
-  "product": "Smart thermostat (OTH4000-ZB)",
+  "product": "OTH4000-ZB",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [

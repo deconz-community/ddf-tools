@@ -1,10 +1,8 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "ee6cc184-94bf-48c9-80d6-ca8eb0d974d0",
   "manufacturername": "LDS",
   "modelid": "ZBT-DIMSwitch-D0000",
-  "vendor": "Ynoa",
-  "product": "Wireless dimmer knob (LA-AAN-UIT-7A)",
+  "product": "LDS battery switch",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [

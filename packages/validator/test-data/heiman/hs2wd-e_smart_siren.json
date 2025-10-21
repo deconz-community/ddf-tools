@@ -1,6 +1,5 @@
 {
   "schema": "devcap1.schema.json",
-  "uuid": "c8065d03-28e8-424a-ab06-92ec06cfb3a1",
   "manufacturername": [
     "Heiman",
     "HEIMAN"
@@ -10,7 +9,7 @@
     "WarningDevice-EF-3.0"
   ],
   "vendor": "Heiman",
-  "product": "Sound and flash siren (HS2WD)",
+  "product": "Smart siren HS2WD-E",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [

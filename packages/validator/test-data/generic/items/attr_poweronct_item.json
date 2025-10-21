@@ -4,6 +4,5 @@
   "datatype": "UInt16",
   "access": "RW",
   "public": true,
-  "default": 370,
   "description": "Ct value set when powered on."
 }

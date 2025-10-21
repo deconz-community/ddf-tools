@@ -4,7 +4,6 @@
   "datatype": "UInt8",
   "access": "R",
   "public": true,
-  "default": 0,
   "description": "Number of segments on Hue gradient light.",
   "parse": {
     "fn": "zcl:attr",
