@@ -1,5 +1,12 @@
 # @deconz-community/ddf-validator
 
+## 2.33.1
+
+### Patch Changes
+
+- d5a4d5c: Fix deployment
+- 2d137d6: Add missing test data
+
 ## 2.33.0
 
 ### Minor Changes

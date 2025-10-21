@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.32.1
+
+### Patch Changes
+
+- d5a4d5c: Fix deployment
+
 ## 0.32.0
 
 ### Minor Changes

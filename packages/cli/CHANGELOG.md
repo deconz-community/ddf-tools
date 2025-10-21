@@ -1,5 +1,15 @@
 # @deconz-community/cli
 
+## 1.18.1
+
+### Patch Changes
+
+- d5a4d5c: Fix deployment
+- Updated dependencies [d5a4d5c]
+- Updated dependencies [2d137d6]
+  - @deconz-community/ddf-bundler@0.32.1
+  - @deconz-community/ddf-validator@2.33.1
+
 ## 1.18.0
 
 ### Minor Changes
