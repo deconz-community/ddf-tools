@@ -1,5 +1,18 @@
 # @deconz-community/ddf-bundler
 
+## 0.32.0
+
+### Minor Changes
+
+- 156be49: Update dependencies
+- f210c3c: Update deps
+- 8277393: Update deps
+
+### Patch Changes
+
+- f210c3c: Fix types
+- e7929b8: Fix bundled external file order
+
 ## 0.31.0
 
 ### Minor Changes
