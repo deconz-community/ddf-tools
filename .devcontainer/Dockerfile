@@ -1,10 +1,10 @@
-ARG VARIANT="20-bullseye"
+ARG VARIANT="22-trixie"
 
 FROM mcr.microsoft.com/devcontainers/typescript-node:${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-     && apt-get -y install --no-install-recommends python g++ build-essential
+     && apt-get -y install --no-install-recommends python-is-python3 python3 g++ build-essential
 
 # [Optional] Uncomment if you want to install an additional version of node using nvm
 # ARG EXTRA_NODE_VERSION=10

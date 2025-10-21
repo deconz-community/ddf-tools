@@ -2,3 +2,6 @@ packages:
   - packages/*
   - packages/store/packages/*
   - '!**/.vscode-text-web/**'
+
+ignoredBuiltDependencies:
+  - isolated-vm

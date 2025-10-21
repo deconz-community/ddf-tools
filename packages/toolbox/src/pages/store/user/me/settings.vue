@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useConfirm } from 'vuetify-use-dialog'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
-import { secp256k1 } from '@noble/curves/secp256k1'
-import { RestCommand, createDirectus, rest, updateFile, updateMe, uploadFiles } from '@directus/sdk'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
+import { utils, getPublicKey} from '@noble/secp256k1'
+import { RestCommand, updateMe } from '@directus/sdk'
 
 const createConfirm = useConfirm()
 
@@ -49,7 +49,7 @@ async function generateKeys() {
       return
   }
 
-  settings.private_key = bytesToHex(secp256k1.utils.randomPrivateKey())
+  settings.private_key = bytesToHex(utils.randomSecretKey())
 }
 
 // Update public key when private key changes
@@ -58,7 +58,7 @@ watch(toRef(settings, 'private_key'), () => {
     if (!settings.private_key)
       throw new Error('An error occurred.')
 
-    settings.public_key = bytesToHex(secp256k1.getPublicKey(hexToBytes(settings.private_key)))
+    settings.public_key = bytesToHex(getPublicKey(hexToBytes(settings.private_key)))
     errorMessage.value = ''
   }
   catch (e) {

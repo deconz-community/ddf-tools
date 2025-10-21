@@ -1,14 +1,14 @@
 import type { Bundle } from './bundle'
 import { DDF_BUNDLE_MAGIC } from './const'
 
-export type BufferData = Uint8Array | ArrayBuffer | Blob
+export type BufferData = Blob | BufferSource
 export type BufferDataR = BufferData | BufferDataR[]
 
 export function dataEncoder(chunks: BufferData[] = []) {
   const textEncoder = new TextEncoder()
 
-  const text = (value: string): Uint8Array => {
-    return textEncoder.encode(value)
+  const text = (value: string): Blob => {
+    return new Blob([textEncoder.encode(value)])
   }
 
   const Uint16 = (num: number): ArrayBuffer => {
@@ -115,8 +115,8 @@ export function encode(bundle: ReturnType<typeof Bundle>, preEncodedDDFB?: Buffe
       preEncodedDDFB ?? encodeDDFB(encoder, data),
       data.signatures.map(signature =>
         chunk('SIGN', [
-          withLength(signature.key, Uint16),
-          withLength(signature.signature, Uint16),
+          withLength(new Blob([new Uint8Array(signature.key)]), Uint16),
+          withLength(new Blob([new Uint8Array(signature.signature)]), Uint16),
         ]),
       ),
     ]),

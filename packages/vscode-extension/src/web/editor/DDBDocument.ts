@@ -1,6 +1,6 @@
 import type { BundleData } from '@deconz-community/ddf-bundler'
 import { decode, generateHash } from '@deconz-community/ddf-bundler'
-import { bytesToHex } from '@noble/hashes/utils'
+import { bytesToHex } from '@noble/hashes/utils.js'
 
 import * as vscode from 'vscode'
 

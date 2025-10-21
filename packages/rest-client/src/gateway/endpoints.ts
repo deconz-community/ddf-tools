@@ -30,11 +30,11 @@ export const endpoints = {
       schema: z.array(
         z.object({
           id: z.string(),
-          internalipaddress: z.string().ip(),
+          internalipaddress: z.ipv4(),
           macaddress: z.string(),
           internalport: z.number(),
           name: z.string(),
-          publicipaddress: z.string().ip(),
+          publicipaddress: z.ipv4(),
         }),
       ).transform(data => Ok(data)),
     },

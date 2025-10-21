@@ -3,14 +3,11 @@ import { z } from 'zod'
 export const configSchema = z.strictObject({
 
   // General
-  'name': z.string().min(0).max(16).default('Phoscon-GW')
-    .describe('Name of the gateway.'),
-  'devicename': z.enum(['ConBee', 'RaspBee', 'ConBee II', 'ConBee III', 'RaspBee II']).or(z.string()).default('ConBee II')
-    .describe('The product name of the gateway. Valid values are "ConBee", "RaspBee", "ConBee II" and "RaspBee II".'),
+  'name': z.string().min(0).max(16).default('Phoscon-GW').describe('Name of the gateway.'),
+  'devicename': z.enum(['ConBee', 'RaspBee', 'ConBee II', 'ConBee III', 'RaspBee II']).or(z.string()).default('ConBee II').describe('The product name of the gateway. Valid values are "ConBee", "RaspBee", "ConBee II" and "RaspBee II".'),
   'bridgeid': z.string()
     .describe('The unique identifier for the gateway.'),
-  'datastoreversion': z.literal('93').transform(arg => Number.parseInt(arg))
-    .describe('The current datastore version. Should be 93.'),
+  'datastoreversion': z.literal('93').transform(arg => Number.parseInt(arg)).describe('The current datastore version. Should be 93.'),
   'modelid': z.literal('deCONZ')
 
     .describe('Fixed string "deCONZ".'),
@@ -24,12 +21,10 @@ export const configSchema = z.strictObject({
     'systemd/headless',
     'docker',
     'docker/hassio',
-  ]).default('normal')
-    .describe('How the Gateway software is running.'),
+  ]).default('normal').describe('How the Gateway software is running.'),
 
   // Settings
-  'websocketnotifyall': z.boolean().default(true)
-    .describe('When true all state changes will be signalled through the Websocket connection.'),
+  'websocketnotifyall': z.boolean().default(true).describe('When true all state changes will be signalled through the Websocket connection.'),
 
   // Time
   'UTC': z.union([
@@ -37,47 +32,34 @@ export const configSchema = z.strictObject({
     z.literal('None'),
   ])
     .describe('Timezone used by the gateway (only on Raspberry Pi). "None" if not further specified.'),
-  'localtime': z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/).default(new Date().toISOString().slice(0, -5))
-    .describe('The localtime of the gateway.'),
-  'timeformat': z.enum(['12h', '24h']).default('12h')
-    .describe('Stores a value of the timeformat that can be used by other applications. "12h" or "24h"'),
+  'localtime': z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/).default(new Date().toISOString().slice(0, -5)).describe('The localtime of the gateway.'),
+  'timeformat': z.enum(['12h', '24h']).default('12h').describe('Stores a value of the timeformat that can be used by other applications. "12h" or "24h"'),
   'timezone': z.union([z.null(), z.string()]).default('Etc/GMT'),
   'ntp': z.optional(z.enum(['synced', 'unsynced']))
     .describe('Only for gateways running on Linux. Tells if the NTP time is "synced" or "unsynced".'),
 
   // Delays
-  'groupdelay': z.number().min(0).max(5000).default(0)
-    .describe('Time between two group commands in milliseconds.'),
-  'lightlastseeninterval': z.number().min(1).max(65535).default(60)
-    .describe('Sets the number of seconds where the timestamp for "lastseen" is updated at the earliest for light resources. '
+  'groupdelay': z.number().min(0).max(5000).default(0).describe('Time between two group commands in milliseconds.'),
+  'lightlastseeninterval': z.number().min(1).max(65535).default(60).describe('Sets the number of seconds where the timestamp for "lastseen" is updated at the earliest for light resources. '
     + 'For any such update, a seperate websocket event will be triggered.'),
 
   // Network
   'dhcp': z.boolean()
     .describe('Whether the IP address of the bridge is obtained with DHCP.'),
-  'ipaddress': z.string().ip()
-    .describe('Gateway IP address.'),
+  'ipaddress': z.ipv4().describe('Gateway IP address.'),
   'mac': z.string()
     .describe('MAC address of the gateway.'),
-  'port': z.number().min(0).max(65535).default(80)
-    .describe('Port of the REST API server.'),
-  'websocketport': z.number().min(0).max(65535).default(443)
-    .describe('Port of the Websocket server.'),
-  'netmask': z.string().ip()
-    .describe('Network mask of the gateway.'),
-  'gateway': z.string().ip()
-    .describe('Network gateway of the gateway. Not always valid as he calculate using x.x.x.1 where x is the Gateway IP.'),
+  'port': z.number().min(0).max(65535).default(80).describe('Port of the REST API server.'),
+  'websocketport': z.number().min(0).max(65535).default(443).describe('Port of the Websocket server.'),
+  'netmask': z.ipv4().describe('Network mask of the gateway.'),
+  'gateway': z.ipv4().describe('Network gateway of the gateway. Not always valid as he calculate using x.x.x.1 where x is the Gateway IP.'),
 
   // Discovery
   'discovery': z.boolean().default(true).describe('Set gateway discovery over the internet active or inactive.'),
-  'announceinterval': z.number().min(0).default(45)
-    .describe('Delay in minute between each announce on internet. 0 mean disabled.'),
-  'announceurl': z.string().default('https://phoscon.de/discover')
-    .describe('Announce url.'),
-  'proxyaddress': z.string().ip().or(z.literal('none'))
-    .describe('IP Address of the proxy to use for Discovery. (Not supported)'),
-  'proxyport': z.number().min(0).max(65535)
-    .describe('Port of the proxy to use for Discovery. (Not supported)'),
+  'announceinterval': z.number().min(0).default(45).describe('Delay in minute between each announce on internet. 0 mean disabled.'),
+  'announceurl': z.string().default('https://phoscon.de/discover').describe('Announce url.'),
+  'proxyaddress': z.ipv4().or(z.literal('none')).describe('IP Address of the proxy to use for Discovery. (Not supported)'),
+  'proxyport': z.number().min(0).max(65535).describe('Port of the proxy to use for Discovery. (Not supported)'),
   'portalservices': z.literal(false)
     .describe('This indicates whether the bridge is registered to synchronize data with a portal account.'),
 
@@ -125,8 +107,7 @@ export const configSchema = z.strictObject({
     .describe('If the frimware need an update'),
   'fwupdatestate': z.enum(['idle', 'running'])
     .describe('Current update state.'),
-  'otauactive': z.boolean().default(true)
-    .describe('OTAU active or inactive.'),
+  'otauactive': z.boolean().default(true).describe('OTAU active or inactive.'),
   'otaustate': z.enum(['idle', 'busy', 'off'])
     .describe('Current state of OTA updates.'),
 
@@ -134,20 +115,15 @@ export const configSchema = z.strictObject({
   'linkbutton': z.boolean()
     .describe('Enable the link button to allow new applications to generate API keys. True if the gateway is unlocked.'),
   'whitelist': z.record(z.string(), z.object({
-    'create date': z.string().transform(date => new Date(date))
-      .describe('Creation date.'),
-    'last use date': z.string().transform(date => new Date(date))
-      .describe('Last use date.'),
+    'create date': z.string().transform(date => new Date(date)).describe('Creation date.'),
+    'last use date': z.string().transform(date => new Date(date)).describe('Last use date.'),
     'name': z.string()
       .describe('The device type used when the key was created.'),
   }))
     .describe('An array of whitelisted API keys.'),
-  'networkopenduration': z.number().min(0).max(65535).default(60)
-    .describe('How long network remains open in seconds.'),
-  'permitjoin': z.number().max(255).default(0)
-    .describe('Open the network so that other zigbee devices can join. 0 = network closed, 255 = network open, 1–254 = time in seconds the network remains open. The value will decrement automatically.'),
-  'permitjoinfull': z.number().default(0)
-    .describe('Open the network for x secondes.'),
+  'networkopenduration': z.number().min(0).max(65535).default(60).describe('How long network remains open in seconds.'),
+  'permitjoin': z.number().max(255).default(0).describe('Open the network so that other zigbee devices can join. 0 = network closed, 255 = network open, 1–254 = time in seconds the network remains open. The value will decrement automatically.'),
+  'permitjoinfull': z.number().default(0).describe('Open the network for x secondes.'),
   'disablePermitJoinAutoOff': z.boolean()
     .describe('Stop the periodic verification for closed network.'),
 
@@ -165,17 +141,15 @@ export const configSchema = z.strictObject({
   'wifiavailable': z.array(z.string()),
   'wifichannel': z.coerce.number(),
   'wificlientname': z.string().or(z.null()),
-  'wifiip': z.string().ip(),
+  'wifiip': z.ipv4(),
   'wifimgmt': z.number(),
   'wifiname': z.string().or(z.null()),
 
   // Zigbee
-  'rfconnected': z.boolean().default(true)
-    .describe('Is true when the deCONZ is connected with the firmware and the Zigbee network is up. '
+  'rfconnected': z.boolean().default(true).describe('Is true when the deCONZ is connected with the firmware and the Zigbee network is up. '
     + 'Set to true to bring the Zigbee network up and false to bring it down. '
     + 'This has the same effect as using the Join and Leave buttons in deCONZ.'),
-  'panid': z.number().min(0).max(65535)
-    .describe('The Zigbee pan (personal area networks) ID of the gateway.'),
+  'panid': z.number().min(0).max(65535).describe('The Zigbee pan (personal area networks) ID of the gateway.'),
   'zigbeechannel': z.union([
     z.literal(11),
     z.literal(15),
@@ -209,6 +183,5 @@ export const writableConfigSchema = configSchema.pick({
   websocketnotifyall: true,
 }).extend({
   utc: configSchema.shape.UTC,
-  unlock: z.number().min(0).max(600).default(0)
-    .describe('Unlock the gateway so that apps can register themselves to the gateway (time in seconds).'),
+  unlock: z.number().min(0).max(600).default(0).describe('Unlock the gateway so that apps can register themselves to the gateway (time in seconds).'),
 })

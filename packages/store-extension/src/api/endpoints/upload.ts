@@ -6,9 +6,9 @@ import type { GlobalContext } from '../types'
 import { Buffer } from 'node:buffer'
 import { createSignature, decode, encode, generateHash, verifySignature } from '@deconz-community/ddf-bundler'
 import { ErrorCode, ForbiddenError, InvalidQueryError, isDirectusError } from '@directus/errors'
-import { secp256k1 } from '@noble/curves/secp256k1'
-import { sha256 } from '@noble/hashes/sha256'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
+import { getPublicKey } from '@noble/secp256k1'
 import pako from 'pako'
 import { multipartHandler } from '../multipart-handler'
 import { asyncHandler, fetchUserContext } from '../utils'
@@ -55,7 +55,7 @@ export function uploadEndpoint(globalContext: GlobalContext) {
     if (!userInfo.public_key || !userInfo.private_key)
       throw new InvalidQueryError({ reason: 'You must setup your keys in your profil settings before uploading bundles.' })
 
-    if (bytesToHex(secp256k1.getPublicKey(hexToBytes(userInfo.private_key))) !== userInfo.public_key)
+    if (bytesToHex(getPublicKey(hexToBytes(userInfo.private_key))) !== userInfo.public_key)
       throw new InvalidQueryError({ reason: 'Your public key does not match your private key. Please check your user settings' })
 
     const expectedKeys: [string, string][] = [

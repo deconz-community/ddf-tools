@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { bytesToHex } from '@noble/hashes/utils'
+import { bytesToHex } from '@noble/hashes/utils.js'
 import { MD5 } from 'crypto-js'
 
 const props = defineProps<{

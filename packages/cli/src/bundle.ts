@@ -7,7 +7,7 @@ import { program } from '@commander-js/extra-typings'
 import { buildFromFiles, createSource, encode, generateHash, sign } from '@deconz-community/ddf-bundler'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { createDirectus, rest, serverHealth, staticToken } from '@directus/sdk'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
 import chalk from 'chalk'
 import glob from 'fast-glob'
 import ora from 'ora'
@@ -294,7 +294,7 @@ export function bundleCommand() {
                     type: 'code',
                     message: detail.message,
                     file: path,
-                    path: detail.path,
+                    path: [detail.path.join('/')],
                   })
                 })
               }

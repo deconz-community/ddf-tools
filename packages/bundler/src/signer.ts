@@ -2,8 +2,8 @@ import type { BufferData } from './encoder'
 
 import type { ChunkSignature } from './types'
 
-import { secp256k1 } from '@noble/curves/secp256k1'
-import { sha256 } from '@noble/hashes/sha256'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
+import { sha256 } from '@noble/hashes/sha2.js'
 import { DDF_BUNDLE_MAGIC } from './const'
 import { dataDecoder } from './decoder'
 import { dataEncoder } from './encoder'
@@ -79,11 +79,11 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 
   addData(
     chunk('RIFF', [
-      DDFBChunk,
+      new Blob([new Uint8Array(DDFBChunk)]),
       signatures.map(signature =>
         chunk('SIGN', [
-          withLength(signature.key, Uint16),
-          withLength(signature.signature, Uint16),
+          withLength(new Blob([new Uint8Array(signature.key)]), Uint16),
+          withLength(new Blob([new Uint8Array(signature.signature)]), Uint16),
         ]),
       ),
     ]),
@@ -93,7 +93,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 }
 
 export function createSignature(hash: Uint8Array, privateKey: Uint8Array): Uint8Array {
-  return secp256k1.sign(hash, privateKey).toCompactRawBytes()
+  return secp256k1.sign(hash, privateKey, { format: 'compact' })
 }
 
 export async function verifySignature(hash: Uint8Array, publicKey: Uint8Array, signature: Uint8Array): Promise<boolean> {

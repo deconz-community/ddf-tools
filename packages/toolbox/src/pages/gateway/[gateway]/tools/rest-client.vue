@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { EndpointAlias, RequestResultForAlias } from '@deconz-community/rest-client'
+import type { Component } from 'vue'
 import { endpoints } from '@deconz-community/rest-client'
 import { useRouteQuery } from '@vueuse/router'
-import type { Component } from 'vue'
 import { saveAs } from 'file-saver'
-import { VTreeview } from 'vuetify/labs/VTreeview'
 import { z } from 'zod'
 import BtnGatewayDownloadBackup from '~/components/btn/btn-gateway-download-backup.vue'
 import CardAuthChallenge from '~/components/card/card-auth-challenge.vue'

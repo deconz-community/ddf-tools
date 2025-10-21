@@ -4,8 +4,8 @@ import type { GlobalContext, KeySet } from './types'
 import { Buffer } from 'node:buffer'
 import { createSignature, decode, encode } from '@deconz-community/ddf-bundler'
 import { InvalidQueryError } from '@directus/errors'
-import { sha256 } from '@noble/hashes/sha256'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
 import pako from 'pako'
 
 export async function updateBundleSignatures(

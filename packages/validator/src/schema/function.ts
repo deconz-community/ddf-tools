@@ -1,7 +1,7 @@
 import type { ZodIssueOptionalMessage } from 'zod'
+import type { GenericsData } from '../types'
 import { z } from 'zod'
 import * as cf from '../custom-formats'
-import type { GenericsData } from '../types'
 
 const zclGlobal = z.strictObject({
   ep: z.optional(cf.endpoint()).describe('Endpoint, 255 means any endpoint, 0 means auto selected from subdevice.'),

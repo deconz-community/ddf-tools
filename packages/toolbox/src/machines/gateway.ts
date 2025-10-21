@@ -1,15 +1,15 @@
-import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, raise, sendTo, setup } from 'xstate'
+import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias, ResponseWatcher, ResponseWatcherParam } from '@deconz-community/rest-client'
 import type { ActorRef, AnyEventObject } from 'xstate'
 
-import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias, ResponseWatcher, ResponseWatcherParam } from '@deconz-community/rest-client'
+import type { GatewayCredentials } from './app'
+import { decode } from '@deconz-community/ddf-bundler'
+
 import { findGateway, websocketSchema } from '@deconz-community/rest-client'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { bytesToHex } from '@noble/hashes/utils.js'
 
 import { produce } from 'immer'
-import { decode } from '@deconz-community/ddf-bundler'
-import { sha256 } from '@noble/hashes/sha256'
-
-import { bytesToHex } from '@noble/hashes/utils'
-import type { GatewayCredentials } from './app'
+import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, raise, sendTo, setup } from 'xstate'
 // import { deviceMachine } from './device'
 
 export type BundleDescriptor = ExtractResponseSchemaForAlias<'getDDFBundleDescriptors'>['descriptors'][string]
@@ -24,10 +24,10 @@ export interface GatewayContext {
   bundles: Map<string, BundleDescriptor>
 }
 
-export type AnyGatewayEvent = GatewayEvent |
-  WebsocketEvent |
-  RefreshEvent | UpdateEvent |
-  RequestEvent<EndpointAlias>
+export type AnyGatewayEvent = GatewayEvent
+  | WebsocketEvent
+  | RefreshEvent | UpdateEvent
+  | RequestEvent<EndpointAlias>
 
 export type GatewayEvent = {
   type: 'CONNECT' | 'DISCONNECT'
@@ -443,17 +443,17 @@ export const gatewayMachine = setup({
               event.method === 'replace'
                 ? event.data
                 : produce(context.bundles, (draft) => {
-                  switch (event.method) {
-                    case 'set':
-                      for (const [key, value] of event.data)
-                        draft.set(key, value)
-                      break
-                    case 'delete':
-                      for (const key of event.data.keys())
-                        draft.delete(key)
-                      break
-                  }
-                }),
+                    switch (event.method) {
+                      case 'set':
+                        for (const [key, value] of event.data)
+                          draft.set(key, value)
+                        break
+                      case 'delete':
+                        for (const key of event.data.keys())
+                          draft.delete(key)
+                        break
+                    }
+                  }),
           }),
         },
       },

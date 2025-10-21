@@ -1,6 +1,6 @@
 import type { ZodIssueOptionalMessage } from 'zod'
-import { z } from 'zod'
 import type { GenericsData } from '../types'
+import { z } from 'zod'
 import * as cf from '../custom-formats'
 
 export function subDeviceSchema(generics: GenericsData) {
@@ -29,6 +29,7 @@ export function subDeviceSchema(generics: GenericsData) {
       z.string().regex(/^(?!\$TYPE_).*/g, 'The type start with $TYPE_ but is not present in constants.json'),
     ]),
     name: z.string(),
+    ui_name: z.string().max(64),
     restapi: z.enum(['/lights', '/sensors']),
     order: z.number(),
     uuid: cf.uuid(),

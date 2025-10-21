@@ -1,6 +1,6 @@
 import type { Bundle } from './bundle'
 import type { BufferData } from './encoder'
-import { sha256 } from '@noble/hashes/sha256'
+import { sha256 } from '@noble/hashes/sha2.js'
 import { dataEncoder, encodeDDFB } from './encoder'
 
 export async function generateHash(data: ReturnType<typeof Bundle>['data']): Promise<Uint8Array> {

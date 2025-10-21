@@ -1,15 +1,15 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { bytesToHex } from '@noble/hashes/utils'
+import { bytesToHex } from '@noble/hashes/utils.js'
 import { describe, expect, it } from 'vitest'
 import { Bundle, decode, encode, getHash } from '../index'
 
 describe('tests', () => {
   it('should parse without errors', async () => {
     const data = await readFile(path.join(__dirname, 'ddb/starkvind_air_purifier.ddb'))
-    const expectedFileHash = '690d5564228784720462d6497d5ca7cb53d8a2a3195e3a47b762cd16fa70bf8c'
-    const expectedHash = '239554d340589d629cefc4834a9b1883cce1e397def85ce3bd66c305a70739c2'
+    const expectedFileHash = '2570f1d1c81b79946809750b07b2dd4f4bc380b121e345b667b1f7c1a58d5796'
+    const expectedHash = '2c46699c8a6d2d76974ae0ecfe697f0973cd62f03bbcd7dae4097cce29d4a47c'
     const blob = new Blob([data])
 
     expect(bytesToHex(await getHash(new Uint8Array(data)))).toEqual(expectedFileHash)

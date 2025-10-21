@@ -1,6 +1,6 @@
 import type { ZodIssueOptionalMessage } from 'zod'
-import { z } from 'zod'
 import type { GenericsData } from '../types'
+import { z } from 'zod'
 import * as cf from '../custom-formats'
 import { resourceSchema } from './resource'
 

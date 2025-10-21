@@ -1,6 +1,6 @@
+import type { GenericsData } from '../types'
 import { z } from 'zod'
 import * as cf from '../custom-formats'
-import type { GenericsData } from '../types'
 import { parseFunction, readFunction, writeFunction } from './function'
 
 export function resourceSchema(generics: GenericsData) {

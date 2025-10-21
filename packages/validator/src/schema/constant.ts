@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import type { GenericsData } from '../types'
+import { z } from 'zod'
 
 export function constantsSchema1(_generics: GenericsData) {
   return z.strictObject({

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { ChunkSignature } from '@deconz-community/ddf-bundler'
 import { createSignature, verifySignature } from '@deconz-community/ddf-bundler'
-import { secp256k1 } from '@noble/curves/secp256k1'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
-import { VDataTable } from 'vuetify/components'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
+import { getPublicKey, utils } from '@noble/secp256k1'
 import { useConfirm } from 'vuetify-use-dialog'
 
-import type { ChunkSignature } from '@deconz-community/ddf-bundler'
+import { VDataTable } from 'vuetify/components'
 
 const props = defineProps<{
   modelValue: ChunkSignature[]
@@ -74,7 +74,7 @@ const storeKey = computed(() => {
   return canUseStore.value ? store.profile?.private_key as string : undefined
 })
 
-const privateKey = ref(secp256k1.utils.randomPrivateKey())
+const privateKey = ref(utils.randomSecretKey())
 const privateKeyHex = computed({
   get() {
     return bytesToHex(privateKey.value)
@@ -85,7 +85,7 @@ const privateKeyHex = computed({
 })
 
 function generatePrivateKey() {
-  privateKey.value = secp256k1.utils.randomPrivateKey()
+  privateKey.value = utils.randomSecretKey()
 }
 
 async function signBundle() {
@@ -103,7 +103,7 @@ async function signBundle() {
   }
 
   const signature = createSignature(hash.value, key)
-  const publicKey = secp256k1.getPublicKey(key)
+  const publicKey = getPublicKey(key)
   const publicKeyHex = bytesToHex(publicKey)
 
   const existingSignature = signatures.value.find(signature => bytesToHex(signature.key) === publicKeyHex)

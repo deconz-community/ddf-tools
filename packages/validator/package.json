@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-validator",
   "type": "module",
   "version": "2.32.0",
-  "packageManager": "pnpm@10.4.0",
+  "packageManager": "pnpm@10.18.3",
   "description": "Validating DDF files for deconz",
   "author": {
     "name": "Zehir",
@@ -64,31 +64,31 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:download-sample": "rimraf ./test-data && degit dresden-elektronik/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
+    "test:download-sample": "rimraf ./test-data && degit manup/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
   },
   "dependencies": {
-    "zod": "^3.24.2"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^20.16.5",
-    "@typescript-eslint/eslint-plugin": "^8.24.0",
-    "@typescript-eslint/parser": "^8.24.0",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^20.19.23",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "degit": "^2.8.4",
-    "eslint": "^9.20.1",
+    "eslint": "^9.38.0",
     "fast-glob": "^3.3.3",
-    "lint-staged": "^15.4.3",
+    "lint-staged": "^16.2.5",
     "rimraf": "^5.0.10",
-    "stylelint": "^16.14.1",
-    "stylelint-config-recommended": "^15.0.0",
+    "stylelint": "^16.25.0",
+    "stylelint-config-recommended": "^17.0.0",
     "stylelint-config-sass-guidelines": "^12.1.0",
-    "taze": "^18.5.0",
+    "taze": "^19.8.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
-    "vitest": "^3.0.5",
-    "zod-to-json-schema": "^3.24.1",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.1",
+    "vitest": "^3.2.4",
+    "zod-to-json-schema": "^3.24.6",
     "zod-to-ts": "^1.2.0",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^4.0.2"
   }
 }
