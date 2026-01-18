@@ -54,7 +54,7 @@
   "scripts": {
     "build": "pnpm run build:vite && pnpm run build:dts",
     "build:vite": "vite build",
-    "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.ts",
+    "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.json",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest"
