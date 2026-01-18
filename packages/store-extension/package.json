@@ -3,6 +3,24 @@
   "type": "module",
   "version": "0.26.0",
   "description": "Extension for Directus to store DDF files in the database, used only by the Deconz Community",
+  "author": {
+    "name": "Zehir",
+    "email": "zehir@zorim.fr",
+    "url": "https://github.com/Zehir"
+  },
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store-extension",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
   "keywords": [
     "directus",
     "directus-extension",
