@@ -1,9 +1,9 @@
 #!/usr/bin/env ts-node
 
 import fs from 'node:fs'
-import { zodToJsonSchema } from 'zod-to-json-schema'
-import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 import fastGlob from 'fast-glob'
+import { zodToJsonSchema } from 'zod-to-json-schema'
+import { createAuxiliaryTypeStore, createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 import { createValidator } from './dist/ddf-validator.cjs'
 
 const { globSync } = fastGlob
@@ -40,12 +40,16 @@ if (!fs.existsSync(outputDirectory))
 // Write json schema
 const schemaJson = zodToJsonSchema(schemaZod, 'DDF')
 fs.writeFileSync(
-    `${outputDirectory}/ddf-schema.json`,
-    JSON.stringify(schemaJson),
+  `${outputDirectory}/ddf-schema.json`,
+  JSON.stringify(schemaJson),
 )
 
 // Write typescript schema
-const { node } = zodToTs(schemaZod, 'DDF')
+const auxiliaryTypeStore = createAuxiliaryTypeStore()
+const { node } = zodToTs(schemaZod, {
+  auxiliaryTypeStore,
+  unrepresentable: 'any',
+})
 const typeAlias = createTypeAlias(node, 'DDF')
 
 const nodeString = printNode(typeAlias)
@@ -89,6 +93,6 @@ export {};
 `
 
 fs.writeFileSync(
-    `${outputDirectory}/ddf-validator.d.ts`,
-    schemaTS,
+  `${outputDirectory}/ddf-validator.d.ts`,
+  schemaTS,
 )

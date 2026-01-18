@@ -8,7 +8,7 @@
     "Other"
   ],
   "engines": {
-    "vscode": "^1.105.0"
+    "vscode": "^1.108.1"
   },
   "activationEvents": [
     "workspaceContains:**/*.ddb",
@@ -88,28 +88,28 @@
   },
   "dependencies": {
     "@noble/hashes": "^2.0.1",
-    "@vscode-elements/elements": "^2.3.1",
+    "@vscode-elements/elements": "^2.4.0",
     "jsonc-parser": "^3.3.1",
-    "vscode-json-languageservice": "^5.6.2",
+    "vscode-json-languageservice": "^5.7.1",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "zod-to-json-schema": "^3.24.6"
+    "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.0.0",
+    "@antfu/eslint-config": "^7.0.1",
     "@deconz-community/ddf-bundler": "workspace:^",
     "@deconz-community/ddf-validator": "workspace:^",
-    "@types/vscode": "^1.105.0",
+    "@types/vscode": "^1.108.1",
     "@types/webpack-env": "^1.18.8",
-    "@vscode/test-web": "^0.0.74",
+    "@vscode/test-web": "^0.0.78",
     "concurrently": "^9.2.1",
     "copy-webpack-plugin": "^13.0.1",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.2",
     "null-loader": "^4.0.1",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
-    "webpack": "^5.102.1",
+    "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1"
   }
 }

@@ -1,10 +1,10 @@
 import type { ActorRefFrom } from 'xstate'
+import { enableMapSet, produce } from 'immer'
 import { assign, enqueueActions, setup } from 'xstate'
 import { z } from 'zod'
-import { enableMapSet, produce } from 'immer'
 import { discoveryMachine } from './discovery'
-import { storeMachine } from './store'
 import { gatewayMachine } from './gateway'
+import { storeMachine } from './store'
 
 enableMapSet()
 
@@ -19,7 +19,7 @@ export const storageSchema = z.object({
     developerMode: z.boolean().optional(),
     darkTheme: z.boolean().optional(),
   })),
-  credentials: z.record(z.object({
+  credentials: z.record(z.string(), z.object({
     id: z.string(),
     name: z.string(),
     apiKey: z.string(),

@@ -1,8 +1,8 @@
 import { z } from 'zod'
-import { sensorSchema } from './gateway/schemas/sensorSchema'
-import { lightSchema } from './gateway/schemas/lightSchema'
-import { groupSchema } from './gateway/schemas/groupSchema'
 import { alarmSystemSchema } from './gateway/schemas/alarmSystemSchema'
+import { groupSchema } from './gateway/schemas/groupSchema'
+import { lightSchema } from './gateway/schemas/lightSchema'
+import { sensorSchema } from './gateway/schemas/sensorSchema'
 
 export type WebsocketEvent = z.infer<ReturnType<typeof websocketSchema>>
 
@@ -13,7 +13,7 @@ export function websocketSchema() {
     t: z.literal('event'),
     e: z.enum(['scene-called', 'added', 'changed', 'deleted']),
     r: z.enum(['alarmsystems', 'scenes', 'sensors', 'lights', 'groups']).optional(),
-  }).passthrough()
+  }).loose()
 
   const initialSchema = z.preprocess((data) => {
     const initialData = firstProcess.parse(data)

@@ -1,4 +1,3 @@
-import type { ZodIssueOptionalMessage } from 'zod'
 import type { GenericsData } from '../types'
 import { z } from 'zod'
 import * as cf from '../custom-formats'
@@ -19,11 +18,11 @@ export function ddfSchema(generics: GenericsData) {
     'md:warning': z.optional(z.array(z.string())).describe('Notes warning for this device, markdown file.'),
     'md:known_issues': z.optional(z.array(z.string())).describe('Know issues for this device, markdown file.'),
     'manufacturername': z.union([
-      z.enum(Object.keys(generics.manufacturers) as [string, ...string[]]),
+      z.enum(Object.keys(generics.manufacturers)),
       z.string().regex(/^(?!\$MF_).*/g, 'The manufacturer name start with $MF_ but is not present in constants.json'),
       z.array(
         z.union([
-          z.enum(Object.keys(generics.manufacturers) as [string, ...string[]]),
+          z.enum(Object.keys(generics.manufacturers)),
           z.string().regex(/^(?!\$MF_).*/g, 'The manufacturer name start with $MF_ but is not present in constants.json'),
         ]),
       ),
@@ -45,11 +44,11 @@ export function ddfSchema(generics: GenericsData) {
 export function ddfSubDeviceSchema(generics: GenericsData) {
   return z.strictObject({
     type: z.union([
-      z.enum(Object.keys(generics.deviceTypes) as [string, ...string[]], {
-        errorMap: (issue: ZodIssueOptionalMessage, ctx: { defaultError: string }) => {
-          if (issue.code === 'invalid_enum_value')
-            return { message: `Invalid enum value. Expected type from generic attributes definition, received '${issue.received}'` }
-          return { message: ctx.defaultError }
+      z.enum(Object.keys(generics.deviceTypes), {
+        error: (issue) => {
+          if (issue.code === 'invalid_value')
+            return `Invalid enum value. Expected type from generic attributes definition, received '${issue.received}'`
+          return issue.message
         },
       }),
       z.string().regex(/^(?!\$TYPE_).*/g, 'The type start with $TYPE_ but is not present in constants.json'),
@@ -85,11 +84,11 @@ export function subDeviceItemSchema(generics: GenericsData) {
       id: true,
     })
     .extend({
-      name: z.enum(generics.attributes as [string, ...string[]], {
-        errorMap: (issue: ZodIssueOptionalMessage, ctx: { defaultError: string }) => {
-          if (issue.code === 'invalid_enum_value')
-            return { message: `Invalid enum value. Expected item from generic attributes definition, received '${issue.received}'` }
-          return { message: ctx.defaultError }
+      name: z.enum(generics.attributes, {
+        error: (issue) => {
+          if (issue.code === 'invalid_value')
+            return `Invalid enum value. Expected item from generic attributes definition, received '${issue.received}'`
+          return issue.message
         },
       })
         .describe('Item name.'),

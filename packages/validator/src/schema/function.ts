@@ -64,11 +64,11 @@ export function parseFunction(generics: GenericsData) {
     }),
     z.strictObject({
       fn: z.literal('numtostr').describe('Generic function to to convert number to string.'),
-      srcitem: z.enum(generics.attributes as [string, ...string[]], {
-        errorMap: (issue: ZodIssueOptionalMessage, ctx: { defaultError: string }) => {
-          if (issue.code === 'invalid_enum_value')
-            return { message: `Invalid enum value. Expected item from generic attributes definition, received '${issue.received}'` }
-          return { message: ctx.defaultError }
+      srcitem: z.enum(generics.attributes, {
+        error: (issue) => {
+          if (issue.code === 'invalid_value')
+            return `Invalid enum value. Expected item from generic attributes definition, received '${issue.input}'`
+          return issue.message
         },
       }).describe('The source item holding the number.'),
       op: z.enum(['lt', 'le', 'eq', 'gt', 'ge']).describe('Comparison operator (lt | le | eq | gt | ge)'),

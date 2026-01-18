@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.28.0",
   "description": "",
   "author": {
     "name": "Zehir",
@@ -50,18 +50,18 @@
   },
   "dependencies": {
     "@deconz-community/directus-extension-ddf-store": "workspace:^",
-    "directus": "^11.12.0",
+    "directus": "^11.14.1",
     "dotenv": "^17.2.3",
-    "dotenv-cli": "^10.0.0",
+    "dotenv-cli": "^11.0.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "@unhead/vue": "^2.0.19",
+    "@unhead/vue": "^2.1.2",
     "concurrently": "^9.2.1",
     "node-watch": "^0.7.4",
-    "nodemon": "^3.1.10",
-    "pinia": "^3.0.3",
+    "nodemon": "^3.1.11",
+    "pinia": "^3.0.4",
     "spawn-command": "1.0.0",
-    "vue": "^3.5.22"
+    "vue": "^3.5.26"
   }
 }

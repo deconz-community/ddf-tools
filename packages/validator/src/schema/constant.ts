@@ -16,5 +16,5 @@ export function constantsSchema2(_generics: GenericsData) {
     $schema: z.optional(z.string()),
     schema: z.literal('constants2.schema.json'),
     ddfvalidate: z.optional(z.boolean()),
-  }).passthrough()
+  }).loose()
 }

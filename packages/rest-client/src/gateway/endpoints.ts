@@ -803,7 +803,7 @@ export const endpoints = {
     response: {
       format: 'json',
       // TOTO: Add schema
-      schema: z.object({}).passthrough().transform(data => Ok(data)),
+      schema: z.object({}).loose().transform(data => Ok(data)),
     },
   }),
 
@@ -820,7 +820,7 @@ export const endpoints = {
     response: {
       format: 'json',
       // TOTO: Add schema
-      schema: z.object({}).passthrough().transform(data => Ok(data)),
+      schema: z.object({}).loose().transform(data => Ok(data)),
     },
   }),
 
@@ -1291,7 +1291,7 @@ export const endpoints = {
           return data
         const { lastscan, ...rest } = data
         const devices: { name: string, id: number }[] = []
-        const sensors = z.record(z.object({ name: z.string() })).safeParse(rest)
+        const sensors = z.record(z.coerce.number(), z.object({ name: z.string() })).safeParse(rest)
         if (sensors.success) {
           Object.entries(sensors.data).forEach(([id, sensor]) => {
             devices.push({ name: sensor.name, id: Number(id) })
@@ -1394,7 +1394,7 @@ export const endpoints = {
         format: 'json',
         type: 'body',
         // TODO: Add schema
-        schema: z.object({}).passthrough(),
+        schema: z.object({}).loose(),
         sample: {
           on: true,
         },
@@ -1403,7 +1403,7 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/sensors\/\d+\/config\//,
-      schema: z.object({}).passthrough().transform(data => Ok(data)),
+      schema: z.object({}).loose().transform(data => Ok(data)),
     },
   }),
 
@@ -1421,7 +1421,7 @@ export const endpoints = {
         format: 'json',
         type: 'body',
         // TODO: Add schema
-        schema: z.object({}).passthrough(),
+        schema: z.object({}).loose(),
         sample: {
           buttonevent: 1001,
         },
@@ -1430,7 +1430,7 @@ export const endpoints = {
     response: {
       format: 'jsonArray',
       removePrefix: /^\/sensors\/\d+\/state\//,
-      schema: z.object({}).passthrough().transform(data => Ok(data)),
+      schema: z.object({}).loose().transform(data => Ok(data)),
     },
   }),
 

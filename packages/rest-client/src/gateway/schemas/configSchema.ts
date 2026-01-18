@@ -51,6 +51,7 @@ export const configSchema = z.strictObject({
     .describe('MAC address of the gateway.'),
   'port': z.number().min(0).max(65535).default(80).describe('Port of the REST API server.'),
   'websocketport': z.number().min(0).max(65535).default(443).describe('Port of the Websocket server.'),
+  'websocketport_wss': z.number().min(0).max(65535).default(443).describe('Port of the Websocket server.'),
   'netmask': z.ipv4().describe('Network mask of the gateway.'),
   'gateway': z.ipv4().describe('Network gateway of the gateway. Not always valid as he calculate using x.x.x.1 where x is the Gateway IP.'),
 

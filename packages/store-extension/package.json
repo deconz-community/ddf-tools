@@ -31,22 +31,22 @@
   },
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
-    "@directus/errors": "^2.0.4",
+    "@directus/errors": "^2.1.0",
     "@noble/hashes": "^2.0.1",
-    "@octokit/core": "^7.0.5",
+    "@octokit/core": "^7.0.6",
     "@sindresorhus/slugify": "^3.0.0",
     "busboy": "^1.6.0",
     "compare-versions": "^6.1.1",
     "pako": "^2.1.0"
   },
   "devDependencies": {
-    "@directus/api": "^31.0.0",
-    "@directus/extensions-sdk": "16.0.2",
-    "@directus/types": "^13.2.3",
+    "@directus/api": "^33.0.0",
+    "@directus/extensions-sdk": "17.0.5",
+    "@directus/types": "^14.0.0",
     "@types/busboy": "^1.5.4",
     "@types/node": "^20.19.23",
     "@types/pako": "^2.0.4",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "typescript": "^5.9.3"
   }
 }

@@ -33,7 +33,7 @@ export function downloadEndpoint({ router, context, services, schema }: GlobalCo
 
     const buffer = Buffer.from(bundle.content, 'base64')
     const decompressed = Buffer.from(pako.inflate(buffer))
-    const readStream = new Stream.PassThrough()
+    const readStream = new Stream.loose()
     readStream.end(decompressed)
 
     res.set('Content-disposition', `attachment; filename=${fileName}`)

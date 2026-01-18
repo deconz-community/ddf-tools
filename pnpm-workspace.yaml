@@ -5,3 +5,11 @@ packages:
 
 ignoredBuiltDependencies:
   - isolated-vm
+
+onlyBuiltDependencies:
+  - '@playwright/browser-chromium'
+  - argon2
+  - esbuild
+  - oracledb
+  - sharp
+  - vue-demi

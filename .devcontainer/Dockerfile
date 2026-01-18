@@ -1,4 +1,4 @@
-ARG VARIANT="22-trixie"
+ARG VARIANT="24-trixie"
 
 FROM mcr.microsoft.com/devcontainers/typescript-node:${VARIANT}
 

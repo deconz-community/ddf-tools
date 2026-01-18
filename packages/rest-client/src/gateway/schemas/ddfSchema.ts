@@ -9,4 +9,4 @@ export const ddfdDescriptorSchema = z.strictObject({
   device_identifiers: z.array(
     z.tuple([z.string(), z.string()]),
   ).describe('List of device identifiers that are supported by the DDF bundle.'),
-}).passthrough()
+}).loose()

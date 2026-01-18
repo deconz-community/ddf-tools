@@ -4,8 +4,7 @@ import { lightSchema } from './lightSchema'
 export const groupSchema = z.strictObject({
   id: z.string()
     .describe('The id of the group.'),
-  name: z.string().min(1).max(32).default('New group')
-    .describe('The name of the group.'),
+  name: z.string().min(1).max(32).default('New group').describe('The name of the group.'),
   type: z.enum(['LightGroup', 'Luminaire', 'Lightsource', 'Room'])
     .describe('The type of the group.'),
   class: z.enum([
@@ -49,12 +48,8 @@ export const groupSchema = z.strictObject({
     'Porch',
     'Barbecue',
     'Pool',
-  ]).optional()
-    .describe('The class of the group. Only available for type Room.'),
-  uniqueid: z.string().length(11)
-    .or(z.string().length(14))
-    .optional()
-    .describe('The unique id of the group. (AA:BB:CC:DD or AA:BB:CC:DD-XX) /!\\ this is not a unique value.'),
+  ]).optional().describe('The class of the group. Only available for type Room.'),
+  uniqueid: z.string().length(11).or(z.string().length(14)).optional().describe('The unique id of the group. (AA:BB:CC:DD or AA:BB:CC:DD-XX) /!\\ this is not a unique value.'),
   action: lightSchema.shape.state
     .pick({
       on: true,
@@ -74,8 +69,7 @@ export const groupSchema = z.strictObject({
     .describe('The last action which was send to the group.'),
   devicemembership: z.array(z.string())
     .describe('If this group was created by a device (switch or sensor) this list contains the device ids.'),
-  etag: z.string().or(z.null())
-    .describe('HTTP etag which changes whenever the group changes.'),
+  etag: z.string().or(z.null()).describe('HTTP etag which changes whenever the group changes.'),
   scenes: z.array(z.strictObject({
     id: z.string()
       .describe('The id of the scene.'),
@@ -104,7 +98,7 @@ export const groupSchema = z.strictObject({
 })
   .describe('Group of the gateway.')
 
-export const groupsSchema = z.record(groupSchema)
+export const groupsSchema = z.record(z.coerce.number(), groupSchema)
   .describe('All groups of the gateway.')
 
 export const writableGroupActionSchema = groupSchema.shape.action.pick({
@@ -117,14 +111,11 @@ export const writableGroupActionSchema = groupSchema.shape.action.pick({
   alert: true,
   effect: true,
 }).extend({
-  toggle: z.boolean().optional().default(false)
-    .describe('Set to true toggles the lights of that group from on to off or vice versa, false has no effect. '
+  toggle: z.boolean().optional().default(false).describe('Set to true toggles the lights of that group from on to off or vice versa, false has no effect. '
     + '**Notice:** This setting supersedes the `on` parameter!'),
-  colorloopspeed: z.number().optional().default(15)
-    .describe('Specifies the speed of a colorloop. 1 = very fast, 255 = very slow (default: 15). '
+  colorloopspeed: z.number().optional().default(15).describe('Specifies the speed of a colorloop. 1 = very fast, 255 = very slow (default: 15). '
     + 'This parameter only has an effect when it is called together with effect colorloop.'),
-  transitiontime: z.number().optional().default(4)
-    .describe('Transition time in 1/10 seconds between two states. Note that not all states support a transition time. '
+  transitiontime: z.number().optional().default(4).describe('Transition time in 1/10 seconds between two states. Note that not all states support a transition time. '
     + 'For example, a transition time when setting on will be ignored as the Zigbee On and Off commands do not support transition times. '
     + 'In general, light attributes that support a range of values support transition times, while boolean values do not.'),
 }).partial()

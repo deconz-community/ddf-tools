@@ -1,31 +1,37 @@
-import 'vuetify/styles'
+import type { UserModule } from '~/types'
 
-import '@mdi/font/css/materialdesignicons.css'
+import { createVuetify } from 'vuetify'
 
 // Ensure you are using css-loader
 
-import { createVuetify } from 'vuetify'
+import VuetifyUseDialog from 'vuetify-use-dialog'
 
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 // Labs
 // https://next.vuetifyjs.com/en/labs/introduction/
 import * as labs from 'vuetify/labs/components'
-import VuetifyUseDialog from 'vuetify-use-dialog'
-
 import { storageKey, storageSchema } from '~/machines/app'
 
-import type { UserModule } from '~/types'
 import BundleEditorFiles from '../components/bundle-editor/bundle-editor-files.vue'
+
+import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
 
 // #region Default theme
 let defaultTheme = 'dark'
 const saved = localStorage.getItem(storageKey)
 if (saved) {
-  const parsed = JSON.parse(saved)
-  const data = storageSchema.parse(parsed)
+  try {
+    const parsed = JSON.parse(saved)
+    const data = storageSchema.parse(parsed)
 
-  defaultTheme = data.settings?.darkTheme === false ? 'light' : 'dark'
+    defaultTheme = data.settings?.darkTheme === false ? 'light' : 'dark'
+  }
+  catch (e) {
+    localStorage.removeItem(storageKey)
+    console.error(e)
+  }
 }
 // #endregion
 

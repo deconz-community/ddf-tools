@@ -4,20 +4,16 @@ export const deviceSchema = z.object({
   name: z.string().default('Device'),
   manufacturername: z.string().default('Manufacturer'),
   modelid: z.string().default('Model'),
-  lastannounced: z.string().transform(value => new Date(value)).or(z.null())
-    .describe('Last time the device announced itself to the network.'),
-  lastseen: z.string().transform(value => new Date(value)).or(z.null())
-    .describe('Last time the device has transmitted any data.'),
+  lastannounced: z.string().transform(value => new Date(value)).or(z.null()).describe('Last time the device announced itself to the network.'),
+  lastseen: z.string().transform(value => new Date(value)).or(z.null()).describe('Last time the device has transmitted any data.'),
   productid: z.string().or(z.null()).optional(),
   ddf_policy: z.enum([
     'latest_prefer_stable',
     'latest',
     'pin',
     'raw_json',
-  ]).optional()
-    .describe('Determines how DDF bundle is selected.'),
-  ddf_hash: z.string().optional()
-    .describe('Hash of active DDF bundle.'),
+  ]).optional().describe('Determines how DDF bundle is selected.'),
+  ddf_hash: z.string().optional().describe('Hash of active DDF bundle.'),
   subdevices: z.array(z.object({
     config: z.optional(z.record(z.string(), z.object({
       lastupdated: z.string().transform(value => new Date(value)).or(z.null()),
@@ -33,7 +29,7 @@ export const deviceSchema = z.object({
   })),
   swversion: z.string().or(z.null()).optional().describe('Firmware version.'),
   uniqueid: z.string(),
-}).passthrough()
+}).loose()
 
 export const introspectGenericItemSchema = z.object({
   format: z.literal('generic'),

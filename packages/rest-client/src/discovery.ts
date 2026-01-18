@@ -16,8 +16,8 @@ export type FindGatewayResult = Result<
     {
       code: 'ok'
       config: ExtractResponseSchemaForAlias<'getConfig'>
-    } |
-    {
+    }
+    | {
       code: 'bridge_id_mismatch' | 'invalid_api_key'
       message: string
     }
@@ -39,7 +39,6 @@ export function findGateway(URIs: string[], apiKey = '', expectedBridgeID = ''):
           apiKey,
         })
         const results = await gateway.request('getConfig', {})
-
         const config = results.find(result => result.isOk())
 
         if (config === undefined || !config.isOk())
