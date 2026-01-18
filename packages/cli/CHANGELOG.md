@@ -1,5 +1,17 @@
 # @deconz-community/cli
 
+## 1.19.0
+
+### Minor Changes
+
+- ce24356: Update many dep to latest version
+
+### Patch Changes
+
+- Updated dependencies [ce24356]
+  - @deconz-community/ddf-validator@2.34.0
+  - @deconz-community/ddf-bundler@0.33.0
+
 ## 1.18.1
 
 ### Patch Changes
