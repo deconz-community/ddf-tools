@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.34.0
+
+### Minor Changes
+
+- ce24356: Update many dep to latest version
+
 ## 2.33.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.33.0
+
+### Minor Changes
+
+- ce24356: Update many dep to latest version
+
 ## 0.32.1
 
 ### Patch Changes
