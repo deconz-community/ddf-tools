@@ -4,7 +4,7 @@ import { createValidator } from '@deconz-community/ddf-validator'
 import { getLanguageService } from 'vscode-json-languageservice'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { BrowserMessageReader, BrowserMessageWriter, createConnection, TextDocuments, TextDocumentSyncKind } from 'vscode-languageserver/browser'
-import { zodToJsonSchema } from 'zod-to-json-schema'
+import { toJSONSchema } from 'zod'
 
 console.log('running server lsp-web-extension-sample')
 
@@ -17,7 +17,7 @@ const documents = new TextDocuments(TextDocument)
 const jsonLanguageService = getLanguageService({})
 
 const validator = createValidator()
-const schema = zodToJsonSchema(validator.getSchema())
+const schema = toJSONSchema(validator.getSchema(), { unrepresentable: 'any' })
 
 jsonLanguageService.configure({
   schemas: [{

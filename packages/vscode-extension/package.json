@@ -94,7 +94,7 @@
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "zod-to-json-schema": "^3.25.1"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.0.1",

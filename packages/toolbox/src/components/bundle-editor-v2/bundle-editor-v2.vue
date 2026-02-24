@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { BundleFile, TextFile } from '@deconz-community/ddf-bundler'
 import type { VueMonacoEditorEmitsOptions } from '@guolao/vue-monaco-editor'
-import type { VListItem } from 'vuetify/lib/components/index.mjs'
+import type { VListItem } from 'vuetify/lib/components/index.d.ts'
 import type { Node } from '~/lib/filePathsToTree'
 import { Bundle, decode, encode } from '@deconz-community/ddf-bundler'
 import { createValidator } from '@deconz-community/ddf-validator'
 import { bytesToHex } from '@noble/hashes/utils.js'
 import { useVModel } from '@vueuse/core'
 import { saveAs } from 'file-saver'
-import { zodToJsonSchema } from 'zod-to-json-schema'
+import { toJSONSchema } from 'zod'
 import { filePathsToTree } from '~/lib/filePathsToTree'
 import { duktapeJS } from './duktapeJS'
 
@@ -29,7 +29,7 @@ const bundle = useVModel(props, 'modelValue', emit)
 const isDirty = ref(false)
 const codeEditor = shallowRef<Editor>()
 const monacoEditor = shallowRef<Monaco>()
-const schema = shallowRef(zodToJsonSchema(createValidator().getSchema()))
+const schema = shallowRef(toJSONSchema(createValidator().getSchema(), { unrepresentable: 'any' }))
 
 function updateSchema() {
   const validator = createValidator()

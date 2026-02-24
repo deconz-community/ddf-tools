@@ -91,7 +91,6 @@ const validator = createValidator({
 
 ```
 
-
 ### validator.generics
 
 Currently loaded generics.
@@ -119,15 +118,14 @@ import { createValidator } from '@deconz-community/ddf-validator'
 
 const validator = createValidator()
 validator.loadGeneric({
-  "schema": "constants1.schema.json",
-  "manufacturers" : {
-    "$MF_FOO": "Foo inc."
+  'schema': 'constants1.schema.json',
+  'manufacturers': {
+    $MF_FOO: 'Foo inc.'
   },
-  "device-types": {
-    "$TYPE_COLOR_LIGHT": "Color light"
+  'device-types': {
+    $TYPE_COLOR_LIGHT: 'Color light'
   }
 })
-
 ```
 
 ### validator.validate()
@@ -151,15 +149,14 @@ import { createValidator } from '@deconz-community/ddf-validator'
 
 const validator = createValidator()
 validator.validate({
-  "schema": "constants1.schema.json",
-  "manufacturers" : {
-    "$MF_FOO": "Foo inc."
+  'schema': 'constants1.schema.json',
+  'manufacturers': {
+    $MF_FOO: 'Foo inc.'
   },
-  "device-types": {
-    "$TYPE_COLOR_LIGHT": "Color light"
+  'device-types': {
+    $TYPE_COLOR_LIGHT: 'Color light'
   }
 })
-
 ```
 
 ### validator.bulkValidate()
@@ -223,10 +220,10 @@ Return Zod schema with loaded generic data.
 
 ```typescript
 import { createValidator } from '@deconz-community/ddf-validator'
-import { zodToJsonSchema } from 'zod-to-json-schema'
+import { toJSONSchema } from 'zod'
 
 const validator = createValidator()
-const schemaJson = zodToJsonSchema(validator.getSchema(), 'DDF')
+const schemaJson = toJSONSchema(validator.getSchema(), { unrepresentable: 'any' })
 ```
 
 ### Type definition

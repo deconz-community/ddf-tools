@@ -2,7 +2,7 @@
 
 import fs from 'node:fs'
 import fastGlob from 'fast-glob'
-import { zodToJsonSchema } from 'zod-to-json-schema'
+import { toJSONSchema } from 'zod'
 import { createAuxiliaryTypeStore, createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 import { createValidator } from './dist/ddf-validator.cjs'
 
@@ -38,10 +38,11 @@ if (!fs.existsSync(outputDirectory))
   fs.mkdirSync(outputDirectory, { recursive: true })
 
 // Write json schema
-const schemaJson = zodToJsonSchema(schemaZod, 'DDF')
 fs.writeFileSync(
   `${outputDirectory}/ddf-schema.json`,
-  JSON.stringify(schemaJson),
+  JSON.stringify(toJSONSchema(schemaZod, {
+    unrepresentable: 'any',
+  })),
 )
 
 // Write typescript schema
