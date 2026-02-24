@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.35.0
+
+### Minor Changes
+
+- 6ec43bf: Removed zod-to-json-schema dependency
+
 ## 2.34.0
 
 ### Minor Changes
