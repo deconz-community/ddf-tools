@@ -41,7 +41,7 @@ jobs:
         uses: pnpm/action-setup@v3
 
       - name: Install dependencies
-        run: pnpm install --filter="!@deconz-community/store"
+        run: pnpm install --filter="!@deconz-community/store" --filter="!@deconz-community/ddf-tools-vscode-extension"
 
       - name: Build project
         run: pnpm run build:toolbox
