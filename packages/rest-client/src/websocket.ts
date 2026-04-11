@@ -43,7 +43,7 @@ export function websocketSchema() {
       t: z.literal('event'),
       e: z.literal('changed'),
       r: z.literal('alarmsystems'),
-      attr: alarmSystemSchema
+      attr: alarmSystemSchema.partial()
         .pick({ name: true })
         .extend({
           id: z.string(),
@@ -101,7 +101,7 @@ export function websocketSchema() {
       e: z.literal('changed'),
       r: z.literal('groups'),
       id: z.string(),
-      attr: groupSchema.omit({ state: true, etag: true }),
+      attr: groupSchema.partial().omit({ state: true, etag: true }),
     }),
 
     // Group changed state
@@ -135,7 +135,7 @@ export function websocketSchema() {
       r: z.literal('sensors'),
       id: z.string(),
       uniqueid: z.string(),
-      sensor: sensorSchema,
+      sensor: sensorSchema.partial(),
     }),
 
     // Sensor announcement
@@ -146,7 +146,7 @@ export function websocketSchema() {
       r: z.literal('sensors'),
       id: z.string(),
       uniqueid: z.string(),
-      attr: sensorSchema.omit({ state: true, config: true, etag: true }),
+      attr: sensorSchema.partial().omit({ state: true, config: true, etag: true }),
     }),
 
     // Sensor state change
@@ -190,7 +190,7 @@ export function websocketSchema() {
       r: z.literal('lights'),
       id: z.string(),
       uniqueid: z.string(),
-      light: lightSchema,
+      light: lightSchema.partial(),
     }),
 
     // Light announcement
@@ -201,7 +201,7 @@ export function websocketSchema() {
       r: z.literal('lights'),
       id: z.string(),
       uniqueid: z.string(),
-      attr: lightSchema.omit({ state: true, config: true, etag: true }),
+      attr: lightSchema.partial().omit({ state: true, config: true, etag: true }),
     }),
 
     // Light state change
