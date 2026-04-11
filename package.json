@@ -59,8 +59,5 @@
       "email": "zehir@zorim.fr",
       "url": "https://github.com/Zehir"
     }
-  ],
-  "dependencies": {
-    "sqlite3": "^6.0.1"
-  }
+  ]
 }
