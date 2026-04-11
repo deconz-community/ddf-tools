@@ -1,12 +1,20 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - chokidar@4.0.3
+  - jose@4.15.9
+  - semver@6.3.1
+
 packages:
   - packages/*
   - packages/store/packages/*
   - '!**/.vscode-text-web/**'
 
-ignoredBuiltDependencies:
-  - isolated-vm
-
 onlyBuiltDependencies:
+  - isolated-vm
+  - protobufjs
+  - sqlite3
   - '@playwright/browser-chromium'
   - argon2
   - esbuild

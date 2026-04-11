@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import fastGlob from 'fast-glob'
 import { toJSONSchema } from 'zod'
 import { createAuxiliaryTypeStore, createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
+// eslint-disable-next-line antfu/no-import-dist
 import { createValidator } from './dist/ddf-validator.cjs'
 
 const { globSync } = fastGlob

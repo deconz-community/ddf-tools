@@ -2,7 +2,7 @@
   "name": "@deconz-community/ddf-tools",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.33.0",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
@@ -35,25 +35,23 @@
     "dev:extension": "pnpm --dir packages/vscode-extension run dev"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.0.1",
-    "@changesets/cli": "^2.29.8",
-    "@eslint/eslintrc": "^3.3.3",
-    "eslint": "^9.39.2",
-    "taze": "^19.9.2",
-    "turbo": "^2.7.5",
-    "vue-eslint-parser": "^10.2.0"
+    "@antfu/eslint-config": "^8.1.1",
+    "@changesets/cli": "^2.30.0",
+    "@eslint/eslintrc": "^3.3.5",
+    "eslint": "^10.2.0",
+    "taze": "^19.11.0",
+    "turbo": "^2.9.6",
+    "vue-eslint-parser": "^10.4.0"
   },
   "resolutions": {
-    "@eslint/plugin-kit": "^0.5.1",
-    "@nuxt/kit": "^4.2.2",
+    "@eslint/plugin-kit": "^0.7.1",
+    "@nuxt/kit": "^4.4.2",
     "cross-spawn": "^7.0.6",
-    "express": "^5.2.1",
     "micromatch": "^4.0.8",
-    "rollup": "^4.55.1",
-    "serve-static": "^2.2.1",
+    "rollup": "^4.60.1",
     "socks": "^2.8.7",
-    "vite": "^7.3.1",
-    "vue": "^3.5.26"
+    "vite": "^8.0.8",
+    "vue": "^3.5.32"
   },
   "maintainers": [
     {
@@ -63,6 +61,6 @@
     }
   ],
   "dependencies": {
-    "isolated-vm": "^6.0.2"
+    "sqlite3": "^6.0.1"
   }
 }

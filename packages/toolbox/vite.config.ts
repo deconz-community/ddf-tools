@@ -3,12 +3,12 @@ import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
-import VueMacros from 'unplugin-vue-macros/vite'
 import { defineConfig } from 'vite'
 import Pages from 'vite-plugin-pages'
 import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts'
 import Vuetify from 'vite-plugin-vuetify'
+import VueMacros from 'vue-macros/vite'
 
 export default defineConfig({
   base: '/ddf-tools/',
