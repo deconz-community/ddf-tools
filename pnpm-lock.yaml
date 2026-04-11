@@ -408,7 +408,7 @@ importers:
         specifier: ^0.6.11
         version: 0.6.11(vue@3.5.32(typescript@5.9.3))(vuetify@4.0.5)
       xstate:
-        specifier: ^5.25.1
+        specifier: ^5.30.0
         version: 5.30.0
       zod:
         specifier: ^4.3.5

@@ -58,7 +58,7 @@
     "vuetify": "^4.0.5",
     "vuetify-sonner": "^0.4.2",
     "vuetify-use-dialog": "^0.6.11",
-    "xstate": "^5.25.1",
+    "xstate": "^5.30.0",
     "zod": "^4.3.5",
     "zod-empty": "^2.1.0"
   },
