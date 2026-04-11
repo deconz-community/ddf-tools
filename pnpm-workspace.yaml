@@ -11,8 +11,10 @@ packages:
   - packages/store/packages/*
   - '!**/.vscode-text-web/**'
 
-onlyBuiltDependencies:
+ignoredBuiltDependencies:
   - isolated-vm
+
+onlyBuiltDependencies:
   - protobufjs
   - sqlite3
   - '@playwright/browser-chromium'
