@@ -1,0 +1,9 @@
+{
+  "entries": [
+    {
+      "filePath": "./index.ts",
+      "outFile": "./dist/rest-client.d.ts",
+      "noCheck": false
+    }
+  ]
+}

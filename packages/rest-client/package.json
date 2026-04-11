@@ -39,6 +39,7 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/rest-client.d.ts",
       "import": "./dist/rest-client.mjs",
       "require": "./dist/rest-client.cjs"
     }
@@ -56,9 +57,10 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "pnpm run build:vite",
-    "build:cleanup": "rimraf ./dist",
+    "build": "pnpm run build:vite && pnpm run build:dts",
     "build:vite": "vite build",
+    "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.json",
+    "build:cleanup": "rimraf ./dist",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest"

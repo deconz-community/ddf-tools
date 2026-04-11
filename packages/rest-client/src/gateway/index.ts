@@ -15,7 +15,7 @@ type RequestFunctionType = <
   Params extends ExtractParamsForAlias<Alias>,
 >(
   alias: Alias,
-  params: Params
+  params: Params,
 ) => Promise<RequestResultForAlias<Alias>>
 
 export interface ResponseWatcherParam<Alias extends EndpointAlias> {
@@ -113,6 +113,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
               }
 
               default:
+                // @ts-expect-error Should never happen, but just in case
                 console.warn(`No parser for format of type body/${definition.format}`)
                 return [Err(clientError('PARAMS_PARSE_FAILED'))]
             }
@@ -125,7 +126,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
             if (!parsed.success)
               return [Err(zodError('request', parsed.error))]
 
-            headers[definition.key] = parsed.data
+            headers[definition.key] = parsed.data as string
             break
           }
 
@@ -140,6 +141,7 @@ export function gatewayClient(clientParams: ClientParams = {}) {
           }
 
           default:
+            // @ts-expect-error Should never happen, but just in case
             console.warn(`No parser for param of type ${definition.type}`)
             return [Err(clientError('PARAMS_PARSE_FAILED'))]
         }

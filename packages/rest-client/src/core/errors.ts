@@ -1,13 +1,13 @@
 import type { ZodError } from 'zod'
 
-export type CommonErrors<DeconzCodes extends number | never> =
-  | CustomError
-  | ReturnType<typeof clientError>
-  | ReturnType<typeof zodError>
-  | ReturnType<typeof httpError>
-  | (DeconzCodes extends number
-    ? ReturnType<typeof deconzError<DeconzCodes>>
-    : never)
+export type CommonErrors<DeconzCodes extends number | never>
+  = | CustomError
+    | ReturnType<typeof clientError>
+    | ReturnType<typeof zodError>
+    | ReturnType<typeof httpError>
+    | (DeconzCodes extends number
+      ? ReturnType<typeof deconzError<DeconzCodes>>
+      : never)
 
 // #region Custom Error
 export interface CustomError {
@@ -113,20 +113,20 @@ const deconzErrorsMap = {
 
 export type DeconzErrorCodes = keyof typeof deconzErrorsMap
 
-export type DeconzError<Code extends DeconzErrorCodes | number> =
-    Code extends DeconzErrorCodes
-      ? (typeof deconzErrorsMap)[Code]
-      : 'UNKNOWN_ERROR'
+export type DeconzError<Code extends DeconzErrorCodes | number>
+  = Code extends DeconzErrorCodes
+    ? (typeof deconzErrorsMap)[Code]
+    : 'UNKNOWN_ERROR'
 
 export function deconzError<Code extends number>(
   code: Code,
   address: string = '',
 ): {
-    type: 'deconz'
-    code_type: Code
-    code: DeconzError<Code>
-    address: string
-  } {
+  type: 'deconz'
+  code_type: Code
+  code: DeconzError<Code>
+  address: string
+} {
   return {
     type: 'deconz',
     code_type: code,

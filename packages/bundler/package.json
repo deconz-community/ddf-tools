@@ -39,6 +39,7 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/ddf-bundler.d.ts",
       "import": "./dist/ddf-bundler.mjs",
       "require": "./dist/ddf-bundler.cjs"
     }

@@ -16,8 +16,7 @@ export const globalParameters = {
     type: 'path',
     format: 'string',
     knownParam: 'hidden',
-    schema: z.string().optional()
-      .transform(value => value ?? '<nouser>'),
+    schema: z.string().optional().transform(value => value ?? '<nouser>'),
     sample: '12345ABCDE',
   }),
 

@@ -27,35 +27,38 @@ export type EndpointAlias = keyof typeof endpoints
 
 type Response<Alias extends EndpointAlias> = typeof endpoints[Alias]['response']
 type Parameters<Alias extends EndpointAlias> = typeof endpoints[Alias]['parameters']
+type DeconzErrorsForAlias<Alias extends EndpointAlias>
+  = Response<Alias> extends { deconzErrors?: readonly (infer Code)[] }
+    ? Code extends number
+      ? Code
+      : never
+    : never
 
 export type RequestResultForAlias<Alias extends EndpointAlias> = Result<
   ExtractResponseSchemaForAlias<Alias>,
   ExtractErrorsForAlias<Alias>
 >[]
 
-export type ExtractResponseSchemaForAlias<Alias extends EndpointAlias> =
-  ResultOkType<ResolveZod<Response<Alias>['schema']>>
+export type ExtractResponseSchemaForAlias<Alias extends EndpointAlias>
+  = ResultOkType<ResolveZod<Response<Alias>['schema']>>
 
-export type ExtractErrorsForAlias<Alias extends EndpointAlias> =
-  ('deconzErrors' extends keyof Response<Alias>
-  // @ts-expect-error Yes I know I cheated again
-    ? CommonErrors<Response<Alias>['deconzErrors'][number]>
-    : CommonErrors<never>)
+export type ExtractErrorsForAlias<Alias extends EndpointAlias>
+  = CommonErrors<DeconzErrorsForAlias<Alias>>
 
 // #region Params types
 export type ExtractParamsNamesForAlias<Alias extends EndpointAlias> = keyof Parameters<Alias>
 
-export type ExtractParamsForAlias<Alias extends EndpointAlias> =
-Prettify<UndefinedToOptional<{
-  // @ts-expect-error schema is defined
-  [K in ExtractParamsNamesForAlias<Alias>]: z.input<ExtractParamsSchemaForAlias<Alias, K>>
-}>>
+export type ExtractParamsForAlias<Alias extends EndpointAlias>
+  = Prettify<UndefinedToOptional<{
+    [K in ExtractParamsNamesForAlias<Alias>]: z.input<ExtractParamsSchemaForAlias<Alias, K>>
+  }>>
 
 export type ExtractParamsSchemaForAlias<
   Alias extends EndpointAlias,
   ParamName extends ExtractParamsNamesForAlias<Alias>,
-  // @ts-expect-error schema is defined
-> = Parameters<Alias>[ParamName]['schema']
+> = Parameters<Alias>[ParamName] extends { schema: infer Schema extends ZodTypeAny }
+  ? Schema
+  : never
 
 export const KNOWN_PARAMS = [
   'hidden',
