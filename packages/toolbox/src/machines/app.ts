@@ -80,7 +80,14 @@ export const appMachine = setup({
         if (!saved)
           return
         const parsed = JSON.parse(saved)
-        const data = storageSchema.parse(parsed)
+        const parseResult = storageSchema.safeParse(parsed)
+
+        if (!parseResult.success) {
+          console.error('Failed to parse storage data', parseResult.error)
+          return
+        }
+
+        const data = parseResult.data
 
         Object
           .values(data.credentials)

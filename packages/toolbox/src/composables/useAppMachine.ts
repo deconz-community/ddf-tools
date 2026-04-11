@@ -1,11 +1,11 @@
 import type { App, MaybeRef, ShallowRef } from 'vue'
-import { createActor } from 'xstate'
 import type { Actor, AnyStateMachine, EventFrom, StateFrom } from 'xstate'
-import { createBrowserInspector } from '@statelyai/inspect'
-import { appMachine } from '~/machines/app'
 import type { discoveryMachine } from '~/machines/discovery'
 import type { gatewayMachine } from '~/machines/gateway'
 import type { storeMachine } from '~/machines/store'
+import { createBrowserInspector } from '@statelyai/inspect'
+import { createActor } from 'xstate'
+import { appMachine } from '~/machines/app'
 
 export interface AppMachinePart<Type extends AnyStateMachine> {
   actor: Actor<Type>
@@ -13,11 +13,11 @@ export interface AppMachinePart<Type extends AnyStateMachine> {
   events: EventFrom<Type>
 }
 
-export type AppMachine =
-  | { type: 'app' } & AppMachinePart<typeof appMachine>
-  | { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
-  | { type: 'store' } & AppMachinePart<typeof storeMachine>
-  | { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
+export type AppMachine
+  = | { type: 'app' } & AppMachinePart<typeof appMachine>
+    | { type: 'discovery' } & AppMachinePart<typeof discoveryMachine>
+    | { type: 'store' } & AppMachinePart<typeof storeMachine>
+    | { type: 'gateway' } & AppMachinePart<typeof gatewayMachine> & { query: { id: string } }
 
 export type ExtractMachine<Type extends AppMachine['type']> = Extract<AppMachine, { type: Type }>
 export type MachineQuery<Type extends AppMachine['type']> = ExtractMachine<Type> extends { query: infer Query } ? Query : never
