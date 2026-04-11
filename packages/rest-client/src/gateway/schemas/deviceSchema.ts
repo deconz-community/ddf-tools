@@ -15,6 +15,7 @@ export const deviceSchema = z.object({
   ]).optional().describe('Determines how DDF bundle is selected.'),
   ddf_hash: z.string().optional().describe('Hash of active DDF bundle.'),
   subdevices: z.array(z.object({
+    productid: z.string().or(z.null()).optional(),
     config: z.optional(z.record(z.string(), z.object({
       lastupdated: z.string().transform(value => new Date(value)).or(z.null()),
       value: z.any(),
