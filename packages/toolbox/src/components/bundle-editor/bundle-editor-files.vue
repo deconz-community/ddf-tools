@@ -168,8 +168,8 @@ function selectDirectory(index: number) {
   <v-dialog v-model="dialog">
     <v-card>
       <v-card-title>
-        <span v-if="editedItemPath" class="text-h5">Editing : {{ editedItemPath }}</span>
-        <span v-else class="text-h5">New file</span>
+        <span v-if="editedItemPath" class="text-headline-medium">Editing : {{ editedItemPath }}</span>
+        <span v-else class="text-headline-medium">New file</span>
       </v-card-title>
 
       <v-card-text>

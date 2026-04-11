@@ -55,7 +55,7 @@
     "uuid": "^13.0.0",
     "vue-json-viewer": "^3.0.4",
     "vue-toggles": "^2.2.2",
-    "vuetify": "^3.11.6",
+    "vuetify": "^4.0.5",
     "vuetify-sonner": "^0.4.2",
     "vuetify-use-dialog": "^0.6.11",
     "xstate": "^5.25.1",

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useRouteQuery } from '@vueuse/router'
 import type { RestCommand } from '@directus/sdk'
-import Snarkdown from '@swayable/vue-snarkdown'
 import type { Schema } from '~/interfaces/store'
+import Snarkdown from '@swayable/vue-snarkdown'
+import { useRouteQuery } from '@vueuse/router'
 
 const store = useStore()
 
@@ -40,7 +40,7 @@ const pageCount = computed(() => {
     <template v-if="bundleList.state.value" #text>
       <v-data-iterator :items="bundleList.state.value.items">
         <template #header>
-          <h1 class="text-h5 d-flex justify-space-between mb-4 align-center">
+          <h1 class="text-headline-medium d-flex justify-space-between mb-4 align-center">
             <div class="text-truncate">
               DDF Store list of bundles ({{ bundleList.state.value.totalCount }})
             </div>

@@ -15,13 +15,13 @@ const app = useApp()
     :items="app.gatewayIds"
     clearable
   >
-    <template #item="{ props: itemProps, item }">
-      <gateway-data :id="item.value" v-slot="{ data, satisfiesVersion: localSatisfiesVersion }" :satisfies-version="props.satisfiesVersion">
+    <template #item="{ props: itemProps, internalItem }">
+      <gateway-data :id="internalItem.value" v-slot="{ data, satisfiesVersion: localSatisfiesVersion }" :satisfies-version="props.satisfiesVersion">
         <v-list-item
           v-if="data.config"
           v-bind="itemProps"
-          :title="item.title = (data.config.name ?? item.value)"
-          :subtitle="`${item.value} - v${data.config.apiversion} ${localSatisfiesVersion ? '' : ' (Unsupported version)'}`"
+          :title="internalItem.title = (data.config.name ?? internalItem.value)"
+          :subtitle="`${internalItem.value} - v${data.config.apiversion} ${localSatisfiesVersion ? '' : ' (Unsupported version)'}`"
           :disabled="!localSatisfiesVersion"
         />
       </gateway-data>
