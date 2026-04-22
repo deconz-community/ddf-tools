@@ -1,5 +1,11 @@
 # @deconz-community/ddf-validator
 
+## 2.36.1
+
+### Patch Changes
+
+- c729594: Fix types export
+
 ## 2.36.0
 
 ### Minor Changes
