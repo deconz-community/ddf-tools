@@ -16,6 +16,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { ZodError } from 'zod'
 import { fromZodError } from 'zod-validation-error'
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T/
+
 export function bundleCommand() {
   program
     .command('bundle')
@@ -129,6 +131,85 @@ export function bundleCommand() {
         }
       }
 
+      function getCommonParentDirectory(pathA: string, pathB: string): string {
+        const a = path.resolve(pathA).split(path.sep)
+        const b = path.resolve(pathB).split(path.sep)
+        const length = Math.min(a.length, b.length)
+        const common: string[] = []
+
+        for (let i = 0; i < length; i++) {
+          if (a[i] !== b[i])
+            break
+          common.push(a[i])
+        }
+
+        if (common.length === 0)
+          return path.parse(pathA).root
+
+        return common.join(path.sep) || path.parse(pathA).root
+      }
+
+      const gitDateMaps = new Map<string, Map<string, Date>>()
+      const gitModifiedSets = new Map<string, Set<string>>()
+      const gitDateMapPromises = new Map<string, Promise<{ dateMap: Map<string, Date>, modifiedSet: Set<string> }>>()
+
+      async function buildGitDateMap(gitDirectory: string): Promise<{ dateMap: Map<string, Date>, modifiedSet: Set<string> }> {
+        if (gitDateMaps.has(gitDirectory))
+          return { dateMap: gitDateMaps.get(gitDirectory)!, modifiedSet: gitModifiedSets.get(gitDirectory)! }
+
+        if (gitDateMapPromises.has(gitDirectory))
+          return gitDateMapPromises.get(gitDirectory)!
+
+        const buildPromise = (async () => {
+          const git = simpleGit(gitDirectory)
+
+          const [rawLog, status] = await Promise.all([
+            git.raw(['log', '--name-only', '--pretty=format:%cI', '--diff-filter=ACRM']),
+            git.status(),
+          ])
+
+          const dateMap = new Map<string, Date>()
+          let currentDate: Date | null = null
+          for (const line of rawLog.split('\n')) {
+            if (!line)
+              continue
+            // ISO date line (starts with a digit and contains 'T')
+            if (ISO_DATE_RE.test(line)) {
+              currentDate = new Date(line)
+            }
+            else if (currentDate !== null && !dateMap.has(line)) {
+              // First occurrence = most recent commit for this file
+              dateMap.set(line, currentDate)
+            }
+          }
+
+          const modifiedSet = new Set<string>([
+            ...status.modified,
+            ...status.not_added,
+            ...status.created,
+            ...status.deleted,
+            ...status.renamed.map(r => (typeof r === 'string' ? r : r.to)),
+          ])
+
+          gitDateMaps.set(gitDirectory, dateMap)
+          gitModifiedSets.set(gitDirectory, modifiedSet)
+
+          if (debug)
+            log(`Built git date map for '${gitDirectory}': ${dateMap.size} entries`)
+
+          return { dateMap, modifiedSet }
+        })()
+
+        gitDateMapPromises.set(gitDirectory, buildPromise)
+
+        try {
+          return await buildPromise
+        }
+        finally {
+          gitDateMapPromises.delete(gitDirectory)
+        }
+      }
+
       const getLastModified = async (filePath: string) => {
         const resolvedFilePath = path.resolve(filePath)
 
@@ -143,28 +224,21 @@ export function bundleCommand() {
               return (await fs.stat(resolvedFilePath)).mtime
             }
 
-            if (debug)
-              log(`Finding git log datetime for file '${resolvedFilePath}' in git directory '${gitDirectory}'`)
+            const relativeFilePath = path.relative(gitDirectory, resolvedFilePath).split(path.sep).join('/')
+            const { dateMap, modifiedSet } = await buildGitDateMap(gitDirectory)
 
-            const git = simpleGit(gitDirectory)
-            const gitLog = await git.log({ file: resolvedFilePath })
-
-            const status = await git.status()
-            if (status.modified.some(file => resolvedFilePath.endsWith(file))) {
+            if (modifiedSet.has(relativeFilePath)) {
               log(chalk.yellow(`File modified since last commit for ${resolvedFilePath}. Using mtime instead.`))
               return (await fs.stat(resolvedFilePath)).mtime
             }
 
-            const latestCommit = gitLog.latest
-            if (latestCommit === null) {
+            const date = dateMap.get(relativeFilePath)
+            if (date === undefined) {
               log(chalk.yellow(`No commit found for ${resolvedFilePath}. Using mtime instead.`))
               return (await fs.stat(resolvedFilePath)).mtime
             }
 
-            if (debug)
-              log(`Found git log datetime for file '${resolvedFilePath}' : '${latestCommit.date}'`)
-
-            return new Date(latestCommit.date)
+            return date
           }
           case 'mtime': {
             return (await fs.stat(resolvedFilePath)).mtime
@@ -221,15 +295,95 @@ export function bundleCommand() {
         .map(file => path.resolve(file))
         .filter(file => !file.startsWith(genericDirectoryPath))
 
+      const validationErrorsByAbsolutePath = new Map<string, ValidationError[]>()
+      let validatorVersion = 'unknown'
+
+      if (validate) {
+        spinner.start(chalk.blue('Pre-validating source files'))
+
+        const validator = createValidator()
+        validatorVersion = validator.version
+
+        const genericJsonFiles = (await glob(`${genericDirectoryPath}/**/*.json`)).map(file => path.resolve(file))
+        const allValidationFiles = Array.from(new Set([...fileToProcess, ...genericJsonFiles]))
+
+        const genericDefinitions: { path: string, data: unknown }[] = []
+        const ddfDefinitions: { path: string, data: unknown }[] = []
+
+        for (const absoluteFilePath of allValidationFiles) {
+          try {
+            const rawData = await fs.readFile(absoluteFilePath, 'utf8')
+            const parsedData = JSON.parse(rawData) as Record<string, unknown>
+            const schema = parsedData.schema
+
+            if (typeof schema === 'string' && validator.isGeneric(schema))
+              genericDefinitions.push({ path: absoluteFilePath, data: parsedData })
+            else if (typeof schema === 'string' && validator.isDDF(schema))
+              ddfDefinitions.push({ path: absoluteFilePath, data: parsedData })
+          }
+          catch (error) {
+            validationErrorsByAbsolutePath.set(absoluteFilePath, [{
+              type: 'simple',
+              message: error instanceof Error ? error.message : String(error),
+              file: absoluteFilePath,
+            }])
+          }
+        }
+
+        const validationResults = validator.bulkValidate(genericDefinitions, ddfDefinitions)
+
+        const toValidationErrors = (entry: { path: string, error: Error | ZodError }): ValidationError[] => {
+          if (entry.error instanceof ZodError) {
+            return fromZodError(entry.error).details.map(detail => ({
+              type: 'code',
+              message: detail.message,
+              file: entry.path,
+              path: [detail.path.join('/')],
+            }))
+          }
+
+          return [{
+            type: 'simple',
+            message: entry.error.toString(),
+            file: entry.path,
+          }]
+        }
+
+        for (const entry of validationResults) {
+          const existing = validationErrorsByAbsolutePath.get(entry.path) ?? []
+          validationErrorsByAbsolutePath.set(entry.path, [...existing, ...toValidationErrors(entry)])
+        }
+      }
+
       const bundleToUpload: Record<string, {
         name: string
         encoded: Blob
         hash: string
       }> = {}
 
-      const sources = new Map<string, Source>()
+      // Storing Promises prevents duplicate git log calls when concurrent bundles
+      // request the same generic file before either finishes loading it.
+      const sourcePromises = new Map<string, Promise<Source>>()
 
-      for (const [index, inputFilePath] of fileToProcess.entries()) {
+      function getOrCreateSource(urlPath: string): Promise<Source> {
+        if (sourcePromises.has(urlPath))
+          return sourcePromises.get(urlPath)!
+        const filePath = urlPath.replace('file://', '')
+        const promise = fs.readFile(filePath).then(async (data) => {
+          const last_modified = await getLastModified(filePath)
+          return createSource(new Blob([data]), { path: urlPath, last_modified })
+        })
+        sourcePromises.set(urlPath, promise)
+        return promise
+      }
+
+      // Pre-warm sources for all DDF input files in parallel.
+      await Promise.all(fileToProcess.map(filePath => getOrCreateSource(`file://${filePath}`)))
+
+      const CONCURRENCY = 8
+      let completed = 0
+
+      const processBundle = async (inputFilePath: string, index: number) => {
         spinner.text = chalk.blue(`Processing file #${index + 1}/${fileToProcess.length}`)
 
         if (debug)
@@ -238,78 +392,68 @@ export function bundleCommand() {
         const bundle = await buildFromFiles(
           `file://${genericDirectoryPath}`,
           `file://${inputFilePath}`,
-          async (path) => {
-            if (sources.has(path))
-              return sources.get(path)!
-            const filePath = path.replace('file://', '')
-            const data = await fs.readFile(filePath)
-            const source = createSource(new Blob([data]), {
-              path,
-              last_modified: await getLastModified(filePath),
-            })
-            sources.set(path, source)
-            return source
-          },
+          urlPath => getOrCreateSource(urlPath),
         )
 
         if (validate) {
-          // TODO move this in a shared package
-          const validator = createValidator()
+          const bundleRoot = getCommonParentDirectory(genericDirectoryPath, path.dirname(inputFilePath))
+          const errors: ValidationError[] = []
 
-          const validationResult = validator.bulkValidate(
-            // Generic files
-            bundle.data.files
-              .filter(file => file.type === 'JSON')
-              .map((file) => {
-                return {
-                  path: file.path,
-                  data: JSON.parse(file.data as string),
-                }
-              }),
-            // DDF file
+          bundle.data.files
+            .filter(file => file.type === 'JSON' || file.type === 'DDFC')
+            .forEach((file) => {
+              const absoluteFilePath = path.resolve(bundleRoot, file.path)
+              const fileErrors = validationErrorsByAbsolutePath.get(absoluteFilePath)
 
-            bundle.data.files
-              .filter(file => file.type === 'DDFC')
-              .map((file) => {
-                return {
-                  path: file.path,
-                  data: JSON.parse(file.data as string),
-                }
-              }),
-          )
-
-          if (validationResult.length === 0) {
-            bundle.data.validation = {
-              result: 'success',
-              version: validator.version,
-            }
-          }
-          else {
-            const errors: ValidationError[] = []
-
-            validationResult.forEach(({ path, error }) => {
-              if (error instanceof ZodError) {
-                fromZodError(error).details.forEach((detail) => {
-                  errors.push({
-                    type: 'code',
-                    message: detail.message,
-                    file: path,
-                    path: [detail.path.join('/')],
-                  })
+              if (fileErrors !== undefined) {
+                fileErrors.forEach((error) => {
+                  if (error.type === 'code') {
+                    errors.push({
+                      ...error,
+                      file: file.path,
+                    })
+                  }
+                  else {
+                    errors.push({
+                      ...error,
+                      file: file.path,
+                    })
+                  }
                 })
               }
-              else {
-                errors.push({
-                  type: 'simple',
-                  message: error.toString(),
-                  file: path,
-                })
+
+              if (file.path === 'generic/constants_min.json') {
+                const constantsPath = path.join(genericDirectoryPath, 'constants.json')
+                const constantsErrors = validationErrorsByAbsolutePath.get(constantsPath)
+                if (constantsErrors !== undefined) {
+                  constantsErrors.forEach((error) => {
+                    if (error.type === 'code') {
+                      errors.push({
+                        ...error,
+                        file: file.path,
+                      })
+                    }
+                    else {
+                      errors.push({
+                        ...error,
+                        file: file.path,
+                      })
+                    }
+                  })
+                }
               }
             })
 
+          if (errors.length === 0) {
+            bundle.data.validation = {
+              result: 'success',
+              version: validatorVersion,
+            }
+          }
+          else {
             bundle.data.validation = {
               result: 'error',
-              version: validator.version,
+              version: validatorVersion,
               errors,
             }
           }
@@ -345,6 +489,15 @@ export function bundleCommand() {
           spinner.info(chalk.green(`[${inputFilePath.replace(`${process.cwd()}/`, '')}] added to the upload list`))
           spinner.start()
         }
+
+        completed++
+        spinner.text = chalk.blue(`Processed ${completed}/${fileToProcess.length} files`)
+      }
+
+      for (let i = 0; i < fileToProcess.length; i += CONCURRENCY) {
+        await Promise.all(
+          fileToProcess.slice(i, i + CONCURRENCY).map((filePath, j) => processBundle(filePath, i + j)),
+        )
       }
 
       if (upload) {
