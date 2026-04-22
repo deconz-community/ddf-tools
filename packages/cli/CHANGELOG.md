@@ -1,5 +1,18 @@
 # @deconz-community/cli
 
+## 1.20.0
+
+### Minor Changes
+
+- b47a2cb: Made bundler faster
+- 6b9ce3d: Update many dep to latest version
+
+### Patch Changes
+
+- Updated dependencies [6b9ce3d]
+  - @deconz-community/ddf-validator@2.36.0
+  - @deconz-community/ddf-bundler@0.34.0
+
 ## 1.19.0
 
 ### Minor Changes
