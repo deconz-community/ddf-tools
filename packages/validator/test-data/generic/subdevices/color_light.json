@@ -5,7 +5,10 @@
   "ui_name": "Color light",
   "restapi": "/lights",
   "order": 10,
-  "uuid": ["$address.ext", "0x01"],
+  "uuid": [
+    "$address.ext",
+    "0x01"
+  ],
   "items": [
     "cap/color/capabilities",
     "state/alert",

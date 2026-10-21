@@ -4,14 +4,17 @@
   "manufacturername": "$MF_IKEA",
   "modelid": "ASKVADER on/off switch",
   "vendor": "IKEA",
-  "product": "Askvader On/off switch (E1836)",
+  "product": "Askvader on/off switch (E1836)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"

@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x02"],
+      "uuid": [
+        "$address.ext",
+        "0x02"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -73,13 +76,22 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x02", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x02",
+        "0x0b04"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0051",
         "endpoint": "0x02",
-        "in": ["0x0B04"],
-        "out": ["0x0019", "0x000A"]
+        "in": [
+          "0x0B04"
+        ],
+        "out": [
+          "0x0019",
+          "0x000A"
+        ]
       },
       "items": [
         {
@@ -158,13 +170,22 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x02", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x02",
+        "0x0702"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0051",
         "endpoint": "0x02",
-        "in": ["0x0702"],
-        "out": ["0x0019", "0x000A"]
+        "in": [
+          "0x0702"
+        ],
+        "out": [
+          "0x0019",
+          "0x000A"
+        ]
       },
       "items": [
         {

@@ -1,8 +1,18 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "3355c7e2-e99f-4eaa-a632-776e2b6d4396",
-  "manufacturername": ["$MF_SIGNIFY", "$MF_SIGNIFY", "$MF_PHILIPS", "$MF_PHILIPS"],
-  "modelid": ["RDM001", "RDM004", "RDM001", "RDM004"],
+  "manufacturername": [
+    "$MF_SIGNIFY",
+    "$MF_SIGNIFY",
+    "$MF_PHILIPS",
+    "$MF_PHILIPS"
+  ],
+  "modelid": [
+    "RDM001",
+    "RDM004",
+    "RDM001",
+    "RDM004"
+  ],
   "vendor": "Philips",
   "product": "Hue wall switch module",
   "status": "Gold",
@@ -11,7 +21,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0xfc00"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0xfc00"
+      ],
       "buttons": {
         "1": {
           "name": "Button 1"
@@ -132,10 +146,22 @@
         {
           "name": "config/devicemode",
           "values": [
-            ["singlerocker", 0],
-            ["singlepushbutton", 1],
-            ["dualrocker", 2],
-            ["dualpushbutton", 3]
+            [
+              "singlerocker",
+              0
+            ],
+            [
+              "singlepushbutton",
+              1
+            ],
+            [
+              "dualrocker",
+              2
+            ],
+            [
+              "dualpushbutton",
+              3
+            ]
           ],
           "read": {
             "fn": "zcl:attr",

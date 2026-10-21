@@ -4,7 +4,10 @@
   "datatype": "UInt8",
   "access": "R",
   "public": true,
-  "range": [0, 255],
+  "range": [
+    0,
+    255
+  ],
   "default": 0,
   "description": "The maximum sensor sensitivity."
 }

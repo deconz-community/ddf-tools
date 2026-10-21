@@ -27,5 +27,8 @@
     "eval": "Item.val;",
     "fn": "zcl:attr"
   },
-  "range": [500, 3200]
+  "range": [
+    500,
+    3200
+  ]
 }

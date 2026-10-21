@@ -10,7 +10,15 @@
     "_TZ3000_7jsk6lxz",
     "_TZ3000_hhiodade"
   ],
-  "modelid": ["TS0011", "TS0011", "TS0011", "TS0011", "TS0011", "TS0011", "TS0011"],
+  "modelid": [
+    "TS0011",
+    "TS0011",
+    "TS0011",
+    "TS0011",
+    "TS0011",
+    "TS0011",
+    "TS0011"
+  ],
   "vendor": "Tuya",
   "product": "1 gang switch module (TS0011)",
   "sleeper": false,
@@ -19,7 +27,10 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"

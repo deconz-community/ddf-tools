@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -52,7 +55,11 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -105,7 +112,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0b04"
+      ],
       "items": [
         {
           "name": "attr/id"

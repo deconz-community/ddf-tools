@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "e01a313e-24b3-4e72-a775-6f74b2fe2939",
-  "manufacturername": ["_TZE200_npj9bug3", "HOBEIAN"],
-  "modelid": ["TS0601", "ZG-303Z"],
+  "manufacturername": [
+    "_TZE200_npj9bug3",
+    "HOBEIAN"
+  ],
+  "modelid": [
+    "TS0601",
+    "ZG-303Z"
+  ],
   "vendor": "Haozse",
   "product": "Haozse Tuya Soil Sensor (TS0601)",
   "sleeper": true,
@@ -11,7 +17,11 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0402"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0402"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -111,7 +121,11 @@
     {
       "type": "$TYPE_HUMIDITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0405"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0405"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -208,7 +222,11 @@
     {
       "type": "$TYPE_MOISTURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0408"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0408"
+      ],
       "items": [
         {
           "name": "attr/id"

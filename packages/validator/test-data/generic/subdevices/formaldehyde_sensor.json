@@ -5,7 +5,11 @@
   "ui_name": "Formaldehyde sensor",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": ["$address.ext", "0x01", "0x042B"],
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x042B"
+  ],
   "items": [
     "config/on",
     "config/reachable",

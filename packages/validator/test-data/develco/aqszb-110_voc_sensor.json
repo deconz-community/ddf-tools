@@ -11,12 +11,18 @@
     {
       "type": "$TYPE_AIR_QUALITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x26", "0xfc03"],
+      "uuid": [
+        "$address.ext",
+        "0x26",
+        "0xfc03"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0302",
         "endpoint": "0x26",
-        "in": ["0xFC03"]
+        "in": [
+          "0xFC03"
+        ]
       },
       "items": [
         {
@@ -122,12 +128,19 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x26", "0x0402"],
+      "uuid": [
+        "$address.ext",
+        "0x26",
+        "0x0402"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0302",
         "endpoint": "0x26",
-        "in": ["0x0001", "0x0402"]
+        "in": [
+          "0x0001",
+          "0x0402"
+        ]
       },
       "items": [
         {
@@ -209,12 +222,19 @@
     {
       "type": "$TYPE_HUMIDITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x26", "0x0405"],
+      "uuid": [
+        "$address.ext",
+        "0x26",
+        "0x0405"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0302",
         "endpoint": "0x26",
-        "in": ["0x0001", "0x0405"]
+        "in": [
+          "0x0001",
+          "0x0405"
+        ]
       },
       "items": [
         {

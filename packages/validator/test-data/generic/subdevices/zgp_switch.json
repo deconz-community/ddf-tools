@@ -5,6 +5,15 @@
   "ui_name": "Switch",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": ["$address.ext", "0x01", "0x0000"],
-  "items": ["config/on", "config/reachable", "state/buttonevent", "state/lastupdated"]
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x0000"
+  ],
+  "items": [
+    "config/on",
+    "config/reachable",
+    "state/buttonevent",
+    "state/lastupdated"
+  ]
 }

@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x06"],
+      "uuid": [
+        "$address.ext",
+        "0x06"
+      ],
       "items": [
         {
           "name": "attr/id"

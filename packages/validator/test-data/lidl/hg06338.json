@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "a417ba23-2ea6-417e-9093-8110edb20413",
-  "manufacturername": ["LIDL Silvercrest", "_TZ3000_1obwwnmq"],
-  "modelid": ["HG06338", "TS011F"],
+  "manufacturername": [
+    "LIDL Silvercrest",
+    "_TZ3000_1obwwnmq"
+  ],
+  "modelid": [
+    "HG06338",
+    "TS011F"
+  ],
   "vendor": "Lidl",
   "product": "SilverCrest power strip 3 AC (16A) with 4 USB (HG06338)",
   "sleeper": false,
@@ -11,7 +17,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -68,7 +77,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x02"],
+      "uuid": [
+        "$address.ext",
+        "0x02"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -121,7 +133,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x03"],
+      "uuid": [
+        "$address.ext",
+        "0x03"
+      ],
       "items": [
         {
           "name": "attr/id"

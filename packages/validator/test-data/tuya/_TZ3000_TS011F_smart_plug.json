@@ -8,19 +8,41 @@
     "_TZ3000_wzmuk9ai",
     "_TZ3000_ksw8qtmt",
     "_TZ3000_2putqrmw",
+    "_TZ3000_cehuw1lw",
+    "_TZ3000_typdpbpg",
     "_TZ3210_5ct6e7ye",
-    "_TZ3210_rwmitwj4"
+    "_TZ3210_rwmitwj4",
+    "_TZ3210_w0qqde0g",
+    "_TZ3000_266azbg3",
+    "Zbeacon"
   ],
-  "modelid": ["TS011F", "TS011F", "TS011F", "TS011F", "TS011F", "TS011F", "TS011F", "TS011F"],
+  "modelid": [
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F"
+  ],
   "vendor": "Tuya",
-  "product": "Smart plug power monitor (TS011F)",
+  "product": "Smart plug with power monitor (TS011F)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -48,7 +70,7 @@
             "ep": 1,
             "cl": "0x0000",
             "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
+            "script": "tuya_swversion.js"
           },
           "read": {
             "fn": "zcl:attr",
@@ -79,12 +101,19 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0b04"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0051",
         "endpoint": "0x01",
-        "in": ["0x0000", "0x0B04"]
+        "in": [
+          "0x0000",
+          "0x0B04"
+        ]
       },
       "items": [
         {
@@ -113,7 +142,7 @@
             "ep": 1,
             "cl": "0x0000",
             "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
+            "script": "tuya_swversion.js"
           },
           "read": {
             "fn": "zcl:attr",
@@ -138,13 +167,13 @@
           "name": "state/current",
           "read": {
             "at": "0x0508",
-            "cl": "0x0b04",
+            "cl": "0x0B04",
             "ep": 1,
             "fn": "zcl:attr"
           },
           "parse": {
             "at": "0x0508",
-            "cl": "0x0b04",
+            "cl": "0x0B04",
             "ep": 1,
             "eval": "Item.val = Attr.val"
           },
@@ -156,14 +185,14 @@
         {
           "name": "state/power",
           "read": {
-            "at": "0x050b",
-            "cl": "0x0b04",
+            "at": "0x050B",
+            "cl": "0x0B04",
             "ep": 1,
             "fn": "zcl:attr"
           },
           "parse": {
-            "at": "0x050b",
-            "cl": "0x0b04",
+            "at": "0x050B",
+            "cl": "0x0B04",
             "ep": 1,
             "eval": "Item.val = Attr.val"
           },
@@ -173,13 +202,13 @@
           "name": "state/voltage",
           "read": {
             "at": "0x0505",
-            "cl": "0x0b04",
+            "cl": "0x0B04",
             "ep": 1,
             "fn": "zcl:attr"
           },
           "parse": {
             "at": "0x0505",
-            "cl": "0x0b04",
+            "cl": "0x0B04",
             "ep": 1,
             "eval": "Item.val = Attr.val"
           },
@@ -190,12 +219,19 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0051",
         "endpoint": "0x01",
-        "in": ["0x0000", "0x0702"]
+        "in": [
+          "0x0000",
+          "0x0702"
+        ]
       },
       "items": [
         {
@@ -224,7 +260,7 @@
             "ep": 1,
             "cl": "0x0000",
             "at": "0x0001",
-            "script": "../tuya/tuya_swversion.js"
+            "script": "tuya_swversion.js"
           },
           "read": {
             "fn": "zcl:attr",
@@ -250,13 +286,13 @@
           "read": {
             "at": "0x0000",
             "cl": "0x0702",
-            "ep": 0,
+            "ep": 1,
             "fn": "zcl:attr"
           },
           "parse": {
             "at": "0x0000",
             "cl": "0x0702",
-            "ep": 0,
+            "ep": 1,
             "eval": "Item.val = Attr.val * 10"
           },
           "refresh.interval": 360

@@ -9,7 +9,14 @@
     "$MF_SIGNIFY",
     "$MF_SIGNIFY"
   ],
-  "modelid": ["LOM001", "LOM006", "LOM007", "LOM001", "LOM006", "LOM007"],
+  "modelid": [
+    "LOM001",
+    "LOM006",
+    "LOM007",
+    "LOM001",   
+    "LOM006",
+    "LOM007"
+  ],
   "vendor": "Philips",
   "product": "Hue smart plug",
   "sleeper": false,
@@ -18,7 +25,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x0b"],
+      "uuid": [
+        "$address.ext",
+        "0x0b"
+      ],
       "items": [
         {
           "name": "attr/id"

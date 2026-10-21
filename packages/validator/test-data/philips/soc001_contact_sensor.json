@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "93b3e200-6a52-4ee6-9e0d-54e84536895c",
-  "manufacturername": ["$MF_SIGNIFY", "$MF_PHILIPS"],
-  "modelid": ["SOC001", "SOC001"],
+  "manufacturername": [
+    "$MF_SIGNIFY",
+    "$MF_PHILIPS"
+  ],
+  "modelid": [
+    "SOC001",
+    "SOC001"
+  ],
   "vendor": "Philips",
   "product": "Hue secure contact sensor",
   "status": "Gold",
@@ -11,13 +17,25 @@
     {
       "type": "$TYPE_OPEN_CLOSE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x02", "0xfc06"],
+      "uuid": [
+        "$address.ext",
+        "0x02",
+        "0xfc06"
+      ],
       "fingerprint": {
         "endpoint": "0x02",
         "profile": "0x0104",
         "device": "0x0850",
-        "in": ["0x0000", "0x0001", "0x0003", "0xfc06"],
-        "out": ["0x0006", "0x0019"]
+        "in": [
+          "0x0000",
+          "0x0001",
+          "0x0003",
+          "0xfc06"
+        ],
+        "out": [
+          "0x0006",
+          "0x0019"
+        ]
       },
       "items": [
         {
@@ -106,7 +124,12 @@
             "ep": 2,
             "cl": "0xfc06",
             "mf": "0x100b",
-            "at": ["0x0100", "0x0101", "0x0102", "0x0103"]
+            "at": [
+              "0x0100",
+              "0x0101",
+              "0x0102",
+              "0x0103"
+            ]
           },
           "refresh.interval": 360
         },

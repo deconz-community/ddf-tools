@@ -1,17 +1,30 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "1b8d58d2-1487-4b10-8c4a-23e6e83ca51d",
-  "manufacturername": "$MF_IKEA",
-  "modelid": "TRADFRI bulb E27 W opal 1000lm",
+  "manufacturername": [
+    "$MF_IKEA",
+    "$MF_IKEA",
+    "$MF_IKEA",
+    "$MF_IKEA"
+  ],
+  "modelid": [
+    "TRADFRI bulb E26 opal 1000lm",
+    "TRADFRI bulb E26 W opal 1000lm",
+    "TRADFRI bulb E27 opal 1000lm",
+    "TRADFRI bulb E27 W opal 1000lm"
+  ],
   "vendor": "IKEA",
-  "product": "Tradfri LED bulb E27 1000 lumen, dimmable white, opal white (LED1623G12)",
+  "product": "Tradfri LED bulb E27 1000 lumen, dimmable white, opal white (LED1622G12/LED1623G12)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -72,7 +85,12 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0008",
-            "at": ["0x000f", "0x0010", "0x0011", "0x4000"]
+            "at": [
+              "0x000f",
+              "0x0010",
+              "0x0011",
+              "0x4000"
+            ]
           },
           "refresh.interval": 3600
         },

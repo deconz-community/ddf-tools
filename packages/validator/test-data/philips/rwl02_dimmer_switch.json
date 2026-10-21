@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "6c139639-5743-497d-b7b9-9d5f03d1ddde",
-  "manufacturername": ["$MF_PHILIPS", "$MF_PHILIPS"],
-  "modelid": ["RWL021", "RWL020"],
+  "manufacturername": [
+    "$MF_PHILIPS",
+    "$MF_PHILIPS"
+  ],
+  "modelid": [
+    "RWL021",
+    "RWL020"
+  ],
   "vendor": "Philips",
   "product": "Hue dimmer switch",
   "status": "Gold",
@@ -11,7 +17,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x02", "0xfc00"],
+      "uuid": [
+        "$address.ext",
+        "0x02",
+        "0xfc00"
+      ],
       "buttons": {
         "1": {
           "name": "On"

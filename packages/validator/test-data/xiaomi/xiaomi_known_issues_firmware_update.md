@@ -1,3 +1,4 @@
+
 ### Firmware update required
 
 This applies for Xiaomi smart plugs ZNCZ04LM (lumi.plug.mmeu01) and SP-EUC01 (lumi.plug.maeu01). It is mandatory that RaspBee/ConBee I firmware version 0x26400500 (or higher) or RaspBee/ConBeeII firmware version 0x266f0700 (or higher) is installed.

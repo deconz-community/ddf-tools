@@ -4,7 +4,10 @@
   "datatype": "UInt16",
   "access": "R",
   "public": true,
-  "range": [0, 65535],
+  "range": [
+    0,
+    65535
+  ],
   "default": 0,
   "description": "The strength of the detected vibration."
 }

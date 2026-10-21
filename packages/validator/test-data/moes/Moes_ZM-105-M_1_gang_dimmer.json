@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_DIMMER_SWITCH",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"

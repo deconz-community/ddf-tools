@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -56,7 +59,10 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x02"],
+      "uuid": [
+        "$address.ext",
+        "0x02"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -101,13 +107,24 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x03", "0x0006"],
+      "uuid": [
+        "$address.ext",
+        "0x03",
+        "0x0006"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0001",
         "endpoint": "0x03",
-        "in": ["0x0000", "0x0003"],
-        "out": ["0x0005", "0x0006", "0x0008"]
+        "in": [
+          "0x0000",
+          "0x0003"
+        ],
+        "out": [
+          "0x0005",
+          "0x0006",
+          "0x0008"
+        ]
       },
       "meta": {
         "values": {
@@ -176,9 +193,18 @@
           },
           "default": "momentary",
           "values": [
-            ["\"momentary\"", "All inputs in momentary mode"],
-            ["\"rocker\"", "All inputs in rocker mode"],
-            ["\"custom_010048....\"", "Custom mode"]
+            [
+              "\"momentary\"",
+              "All inputs in momentary mode"
+            ],
+            [
+              "\"rocker\"",
+              "All inputs in rocker mode"
+            ],
+            [
+              "\"custom_010048....\"",
+              "Custom mode"
+            ]
           ]
         },
         {
@@ -198,12 +224,19 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x05", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x05",
+        "0x0b04"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0501",
         "endpoint": "0x05",
-        "in": ["0x0000", "0x0B04"]
+        "in": [
+          "0x0000",
+          "0x0B04"
+        ]
       },
       "items": [
         {
@@ -283,12 +316,19 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x05", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x05",
+        "0x0702"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0501",
         "endpoint": "0x05",
-        "in": ["0x0000", "0x0702"]
+        "in": [
+          "0x0000",
+          "0x0702"
+        ]
       },
       "items": [
         {

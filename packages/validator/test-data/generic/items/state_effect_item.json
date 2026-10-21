@@ -8,8 +8,14 @@
   "description": "The currently active effect.",
   "default": "none",
   "values": [
-    ["\"none\"", "no effect is active"],
-    ["\"colorloop\"", "colorloop through hue values"]
+    [
+      "\"none\"",
+      "no effect is active"
+    ],
+    [
+      "\"colorloop\"",
+      "colorloop through hue values"
+    ]
   ],
   "parse": {
     "fn": "zcl:attr",

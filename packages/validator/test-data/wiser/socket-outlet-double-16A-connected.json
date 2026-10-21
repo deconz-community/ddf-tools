@@ -6,12 +6,15 @@
   "vendor": "Schneider Electric",
   "product": "Elko smart socket double 16A plus PW (EKO09738)",
   "sleeper": false,
-  "status": "Bronze",
+  "status": "Silver",
   "subdevices": [
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x06"],
+      "uuid": [
+        "$address.ext",
+        "0x06"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -46,7 +49,7 @@
         },
         {
           "name": "state/on",
-          "refresh.interval": 365,
+          "refresh.interval": 360,
           "read": {
             "at": "0x0000",
             "cl": "0x0006",
@@ -69,7 +72,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x06", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x06",
+        "0x0b04"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -106,7 +113,7 @@
         },
         {
           "name": "state/current",
-          "refresh.interval": 365,
+          "refresh.interval": 360,
           "read": {
             "at": "0x0508",
             "cl": "0x0b04",
@@ -117,7 +124,7 @@
             "at": "0x0508",
             "cl": "0x0b04",
             "ep": 6,
-            "eval": "if (Attr.val != 65535) { Item.val = Attr.val; }"
+            "eval": "if (Attr.val != 65535) { Item.val = Attr.val }"
           }
         },
         {
@@ -125,7 +132,7 @@
         },
         {
           "name": "state/power",
-          "refresh.interval": 365,
+          "refresh.interval": 360,
           "read": {
             "at": "0x0400",
             "cl": "0x0702",
@@ -136,12 +143,12 @@
             "at": "0x0400",
             "cl": "0x0702",
             "ep": 6,
-            "eval": "if (Attr.val != -32768) { Item.val = Attr.val / 1000; }"
+            "eval": "if (Attr.val != -32768) { Item.val = Attr.val / 1000 }"
           }
         },
         {
           "name": "state/voltage",
-          "refresh.interval": 365,
+          "refresh.interval": 360,
           "read": {
             "at": "0x0505",
             "cl": "0x0b04",
@@ -152,7 +159,7 @@
             "at": "0x0505",
             "cl": "0x0b04",
             "ep": 6,
-            "eval": "if (Attr.val != 65535) { Item.val = Attr.val; }"
+            "eval": "if (Attr.val != 65535) { Item.val = Attr.val }"
           }
         }
       ]
@@ -160,7 +167,11 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x06", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x06",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -197,7 +208,7 @@
         },
         {
           "name": "state/consumption",
-          "refresh.interval": 365,
+          "refresh.interval": 360,
           "read": {
             "at": "0x0000",
             "cl": "0x0702",

@@ -5,7 +5,18 @@
   "ui_name": "Door lock sensor",
   "restapi": "/sensors",
   "order": 11,
-  "uuid": ["$address.ext", "0x01", "0x0101"],
-  "items": ["config/lock", "state/open", "state/lockstate"],
-  "items_optional": ["config/battery", "state/reachable"]
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x0101"
+  ],
+  "items": [
+    "config/lock",
+    "state/open",
+    "state/lockstate"
+  ],
+  "items_optional": [
+    "config/battery",
+    "state/reachable"
+  ]
 }

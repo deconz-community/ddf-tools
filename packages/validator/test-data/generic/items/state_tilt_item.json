@@ -4,7 +4,10 @@
   "datatype": "UInt8",
   "access": "RW",
   "public": true,
-  "range": [0, 100],
+  "range": [
+    0,
+    100
+  ],
   "description": "The tilt percentage of a shutter or blind.",
   "parse": {
     "at": "0x0009",

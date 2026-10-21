@@ -15,8 +15,11 @@
     "_TZ3000_bjawzodf",
     "_TZ3000_bjawzodf",
     "_TZ3000_rdhukkmi",
+    "_TZ3000_dowj6gyi",
+    "Wing",
     "Zbeacon",
-    "Zbeacon"
+    "Zbeacon",
+    "NTCHT01"
   ],
   "modelid": [
     "TS0201",
@@ -33,7 +36,10 @@
     "TY0201",
     "TS0201",
     "TS0201",
-    "TH01"
+    "TS0201",
+    "TS0201",
+    "TH01",
+    "Excellux"
   ],
   "vendor": "Tuya",
   "product": "Temperature and humidity sensor (TS0201)",
@@ -43,7 +49,11 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0402"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0402"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -87,7 +97,8 @@
         },
         {
           "name": "config/battery",
-          "refresh.interval": 86400,
+          "refresh.interval": 43260,
+          "awake": true,
           "read": {
             "at": "0x0021",
             "cl": "0x0001",
@@ -98,7 +109,7 @@
             "at": "0x0021",
             "cl": "0x0001",
             "ep": 1,
-            "eval": "Item.val = Attr.val/2"
+            "eval": "Item.val = Attr.val / 2"
           },
           "default": 0
         },
@@ -123,7 +134,11 @@
     {
       "type": "$TYPE_HUMIDITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0405"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0405"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -167,7 +182,8 @@
         },
         {
           "name": "config/battery",
-          "refresh.interval": 86400,
+          "refresh.interval": 43260,
+          "awake": true,
           "read": {
             "at": "0x0021",
             "cl": "0x0001",
@@ -178,7 +194,7 @@
             "at": "0x0021",
             "cl": "0x0001",
             "ep": 1,
-            "eval": "Item.val = Attr.val/2"
+            "eval": "Item.val = Attr.val / 2"
           },
           "default": 0
         },
@@ -210,8 +226,8 @@
         {
           "at": "0x0021",
           "dt": "0x20",
-          "min": 3600,
-          "max": 84600,
+          "min": 7200,
+          "max": 43200,
           "change": "0x00000002"
         }
       ]

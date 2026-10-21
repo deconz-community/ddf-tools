@@ -3,14 +3,18 @@
   "uuid": "a0230c0c-8d4e-4f19-8d61-3441ab99dbc2",
   "manufacturername": "_TZE200_kb5noeto",
   "modelid": "TS0601",
-  "product": "Tuya PIR 24G Radar Sensor",
+  "product": "24G PIR radar sensor",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_LIGHT_LEVEL_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0400"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0400"
+      ],
       "items": [
         {
           "name": "attr/lastseen"
@@ -29,7 +33,7 @@
           "parse": {
             "fn": "tuya",
             "dpid": 121,
-            "eval": "Item.val = Attr.val;"
+            "eval": "Item.val = Attr.val"
           },
           "read": {
             "fn": "none"
@@ -101,7 +105,11 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0xef00"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0xef00"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -126,7 +134,7 @@
           "parse": {
             "fn": "tuya",
             "dpid": 121,
-            "eval": "Item.val = Attr.val;"
+            "eval": "Item.val = Attr.val"
           },
           "read": {
             "fn": "none"
@@ -158,19 +166,22 @@
         },
         {
           "name": "config/fadingtime",
-          "range": [0, 15000],
+          "range": [
+            0,
+            15000
+          ],
           "read": {
             "fn": "none"
           },
           "write": {
             "dpid": 102,
             "dt": "0x2b",
-            "eval": "Item.val;",
+            "eval": "Item.val",
             "fn": "tuya"
           },
           "parse": {
             "dpid": 102,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 90
@@ -183,19 +194,22 @@
         },
         {
           "name": "config/sensitivity",
-          "range": [1, 9],
+          "range": [
+            1,
+            9
+          ],
           "read": {
             "fn": "none"
           },
           "write": {
             "dpid": 2,
             "dt": "0x2b",
-            "eval": "Item.val;",
+            "eval": "Item.val",
             "fn": "tuya"
           },
           "parse": {
             "dpid": 2,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 7
@@ -218,17 +232,50 @@
             "fn": "tuya"
           },
           "values": [
-            ["\"1\"", "1m"],
-            ["\"2\"", "2m"],
-            ["\"3\"", "3m"],
-            ["\"4\"", "4m"],
-            ["\"5\"", "5m"],
-            ["\"6\"", "6m"],
-            ["\"7\"", "7m"],
-            ["\"8\"", "8m"],
-            ["\"9\"", "9m"],
-            ["\"10\"", "10m"],
-            ["\"0\"", "Off"]
+            [
+              "\"1\"",
+              "1m"
+            ],
+            [
+              "\"2\"",
+              "2m"
+            ],
+            [
+              "\"3\"",
+              "3m"
+            ],
+            [
+              "\"4\"",
+              "4m"
+            ],
+            [
+              "\"5\"",
+              "5m"
+            ],
+            [
+              "\"6\"",
+              "6m"
+            ],
+            [
+              "\"7\"",
+              "7m"
+            ],
+            [
+              "\"8\"",
+              "8m"
+            ],
+            [
+              "\"9\"",
+              "9m"
+            ],
+            [
+              "\"10\"",
+              "10m"
+            ],
+            [
+              "\"0\"",
+              "Off"
+            ]
           ],
           "default": "10"
         },
@@ -240,7 +287,7 @@
           },
           "parse": {
             "dpid": 9,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 0
@@ -268,19 +315,12 @@
           },
           "parse": {
             "dpid": 1,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": false
         }
       ]
-    }
-  ],
-  "bindings": [
-    {
-      "bind": "unicast",
-      "src.ep": 1,
-      "cl": "0xEF00"
     }
   ]
 }

@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "651042bb-371c-4964-abaa-f4277f4ea9d5",
-  "manufacturername": ["ubisys", "ubisys"],
-  "modelid": ["D1 (5503)", "D1-R (5603)"],
+  "manufacturername": [
+    "ubisys",
+    "ubisys"
+  ],
+  "modelid": [
+    "D1 (5503)",
+    "D1-R (5603)"
+  ],
   "vendor": "ubisys",
   "product": "Universal dimmer (D1 (5503)/D1-R (5603))",
   "sleeper": false,
@@ -11,7 +17,10 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -80,7 +89,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x02", "0x0006"],
+      "uuid": [
+        "$address.ext",
+        "0x02",
+        "0x0006"
+      ],
       "buttons": {
         "1": {
           "name": "Button 1"
@@ -119,8 +132,14 @@
         "endpoint": "0x02",
         "profile": "0x0104",
         "device": "0x0104",
-        "in": ["0x0000"],
-        "out": ["0x0005", "0x0006", "0x0008"]
+        "in": [
+          "0x0000"
+        ],
+        "out": [
+          "0x0005",
+          "0x0006",
+          "0x0008"
+        ]
       },
       "items": [
         {
@@ -174,12 +193,19 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x04", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x04",
+        "0x0702"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0501",
         "endpoint": "0x04",
-        "in": ["0x0000", "0x0702"]
+        "in": [
+          "0x0000",
+          "0x0702"
+        ]
       },
       "items": [
         {
@@ -231,12 +257,19 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x04", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x04",
+        "0x0b04"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0501",
         "endpoint": "0x04",
-        "in": ["0x0000", "0x0B04"]
+        "in": [
+          "0x0000",
+          "0x0B04"
+        ]
       },
       "items": [
         {
@@ -278,7 +311,11 @@
             "fn": "zcl:attr",
             "ep": "0x04",
             "cl": "0x0B04",
-            "at": ["0x0505", "0x0508", "0x050B"]
+            "at": [
+              "0x0505",
+              "0x0508",
+              "0x050B"
+            ]
           },
           "refresh.interval": 60
         },

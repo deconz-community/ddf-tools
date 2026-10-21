@@ -8,7 +8,13 @@
     "_TZ3000_9djocypn",
     "_TZ3000_bppxj3sf"
   ],
-  "modelid": ["TS011F", "TS011F", "TS011F", "TS011F", "TS011F"],
+  "modelid": [
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F",
+    "TS011F"
+  ],
   "vendor": "Tuya",
   "product": "Powerstrip with USB (TS011F)",
   "sleeper": false,
@@ -17,7 +23,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -77,7 +86,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x02"],
+      "uuid": [
+        "$address.ext",
+        "0x02"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -134,7 +146,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x03"],
+      "uuid": [
+        "$address.ext",
+        "0x03"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -191,7 +206,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x04"],
+      "uuid": [
+        "$address.ext",
+        "0x04"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -248,7 +266,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x05"],
+      "uuid": [
+        "$address.ext",
+        "0x05"
+      ],
       "items": [
         {
           "name": "attr/id"

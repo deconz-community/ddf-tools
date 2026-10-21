@@ -4,7 +4,10 @@
   "datatype": "UInt8",
   "access": "R",
   "public": false,
-  "range": [0, 100],
+  "range": [
+    0,
+    100
+  ],
   "default": 0,
   "description": "The current device battery level in 0&ndash;100&thinsp;%."
 }

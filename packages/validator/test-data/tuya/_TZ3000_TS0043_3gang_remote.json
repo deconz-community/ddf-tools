@@ -9,7 +9,14 @@
     "_TZ3000_yw5tvzsk",
     "_TZ3000_pkeqinnt"
   ],
-  "modelid": ["TS0043", "TS0043", "TS0043", "TS0043", "TS0043", "TS0043"],
+  "modelid": [
+    "TS0043",
+    "TS0043",
+    "TS0043",
+    "TS0043",
+    "TS0043",
+    "TS0043"
+  ],
   "vendor": "Tuya",
   "product": "3-gang remote (TS0043)",
   "sleeper": false,
@@ -18,7 +25,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0006"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0006"
+      ],
       "items": [
         {
           "name": "attr/id"

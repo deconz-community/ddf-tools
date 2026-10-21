@@ -11,7 +11,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x05", "0xFC42"],
+      "uuid": [
+        "$address.ext",
+        "0x05",
+        "0xFC42"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -63,7 +67,10 @@
     {
       "type": "$TYPE_COLOR_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x05"],
+      "uuid": [
+        "$address.ext",
+        "0x05"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -161,7 +168,10 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x07"],
+      "uuid": [
+        "$address.ext",
+        "0x07"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -210,7 +220,10 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x08"],
+      "uuid": [
+        "$address.ext",
+        "0x08"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -259,7 +272,10 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x09"],
+      "uuid": [
+        "$address.ext",
+        "0x09"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -308,7 +324,10 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x10"],
+      "uuid": [
+        "$address.ext",
+        "0x10"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -357,7 +376,10 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0xa1"],
+      "uuid": [
+        "$address.ext",
+        "0xa1"
+      ],
       "items": [
         {
           "name": "attr/manufacturername"
@@ -425,7 +447,10 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0xa2"],
+      "uuid": [
+        "$address.ext",
+        "0xa2"
+      ],
       "items": [
         {
           "name": "attr/manufacturername"

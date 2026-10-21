@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -84,7 +87,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0b04"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -145,38 +152,14 @@
         },
         {
           "name": "state/current",
-          "refresh.interval": 360,
-          "read": {
-            "at": "0x0508",
-            "cl": "0x0b04",
-            "ep": 1,
-            "fn": "zcl:attr"
-          },
-          "parse": {
-            "at": "0x0508",
-            "cl": "0x0b04",
-            "ep": 1,
-            "eval": "Item.val = Attr.val;"
-          }
+          "refresh.interval": 360
         },
         {
           "name": "state/lastupdated"
         },
         {
           "name": "state/power",
-          "refresh.interval": 360,
-          "read": {
-            "at": "0x050b",
-            "cl": "0x0b04",
-            "ep": 1,
-            "fn": "zcl:attr"
-          },
-          "parse": {
-            "at": "0x050b",
-            "cl": "0x0b04",
-            "ep": 1,
-            "eval": "Item.val = Attr.val / 100;"
-          }
+          "refresh.interval": 360
         },
         {
           "name": "state/voltage",
@@ -191,7 +174,7 @@
             "at": "0x0505",
             "cl": "0x0b04",
             "ep": 1,
-            "eval": "Item.val = Attr.val / 100;"
+            "eval": "if (Attr.val != 65535) { Item.val = Math.round(Attr.val / 100) }"
           }
         }
       ]
@@ -199,7 +182,11 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -260,7 +247,14 @@
         },
         {
           "name": "state/consumption",
-          "refresh.interval": 60
+          "refresh.interval": 60,
+          "parse": {
+            "at": "0x0000",
+            "cl": "0x0702",
+            "ep": 1,
+            "eval": "Item.val = Attr.val / 1000;",
+            "fn": "zcl:attr"
+          }
         },
         {
           "name": "state/lastupdated"

@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "f5a8ab8c-fdf8-4e38-a933-c78e6bd2003b",
-  "manufacturername": ["$MF_IKEA", "$MF_IKEA"],
-  "modelid": ["TRADFRI bulb E27 CWS 806lm", "TRADFRI bulb GU10 CWS 345lm"],
+  "manufacturername": [
+    "$MF_IKEA",
+    "$MF_IKEA"
+  ],
+  "modelid": [
+    "TRADFRI bulb E27 CWS 806lm",
+    "TRADFRI bulb GU10 CWS 345lm"
+  ],
   "vendor": "IKEA",
   "product": "Tradfri LED bulb E27 806 lumen CWS and GU10 345 lumen CWS (LED2004G8/LED2110R3)",
   "sleeper": false,
@@ -11,7 +17,10 @@
     {
       "type": "$TYPE_EXTENDED_COLOR_LIGHT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -66,7 +75,12 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0300",
-            "at": ["0x400A", "0x400B", "0x400C", "0x4010"]
+            "at": [
+              "0x400A",
+              "0x400B",
+              "0x400C",
+              "0x4010"
+            ]
           },
           "refresh.interval": 86400
         },
@@ -138,7 +152,14 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0300",
-            "at": ["0x0011", "0x0012", "0x0015", "0x0016", "0x0019", "0x001A"]
+            "at": [
+              "0x0011",
+              "0x0012",
+              "0x0015",
+              "0x0016",
+              "0x0019",
+              "0x001A"
+            ]
           },
           "refresh.interval": 86400
         },
@@ -173,7 +194,11 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0008",
-            "at": ["0x000F", "0x0011", "0x4000"]
+            "at": [
+              "0x000F",
+              "0x0011",
+              "0x4000"
+            ]
           },
           "refresh.interval": 3600
         },
@@ -207,9 +232,18 @@
         {
           "name": "state/colormode",
           "values": [
-            ["\"ct\"", "color temperature"],
-            ["\"hs\"", "hue and saturation"],
-            ["\"xy\"", "CIE xy color space coordinates"]
+            [
+              "\"ct\"",
+              "color temperature"
+            ],
+            [
+              "\"hs\"",
+              "hue and saturation"
+            ],
+            [
+              "\"xy\"",
+              "CIE xy color space coordinates"
+            ]
           ],
           "parse": {
             "fn": "zcl:attr",
@@ -222,7 +256,15 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0300",
-            "at": ["0x4001", "0x0003", "0x0004", "0x0007", "0x4002", "0x4000", "0x0001"]
+            "at": [
+              "0x4001",
+              "0x0003",
+              "0x0004",
+              "0x0007",
+              "0x4002",
+              "0x4000",
+              "0x0001"
+            ]
           },
           "refresh.interval": 360
         },
@@ -247,8 +289,14 @@
         {
           "name": "state/effect",
           "values": [
-            ["\"none\"", "no effect is active"],
-            ["\"colorloop\"", "colorloop through hue values"]
+            [
+              "\"none\"",
+              "no effect is active"
+            ],
+            [
+              "\"colorloop\"",
+              "colorloop through hue values"
+            ]
           ],
           "read": {
             "fn": "none"

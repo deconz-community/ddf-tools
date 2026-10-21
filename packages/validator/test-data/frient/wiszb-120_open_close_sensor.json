@@ -11,12 +11,20 @@
     {
       "type": "$TYPE_OPEN_CLOSE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x23", "0x0500"],
+      "uuid": [
+        "$address.ext",
+        "0x23",
+        "0x0500"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0402",
         "endpoint": "0x23",
-        "in": ["0x0000", "0x0001", "0x0500"]
+        "in": [
+          "0x0000",
+          "0x0001",
+          "0x0500"
+        ]
       },
       "items": [
         {
@@ -109,12 +117,20 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x26", "0x0402"],
+      "uuid": [
+        "$address.ext",
+        "0x26",
+        "0x0402"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0302",
         "endpoint": "0x26",
-        "in": ["0x0000", "0x0001", "0x0402"]
+        "in": [
+          "0x0000",
+          "0x0001",
+          "0x0402"
+        ]
       },
       "items": [
         {

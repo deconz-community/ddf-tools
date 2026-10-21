@@ -6,9 +6,18 @@
   "public": true,
   "description": "The currently active color mode.",
   "values": [
-    ["\"hs\"", "hue and saturation"],
-    ["\"xy\"", "CIE xy color space coordinates"],
-    ["\"ct\"", "color temperature"]
+    [
+      "\"hs\"",
+      "hue and saturation"
+    ],
+    [
+      "\"xy\"",
+      "CIE xy color space coordinates"
+    ],
+    [
+      "\"ct\"",
+      "color temperature"
+    ]
   ],
   "parse": {
     "fn": "zcl:attr",

@@ -5,7 +5,18 @@
   "ui_name": "Presence sensor",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": ["$address.ext", "0x01", "0x0406"],
-  "items": ["config/on", "config/reachable", "state/presence", "state/lastupdated"],
-  "items_optional": ["config/duration"]
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x0406"
+  ],
+  "items": [
+    "config/on",
+    "config/reachable",
+    "state/presence",
+    "state/lastupdated"
+  ],
+  "items_optional": [
+    "config/duration"
+  ]
 }

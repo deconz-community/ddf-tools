@@ -43,7 +43,11 @@
     {
       "type": "$TYPE_THERMOSTAT",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0xef00"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0xef00"
+      ],
       "meta": {
         "values": {
           "config/mode": {

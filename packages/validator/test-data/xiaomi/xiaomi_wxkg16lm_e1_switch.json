@@ -12,15 +12,26 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0006"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0006"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0000",
         "endpoint": "0x01",
-        "in": ["0x0000", "0x0001", "0x0012", "0xFCC0"],
-        "out": ["0x0006"]
+        "in": [
+          "0x0000",
+          "0x0001",
+          "0x0012",
+          "0xFCC0"
+        ],
+        "out": [
+          "0x0006"
+        ]
       },
-      "meta": { "group.endpoints": [1] },
+      "meta": {"group.endpoints": [1] },
       "items": [
         {
           "name": "attr/id"
@@ -90,7 +101,7 @@
           },
           "values": [
             ["\"highspeed\"", "Buttons emit only single click events, but fast"],
-            ["\"multiclick\"", "Emits single, double and treble presses"]
+            ["\"multiclick\"", "Emits single, double and treble presses"] 
           ],
           "default": "multiclick"
         },
@@ -123,7 +134,7 @@
           },
           "values": [
             ["\"compatibility\"", "Default mode for Xiaomi devices"],
-            ["\"zigbee\"", "Closer to zigbee standard"]
+            ["\"zigbee\"", "Closer to zigbee standard"] 
           ],
           "default": "compatibility"
         },

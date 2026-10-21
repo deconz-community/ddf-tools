@@ -5,6 +5,15 @@
   "ui_name": "Open/close sensor",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": ["$address.ext", "0x01", "0x0500"],
-  "items": ["config/on", "config/reachable", "state/open", "state/lastupdated"]
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x0500"
+  ],
+  "items": [
+    "config/on",
+    "config/reachable",
+    "state/open",
+    "state/lastupdated"
+  ]
 }

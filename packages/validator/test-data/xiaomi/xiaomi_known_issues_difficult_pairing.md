@@ -1,3 +1,4 @@
+
 ### Difficult pairing
 
 To pair the sensor it needs to be reset first, by pressing the pin-hole button for 10 seconds.

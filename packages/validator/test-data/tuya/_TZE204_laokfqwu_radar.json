@@ -4,14 +4,18 @@
   "manufacturername": "_TZE204_laokfqwu",
   "modelid": "TS0601",
   "vendor": "Tuya",
-  "product": "MmwRadar Human Presence Detector (TS0601)",
+  "product": "Human presence detector (TS0601)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_LIGHT_LEVEL_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0400"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0400"
+      ],
       "items": [
         {
           "name": "attr/lastseen"
@@ -90,7 +94,11 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0xef00"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0xef00"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -142,12 +150,12 @@
           "write": {
             "dpid": 105,
             "dt": "0x2b",
-            "eval": "Item.val;",
+            "eval": "Item.val",
             "fn": "tuya"
           },
           "parse": {
             "dpid": 105,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 1
@@ -155,19 +163,22 @@
         {
           "name": "config/fadingtime",
           "description": "Fading time : target disapperance delay time in second (from 0 to 15000). Default 90s",
-          "range": [0, 15000],
+          "range": [
+            0,
+            15000
+          ],
           "read": {
             "fn": "none"
           },
           "write": {
             "dpid": 106,
             "dt": "0x2b",
-            "eval": "Item.val;",
+            "eval": "Item.val",
             "fn": "tuya"
           },
           "parse": {
             "dpid": 106,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 90
@@ -181,19 +192,22 @@
         {
           "name": "config/sensitivity",
           "description": "Radar sensitivity (from 1 to 9). Default 7",
-          "range": [1, 9],
+          "range": [
+            1,
+            9
+          ],
           "read": {
             "fn": "none"
           },
           "write": {
             "dpid": 2,
             "dt": "0x2b",
-            "eval": "Item.val;",
+            "eval": "Item.val",
             "fn": "tuya"
           },
           "parse": {
             "dpid": 2,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 7
@@ -216,17 +230,50 @@
             "fn": "tuya"
           },
           "values": [
-            ["\"1\"", "1m"],
-            ["\"2\"", "2m"],
-            ["\"3\"", "3m"],
-            ["\"4\"", "4m"],
-            ["\"5\"", "5m"],
-            ["\"6\"", "6m"],
-            ["\"7\"", "7m"],
-            ["\"8\"", "8m"],
-            ["\"9\"", "9m"],
-            ["\"10\"", "10m"],
-            ["\"0\"", "Off"]
+            [
+              "\"1\"",
+              "1m"
+            ],
+            [
+              "\"2\"",
+              "2m"
+            ],
+            [
+              "\"3\"",
+              "3m"
+            ],
+            [
+              "\"4\"",
+              "4m"
+            ],
+            [
+              "\"5\"",
+              "5m"
+            ],
+            [
+              "\"6\"",
+              "6m"
+            ],
+            [
+              "\"7\"",
+              "7m"
+            ],
+            [
+              "\"8\"",
+              "8m"
+            ],
+            [
+              "\"9\"",
+              "9m"
+            ],
+            [
+              "\"10\"",
+              "10m"
+            ],
+            [
+              "\"0\"",
+              "Off"
+            ]
           ],
           "default": "10"
         },
@@ -238,7 +285,7 @@
           },
           "parse": {
             "dpid": 9,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": 0
@@ -266,19 +313,12 @@
           },
           "parse": {
             "dpid": 1,
-            "eval": "Item.val = Attr.val;",
+            "eval": "Item.val = Attr.val",
             "fn": "tuya"
           },
           "default": false
         }
       ]
-    }
-  ],
-  "bindings": [
-    {
-      "bind": "unicast",
-      "src.ep": 1,
-      "cl": "0xEF00"
     }
   ]
 }

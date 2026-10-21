@@ -5,7 +5,11 @@
   "ui_name": "Relative rotary sensor",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": ["$address.ext", "0x01", "0x0000"],
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x0000"
+  ],
   "items": [
     "config/on",
     "config/reachable",

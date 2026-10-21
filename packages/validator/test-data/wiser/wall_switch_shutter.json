@@ -11,7 +11,10 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -72,7 +75,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x15", "0x0102"],
+      "uuid": [
+        "$address.ext",
+        "0x15",
+        "0x0102"
+      ],
       "meta": {
         "values": {
           "config/mode": {

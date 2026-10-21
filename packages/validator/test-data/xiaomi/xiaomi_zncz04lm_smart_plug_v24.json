@@ -9,12 +9,17 @@
   "status": "Gold",
   "comment": "DDF for device firmwares equal or above 0.0.0_0024",
   "matchexpr": "(R.endpoints.indexOf(0x15) !== -1) && (R.endpoints.indexOf(0x1F) !== -1);",
-  "md:known_issues": ["xiaomi_known_issues_firmware_update.md"],
+  "md:known_issues": [
+    "xiaomi_known_issues_firmware_update.md"
+  ],
   "subdevices": [
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -70,12 +75,18 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x15", "0x000C"],
+      "uuid": [
+        "$address.ext",
+        "0x15",
+        "0x000C"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0051",
         "endpoint": "0x15",
-        "in": ["0x000C"]
+        "in": [
+          "0x000C"
+        ]
       },
       "items": [
         {
@@ -169,12 +180,18 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x1F", "0x000C"],
+      "uuid": [
+        "$address.ext",
+        "0x1F",
+        "0x000C"
+      ],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0051",
         "endpoint": "0x1F",
-        "in": ["0x000C"]
+        "in": [
+          "0x000C"
+        ]
       },
       "items": [
         {

@@ -5,7 +5,11 @@
   "ui_name": "Particulate matter sensor",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": ["$address.ext", "0x01", "0x042A"],
+  "uuid": [
+    "$address.ext",
+    "0x01",
+    "0x042A"
+  ],
   "items": [
     "config/on",
     "config/reachable",

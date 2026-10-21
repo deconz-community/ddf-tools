@@ -4,7 +4,10 @@
   "datatype": "UInt32",
   "access": "RW",
   "public": true,
-  "range": [0, 600],
+  "range": [
+    0,
+    600
+  ],
   "description": "The sensor detection range in cm.",
   "default": 0
 }

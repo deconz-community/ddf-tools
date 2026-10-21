@@ -1,8 +1,16 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "4b16f6c7-b57e-4d7a-9eff-894c5023ab9e",
-  "manufacturername": ["innr", "innr"],
-  "modelid": ["SP 240", "SP 242"],
+  "manufacturername": [
+    "innr",
+    "innr",
+    "innr"
+  ],
+  "modelid": [
+    "SP 240",
+    "OSP 240",
+    "SP 242"
+  ],
   "vendor": "Innr",
   "product": "Smart plug (SP 240)",
   "sleeper": false,
@@ -11,7 +19,10 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -64,7 +75,11 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -115,7 +130,7 @@
             "at": "0x0000",
             "cl": "0x0702",
             "ep": 0,
-            "eval": "Item.val = Attr.val * 10;"
+            "eval": "Item.val = Attr.val"
           }
         },
         {
@@ -126,7 +141,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0b04"
+      ],
       "items": [
         {
           "name": "attr/id"

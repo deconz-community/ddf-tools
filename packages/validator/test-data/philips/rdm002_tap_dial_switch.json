@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "86a0db54-f38b-4b45-8ab4-37369b0840f5",
-  "manufacturername": ["$MF_PHILIPS", "$MF_SIGNIFY"],
-  "modelid": ["RDM002", "RDM002"],
+  "manufacturername": [
+    "$MF_PHILIPS",
+    "$MF_SIGNIFY"
+  ],
+  "modelid": [
+    "RDM002",
+    "RDM002"
+  ],
   "vendor": "Philips",
   "product": "Hue tap dial switch",
   "status": "Gold",
@@ -11,7 +17,11 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0xfc00"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0xfc00"
+      ],
       "buttons": {
         "1": {
           "name": "\u2024"
@@ -196,7 +206,11 @@
     {
       "type": "$TYPE_RELATIVE_ROTARY",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x14", "0xfc00"],
+      "uuid": [
+        "$address.ext",
+        "0x14",
+        "0xfc00"
+      ],
       "items": [
         {
           "name": "attr/lastseen"

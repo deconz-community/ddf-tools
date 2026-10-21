@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "4ca84756-51f4-4e2b-a11f-83e93aa3d4fb",
-  "manufacturername": ["LEDVANCE", "LEDVANCE"],
-  "modelid": ["PLUG EU EM T", "PLUG COMPACT EU EM T"],
+  "manufacturername": [
+    "LEDVANCE",
+    "LEDVANCE"
+  ],
+  "modelid": [
+    "PLUG EU EM T",
+    "PLUG COMPACT EU EM T"
+  ],
   "vendor": "LEDVANCE",
   "product": "PLUG (COMPACT) EU EM T",
   "sleeper": false,
@@ -11,7 +17,10 @@
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -58,7 +67,11 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -119,7 +132,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0B04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0B04"
+      ],
       "items": [
         {
           "name": "attr/id"

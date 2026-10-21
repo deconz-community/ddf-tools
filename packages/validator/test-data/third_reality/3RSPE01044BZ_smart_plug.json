@@ -4,14 +4,17 @@
   "manufacturername": "Third Reality, Inc",
   "modelid": "3RSPE01044BZ",
   "vendor": "Third Reality",
-  "product": "Smart plug",
+  "product": "Smart plug (3RSPE01044BZ)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -55,7 +58,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0b04"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -99,6 +106,7 @@
         },
         {
           "name": "state/power",
+          "refresh.interval": 360,
           "read": {
             "at": "0x050b",
             "cl": "0x0b04",
@@ -110,11 +118,11 @@
             "cl": "0x0b04",
             "ep": 1,
             "eval": "Item.val = Attr.val / 10"
-          },
-          "refresh.interval": 360
+          }
         },
         {
           "name": "state/voltage",
+          "refresh.interval": 360,
           "read": {
             "at": "0x0505",
             "cl": "0x0b04",
@@ -126,15 +134,18 @@
             "cl": "0x0b04",
             "ep": 1,
             "eval": "Item.val = Attr.val / 10"
-          },
-          "refresh.interval": 360
+          }
         }
       ]
     },
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -171,6 +182,7 @@
         },
         {
           "name": "state/consumption",
+          "refresh.interval": 360,
           "read": {
             "at": "0x0000",
             "cl": "0x0702",
@@ -182,8 +194,7 @@
             "cl": "0x0702",
             "ep": 1,
             "eval": "Item.val = Attr.val / 10"
-          },
-          "refresh.interval": 365
+          }
         },
         {
           "name": "state/lastupdated"

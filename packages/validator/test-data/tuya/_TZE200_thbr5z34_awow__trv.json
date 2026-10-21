@@ -11,7 +11,11 @@
     {
       "type": "$TYPE_THERMOSTAT",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0xef00"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0xef00"
+      ],
       "meta": {
         "values": {
           "config/mode": {
@@ -103,9 +107,18 @@
         {
           "name": "config/mode",
           "values": [
-            ["auto", 0],
-            ["heat", 1],
-            ["off", 2]
+            [
+              "auto",
+              0
+            ],
+            [
+              "heat",
+              1
+            ],
+            [
+              "off",
+              2
+            ]
           ],
           "parse": {
             "fn": "tuya",

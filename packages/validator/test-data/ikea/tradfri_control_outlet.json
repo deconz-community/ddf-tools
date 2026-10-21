@@ -4,14 +4,17 @@
   "manufacturername": "$MF_IKEA",
   "modelid": "TRADFRI control outlet",
   "vendor": "IKEA",
-  "product": "Tradfri Control Outlet (E1603)",
+  "product": "Tradfri control outlet (E1603)",
   "sleeper": false,
   "status": "Gold",
   "subdevices": [
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"

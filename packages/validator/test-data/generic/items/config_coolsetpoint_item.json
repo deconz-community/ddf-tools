@@ -6,5 +6,8 @@
   "public": true,
   "default": 0,
   "description": "Target cooling temperature of a thermostat.",
-  "range": [500, 3200]
+  "range": [
+    500,
+    3200
+  ]
 }

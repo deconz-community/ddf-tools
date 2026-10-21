@@ -1,8 +1,16 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "438898c5-16f6-44f4-9768-22ac33490d69",
-  "manufacturername": ["_TZE200_byzdayie", "_TZE200_fsb6zw01", "_TZE200_ewxhg6o9"],
-  "modelid": ["TS0601", "TS0601", "TS0601"],
+  "manufacturername": [
+    "_TZE200_byzdayie",
+    "_TZE200_fsb6zw01",
+    "_TZE200_ewxhg6o9"
+  ],
+  "modelid": [
+    "TS0601",
+    "TS0601",
+    "TS0601"
+  ],
   "vendor": "Tuya",
   "product": "Single phase 65A DIN rail smart energy meter (TS0601)",
   "sleeper": true,
@@ -11,7 +19,10 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": ["$address.ext", "0x01"],
+      "uuid": [
+        "$address.ext",
+        "0x01"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -78,7 +89,11 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0702"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0702"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -150,7 +165,11 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0b04"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0b04"
+      ],
       "items": [
         {
           "name": "attr/id"

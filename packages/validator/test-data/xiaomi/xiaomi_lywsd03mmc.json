@@ -1,8 +1,14 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "ab855acd-56bb-45df-a127-b796c4b3e547",
-  "manufacturername": ["Xiaomi", "Xiaomi"],
-  "modelid": ["LYWSD03MMC", "LYWSD03MMC-z"],
+  "manufacturername": [
+    "Xiaomi",
+    "Xiaomi"
+  ],
+  "modelid": [
+    "LYWSD03MMC",
+    "LYWSD03MMC-z"
+  ],
   "vendor": "Xiaomi Mi",
   "product": "Temperature and humidity sensor with LCD (LYWSD03MMC)",
   "sleeper": false,
@@ -11,7 +17,11 @@
     {
       "type": "$TYPE_HUMIDITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0405"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0405"
+      ],
       "items": [
         {
           "name": "attr/id"
@@ -79,7 +89,11 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": ["$address.ext", "0x01", "0x0402"],
+      "uuid": [
+        "$address.ext",
+        "0x01",
+        "0x0402"
+      ],
       "items": [
         {
           "name": "attr/id"
