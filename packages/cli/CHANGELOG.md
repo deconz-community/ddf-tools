@@ -1,5 +1,20 @@
 # @deconz-community/cli
 
+## 1.21.0
+
+### Minor Changes
+
+- a82b9ea: Update many dep to latest version
+
+### Patch Changes
+
+- Updated dependencies [38d1c9d]
+- Updated dependencies [b7acd10]
+- Updated dependencies [38d1c9d]
+- Updated dependencies [721386d]
+  - @deconz-community/ddf-validator@2.37.0
+  - @deconz-community/ddf-bundler@0.35.0
+
 ## 1.20.0
 
 ### Minor Changes

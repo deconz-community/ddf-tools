@@ -1,5 +1,15 @@
 # @deconz-community/ddf-validator
 
+## 2.37.0
+
+### Minor Changes
+
+- 38d1c9d: Removed zod-to-ts dep and add json-schema-to-typescript
+
+### Patch Changes
+
+- 38d1c9d: Fix validation of read/parse when fn is missing
+
 ## 2.36.1
 
 ### Patch Changes
