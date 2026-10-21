@@ -1,26 +1,32 @@
 {
   "name": "@deconz-community/ddf-tools",
-  "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.33.0",
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "license": "MIT",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
     "url": "https://github.com/Zehir"
   },
-  "license": "MIT",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main",
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/deconz-community/ddf-tools.git"
   },
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
   },
+  "type": "module",
   "scripts": {
     "test": "turbo run test",
     "lint": "turbo run lint",
@@ -32,15 +38,15 @@
     "build:toolbox": "pnpm --dir packages/toolbox run build",
     "dev:store": "pnpm --dir packages/store run dev",
     "dev:toolbox": "pnpm --dir packages/toolbox run dev",
-    "dev:extension": "pnpm --dir packages/vscode-extension run dev"
+    "dev:extension": "pnpm --dir packages/vscode-extension run dev",
+    "prepare": "vp config"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^8.1.1",
     "@changesets/cli": "^2.30.0",
-    "@eslint/eslintrc": "^3.3.5",
-    "eslint": "^10.2.0",
     "taze": "^19.11.0",
     "turbo": "^2.9.6",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:",
     "vue-eslint-parser": "^10.4.0"
   },
   "resolutions": {
@@ -50,14 +56,7 @@
     "micromatch": "^4.0.8",
     "rollup": "^4.60.1",
     "socks": "^2.8.7",
-    "vite": "^8.0.8",
     "vue": "^3.5.32"
   },
-  "maintainers": [
-    {
-      "name": "Zehir",
-      "email": "zehir@zorim.fr",
-      "url": "https://github.com/Zehir"
-    }
-  ]
+  "packageManager": "pnpm@10.33.0"
 }

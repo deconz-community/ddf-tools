@@ -1,35 +1,25 @@
 {
   "name": "@deconz-community/ddf-validator",
-  "type": "module",
   "version": "2.36.1",
-  "packageManager": "pnpm@10.33.0",
   "description": "Validating DDF files for deconz",
+  "keywords": [
+    "bundle",
+    "conbee",
+    "ddb",
+    "ddf",
+    "deconz",
+    "drezden"
+  ],
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/validator",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "license": "MIT",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
     "url": "https://github.com/Zehir"
   },
-  "license": "MIT",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/validator",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deconz-community/ddf-tools.git"
-  },
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
-  },
-  "keywords": [
-    "deconz",
-    "drezden",
-    "conbee",
-    "ddf",
-    "ddb",
-    "bundle"
-  ],
   "maintainers": [
     {
       "name": "Zehir",
@@ -37,6 +27,24 @@
       "url": "https://github.com/Zehir"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "files": [
+    "./dist/ddf-schema.json",
+    "./dist/ddf-validator.cjs",
+    "./dist/ddf-validator.d.ts",
+    "./dist/ddf-validator.mjs"
+  ],
+  "type": "module",
+  "main": "./dist/ddf-validator.cjs",
+  "module": "./dist/ddf-validator.mjs",
+  "types": "./dist/ddf-validator.d.ts",
   "exports": {
     ".": {
       "types": "./dist/ddf-validator.d.ts",
@@ -44,27 +52,14 @@
       "require": "./dist/ddf-validator.cjs"
     }
   },
-  "main": "./dist/ddf-validator.cjs",
-  "module": "./dist/ddf-validator.mjs",
-  "types": "./dist/ddf-validator.d.ts",
-  "files": [
-    "./dist/ddf-schema.json",
-    "./dist/ddf-validator.cjs",
-    "./dist/ddf-validator.d.ts",
-    "./dist/ddf-validator.mjs"
-  ],
-  "engines": {
-    "pnpm": ">=8.6.8",
-    "node": ">=16.0.0"
-  },
   "scripts": {
     "build": "pnpm run build:vite && pnpm run build:dts",
     "build:cleanup": "rimraf ./dist",
-    "build:vite": "vite build",
+    "build:vite": "vp build",
     "build:dts": "node ./build-dts.js",
-    "lint": "eslint",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "lint": "vp lint",
+    "test": "vp test run",
+    "test:watch": "vp test",
     "test:download-sample": "rimraf ./test-data && degit manup/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
   },
   "dependencies": {
@@ -73,10 +68,7 @@
   "devDependencies": {
     "@types/jsdom": "^28.0.1",
     "@types/node": "^24.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.58.1",
-    "@typescript-eslint/parser": "^8.58.1",
     "degit": "^2.8.4",
-    "eslint": "^10.2.0",
     "fast-glob": "^3.3.3",
     "lint-staged": "^16.4.0",
     "rimraf": "^6.1.3",
@@ -86,9 +78,14 @@
     "taze": "^19.11.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2",
-    "vite": "^8.0.8",
-    "vitest": "^4.1.4",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
     "zod-to-ts": "^2.0.0",
     "zod-validation-error": "^5.0.0"
-  }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.6.8"
+  },
+  "packageManager": "pnpm@10.33.0"
 }

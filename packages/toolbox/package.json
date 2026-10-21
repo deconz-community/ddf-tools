@@ -1,29 +1,35 @@
 {
   "name": "@deconz-community/toolbox",
-  "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.28.0",
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/toolbox",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "license": "MIT",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
     "url": "https://github.com/Zehir"
   },
-  "license": "MIT",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/toolbox",
+  "maintainers": [
+    {
+      "name": "Zehir",
+      "email": "zehir@zorim.fr",
+      "url": "https://github.com/Zehir"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/deconz-community/ddf-tools.git"
   },
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
   },
+  "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 4000",
-    "build": "vite build"
+    "dev": "vp dev --host 0.0.0.0 --port 4000",
+    "build": "vp build"
   },
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
@@ -63,7 +69,6 @@
     "zod-empty": "^2.1.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.0.1",
     "@directus/sdk": "^21.0.0",
     "@mdi/font": "^7.4.47",
     "@noble/curves": "^2.0.1",
@@ -74,14 +79,11 @@
     "@types/md5": "^2.3.6",
     "@types/node": "^24.1.0",
     "@types/semver": "^7.7.1",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
-    "@typescript-eslint/parser": "^8.53.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vorms/core": "^1.1.0",
     "@vorms/resolvers": "^1.1.0",
     "@vueuse/core": "^14.1.0",
     "color": "^5.0.3",
-    "eslint": "^9.39.2",
     "lint-staged": "^16.2.7",
     "md5": "^2.3.0",
     "monaco-editor": "^0.55.1",
@@ -93,22 +95,17 @@
     "typescript": "^5.9.3",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
-    "vite": "^7.3.1",
+    "vite": "catalog:",
     "vite-plugin-pages": "^0.33.2",
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-plugin-vuetify": "^2.1.2",
-    "vitest": "^4.0.17",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:",
     "vue": "^3.5.26",
     "vue-macros": "^3.1.2",
     "vue-router": "^4.6.4",
     "vue3-perfect-scrollbar": "^2.0.0"
   },
-  "maintainers": [
-    {
-      "name": "Zehir",
-      "email": "zehir@zorim.fr",
-      "url": "https://github.com/Zehir"
-    }
-  ]
+  "packageManager": "pnpm@10.28.0"
 }

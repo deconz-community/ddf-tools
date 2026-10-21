@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from "vite-plus/test";
 
-describe('tests', async () => {
-  it('no test', async () => {
-    expect(true).toBeTruthy()
-  })
-})
+describe("tests", async () => {
+  it("no test", async () => {
+    expect(true).toBeTruthy();
+  });
+});

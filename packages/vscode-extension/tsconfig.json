@@ -1,17 +1,11 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "ES2020",
-      "WebWorker"
-    ],
-    "baseUrl": ".",
+    "lib": ["ES2020", "WebWorker"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "~/*": [
-        "src/*"
-      ]
+      "~/*": ["./src/*"]
     },
     "resolveJsonModule": true,
     "strict": true,

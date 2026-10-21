@@ -1,37 +1,44 @@
-import path from 'node:path'
-import Vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
-import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers'
-import Components from 'unplugin-vue-components/vite'
-import { defineConfig } from 'vite'
-import Pages from 'vite-plugin-pages'
-import { VitePWA } from 'vite-plugin-pwa'
-import Layouts from 'vite-plugin-vue-layouts'
-import Vuetify from 'vite-plugin-vuetify'
-import VueMacros from 'vue-macros/vite'
+import path from "node:path";
+import Vue from "@vitejs/plugin-vue";
+import AutoImport from "unplugin-auto-import/vite";
+import { VueUseComponentsResolver } from "unplugin-vue-components/resolvers";
+import Components from "unplugin-vue-components/vite";
+import { defineConfig, lazyPlugins } from "vite-plus";
+import Pages from "vite-plugin-pages";
+import { VitePWA } from "vite-plugin-pwa";
+import Layouts from "vite-plugin-vue-layouts";
+import Vuetify from "vite-plugin-vuetify";
+import VueMacros from "vue-macros/vite";
 
 export default defineConfig({
-  base: '/ddf-tools/',
+  test: {
+    // Vitest v4 compatibility: preserve mock call history.
+    // Remove after tests no longer rely on calls from setup or earlier tests.
+    // https://viteplus.dev/guide/vitest-v5#remove-unneeded-compatibility-settings
+    // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
+    clearMocks: false,
+  },
+  base: "/ddf-tools/",
   resolve: {
     alias: {
-      '@deconz-community/ddf-bundler': path.resolve(__dirname, '../bundler/index.ts'),
-      '@deconz-community/ddf-validator': path.resolve(__dirname, '../validator/index.ts'),
-      '@deconz-community/rest-client': path.resolve(__dirname, '../rest-client/index.ts'),
-      '~/': `${path.resolve(__dirname, 'src')}/`,
+      "@deconz-community/ddf-bundler": path.resolve(__dirname, "../bundler/index.ts"),
+      "@deconz-community/ddf-validator": path.resolve(__dirname, "../validator/index.ts"),
+      "@deconz-community/rest-client": path.resolve(__dirname, "../rest-client/index.ts"),
+      "~/": `${path.resolve(__dirname, "src")}/`,
     },
   },
 
   build: {
     rollupOptions: {
       output: {
-        assetFileNames: 'assets/[name].[ext]',
-        chunkFileNames: 'chunks/[name].js',
-        entryFileNames: '[name].js',
+        assetFileNames: "assets/[name].[ext]",
+        chunkFileNames: "chunks/[name].js",
+        entryFileNames: "[name].js",
       },
     },
   },
 
-  plugins: [
+  plugins: lazyPlugins(() => [
     VueMacros({
       plugins: {
         vue: Vue({
@@ -41,7 +48,7 @@ export default defineConfig({
     }),
 
     Pages({
-      extensions: ['vue'],
+      extensions: ["vue"],
     }),
 
     Layouts(),
@@ -49,58 +56,49 @@ export default defineConfig({
     // https://github.com/antfu/unplugin-auto-import
     AutoImport({
       imports: [
-        'vue',
-        'vue-router',
-        'vue/macros',
-        '@vueuse/head',
-        '@vueuse/core',
+        "vue",
+        "vue-router",
+        "vue/macros",
+        "@vueuse/head",
+        "@vueuse/core",
         {
           // https://github.com/sindresorhus/ts-extras
-          'ts-extras': [
-            'objectKeys',
-          ],
+          "ts-extras": ["objectKeys"],
         },
         {
-          'vuetify-use-dialog': [
-            'useConfirm',
-          ],
+          "vuetify-use-dialog": ["useConfirm"],
         },
         {
-          'vuetify-sonner': ['toast'],
+          "vuetify-sonner": ["toast"],
         },
       ],
-      dts: 'src/auto-imports.d.ts',
-      dirs: [
-        'src/composables',
-        'src/stores',
-      ],
+      dts: "src/auto-imports.d.ts",
+      dirs: ["src/composables", "src/stores"],
       vueTemplate: true,
     }),
 
     // https://github.com/antfu/unplugin-vue-components
     Components({
       // allow auto load components under `./src/components/`
-      extensions: ['vue'],
+      extensions: ["vue"],
       // allow auto import and register components
       include: [/\.vue$/, /\.vue\?vue/],
-      dts: 'src/components.d.ts',
+      dts: "src/components.d.ts",
 
       resolvers: [
         VueUseComponentsResolver(),
         {
-          type: 'component',
+          type: "component",
           resolve: (name) => {
             const components = {
-              VueToggles: 'vue-toggles',
-              VueMonacoEditor: '@guolao/vue-monaco-editor',
-              VueMarkdown: ['markdown-vue', 'default'],
-            }
+              VueToggles: "vue-toggles",
+              VueMonacoEditor: "@guolao/vue-monaco-editor",
+              VueMarkdown: ["markdown-vue", "default"],
+            };
             if (name in components) {
-              const data = components[name as keyof typeof components]
-              if (Array.isArray(data))
-                return { name: data[1], as: name, from: data[0] }
-              else
-                return { name, as: name, from: data }
+              const data = components[name as keyof typeof components];
+              if (Array.isArray(data)) return { name: data[1], as: name, from: data[0] };
+              else return { name, as: name, from: data };
             }
           },
         },
@@ -114,47 +112,42 @@ export default defineConfig({
     // https://github.com/antfu/vite-plugin-pwa
 
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
+      registerType: "autoUpdate",
+      includeAssets: ["favicon.svg", "safari-pinned-tab.svg"],
       manifest: {
-        name: 'Deconz-Toolbox',
-        short_name: 'Deconz-Toolbox',
-        theme_color: '#ffffff',
+        name: "Deconz-Toolbox",
+        short_name: "Deconz-Toolbox",
+        theme_color: "#ffffff",
         icons: [
           {
-            src: '/ddf-tools/pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
+            src: "/ddf-tools/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
           },
           {
-            src: '/ddf-tools/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: "/ddf-tools/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
           },
           {
-            src: '/ddf-tools/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
+            src: "/ddf-tools/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
           },
         ],
       },
     }),
-  ],
+  ]),
 
   ssr: {
     // TODO: workaround until they support native ESM
-    noExternal: [
-      'vuetify',
-    ],
+    noExternal: ["vuetify"],
   },
 
   server: {
     fs: {
-      allow: [
-        '..',
-        '../../node_modules',
-      ],
+      allow: ["..", "../../node_modules"],
     },
   },
-})
+});

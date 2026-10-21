@@ -2,10 +2,10 @@ declare interface Window {
   // extend the window
 }
 
-declare module '*.vue' {
-  import { type DefineComponent } from 'vue'
+declare module "*.vue" {
+  import { type DefineComponent } from "vue";
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  const component: DefineComponent<{}, {}, any>
-  export default component
+  // oxlint-disable-next-line @typescript-eslint/ban-types
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
 }

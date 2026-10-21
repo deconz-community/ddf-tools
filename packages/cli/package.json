@@ -1,33 +1,23 @@
 {
   "name": "@deconz-community/cli",
-  "type": "module",
   "version": "1.20.0",
-  "packageManager": "pnpm@10.33.0",
   "description": "A command line tool for working with DDFs.",
+  "keywords": [
+    "cli",
+    "conbee",
+    "deconz",
+    "drezden"
+  ],
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/cli",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "license": "MIT",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
     "url": "https://github.com/Zehir"
   },
-  "license": "MIT",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/cli",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deconz-community/ddf-tools.git"
-  },
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
-  },
-  "keywords": [
-    "deconz",
-    "drezden",
-    "conbee",
-    "cli"
-  ],
   "maintainers": [
     {
       "name": "Zehir",
@@ -35,17 +25,22 @@
       "url": "https://github.com/Zehir"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
   "bin": {
     "ddf-tools": "./dist/index.js"
   },
   "files": [],
-  "engines": {
-    "pnpm": ">=8.6.8",
-    "node": ">=16.0.0"
-  },
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vp dev",
+    "build": "vp build",
     "download:test-data": "rm -rf ./test-data && mkdir ./test-data && git clone https://github.com/dresden-elektronik/deconz-rest-plugin.git ./test-data",
     "preview": "vite-node ./src/index.ts"
   },
@@ -70,8 +65,14 @@
     "@types/node": "^24.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2",
-    "vite": "^8.0.8",
+    "vite": "catalog:",
     "vite-node": "^6.0.0",
-    "vite-plugin-node": "^8.0.0"
-  }
+    "vite-plugin-node": "^8.0.0",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.6.8"
+  },
+  "packageManager": "pnpm@10.33.0"
 }
