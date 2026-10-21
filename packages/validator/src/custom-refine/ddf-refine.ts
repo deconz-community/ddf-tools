@@ -91,7 +91,7 @@ function validateRefreshIntervalAndBindingReportTime(
             item["refresh.interval"] - 60 < bindingsReportTime[path]
           ) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: "custom",
               message:
                 `The refresh interval (${item["refresh.interval"]} - 60 = ${item["refresh.interval"] - 60})` +
                 ` should be greater than the binding max refresh value (${bindingsReportTime[path]}) with a margin of 60 seconds`,
@@ -240,7 +240,7 @@ function validateMandatoryItemsAttributes(
       ) {
         if (!processCondition(rule.need.item, (value) => attributes.includes(value))) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: `The device is missing some items because ${rule.description}`,
             path: ["subdevices", device_index, "items"],
           });
@@ -261,14 +261,14 @@ function validateScriptEvalFunctions(data: DDF, ctx: z.RefinementCtx, _generics:
 
         if (data.eval === undefined && data.script === undefined) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: `The '${func}' function is missing 'eval' or 'script' option.`,
             path: ["subdevices", device_index, "items", item_index, func],
           });
         }
         if (data.eval !== undefined && data.script !== undefined) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: `The '${func}' function is having both 'eval' and 'script' option.`,
             path: ["subdevices", device_index, "items", item_index, func],
           });
@@ -291,7 +291,7 @@ function validateConstants2(data: Constants2, ctx: z.RefinementCtx, _generics: G
     if (Object.keys(baseSchema.shape).includes(key)) return;
     if (!["$MF_", "$TYPE_"].some((prefix) => key.startsWith(prefix))) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "The constant key should start with '$MF_' or '$TYPE_'",
         path: [key],
       });
@@ -299,7 +299,7 @@ function validateConstants2(data: Constants2, ctx: z.RefinementCtx, _generics: G
     }
     if (typeof data[key] !== "string") {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "The constant value should be a string",
         path: [key],
       });
@@ -312,7 +312,7 @@ function validateMandatoryItemsForDevices(data: DDF, ctx: z.RefinementCtx, gener
     const generic = generics.subDevices[device.type];
     if (!generic) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: `The device is missing the device definition (subdevice1.schema.json) for the type "${device.type}"`,
         path: ["subdevices", device_index, "items"],
       });
@@ -327,7 +327,7 @@ function validateMandatoryItemsForDevices(data: DDF, ctx: z.RefinementCtx, gener
     list.forEach((item) => {
       if (!device.items.find((i) => i.name === item)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: `The device should have the item "${item}" because it is mandatory for devices of type "${device.type}"`,
           path: ["subdevices", device_index, "items"],
         });
@@ -343,7 +343,7 @@ function validateNumToStrParseSrcItem(data: DDF, ctx: z.RefinementCtx, _generics
       if (item.parse && item.parse.fn === "numtostr") {
         if (!list.includes(item.parse.srcitem)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: `The device should have the item "${item.parse.srcitem}" because it is used in the 'numtostr' function`,
             path: ["subdevices", device_index, "items", item_index, "parse", "srcitem"],
           });

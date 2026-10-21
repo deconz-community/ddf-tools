@@ -1,9 +1,10 @@
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { defineConfig } from "vite-plus";
 import packageJson from "./package.json";
 
 function getPackageName() {
-  return packageJson.name.replace(/@[^\/]+\//g, "");
+  return packageJson.name.replace(/@[^/]+\//g, "");
 }
 
 function getPackageNameCamelCase() {
@@ -22,6 +23,16 @@ const fileName = {
 const formats = Object.keys(fileName) as Array<keyof typeof fileName>;
 
 export default defineConfig({
+  plugins: [
+    {
+      name: "build-dts",
+      // build-dts.js loads the CJS bundle, so run it once that format is written
+      writeBundle(options) {
+        if (options.format !== "cjs") return;
+        execFileSync("node", ["./build-dts.js"], { stdio: "inherit" });
+      },
+    },
+  ],
   test: {
     // Vitest v4 compatibility: preserve mock call history.
     // Remove after tests no longer rely on calls from setup or earlier tests.

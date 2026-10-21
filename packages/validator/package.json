@@ -53,14 +53,7 @@
     }
   },
   "scripts": {
-    "build": "vp run build:vite && vp run build:dts",
-    "build:cleanup": "rimraf ./dist",
-    "build:vite": "vp build",
-    "build:dts": "node ./build-dts.js",
-    "lint": "vp lint",
-    "test": "vp test run",
-    "test:watch": "vp test",
-    "test:download-sample": "rimraf ./test-data && degit manup/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
+    "download-sample": "rimraf ./test-data && degit manup/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
   },
   "dependencies": {
     "zod": "^4.6.7"
@@ -70,6 +63,7 @@
     "@types/node": "^24.1.0",
     "degit": "^3.10.1",
     "fast-glob": "^3.3.3",
+    "json-schema-to-typescript": "^16.0.0",
     "lint-staged": "^17.6.0",
     "rimraf": "^6.1.3",
     "stylelint": "^17.16.0",
@@ -80,7 +74,6 @@
     "typescript": "^7.0.2",
     "vite": "catalog:",
     "vite-plus": "catalog:",
-    "zod-to-ts": "^2.1.0",
     "zod-validation-error": "^5.0.0"
   },
   "engines": {

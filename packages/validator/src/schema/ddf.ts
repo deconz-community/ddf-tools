@@ -94,7 +94,7 @@ export function ddfSubDeviceSchema(generics: GenericsData) {
     meta: z.optional(
       z.strictObject({
         // TODO validate this
-        values: z.any(),
+        values: z.optional(z.any()),
         "group.endpoints": z.optional(z.array(z.number())),
       }),
     ),

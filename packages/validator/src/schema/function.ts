@@ -1,4 +1,3 @@
-import type { ZodIssueOptionalMessage } from "zod";
 import type { GenericsData } from "../types";
 import { z } from "zod";
 import * as cf from "../custom-formats";
@@ -37,12 +36,8 @@ export function readFunction() {
         fn: z.literal("none"),
       }),
       zclCommon.read.extend({
-        fn: z.undefined().describe("Generic function to read ZCL attributes."),
-      }),
-      zclCommon.read.extend({
-        fn: z
-          .literal("zcl:attr")
-          .describe("Generic function to parse ZCL values from read/report commands."),
+        fn: z.optional(z.literal("zcl:attr"))
+          .describe("Generic function to parse ZCL values from ZCL attributes."),
       }),
       zclCommon.read.extend({
         fn: z
@@ -64,17 +59,12 @@ export function parseFunction(generics: GenericsData) {
   return z
     .discriminatedUnion("fn", [
       zclCommon.parse.extend({
-        fn: z.undefined().describe("Generic function to read ZCL attributes."),
-        cppsrc: z.optional(z.string()),
+        fn: z.optional(z.literal("zcl:attr"))
+          .describe("Generic function to parse ZCL values from ZCL attributes."),
+        cppsrc: z.optional(z.string()).describe("Unused"),
       }),
       zclCommon.parse.extend({
-        fn: z
-          .literal("zcl:attr")
-          .describe("Generic function to parse ZCL values from read/report commands."),
-      }),
-      zclCommon.parse.extend({
-        fn: z
-          .literal("zcl:cmd")
+        fn: z.literal("zcl:cmd")
           .describe("Generic function to parse ZCL values from read/report commands."),
       }),
       z.strictObject({
@@ -141,13 +131,9 @@ export function writeFunction() {
         fn: z.literal("none"),
       }),
       zclCommon.write.extend({
-        fn: z.undefined().describe("Generic function to read ZCL attributes."),
+        fn: z.optional(z.literal("zcl:attr"))
+          .describe("Generic function to parse ZCL values from ZCL attributes."),
         cppsrc: z.optional(z.string()),
-      }),
-      zclCommon.write.extend({
-        fn: z
-          .literal("zcl:attr")
-          .describe("Generic function to parse ZCL values from read/report commands."),
       }),
       zclCommon.write.extend({
         fn: z

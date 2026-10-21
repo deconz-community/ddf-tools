@@ -2,15 +2,12 @@
 
 import fs from "node:fs";
 import fastGlob from "fast-glob";
+import { compile } from "json-schema-to-typescript";
 import { toJSONSchema } from "zod";
-import { createAuxiliaryTypeStore, createTypeAlias, printNode, zodToTs } from "zod-to-ts";
-// eslint-disable-next-line antfu/no-import-dist
 import { createValidator } from "./dist/ddf-validator.cjs";
 
 const { globSync } = fastGlob;
 
-// Generate zod Schema
-const validator = createValidator();
 const genericFiles = globSync("test-data/generic/**/*.json");
 
 const genericFilesData = genericFiles.map((filePath) => {
@@ -26,11 +23,50 @@ genericFilesData.sort((a, b) => {
   return b.path.localeCompare(a.path);
 });
 
-genericFilesData.forEach((file) => {
-  validator.loadGeneric(file.data);
-});
+const generics = {
+  attributes: [],
+  resources: {},
+  manufacturers: {},
+  deviceTypes: {},
+  subDevices: {},
+};
+
+for (const { data } of genericFilesData) {
+  switch (data.schema) {
+    case "constants1.schema.json":
+      Object.assign(generics.manufacturers, data.manufacturers);
+      Object.assign(generics.deviceTypes, data["device-types"]);
+      break;
+    case "constants2.schema.json":
+      for (const [key, value] of Object.entries(data)) {
+        if (key.startsWith("$MF_")) generics.manufacturers[key] = value;
+        else if (key.startsWith("$TYPE_")) generics.deviceTypes[key] = value;
+      }
+      break;
+    case "resourceitem1.schema.json": {
+      if (generics.attributes.includes(data.id))
+        throw new Error(`Got duplicate resource item with attribute id '${data.id}'.`);
+
+      const { $schema, schema, id, ...resource } = data;
+      generics.attributes.push(id);
+      generics.resources[id] = resource;
+      break;
+    }
+    case "subdevice1.schema.json":
+      generics.subDevices[data.type] = data;
+      generics.subDevices[data.name] = data;
+      break;
+    default:
+      throw new Error(`Got invalid generic file, got data with schema '${data.schema}'.`);
+  }
+}
+
+const validator = createValidator(generics);
 
 const schemaZod = validator.getSchema();
+const schemaJSON = toJSONSchema(schemaZod, {
+  unrepresentable: "any",
+});
 
 // Prepare output dir
 const outputDirectory = "./dist";
@@ -39,32 +75,23 @@ if (!fs.existsSync(outputDirectory)) fs.mkdirSync(outputDirectory, { recursive: 
 // Write json schema
 fs.writeFileSync(
   `${outputDirectory}/ddf-schema.json`,
-  JSON.stringify(
-    toJSONSchema(schemaZod, {
-      unrepresentable: "any",
-    }),
-  ),
+  JSON.stringify(schemaJSON),
 );
 
-// Write typescript schema
-const auxiliaryTypeStore = createAuxiliaryTypeStore();
-const { node } = zodToTs(schemaZod, {
-  auxiliaryTypeStore,
-  unrepresentable: "any",
+const ddfType = await compile(schemaJSON, "DDF", {
+  bannerComment: "",
 });
-const typeAlias = createTypeAlias(node, "DDF");
-
-const nodeString = printNode(typeAlias);
 
 const schemaTS = `import { ZodType, ZodError } from "zod";
 
-export ${nodeString}
+${ddfType}
 
 export interface GenericsData {
   attributes: string[]
   resources: Record<string, Omit<Extract<DDF, { schema: "resourceitem1.schema.json" }>, 'schema' | 'id'>>
   manufacturers: Record<string, string>
   deviceTypes: Record<string, string>
+  subDevices: Record<string, Extract<DDF, { schema: "subdevice1.schema.json" }>>
 }
 
 export interface FileDefinition {
