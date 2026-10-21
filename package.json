@@ -42,23 +42,22 @@
     "prepare": "vp config"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.30.0",
-    "taze": "^19.11.0",
-    "turbo": "^2.9.6",
+    "@changesets/cli": "^3.0.3",
+    "taze": "^21.3.0",
+    "turbo": "^2.11.10",
     "vite-plus": "catalog:",
-    "vitest": "catalog:",
-    "vue-eslint-parser": "^10.4.0"
+    "vitest": "catalog:"
   },
   "resolutions": {
-    "@eslint/plugin-kit": "^0.7.1",
-    "@nuxt/kit": "^4.4.2",
+    "@eslint/plugin-kit": "^0.7.3",
+    "@nuxt/kit": "^4.6.2",
     "cross-spawn": "^7.0.6",
     "micromatch": "^4.0.8",
-    "rollup": "^4.60.1",
-    "socks": "^2.8.7",
-    "vue": "^3.5.32"
+    "rollup": "^4.64.12",
+    "socks": "^2.8.10",
+    "vue": "^3.5.44"
   },
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@12.14.0",
   "devEngines": {
     "runtime": {
       "name": "node",

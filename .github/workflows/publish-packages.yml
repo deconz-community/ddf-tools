@@ -30,7 +30,7 @@ jobs:
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v2
+        uses: changesets/action@v2.1.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Use OIDC for npm authentication instead of NPM_TOKEN
