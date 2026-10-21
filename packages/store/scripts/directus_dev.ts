@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const concurrently = require("concurrently");
+import { concurrently } from 'concurrently';
 
 concurrently([
   {
