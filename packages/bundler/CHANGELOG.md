@@ -1,5 +1,12 @@
 # @deconz-community/ddf-bundler
 
+## 0.35.0
+
+### Minor Changes
+
+- b7acd10: Removed dts-bundle-generator
+- 721386d: Update many dep to latest version
+
 ## 0.34.0
 
 ### Minor Changes
