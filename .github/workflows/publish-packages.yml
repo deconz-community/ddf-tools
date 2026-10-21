@@ -19,28 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
-      - name: Install Node.js
-        uses: actions/setup-node@v6
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
-          node-version: 24
-
-      - name: Update npm
-        run: npm update -g npm # temporary until setup-node action comes with npm version that contains oidc setup by default
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+          run-install: false
 
       - name: Install dependencies
-        run: pnpm install --filter="!@deconz-community/store" --filter="!@deconz-community/ddf-tools-vscode-extension"
+        run: vp install --filter="!@deconz-community/store" --filter="!@deconz-community/ddf-tools-vscode-extension"
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
-        with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: pnpm release
+        uses: changesets/action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Use OIDC for npm authentication instead of NPM_TOKEN
