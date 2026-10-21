@@ -6,7 +6,7 @@ import { createSignature, decode, encode } from "@deconz-community/ddf-bundler";
 import { InvalidQueryError } from "@directus/errors";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
-import pako from "pako";
+import { deflate, inflate } from "pako";
 
 export async function updateBundleSignatures(
   globalContext: GlobalContext,
@@ -43,7 +43,7 @@ export async function updateBundleSignatures(
 
         let dirty = addKeys.length > 0;
         const buffer = Buffer.from(bundle.content, "base64");
-        const decoded = await decode(new Blob([pako.inflate(buffer)]));
+        const decoded = await decode(new Blob([inflate(buffer)]));
 
         if (!decoded.data.hash) throw new InvalidQueryError({ reason: "Invalid bundle" });
 
@@ -94,7 +94,7 @@ export async function updateBundleSignatures(
 
         if (dirty) {
           const bundleBuffer = await encode(decoded).arrayBuffer();
-          const compressed = Buffer.from(pako.deflate(bundleBuffer)).toString("base64");
+          const compressed = Buffer.from(deflate(bundleBuffer)).toString("base64");
 
           databasePromises.push(
             bundleService.updateOne(bundleID, {

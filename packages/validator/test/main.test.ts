@@ -1,13 +1,18 @@
 import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import glob from "fast-glob";
 import { describe, expect, it } from "vite-plus/test";
 import { fromZodError } from "zod-validation-error";
 
 import { createValidator } from "../index";
 
+const packageRoot = resolve(import.meta.dirname, "..");
+
 describe("parse", async () => {
-  const genericFiles = await glob("test-data/generic/**/*.json");
+  const genericFiles = await glob("test-data/generic/**/*.json", { cwd: packageRoot, absolute: true });
   const ddfFiles = await glob("test-data/**/*.json", {
+    cwd: packageRoot,
+    absolute: true,
     ignore: ["**/generic/**"],
   });
 

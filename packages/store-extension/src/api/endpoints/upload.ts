@@ -15,7 +15,7 @@ import { ErrorCode, ForbiddenError, InvalidQueryError, isDirectusError } from "@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { getPublicKey } from "@noble/secp256k1";
-import pako from "pako";
+import { deflate } from "pako";
 import { multipartHandler } from "../multipart-handler";
 import { asyncHandler, fetchUserContext } from "../utils";
 
@@ -188,7 +188,7 @@ export function uploadEndpoint(globalContext: GlobalContext) {
             // TODO: check for duplicate signatures by key
 
             const bundleBuffer = await (dirty ? encode(bundle) : blob).arrayBuffer();
-            const content = Buffer.from(pako.deflate(bundleBuffer)).toString("base64");
+            const content = Buffer.from(deflate(bundleBuffer)).toString("base64");
 
             await context.database.transaction(async (knex) => {
               const serviceOptions = { schema, knex, accountability: adminAccountability };

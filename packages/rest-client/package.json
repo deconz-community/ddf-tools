@@ -52,10 +52,10 @@
     }
   },
   "scripts": {
-    "build": "pnpm run build:vite && pnpm run build:dts",
-    "build:vite": "vp build",
-    "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.json",
-    "build:cleanup": "rimraf ./dist",
+    "old_build": "pnpm run build:vite && pnpm run build:dts",
+    "old_build:vite": "vp build",
+    "old_build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.json",
+    "old_build:cleanup": "rimraf ./dist",
     "lint": "vp lint",
     "test": "vp test run",
     "test:watch": "vp test"

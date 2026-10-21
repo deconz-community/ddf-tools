@@ -64,12 +64,15 @@
     "vuetify": "^4.3.0",
     "vuetify-sonner": "^0.4.2",
     "vuetify-use-dialog": "^0.8.0",
+    "@xstate/vue": "^5.0.2",
     "xstate": "^5.33.3",
     "zod": "^4.6.7",
-    "zod-empty": "^2.2.1"
+    "zod-empty": "^2.2.1",
+    "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
     "@directus/sdk": "^21.0.0",
+    "@directus/types": "^18.0.0",
     "@mdi/font": "^7.4.47",
     "@noble/curves": "^2.4.0",
     "@types/color": "^4.2.1",
@@ -105,7 +108,8 @@
     "vue": "^3.5.44",
     "vue-macros": "^3.1.4",
     "vue-router": "^5.4.0",
-    "vue3-perfect-scrollbar": "^2.0.0"
+    "vue3-perfect-scrollbar": "^2.0.0",
+    "workbox-window": "^7.4.1"
   },
   "packageManager": "pnpm@12.14.0"
 }

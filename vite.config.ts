@@ -38,7 +38,6 @@ export default defineConfig({
       "**/dist-ssr",
       "**/*.local",
       "**/coverage",
-      "**/.turbo",
       ".history/*",
       "**/.idea",
       "**/.DS_Store",

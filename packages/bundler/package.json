@@ -41,6 +41,9 @@
     "./dist/index.d.ts"
   ],
   "type": "module",
+  "scripts": {
+    "build": "vp build"
+  },
   "main": "./dist/ddf-bundler.cjs",
   "module": "./dist/ddf-bundler.mjs",
   "types": "./dist/index.d.ts",

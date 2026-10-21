@@ -5,7 +5,7 @@ import { Buffer } from "node:buffer";
 import { Stream } from "node:stream";
 import { InvalidQueryError } from "@directus/errors";
 import slugify from "@sindresorhus/slugify";
-import pako from "pako";
+import { inflate } from "pako";
 import { asyncHandler } from "../utils";
 
 export function downloadEndpoint({ router, context, services, schema }: GlobalContext) {
@@ -34,7 +34,7 @@ export function downloadEndpoint({ router, context, services, schema }: GlobalCo
       const fileName = `${slugify(`${bundle.product}-${req.params.id.substring(req.params.id.length - 10)}`)}.ddb`;
 
       const buffer = Buffer.from(bundle.content, "base64");
-      const decompressed = Buffer.from(pako.inflate(buffer));
+      const decompressed = Buffer.from(inflate(buffer));
       const readStream = new Stream.loose();
       readStream.end(decompressed);
 
