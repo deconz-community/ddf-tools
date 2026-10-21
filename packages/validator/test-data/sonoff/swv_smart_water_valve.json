@@ -1,4 +1,3 @@
-
 {
   "schema": "devcap1.schema.json",
   "uuid": "8fdcf8cf-0d7e-43ae-b070-0382483a4ac3",
@@ -12,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -55,11 +51,7 @@
     {
       "type": "$TYPE_WATER_LEAK_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0404"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0404"],
       "items": [
         {
           "name": "attr/id"
@@ -94,7 +86,7 @@
             "at": "0x0020",
             "cl": "0x0001",
             "ep": 1,
-           "eval": "const vmin = 20; const vmax = 30; var bat = Attr.val; if (bat > vmax) { bat = vmax; } else if (bat < vmin) { bat = vmin; } bat = ((bat - vmin) / (vmax - vmin)) * 100; if (bat > 100) { bat = 100; } else if (bat <= 0)  { bat = 1; } Item.val = bat;"
+            "eval": "const vmin = 20; const vmax = 30; var bat = Attr.val; if (bat > vmax) { bat = vmax; } else if (bat < vmin) { bat = vmin; } bat = ((bat - vmin) / (vmax - vmin)) * 100; if (bat > 100) { bat = 100; } else if (bat <= 0)  { bat = 1; } Item.val = bat;"
           },
           "read": {
             "fn": "zcl:attr",

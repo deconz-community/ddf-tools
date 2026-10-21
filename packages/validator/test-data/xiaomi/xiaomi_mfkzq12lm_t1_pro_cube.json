@@ -1,12 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "f601e062-83a5-4ad1-b2e3-e15af0c6fc70",
-  "manufacturername": [
-    "$MF_LUMI"
-  ],
-  "modelid": [
-    "lumi.remote.cagl02"
-  ],
+  "manufacturername": ["$MF_LUMI"],
+  "modelid": ["lumi.remote.cagl02"],
   "vendor": "Xiaomi Aqara",
   "product": "T1 pro cube (MFKZQ12LM)",
   "sleeper": true,
@@ -15,18 +11,12 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x03",
-        "0x000c"
-      ],
+      "uuid": ["$address.ext", "0x03", "0x000c"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0103",
         "endpoint": "0x03",
-        "in": [
-          "0x000C"
-        ]
+        "in": ["0x000C"]
       },
       "items": [
         {
@@ -110,10 +100,7 @@
             "state.timeout": 2
           },
           "values": [
-            [
-              "\"scene\"",
-              "Use 6 sides and gestures rotate, shake, hold"
-            ],
+            ["\"scene\"", "Use 6 sides and gestures rotate, shake, hold"],
             [
               "\"action\"",
               "Use 6 sides and gestures flip 90, flip 180, rotate, push, double tap, shake, trigger after 1 minute inactivity"
@@ -148,18 +135,12 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x02",
-        "0x0012"
-      ],
+      "uuid": ["$address.ext", "0x02", "0x0012"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0103",
         "endpoint": "0x02",
-        "in": [
-          "0x0012"
-        ]
+        "in": ["0x0012"]
       },
       "items": [
         {
@@ -242,10 +223,7 @@
             "state.timeout": 2
           },
           "values": [
-            [
-              "\"scene\"",
-              "Use 6 sides and gestures rotate, shake, hold"
-            ],
+            ["\"scene\"", "Use 6 sides and gestures rotate, shake, hold"],
             [
               "\"action\"",
               "Use 6 sides and gestures flip 90, flip 180, rotate, push, double tap, shake, trigger after 1 minute inactivity"

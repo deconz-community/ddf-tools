@@ -1,47 +1,43 @@
 <script setup lang="ts">
-import { useRouteQuery } from '@vueuse/router'
-import { reactive } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
-import { helpers, minLength, required, sameAs } from '@vuelidate/validators'
-import { passwordReset } from '@directus/sdk'
-import { toastError } from '~/lib/handleError'
+import { useRouteQuery } from "@vueuse/router";
+import { reactive } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { helpers, minLength, required, sameAs } from "@vuelidate/validators";
+import { passwordReset } from "@directus/sdk";
+import { toastError } from "~/lib/handleError";
 
-const store = useStore()
+const store = useStore();
 
-const queryToken = useRouteQuery<string>('token', '')
+const queryToken = useRouteQuery<string>("token", "");
 
 const data = computed(() => {
-  if (queryToken.value.length === 0)
-    return undefined
-  const [type, token] = queryToken.value.split('.')
+  if (queryToken.value.length === 0) return undefined;
+  const [type, token] = queryToken.value.split(".");
 
   return {
     type: JSON.parse(atob(type)),
     token: JSON.parse(atob(token)),
-  }
-})
+  };
+});
 
-const email = computed(() => data.value?.token.email ?? '')
+const email = computed(() => data.value?.token.email ?? "");
 
 const initialState = {
-  password: '',
-  password_confirm: '',
-}
+  password: "",
+  password_confirm: "",
+};
 
 const state = reactive({
   ...initialState,
-})
+});
 
-const baseMessage = 'Password must contain at least one'
+const baseMessage = "Password must contain at least one";
 
 const rules = {
   password: {
     required,
     minLength: minLength(10),
-    includeNumbers: helpers.withMessage(
-      `${baseMessage} number`,
-      helpers.regex(/(?=.\d)/),
-    ),
+    includeNumbers: helpers.withMessage(`${baseMessage} number`, helpers.regex(/(?=.\d)/)),
     includeLowercase: helpers.withMessage(
       `${baseMessage} lowercase letter`,
       helpers.regex(/(?=.[a-z])/),
@@ -56,73 +52,60 @@ const rules = {
     ),
   },
   password_confirm: {
-    sameAs: sameAs(toRef(state, 'password')),
+    sameAs: sameAs(toRef(state, "password")),
   },
-}
+};
 
-const vuelidate = useVuelidate(rules, state)
+const vuelidate = useVuelidate(rules, state);
 
 function clear() {
-  vuelidate.value.$reset()
+  vuelidate.value.$reset();
 
-  for (const [key, value] of Object.entries(initialState))
-    state[key] = value
+  for (const [key, value] of Object.entries(initialState)) state[key] = value;
 }
 
-const loading = ref(false)
-const showPassword = ref(false)
+const loading = ref(false);
+const showPassword = ref(false);
 
 async function updatePassword() {
-  if (showPassword.value)
-    state.password_confirm = state.password
+  if (showPassword.value) state.password_confirm = state.password;
 
-  if (!await vuelidate.value.$validate())
-    return
+  if (!(await vuelidate.value.$validate())) return;
 
-  loading.value = true
+  loading.value = true;
 
   try {
-    await store.client?.request(passwordReset(
-      queryToken.value,
-      state.password,
-    ))
-    store.send({ type: 'LOGIN_WITH_PASSWORD', email: email.value, password: state.password })
-    toast.success('Password updated')
-  }
-  catch (error) {
-    toastError(error)
-  }
-  finally {
-    loading.value = false
+    await store.client?.request(passwordReset(queryToken.value, state.password));
+    store.send({ type: "LOGIN_WITH_PASSWORD", email: email.value, password: state.password });
+    toast.success("Password updated");
+  } catch (error) {
+    toastError(error);
+  } finally {
+    loading.value = false;
   }
 }
 </script>
 
 <template>
   <v-card class="ma-2">
-    <v-card-title>
-      Reset password
-    </v-card-title>
+    <v-card-title> Reset password </v-card-title>
     <v-card-text>
       <v-form @submit.prevent="updatePassword">
-        <v-text-field
-          v-model="email"
-          label="Email"
-          autocomplete="username"
-          readonly
-          disabled
-        />
+        <v-text-field v-model="email" label="Email" autocomplete="username" readonly disabled />
 
         <v-text-field
           v-model="state.password"
           :counter="10"
-          :error-messages="vuelidate.password.$errors.map(e => e.$message)"
+          :error-messages="vuelidate.password.$errors.map((e) => e.$message)"
           label="Password"
           required
           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showPassword ? 'text' : 'password'"
           autocomplete="new-password"
-          @click:append="showPassword = !showPassword; state.password_confirm = state.password"
+          @click:append="
+            showPassword = !showPassword;
+            state.password_confirm = state.password;
+          "
           @blur="vuelidate.password.$touch"
           @input="vuelidate.password.$touch"
         />
@@ -132,7 +115,7 @@ async function updatePassword() {
             v-show="!showPassword"
             v-model="state.password_confirm"
             :counter="10"
-            :error-messages="vuelidate.password_confirm.$errors.map(e => e.$message)"
+            :error-messages="vuelidate.password_confirm.$errors.map((e) => e.$message)"
             label="Password confirmation"
             required
             type="password"
@@ -142,14 +125,8 @@ async function updatePassword() {
           />
         </v-expand-transition>
 
-        <v-btn @click="clear">
-          clear
-        </v-btn>
-        <v-btn
-          :loading="loading"
-          text="Submit"
-          type="submit"
-        />
+        <v-btn @click="clear"> clear </v-btn>
+        <v-btn :loading="loading" text="Submit" type="submit" />
       </v-form>
     </v-card-text>
   </v-card>

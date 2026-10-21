@@ -48,12 +48,7 @@ This is always the first chunk and allows fast indexing and matching without par
   "product": "Hue white and color ambiance gradient light",
   "version_deconz": ">2.27.0",
   "last_modified": "2024-05-05T14:07:12.000Z",
-  "device_identifiers": [
-    [
-      "Signify Netherlands B.V.",
-      "LCX001"
-    ]
-  ]
+  "device_identifiers": [["Signify Netherlands B.V.", "LCX001"]]
 }
 ```
 
@@ -140,7 +135,7 @@ See [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) for the date format.
 FileType is a tag to know what kind of file the chunk contain.
 
 | Tag  | Description                              | Data      | Format     |
-|------|------------------------------------------|-----------|------------|
+| ---- | ---------------------------------------- | --------- | ---------- |
 | DDFC | DDF JSON file (devcap1.schema.json)      | Text file | json       |
 | JSON | Generic files for items / constants      | Text file | json       |
 | SCJS | Javascript file for read, write or parse | Text file | javascript |
@@ -148,6 +143,7 @@ FileType is a tag to know what kind of file the chunk contain.
 | INFO | Informational note                       | Text file | markdown   |
 | WARN | Warning note                             | Text file | markdown   |
 | KWIS | Know issue                               | Text file | markdown   |
+
 <!--
 | BTNM | Button maps* WIP NOT USED                | Text file | json       |
 | IMGP | Image in PNG can be used in UI           | Binary    | png        |
@@ -164,6 +160,7 @@ For example `deconz-rest-plugin/devices/tuya/ZY-M100_human_breathing_presence.js
 
 The `DDF Relative` path is the path exactly how they are written in the DDF json file. It's always relative to the path of the DDF json file.
 For example if the DDF json file contain :
+
 ```json
 {
   "parse": {
@@ -173,6 +170,7 @@ For example if the DDF json file contain :
   }
 }
 ```
+
 The path of the file on the disk is `deconz-rest-plugin/devices/generic/illuminance_cluster/lux_to_lightlevel.js` and became `../generic/illuminance_cluster/lux_to_lightlevel.js` once bundled.
 
 ##### Path format by FileType
@@ -188,7 +186,7 @@ deConz way to load file;
 -->
 
 | Tag  | Path format  | Example                                               |
-|------|--------------|-------------------------------------------------------|
+| ---- | ------------ | ----------------------------------------------------- |
 | DDFC | Repository   | `tuya/ZY-M100_human_breathing_presence.json`          |
 | JSON | Repository   | `generic/items/attr_id_item.json`                     |
 | SCJS | DDF Relative | `../generic/illuminance_cluster/lux_to_lightlevel.js` |
@@ -276,59 +274,61 @@ Thoses chunk are always at the end of the bundle and not inside the DDFB chunk.
 ## Example usage
 
 ### Decoding a bundle
+
 ```typescript
-import { readFile } from 'node:fs/promises'
-import { decode } from '@deconz-community/ddf-bundler'
+import { readFile } from "node:fs/promises";
+import { decode } from "@deconz-community/ddf-bundler";
 
-const data = await readFile(path.join(__dirname, 'ddf/aq1_vibration_sensor.ddb'))
-const blob = new Blob([data])
-blob.name = 'aq1_vibration_sensor'
+const data = await readFile(path.join(__dirname, "ddf/aq1_vibration_sensor.ddb"));
+const blob = new Blob([data]);
+blob.name = "aq1_vibration_sensor";
 
-const bundle = await decode(blob)
+const bundle = await decode(blob);
 ```
 
 ### Encoding a bundle
+
 ```typescript
-import { Bundle, encode } from '@deconz-community/ddf-bundler'
+import { Bundle, encode } from "@deconz-community/ddf-bundler";
 
-const bundle = Bundle()
+const bundle = Bundle();
 
-bundle.data.name = 'sample'
-bundle.data.desc.product = 'Sample product'
+bundle.data.name = "sample";
+bundle.data.desc.product = "Sample product";
 bundle.data.files.push({
-  type: 'DDFC',
+  type: "DDFC",
   data: '{"schema": "devcap1.schema.json"}',
-  path: 'ddf.json',
+  path: "ddf.json",
   last_modified: new Date(),
-})
+});
 bundle.data.files.push({
-  type: 'JSON',
-  data: JSON.stringify({ foo: 'bar' }),
-  path: 'foo.json',
+  type: "JSON",
+  data: JSON.stringify({ foo: "bar" }),
+  path: "foo.json",
   last_modified: new Date(),
-})
+});
 
-const encoded = encode(bundle)
+const encoded = encode(bundle);
 ```
 
 ### Building a bundle from files
+
 ```typescript
-import { buildFromFiles, createSource } from '@deconz-community/ddf-bundler'
+import { buildFromFiles, createSource } from "@deconz-community/ddf-bundler";
 
 const bundle = await buildFromFiles(
   `file://${genericDirectoryPath}`,
   `file://${inputFilePath}`,
   async (path) => {
-    if (sources.has(path))
-      return sources.get(path)!
-    const filePath = path.replace('file://', '')
-    const data = await fs.readFile(filePath)
+    if (sources.has(path)) return sources.get(path)!;
+    const filePath = path.replace("file://", "");
+    const data = await fs.readFile(filePath);
     const source = createSource(new Blob([data]), {
       path,
       last_modified: (await fs.stat(filePath)).mtime,
-    })
-    sources.set(path, source)
-    return source
+    });
+    sources.set(path, source);
+    return source;
   },
-)
+);
 ```

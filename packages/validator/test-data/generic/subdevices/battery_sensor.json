@@ -5,15 +5,6 @@
   "ui_name": "Battery sensor",
   "restapi": "/sensors",
   "order": 30,
-  "uuid": [
-    "$address.ext",
-    "0x01",
-    "0x0001"
-  ],
-  "items": [
-    "config/on",
-    "config/reachable",
-    "state/battery",
-    "state/lastupdated"
-  ]
+  "uuid": ["$address.ext", "0x01", "0x0001"],
+  "items": ["config/on", "config/reachable", "state/battery", "state/lastupdated"]
 }

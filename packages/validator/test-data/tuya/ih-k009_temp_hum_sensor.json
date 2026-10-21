@@ -11,11 +11,7 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0402"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0402"],
       "items": [
         {
           "name": "attr/id"
@@ -92,11 +88,7 @@
     {
       "type": "$TYPE_HUMIDITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0405"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0405"],
       "items": [
         {
           "name": "attr/id"

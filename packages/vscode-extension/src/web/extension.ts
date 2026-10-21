@@ -1,19 +1,19 @@
-import { DDF_BUNDLE_MAGIC } from '@deconz-community/ddf-bundler'
+import { DDF_BUNDLE_MAGIC } from "@deconz-community/ddf-bundler";
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode'
-import { extractBundleCommand } from './command/extractBundle'
-import { makeBundleCommand } from './command/makeBundle'
-import { DDBEditorProvider } from './editor/DDBEditorProvider'
+import * as vscode from "vscode";
+import { extractBundleCommand } from "./command/extractBundle";
+import { makeBundleCommand } from "./command/makeBundle";
+import { DDBEditorProvider } from "./editor/DDBEditorProvider";
 // import { DDBFileSystemProvider } from './editor/DDBFileSystemProvider'
-import { registerDDFValidation } from './editor/DDFValidation'
-import { registerLanguageClient, unRegisterLanguageClient } from './language/client'
+import { registerDDFValidation } from "./editor/DDFValidation";
+import { registerLanguageClient, unRegisterLanguageClient } from "./language/client";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel('DDB Editor')
-  outputChannel.appendLine('Extension activated')
+  const outputChannel = vscode.window.createOutputChannel("DDB Editor");
+  outputChannel.appendLine("Extension activated");
   // console.clear();
 
   // The command has been defined in the package.json file
@@ -21,36 +21,36 @@ export async function activate(context: vscode.ExtensionContext) {
   // The commandId parameter must match the command field in package.json
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('deconz-community-ddf-tools.helloWorld', () => {
+    vscode.commands.registerCommand("deconz-community-ddf-tools.helloWorld", () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
-      vscode.window.showInformationMessage(DDF_BUNDLE_MAGIC)
+      vscode.window.showInformationMessage(DDF_BUNDLE_MAGIC);
     }),
-  )
+  );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'deconz-community-ddf-tools.extractBundle',
+      "deconz-community-ddf-tools.extractBundle",
       extractBundleCommand(outputChannel),
     ),
-  )
+  );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'deconz-community-ddf-tools.makeBundle',
+      "deconz-community-ddf-tools.makeBundle",
       makeBundleCommand(outputChannel),
     ),
-  )
+  );
 
   context.subscriptions.push(
     vscode.window.registerCustomEditorProvider(
       DDBEditorProvider.viewType,
       new DDBEditorProvider(context.extensionUri, outputChannel),
     ),
-  )
+  );
 
   // await registerDDFValidation(context)
-  await registerLanguageClient(context)
+  await registerLanguageClient(context);
 
   /*
     const ddbFileSystemProvider = new DDBFileSystemProvider(outputChannel);
@@ -74,5 +74,5 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export async function deactivate() {
-// await unRegisterLanguageClient()
+  // await unRegisterLanguageClient()
 }

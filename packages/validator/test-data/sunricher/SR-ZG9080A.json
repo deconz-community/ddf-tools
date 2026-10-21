@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "7a66015b-448c-422a-8b00-cc6eed60447b",
-  "manufacturername": [
-    "Sunricher",
-    "Sunricher"
-  ],
-  "modelid": [
-    "Motor Controller",
-    "HK-ZCC-ZLL-A"
-  ],
+  "manufacturername": ["Sunricher", "Sunricher"],
+  "modelid": ["Motor Controller", "HK-ZCC-ZLL-A"],
   "vendor": "Sunricher",
   "product": "Curtain motor controller (SR-ZG9080A)",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"

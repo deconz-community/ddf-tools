@@ -1,31 +1,39 @@
-import type { JSONSchema } from 'vscode-json-languageservice'
-import type { InitializeParams } from 'vscode-languageserver/browser'
-import { createValidator } from '@deconz-community/ddf-validator'
-import { getLanguageService } from 'vscode-json-languageservice'
-import { TextDocument } from 'vscode-languageserver-textdocument'
-import { BrowserMessageReader, BrowserMessageWriter, createConnection, TextDocuments, TextDocumentSyncKind } from 'vscode-languageserver/browser'
-import { toJSONSchema } from 'zod'
+import type { JSONSchema } from "vscode-json-languageservice";
+import type { InitializeParams } from "vscode-languageserver/browser";
+import { createValidator } from "@deconz-community/ddf-validator";
+import { getLanguageService } from "vscode-json-languageservice";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import {
+  BrowserMessageReader,
+  BrowserMessageWriter,
+  createConnection,
+  TextDocuments,
+  TextDocumentSyncKind,
+} from "vscode-languageserver/browser";
+import { toJSONSchema } from "zod";
 
-console.log('running server lsp-web-extension-sample')
+console.log("running server lsp-web-extension-sample");
 
-const messageReader = new BrowserMessageReader(globalThis as any)
-const messageWriter = new BrowserMessageWriter(globalThis as any)
-const connection = createConnection(messageReader, messageWriter)
+const messageReader = new BrowserMessageReader(globalThis as any);
+const messageWriter = new BrowserMessageWriter(globalThis as any);
+const connection = createConnection(messageReader, messageWriter);
 
-const documents = new TextDocuments(TextDocument)
+const documents = new TextDocuments(TextDocument);
 
-const jsonLanguageService = getLanguageService({})
+const jsonLanguageService = getLanguageService({});
 
-const validator = createValidator()
-const schema = toJSONSchema(validator.getSchema(), { unrepresentable: 'any' })
+const validator = createValidator();
+const schema = toJSONSchema(validator.getSchema(), { unrepresentable: "any" });
 
 jsonLanguageService.configure({
-  schemas: [{
-    uri: 'ddfc://schemas/ddf-schema.json',
-    fileMatch: ['*.json'],
-    schema: schema as JSONSchema,
-  }],
-})
+  schemas: [
+    {
+      uri: "ddfc://schemas/ddf-schema.json",
+      fileMatch: ["*.json"],
+      schema: schema as JSONSchema,
+    },
+  ],
+});
 
 /* from here on, all code is non-browser specific and could be shared with a regular extension */
 connection.onInitialize((_params: InitializeParams) => {
@@ -44,34 +52,32 @@ connection.onInitialize((_params: InitializeParams) => {
       },
       */
     },
-  }
-})
+  };
+});
 
 // jsonLanguageService.doValidation()
 
 connection.onHover(async (textDocumentPosition, _token) => {
-  const document = documents.get(textDocumentPosition.textDocument.uri)
-  if (!document)
-    return null
+  const document = documents.get(textDocumentPosition.textDocument.uri);
+  if (!document) return null;
 
   return jsonLanguageService.doHover(
     document,
     textDocumentPosition.position,
     jsonLanguageService.parseJSONDocument(document),
-  )
-})
+  );
+});
 
 connection.onCompletion(async (textDocumentPosition, _token) => {
-  const document = documents.get(textDocumentPosition.textDocument.uri)
-  if (!document)
-    return null
+  const document = documents.get(textDocumentPosition.textDocument.uri);
+  if (!document) return null;
 
   return jsonLanguageService.doComplete(
     document,
     textDocumentPosition.position,
     jsonLanguageService.parseJSONDocument(document),
-  )
-})
+  );
+});
 
-documents.listen(connection)
-connection.listen()
+documents.listen(connection);
+connection.listen();

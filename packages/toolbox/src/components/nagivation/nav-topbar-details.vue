@@ -3,34 +3,34 @@
   TODO Ajouter une liste déroulante et pas seulement le nom de là où je suis
 */
 
-const route = useRoute()
+const route = useRoute();
 
-const show = ref(true)
+const show = ref(true);
 
 const breadcrumbs = computed(() => {
-  const items = []
+  const items = [];
   items.push({
-    text: 'Home',
+    text: "Home",
     disabled: false,
-    to: '/',
-  })
+    to: "/",
+  });
 
   switch (route.meta.breadcrumbs) {
-    case 'none':{
-      break
+    case "none": {
+      break;
     }
-    case 'hide':{
-      show.value = false
-      break
+    case "hide": {
+      show.value = false;
+      break;
     }
 
-    case 'resource-path': {
-      show.value = true
+    case "resource-path": {
+      show.value = true;
       items.push({
-        text: 'Gateways',
+        text: "Gateways",
         disabled: false,
-        to: '/gateway',
-      })
+        to: "/gateway",
+      });
       /* WIP
       const GatewaysStore = useGatewaysStore()
       if (typeof route.params.gateway === 'string') {
@@ -57,22 +57,22 @@ const breadcrumbs = computed(() => {
         }
       }
       */
-      break
+      break;
     }
 
-    case 'page-name':
-    default:{
+    case "page-name":
+    default: {
       items.push({
         text: route.name,
         disabled: false,
         to: route.fullPath,
-      })
-      break
+      });
+      break;
     }
   }
 
-  return items
-})
+  return items;
+});
 </script>
 
 <template>

@@ -1,62 +1,66 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  collection: string
-  filter?: string
-}>(), {
-  filter: '',
-})
+const props = withDefaults(
+  defineProps<{
+    collection: string;
+    filter?: string;
+  }>(),
+  {
+    filter: "",
+  },
+);
 
 const emits = defineEmits<{
-  (e: 'updateTotalCount', value: number): void
-}>()
+  (e: "updateTotalCount", value: number): void;
+}>();
 
 defineSlots<{
-  default: { item: any }
-}>()
+  default: { item: any };
+}>();
 
-const { client } = useStore()
+const { client } = useStore();
 
-const itemsPerPage = ref(1)
-const totalItems = ref(0)
+const itemsPerPage = ref(1);
+const totalItems = ref(0);
 watch(totalItems, (value) => {
-  emits('updateTotalCount', value)
-})
-const loading = ref(false)
+  emits("updateTotalCount", value);
+});
+const loading = ref(false);
 
 const headers = [
   {
-    title: 'ID',
-    align: 'start',
+    title: "ID",
+    align: "start",
     sortable: true,
-    key: 'id',
+    key: "id",
   },
   {
-    title: 'Name',
-    align: 'start',
+    title: "Name",
+    align: "start",
     sortable: true,
-    key: 'name',
+    key: "name",
   },
   {
-    title: 'Description',
-    align: 'start',
+    title: "Description",
+    align: "start",
     sortable: false,
-    key: 'description',
+    key: "description",
   },
-] as const
+] as const;
 
-const serverItems = ref<any[]>([])
+const serverItems = ref<any[]>([]);
 
 async function loadItems(options) {
-  console.log(options)
-  loading.value = true
-  const result = await client.collection(props.collection)
-    .getList(options.page, options.itemsPerPage, { filter: props.filter })
-  serverItems.value = result.items
-  totalItems.value = result.totalItems
-  loading.value = false
+  console.log(options);
+  loading.value = true;
+  const result = await client
+    .collection(props.collection)
+    .getList(options.page, options.itemsPerPage, { filter: props.filter });
+  serverItems.value = result.items;
+  totalItems.value = result.totalItems;
+  loading.value = false;
 }
 
-const list = ['name', 'description']
+const list = ["name", "description"];
 </script>
 
 <template>
@@ -76,12 +80,8 @@ const list = ['name', 'description']
     item-value="name"
     @update:options="loadItems"
   >
-    <template #item.name="{ item }">
-      Foo {{ item.name }}
-    </template>
+    <template #item.name="{ item }"> Foo {{ item.name }} </template>
   </v-data-table-server>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

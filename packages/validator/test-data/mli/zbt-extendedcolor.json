@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_EXTENDED_COLOR_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -114,22 +111,10 @@
         {
           "name": "state/colormode",
           "values": [
-            [
-              "\"ct\"",
-              "color temperature"
-            ],
-            [
-              "\"effect\"",
-              "dynamic effect"
-            ],
-            [
-              "\"hs\"",
-              "hue and saturation"
-            ],
-            [
-              "\"xy\"",
-              "CIE xy color space coordinates"
-            ]
+            ["\"ct\"", "color temperature"],
+            ["\"effect\"", "dynamic effect"],
+            ["\"hs\"", "hue and saturation"],
+            ["\"xy\"", "CIE xy color space coordinates"]
           ],
           "parse": {
             "fn": "zcl:attr",
@@ -142,15 +127,7 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0300",
-            "at": [
-              "0x4001",
-              "0x0007",
-              "0x0003",
-              "0x0004",
-              "0x4002",
-              "0x0000",
-              "0x0001"
-            ]
+            "at": ["0x4001", "0x0007", "0x0003", "0x0004", "0x4002", "0x0000", "0x0001"]
           },
           "refresh.interval": 360
         },
@@ -175,38 +152,14 @@
         {
           "name": "state/effect",
           "values": [
-            [
-              "\"none\"",
-              "no effect is active"
-            ],
-            [
-              "\"colorloop\"",
-              "colorloop through hue values"
-            ],
-            [
-              "\"sunset\"",
-              "sunset special scene"
-            ],
-            [
-              "\"party\"",
-              "party special scene"
-            ],
-            [
-              "\"worklight",
-              "worklight special scene"
-            ],
-            [
-              "\"campfire",
-              "campfire special scene"
-            ],
-            [
-              "\"romance",
-              "romance special scene"
-            ],
-            [
-              "\"nightlight",
-              "nightlight special scene"
-            ]
+            ["\"none\"", "no effect is active"],
+            ["\"colorloop\"", "colorloop through hue values"],
+            ["\"sunset\"", "sunset special scene"],
+            ["\"party\"", "party special scene"],
+            ["\"worklight", "worklight special scene"],
+            ["\"campfire", "campfire special scene"],
+            ["\"romance", "romance special scene"],
+            ["\"nightlight", "nightlight special scene"]
           ],
           "parse": {
             "fn": "zcl:attr",
@@ -245,7 +198,7 @@
     }
   ],
   "bindings": [
-        {
+    {
       "bind": "unicast",
       "src.ep": 1,
       "dst.ep": 1,

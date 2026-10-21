@@ -1,23 +1,23 @@
-import type { /* BinaryFile, */ JSONFile, MarkdownFile, ScriptFile, TextFile } from './types'
+import type { /* BinaryFile, */ JSONFile, MarkdownFile, ScriptFile, TextFile } from "./types";
 
 export function asArray<T>(data: T | T[]): T[] {
-  return Array.isArray(data) ? data : [data]
+  return Array.isArray(data) ? data : [data];
 }
 
-export function isJSONFileType(type: string): type is JSONFile['type'] {
-  return ['JSON', 'DDFC'/* , 'BTNM' */].includes(type)
+export function isJSONFileType(type: string): type is JSONFile["type"] {
+  return ["JSON", "DDFC" /* , 'BTNM' */].includes(type);
 }
 
-export function isScriptFileType(type: string): type is ScriptFile['type'] {
-  return type === 'SCJS'
+export function isScriptFileType(type: string): type is ScriptFile["type"] {
+  return type === "SCJS";
 }
 
-export function isMarkdownFileType(type: string): type is MarkdownFile['type'] {
-  return ['CHLG', 'INFO', 'WARN', 'KWIS'].includes(type)
+export function isMarkdownFileType(type: string): type is MarkdownFile["type"] {
+  return ["CHLG", "INFO", "WARN", "KWIS"].includes(type);
 }
 
-export function isTextFileType(type: string): type is TextFile['type'] {
-  return isJSONFileType(type) || isScriptFileType(type) || isMarkdownFileType(type)
+export function isTextFileType(type: string): type is TextFile["type"] {
+  return isJSONFileType(type) || isScriptFileType(type) || isMarkdownFileType(type);
 }
 /*
 export function isBinaryFileType(type: string): type is BinaryFile['type'] {
@@ -26,6 +26,5 @@ export function isBinaryFileType(type: string): type is BinaryFile['type'] {
 */
 
 export function isUint8ArrayEqual(first: Uint8Array, second: Uint8Array) {
-  return first.length === second.length
-    && first.every((value, index) => value === second[index])
+  return first.length === second.length && first.every((value, index) => value === second[index]);
 }

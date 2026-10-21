@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const route = useRoute()
+const route = useRoute();
 
-const showLevelTowSidebar = computed(() => route.meta.hideLevelTwoSidebar !== true)
+const showLevelTowSidebar = computed(() => route.meta.hideLevelTwoSidebar !== true);
 </script>
 
 <template>

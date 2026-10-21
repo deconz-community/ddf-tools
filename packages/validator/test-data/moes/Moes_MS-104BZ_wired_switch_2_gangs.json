@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "58de429d-7b30-468c-9c0b-47b1dbed178d",
-  "manufacturername": [
-    "_TZ3000_pmz6mjyu",
-    "_TZ3000_zmy1waw6"
-  ],
-  "modelid": [
-    "TS011F",
-    "TS011F"
-  ],
+  "manufacturername": ["_TZ3000_pmz6mjyu", "_TZ3000_zmy1waw6"],
+  "modelid": ["TS011F", "TS011F"],
   "vendor": "Moes",
   "product": "Wired Switch 2 gangs (MS-104BZ)",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -76,10 +67,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"

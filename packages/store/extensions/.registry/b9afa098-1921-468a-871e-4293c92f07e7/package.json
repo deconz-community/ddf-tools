@@ -1,7 +1,45 @@
 {
   "name": "directus-extension-field-actions",
   "version": "1.8.4",
+  "description": "Add advanced link & copy functionalities to your directus fields. Supports interfaces as well as displays.",
+  "keywords": [
+    "directus",
+    "directus-copy-to-clipboard",
+    "directus-custom-bundle",
+    "directus-display",
+    "directus-extension",
+    "directus-field-action",
+    "directus-interface",
+    "directus-link"
+  ],
+  "homepage": "https://github.com/utomic-media/directus-extension-field-actions.git#readme",
+  "bugs": {
+    "url": "https://github.com/utomic-media/directus-extension-field-actions/issues"
+  },
+  "license": "GPL-3.0",
+  "author": "Dominic Marcelino | Utomic Media",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/utomic-media/directus-extension-field-actions.git"
+  },
+  "files": [
+    "dist/**/*"
+  ],
   "type": "module",
+  "scripts": {
+    "build": "directus-extension build",
+    "dev": "directus-extension build -w --no-minify",
+    "link": "directus-extension link",
+    "add": "directus-extension add",
+    "test": "echo \\\"No test specified\\\" && exit 0"
+  },
+  "devDependencies": {
+    "@directus/extensions-sdk": "^11.0.0",
+    "sass": "^1.71.1",
+    "sass-loader": "^14.1.1",
+    "typescript": "^5.3.3",
+    "vue": "^3.4.21"
+  },
   "directus:extension": {
     "host": "^10.10.0",
     "type": "bundle",
@@ -22,43 +60,5 @@
       }
     ],
     "icon": "web_traffic"
-  },
-  "description": "Add advanced link & copy functionalities to your directus fields. Supports interfaces as well as displays.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/utomic-media/directus-extension-field-actions.git"
-  },
-  "keywords": [
-    "directus",
-    "directus-extension",
-    "directus-interface",
-    "directus-display",
-    "directus-field-action",
-    "directus-copy-to-clipboard",
-    "directus-link",
-    "directus-custom-bundle"
-  ],
-  "author": "Dominic Marcelino | Utomic Media",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/utomic-media/directus-extension-field-actions/issues"
-  },
-  "homepage": "https://github.com/utomic-media/directus-extension-field-actions.git#readme",
-  "devDependencies": {
-    "@directus/extensions-sdk": "^11.0.0",
-    "sass": "^1.71.1",
-    "sass-loader": "^14.1.1",
-    "typescript": "^5.3.3",
-    "vue": "^3.4.21"
-  },
-  "files": [
-    "dist/**/*"
-  ],
-  "scripts": {
-    "build": "directus-extension build",
-    "dev": "directus-extension build -w --no-minify",
-    "link": "directus-extension link",
-    "add": "directus-extension add",
-    "test": "echo \\\"No test specified\\\" && exit 0"
   }
 }

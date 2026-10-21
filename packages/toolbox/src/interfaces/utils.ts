@@ -1,1 +1,1 @@
-export type MaybeFunction<T> = T | (() => T)
+export type MaybeFunction<T> = T | (() => T);

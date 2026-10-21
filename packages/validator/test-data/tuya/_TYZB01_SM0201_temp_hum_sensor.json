@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "08dc1145-5065-4dbd-a0dc-3433984f7088",
-  "manufacturername": [
-    "_TYZB01_cbiezpds",
-    "_TYZB01_zqvwka4k"
-  ],
-  "modelid": [
-    "SM0201",
-    "SM0201"
-  ],
+  "manufacturername": ["_TYZB01_cbiezpds", "_TYZB01_zqvwka4k"],
+  "modelid": ["SM0201", "SM0201"],
   "vendor": "Tuya",
   "product": "Temperature and humidity sensor with LCD display (SM0201)",
   "sleeper": true,
@@ -17,11 +11,7 @@
     {
       "type": "$TYPE_TEMPERATURE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0402"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0402"],
       "items": [
         {
           "name": "attr/id"
@@ -88,11 +78,7 @@
     {
       "type": "$TYPE_HUMIDITY_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0405"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0405"],
       "items": [
         {
           "name": "attr/id"

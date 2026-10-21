@@ -5,10 +5,7 @@
   "access": "RW",
   "default": 0,
   "public": true,
-  "range": [
-    0,
-    254
-  ],
+  "range": [0, 254],
   "description": "The current brightness.",
   "parse": {
     "fn": "zcl:attr",

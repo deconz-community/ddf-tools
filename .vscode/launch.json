@@ -1,29 +1,27 @@
 {
-    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
-    // Pointez pour afficher la description des attributs existants.
-    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome for Toolbox",
-            "url": "http://localhost:4000/",
-            "webRoot": "${workspaceFolder}/packages/toolbox/public"
-        },
-        {
-            "name": "Run Web Extension",
-            "type": "extensionHost",
-            "debugWebWorkerHost": true,
-            "request": "launch",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension",
-                "--extensionDevelopmentKind=web"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode-extension/dist/web/**/*.js"
-            ],
-            "preLaunchTask": "${defaultBuildTask}"
-        }
-    ],
+  // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+  // Pointez pour afficher la description des attributs existants.
+  // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome for Toolbox",
+      "url": "http://localhost:4000/",
+      "webRoot": "${workspaceFolder}/packages/toolbox/public"
+    },
+    {
+      "name": "Run Web Extension",
+      "type": "extensionHost",
+      "debugWebWorkerHost": true,
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension",
+        "--extensionDevelopmentKind=web"
+      ],
+      "outFiles": ["${workspaceFolder}/packages/vscode-extension/dist/web/**/*.js"],
+      "preLaunchTask": "${defaultBuildTask}"
+    }
+  ]
 }

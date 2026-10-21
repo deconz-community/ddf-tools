@@ -1,69 +1,62 @@
 <script setup lang="ts">
-import { bytesToHex } from '@noble/hashes/utils.js'
-import { MD5 } from 'crypto-js'
+import { bytesToHex } from "@noble/hashes/utils.js";
+import { MD5 } from "crypto-js";
 
 const props = defineProps<{
-  publicKey?: string | Uint8Array
-}>()
+  publicKey?: string | Uint8Array;
+}>();
 
-const menu = ref(false)
+const menu = ref(false);
 
-const store = useStore()
+const store = useStore();
 
 const userKey = computed(() => {
   switch (typeof props.publicKey) {
-    case 'string':
-      return props.publicKey
-    case 'undefined':
-      return undefined
+    case "string":
+      return props.publicKey;
+    case "undefined":
+      return undefined;
     default:
-      return bytesToHex(props.publicKey)
+      return bytesToHex(props.publicKey);
   }
-})
+});
 
 const user = computedAsync<any | undefined>(async () => {
   // TODO cache this too
-  if (userKey.value && store.state?.matches('online'))
-    return await store.getUserByKey(userKey.value)
-})
+  if (userKey.value && store.state?.matches("online"))
+    return await store.getUserByKey(userKey.value);
+});
 
 const userAvatar = computed(() => {
-  if (typeof user.value?.avatar_url === 'string') {
-    return user.value.avatar_url
+  if (typeof user.value?.avatar_url === "string") {
+    return user.value.avatar_url;
+  } else {
+    const hash = userKey.value ? MD5(userKey.value) : "00000000000000000000000000000000";
+    const url = new URL(`https://www.gravatar.com/avatar/${hash}`);
+    url.searchParams.append("d", "retro");
+    return url.href;
   }
-  else {
-    const hash = userKey.value ? MD5(userKey.value) : '00000000000000000000000000000000'
-    const url = new URL(`https://www.gravatar.com/avatar/${hash}`)
-    url.searchParams.append('d', 'retro')
-    return url.href
-  }
-})
+});
 
-const userName = computed(() => user.value
-  ? (`${user.value.first_name ?? ''} ${user.value.last_name ?? ''}`.trim())
-  : 'Unknown user',
-)
+const userName = computed(() =>
+  user.value
+    ? `${user.value.first_name ?? ""} ${user.value.last_name ?? ""}`.trim()
+    : "Unknown user",
+);
 
 function copyUserKeyToClipboard() {
-  if (!userKey.value)
-    return toast.error('No key to copy')
+  if (!userKey.value) return toast.error("No key to copy");
   try {
-    navigator.clipboard.writeText(userKey.value)
-    toast.success('Key copied to clipboard')
-  }
-  catch (e) {
-    toast.error('Error: Can\'t copy key to clipboard')
+    navigator.clipboard.writeText(userKey.value);
+    toast.success("Key copied to clipboard");
+  } catch (e) {
+    toast.error("Error: Can't copy key to clipboard");
   }
 }
 </script>
 
 <template>
-  <v-menu
-    v-model="menu"
-    location="top start"
-    origin="top start"
-    transition="scale-transition"
-  >
+  <v-menu v-model="menu" location="top start" origin="top start" transition="scale-transition">
     <template #activator="{ props: menu_props }">
       <v-chip
         pill
@@ -74,7 +67,7 @@ function copyUserKeyToClipboard() {
         <v-avatar start>
           <v-img :src="userAvatar" />
         </v-avatar>
-        {{ user?.first_name ?? 'Unknown user' }}
+        {{ user?.first_name ?? "Unknown user" }}
       </v-chip>
     </template>
 
@@ -101,11 +94,7 @@ function copyUserKeyToClipboard() {
 
           <template #append>
             <v-list-item-action>
-              <v-btn
-                icon
-                variant="text"
-                @click="menu = false"
-              >
+              <v-btn icon variant="text" @click="menu = false">
                 <v-icon>mdi-close-circle</v-icon>
               </v-btn>
             </v-list-item-action>

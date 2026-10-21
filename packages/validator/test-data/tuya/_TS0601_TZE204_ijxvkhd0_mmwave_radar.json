@@ -11,11 +11,7 @@
     {
       "type": "$TYPE_LIGHT_LEVEL_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0400"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0400"],
       "items": [
         {
           "name": "attr/lastseen"
@@ -93,11 +89,7 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0xef00"
-      ],
+      "uuid": ["$address.ext", "0x01", "0xef00"],
       "items": [
         {
           "name": "attr/id"
@@ -161,10 +153,7 @@
         {
           "name": "config/fadingtime",
           "description": "Fading time : target disapperance delay time in second (from 0 to 15000). Default 90s",
-          "range": [
-            0,
-            15000
-          ],
+          "range": [0, 15000],
           "read": {
             "fn": "none"
           },
@@ -190,10 +179,7 @@
         {
           "name": "config/sensitivity",
           "description": "Presence sensitivity (from 1 to 10). Default 7",
-          "range": [
-            1,
-            10
-          ],
+          "range": [1, 10],
           "read": {
             "fn": "none"
           },
@@ -228,26 +214,11 @@
             "fn": "tuya"
           },
           "values": [
-            [
-              "\"1\"",
-              "1,5m"
-            ],
-            [
-              "\"2\"",
-              "2,5m"
-            ],
-            [
-              "\"3\"",
-              "3,5m"
-            ],
-            [
-              "\"4\"",
-              "4,5m"
-            ],
-            [
-              "\"5\"",
-              "5,5m"
-            ]
+            ["\"1\"", "1,5m"],
+            ["\"2\"", "2,5m"],
+            ["\"3\"", "3,5m"],
+            ["\"4\"", "4,5m"],
+            ["\"5\"", "5,5m"]
           ],
           "default": "1"
         },

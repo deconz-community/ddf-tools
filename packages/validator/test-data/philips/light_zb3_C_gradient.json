@@ -90,10 +90,7 @@
     {
       "type": "$TYPE_EXTENDED_COLOR_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x0b"
-      ],
+      "uuid": ["$address.ext", "0x0b"],
       "items": [
         {
           "name": "attr/id"
@@ -327,26 +324,11 @@
         {
           "name": "state/colormode",
           "values": [
-            [
-              "\"ct\"",
-              "color temperature"
-            ],
-            [
-              "\"effect\"",
-              "dynamic effect"
-            ],
-            [
-              "\"gradient\"",
-              "gradient"
-            ],
-            [
-              "\"hs\"",
-              "hue and saturation"
-            ],
-            [
-              "\"xy\"",
-              "CIE xy color space coordinates"
-            ]
+            ["\"ct\"", "color temperature"],
+            ["\"effect\"", "dynamic effect"],
+            ["\"gradient\"", "gradient"],
+            ["\"hs\"", "hue and saturation"],
+            ["\"xy\"", "CIE xy color space coordinates"]
           ],
           "parse": {
             "fn": "zcl:attr",
@@ -359,12 +341,7 @@
             "fn": "zcl:attr",
             "ep": "0x0b",
             "cl": "0x0300",
-            "at": [
-              "0x4001",
-              "0x4002",
-              "0x4000",
-              "0x0001"
-            ]
+            "at": ["0x4001", "0x4002", "0x4000", "0x0001"]
           },
           "refresh.interval": 60
         },

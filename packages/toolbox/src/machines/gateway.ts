@@ -1,81 +1,107 @@
-import type { EndpointAlias, ExtractParamsForAlias, ExtractResponseSchemaForAlias, FindGatewayResult, GatewayClient, RequestResultForAlias, ResponseWatcher, ResponseWatcherParam } from '@deconz-community/rest-client'
-import type { ActorRef, AnyEventObject } from 'xstate'
+import type {
+  EndpointAlias,
+  ExtractParamsForAlias,
+  ExtractResponseSchemaForAlias,
+  FindGatewayResult,
+  GatewayClient,
+  RequestResultForAlias,
+  ResponseWatcher,
+  ResponseWatcherParam,
+} from "@deconz-community/rest-client";
+import type { ActorRef, AnyEventObject } from "xstate";
 
-import type { GatewayCredentials } from './app'
-import { decode } from '@deconz-community/ddf-bundler'
+import type { GatewayCredentials } from "./app";
+import { decode } from "@deconz-community/ddf-bundler";
 
-import { findGateway, websocketSchema } from '@deconz-community/rest-client'
-import { sha256 } from '@noble/hashes/sha2.js'
-import { bytesToHex } from '@noble/hashes/utils.js'
+import { findGateway, websocketSchema } from "@deconz-community/rest-client";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { bytesToHex } from "@noble/hashes/utils.js";
 
-import { produce } from 'immer'
-import { assertEvent, assign, enqueueActions, fromCallback, fromPromise, raise, sendTo, setup } from 'xstate'
+import { produce } from "immer";
+import {
+  assertEvent,
+  assign,
+  enqueueActions,
+  fromCallback,
+  fromPromise,
+  raise,
+  sendTo,
+  setup,
+} from "xstate";
 // import { deviceMachine } from './device'
 
-export type BundleDescriptor = ExtractResponseSchemaForAlias<'getDDFBundleDescriptors'>['descriptors'][string]
+export type BundleDescriptor =
+  ExtractResponseSchemaForAlias<"getDDFBundleDescriptors">["descriptors"][string];
 
 export interface GatewayContext {
-  credentials: GatewayCredentials
-  gateway?: GatewayClient
-  config?: ExtractResponseSchemaForAlias<'getConfig'>
-  devices: Map<string, ExtractResponseSchemaForAlias<'getDevice'>>
+  credentials: GatewayCredentials;
+  gateway?: GatewayClient;
+  config?: ExtractResponseSchemaForAlias<"getConfig">;
+  devices: Map<string, ExtractResponseSchemaForAlias<"getDevice">>;
   // devices: Map<string, ActorRefFrom<typeof deviceMachine>>
   // devices_names: Record<string, string>
-  bundles: Map<string, BundleDescriptor>
+  bundles: Map<string, BundleDescriptor>;
 }
 
-export type AnyGatewayEvent = GatewayEvent
+export type AnyGatewayEvent =
+  | GatewayEvent
   | WebsocketEvent
-  | RefreshEvent | UpdateEvent
-  | RequestEvent<EndpointAlias>
+  | RefreshEvent
+  | UpdateEvent
+  | RequestEvent<EndpointAlias>;
 
-export type GatewayEvent = {
-  type: 'CONNECT' | 'DISCONNECT'
-} | {
-  type: 'UPDATE_CREDENTIALS'
-  data: GatewayCredentials
-}
+export type GatewayEvent =
+  | {
+      type: "CONNECT" | "DISCONNECT";
+    }
+  | {
+      type: "UPDATE_CREDENTIALS";
+      data: GatewayCredentials;
+    };
 /* | {
   type: 'UPDATE_DEVICE_NAME'
   deviceID: string
   name: string
 } */
 
-export type WebsocketEvent = {
-  type: 'WEBSOCKET_CONNECT'
-  uri: string
-} | {
-  type: 'WEBSOCKET_ERROR'
-} | {
-  type: 'WEBSOCKET_EVENT'
-  data: any
-}
+export type WebsocketEvent =
+  | {
+      type: "WEBSOCKET_CONNECT";
+      uri: string;
+    }
+  | {
+      type: "WEBSOCKET_ERROR";
+    }
+  | {
+      type: "WEBSOCKET_EVENT";
+      data: any;
+    };
 
-export type RefreshEvent = ({
-  type: 'REFRESH_CONFIG' | 'REFRESH_DEVICES' | 'REFRESH_BUNDLES'
-}) & {
-  manual?: boolean
-}
+export type RefreshEvent = {
+  type: "REFRESH_CONFIG" | "REFRESH_DEVICES" | "REFRESH_BUNDLES";
+} & {
+  manual?: boolean;
+};
 
 export interface UpdateEvent {
-  type: 'UPDATE_BUNDLES'
-  method: 'set' | 'delete' | 'replace'
-  data: Map<string, BundleDescriptor>
+  type: "UPDATE_BUNDLES";
+  method: "set" | "delete" | "replace";
+  data: Map<string, BundleDescriptor>;
 }
 
 export interface RequestEventOptions<Alias extends EndpointAlias> {
-  onDone?: (responses: RequestResultForAlias<Alias>) => void
+  onDone?: (responses: RequestResultForAlias<Alias>) => void;
 }
 
 export interface DoRequestParams<Alias extends EndpointAlias> {
-  alias: Alias
-  params: ExtractParamsForAlias<Alias>
-  options?: RequestEventOptions<Alias>
+  alias: Alias;
+  params: ExtractParamsForAlias<Alias>;
+  options?: RequestEventOptions<Alias>;
 }
 
 export type RequestEvent<Alias extends EndpointAlias> = {
-  type: 'REQUEST'
-} & DoRequestParams<Alias>
+  type: "REQUEST";
+} & DoRequestParams<Alias>;
 
 export function gatewayRequest<Alias extends EndpointAlias>(
   alias: Alias,
@@ -83,11 +109,11 @@ export function gatewayRequest<Alias extends EndpointAlias>(
   options: RequestEventOptions<Alias> = {},
 ): AnyGatewayEvent {
   return {
-    type: 'REQUEST',
+    type: "REQUEST",
     alias,
     params,
     options,
-  } as any
+  } as any;
 }
 
 export const gatewayMachine = setup({
@@ -95,29 +121,35 @@ export const gatewayMachine = setup({
     context: {} as GatewayContext,
     events: {} as AnyGatewayEvent,
     input: {} as {
-      credentials: GatewayCredentials
+      credentials: GatewayCredentials;
     },
   },
 
   actors: {
     // deviceMachine,
 
-    connectToGateway: fromPromise<FindGatewayResult, {
-      URIs: string[]
-      apiKey: string
-      expectedBridgeID: string
-    }>(({ input }) => {
-      return findGateway(input.URIs, input.apiKey, input.expectedBridgeID)
+    connectToGateway: fromPromise<
+      FindGatewayResult,
+      {
+        URIs: string[];
+        apiKey: string;
+        expectedBridgeID: string;
+      }
+    >(({ input }) => {
+      return findGateway(input.URIs, input.apiKey, input.expectedBridgeID);
     }),
 
     // #region connectToGatewayWebsocket
-    connectToGatewayWebsocket: fromCallback<AnyEventObject, {
-      gatewayID: string
-      uri: string
-      gateway: ActorRef<any, any>
-    }>(({ sendBack, input, system }) => {
-      const scope = effectScope(true)
-      const schema = websocketSchema()
+    connectToGatewayWebsocket: fromCallback<
+      AnyEventObject,
+      {
+        gatewayID: string;
+        uri: string;
+        gateway: ActorRef<any, any>;
+      }
+    >(({ sendBack, input, system }) => {
+      const scope = effectScope(true);
+      const schema = websocketSchema();
 
       scope.run(() => {
         const { data } = useWebSocket(input.uri, {
@@ -125,55 +157,53 @@ export const gatewayMachine = setup({
             retries: 3,
             delay: 1000,
             onFailed() {
-              sendBack({ type: 'WEBSOCKET_ERROR' })
+              sendBack({ type: "WEBSOCKET_ERROR" });
             },
           },
-        })
+        });
 
         watchImmediate(data, (data: unknown) => {
-          if (typeof data !== 'string')
-            return
+          if (typeof data !== "string") return;
 
-          const raw = JSON.parse(data)
+          const raw = JSON.parse(data);
 
-          const message = schema.safeParse(raw)
+          const message = schema.safeParse(raw);
 
           if (!message.success) {
-            if (system.get('app')?.getSnapshot()?.context?.settings?.developerMode) {
-              toast.error('Cant parse websocket message', {
+            if (system.get("app")?.getSnapshot()?.context?.settings?.developerMode) {
+              toast.error("Cant parse websocket message", {
                 duration: 3000,
-              })
+              });
             }
-            return console.error('Cant parse websocket message', raw, message.error)
+            return console.error("Cant parse websocket message", raw, message.error);
           }
 
           switch (message.data.e) {
-            case 'added':
-            {
+            case "added": {
               // TODO: Remplace with the ADD_DEVICE event
-              sendBack({ type: 'REFRESH_DEVICES' })
+              sendBack({ type: "REFRESH_DEVICES" });
 
-              let description: string | undefined
+              let description: string | undefined;
               switch (message.data.r) {
-                case 'sensors':
-                  description = message.data.sensor.name
-                  break
-                case 'lights':
-                  description = message.data.light.name
+                case "sensors":
+                  description = message.data.sensor.name;
+                  break;
+                case "lights":
+                  description = message.data.light.name;
               }
 
               if (description) {
-                toast.info('Device added', {
+                toast.info("Device added", {
                   description: description as string,
-                })
+                });
               }
-              break
+              break;
             }
-            case 'deleted':{
+            case "deleted": {
               // TODO: Remplace with the REMOVE_DEVICE event
-              sendBack({ type: 'REFRESH_DEVICES' })
+              sendBack({ type: "REFRESH_DEVICES" });
 
-              break
+              break;
             }
           }
 
@@ -191,136 +221,144 @@ export const gatewayMachine = setup({
             })
           }
           */
-        })
-      })
+        });
+      });
 
-      return () => scope.stop()
+      return () => scope.stop();
     }),
 
     // #endregion
 
     // #region fetchBundles
-    fetchBundles: fromPromise<GatewayContext['bundles'], {
-      gateway: GatewayClient
-      manual?: boolean
-    }>(async ({ input }) => {
-      const { gateway } = input
-      const newList = new Map<string, BundleDescriptor>()
+    fetchBundles: fromPromise<
+      GatewayContext["bundles"],
+      {
+        gateway: GatewayClient;
+        manual?: boolean;
+      }
+    >(async ({ input }) => {
+      const { gateway } = input;
+      const newList = new Map<string, BundleDescriptor>();
 
-      let hasMore = true
-      let next: string | number | undefined
+      let hasMore = true;
+      let next: string | number | undefined;
 
       while (hasMore) {
-        const results = await gateway.request('getDDFBundleDescriptors', { next })
+        const results = await gateway.request("getDDFBundleDescriptors", { next });
 
         results.forEach((result) => {
-          if (result.isErr())
-            throw new Error('Failed to fetch bundle')
+          if (result.isErr()) throw new Error("Failed to fetch bundle");
 
           for (const [key, value] of Object.entries(result.value.descriptors))
-            newList.set(key, value)
+            newList.set(key, value);
 
           if (result.value.next) {
-            next = result.value.next
+            next = result.value.next;
+          } else {
+            next = undefined;
+            hasMore = false;
           }
-          else {
-            next = undefined
-            hasMore = false
-          }
-        })
+        });
       }
 
       if (input.manual) {
-        toast.info('Bundle list updated', {
+        toast.info("Bundle list updated", {
           description: `${newList.size} bundles found`,
-        })
+        });
       }
 
-      return newList
+      return newList;
     }),
     // #endregion
 
     // #region fetchDevices
-    fetchDevices: fromPromise<GatewayContext['devices'], {
-      gateway: GatewayClient
-      manual?: boolean
-    }>(async ({ input }) => {
-      const { gateway } = input
-      const devices = new Map<string, ExtractResponseSchemaForAlias<'getDevice'>>()
+    fetchDevices: fromPromise<
+      GatewayContext["devices"],
+      {
+        gateway: GatewayClient;
+        manual?: boolean;
+      }
+    >(async ({ input }) => {
+      const { gateway } = input;
+      const devices = new Map<string, ExtractResponseSchemaForAlias<"getDevice">>();
 
-      const devicesResults = await gateway.request('getDevices', {})
+      const devicesResults = await gateway.request("getDevices", {});
 
       for (const result of devicesResults) {
-        if (result.isErr())
-          throw result.error
+        if (result.isErr()) throw result.error;
 
         for (const deviceUniqueID of result.value) {
-          const deviceData = await gateway.request('getDevice', { deviceUniqueID })
+          const deviceData = await gateway.request("getDevice", { deviceUniqueID });
 
           for (const deviceResult of deviceData) {
-            if (deviceResult.isErr())
-              continue
+            if (deviceResult.isErr()) continue;
 
-            devices.set(deviceUniqueID, deviceResult.value)
+            devices.set(deviceUniqueID, deviceResult.value);
           }
         }
       }
 
       if (input.manual) {
-        toast.info('Device list updated', {
+        toast.info("Device list updated", {
           description: `${devices.size} devices found`,
-        })
+        });
       }
 
-      return devices
+      return devices;
     }),
     // #endregion
 
     // #region doRequest
-    doRequest: fromPromise<{
-      response: RequestResultForAlias<EndpointAlias>
-      previousEvent?: AnyGatewayEvent
-    }, {
-      gateway: GatewayClient
-      request: DoRequestParams<EndpointAlias>
-      previousEvent?: AnyGatewayEvent
-    }>(async ({ input }) => {
-      const { gateway, request } = input
-      const response = await gateway.request(request.alias, request.params)
-      request.options?.onDone?.(response)
+    doRequest: fromPromise<
+      {
+        response: RequestResultForAlias<EndpointAlias>;
+        previousEvent?: AnyGatewayEvent;
+      },
+      {
+        gateway: GatewayClient;
+        request: DoRequestParams<EndpointAlias>;
+        previousEvent?: AnyGatewayEvent;
+      }
+    >(async ({ input }) => {
+      const { gateway, request } = input;
+      const response = await gateway.request(request.alias, request.params);
+      request.options?.onDone?.(response);
       return {
         response,
         previousEvent: input.previousEvent,
-      }
+      };
     }),
     // #endregion
 
     // #region request watcher
-    responseWatcher: fromCallback<UpdateEvent, { gateway: GatewayClient }>(
-      ({ input, sendBack }) => input.gateway.addResponseWatcher(async (response) => {
+    responseWatcher: fromCallback<UpdateEvent, { gateway: GatewayClient }>(({ input, sendBack }) =>
+      input.gateway.addResponseWatcher(async (response) => {
         switch (response.alias) {
           // #region uploadDDFBundle
-          case 'uploadDDFBundle':{
-            const { params, results } = response as unknown as ResponseWatcherParam<'uploadDDFBundle'>
+          case "uploadDDFBundle": {
+            const { params, results } =
+              response as unknown as ResponseWatcherParam<"uploadDDFBundle">;
             for (const result of results) {
               if (result.isOk()) {
-                const bundle = await decode(params.body)
+                const bundle = await decode(params.body);
                 sendBack({
-                  type: 'UPDATE_BUNDLES',
-                  method: 'set',
+                  type: "UPDATE_BUNDLES",
+                  method: "set",
                   data: new Map([
                     [
                       bytesToHex(bundle.data.hash!),
                       {
                         ...bundle.data.desc,
-                        file_hash: bytesToHex(sha256(new Uint8Array(await params.body.arrayBuffer()))),
+                        file_hash: bytesToHex(
+                          sha256(new Uint8Array(await params.body.arrayBuffer())),
+                        ),
                       },
                     ],
                   ]),
-                })
+                });
               }
             }
-            break
+            break;
           }
           // #endregion
         }
@@ -336,10 +374,8 @@ export const gatewayMachine = setup({
       bundles: new Map(),
     }),
   },
-
 }).createMachine({
-
-  id: 'gateway',
+  id: "gateway",
 
   context: ({ input }) => ({
     credentials: input.credentials,
@@ -349,19 +385,18 @@ export const gatewayMachine = setup({
     bundles: new Map(),
   }),
 
-  initial: 'init',
+  initial: "init",
 
   states: {
-
     init: {
       after: {
-        500: 'connecting',
+        500: "connecting",
       },
     },
 
     connecting: {
       invoke: {
-        src: 'connectToGateway',
+        src: "connectToGateway",
         input: ({ context }) => ({
           URIs: context.credentials.URIs.api,
           apiKey: context.credentials.apiKey,
@@ -369,63 +404,70 @@ export const gatewayMachine = setup({
         }),
         onDone: [
           {
-            target: 'online',
-            guard: ({ event }) => event.output.isOk() && event.output.unwrap().code === 'ok',
+            target: "online",
+            guard: ({ event }) => event.output.isOk() && event.output.unwrap().code === "ok",
             actions: enqueueActions(({ enqueue, event }) => {
-              const result = event.output.unwrap()
+              const result = event.output.unwrap();
 
-              if (!event.output.isOk() || result.code !== 'ok' || result.config.authenticated === false)
-                throw new Error('Invalid state')
+              if (
+                !event.output.isOk() ||
+                result.code !== "ok" ||
+                result.config.authenticated === false
+              )
+                throw new Error("Invalid state");
 
               enqueue.assign({
                 gateway: result.gateway,
-              })
+              });
 
-              enqueue.raise({ type: 'REFRESH_DEVICES' })
+              enqueue.raise({ type: "REFRESH_DEVICES" });
 
-              const websocketURI = new URL(result.uri)
-              websocketURI.protocol = 'ws:'
-              websocketURI.port = (result.config.websocketport).toString()
-              enqueue.raise({ type: 'WEBSOCKET_CONNECT', uri: websocketURI.toString() })
+              const websocketURI = new URL(result.uri);
+              websocketURI.protocol = "ws:";
+              websocketURI.port = result.config.websocketport.toString();
+              enqueue.raise({ type: "WEBSOCKET_CONNECT", uri: websocketURI.toString() });
             }),
           },
           {
-            target: 'offline.error.unreachable',
-            guard: ({ event }) => event.output.isErr() && event.output.unwrapErr().code === 'unreachable',
+            target: "offline.error.unreachable",
+            guard: ({ event }) =>
+              event.output.isErr() && event.output.unwrapErr().code === "unreachable",
           },
           {
-            target: 'offline.error.invalidApiKey',
-            guard: ({ event }) => event.output.isOk() && ['invalid_api_key', 'bridge_id_mismatch'].includes(event.output.unwrap().code),
+            target: "offline.error.invalidApiKey",
+            guard: ({ event }) =>
+              event.output.isOk() &&
+              ["invalid_api_key", "bridge_id_mismatch"].includes(event.output.unwrap().code),
             actions: enqueueActions(({ enqueue, event }) => {
-              const result = event.output.unwrap()
+              const result = event.output.unwrap();
               enqueue.assign({
                 gateway: result.gateway,
-              })
+              });
             }),
           },
           {
-            target: 'offline.error',
+            target: "offline.error",
           },
         ],
       },
     },
 
     online: {
-      type: 'parallel',
-      entry: ['cleanupGatewayData'],
-      exit: ['cleanupGatewayData'],
+      type: "parallel",
+      entry: ["cleanupGatewayData"],
+      exit: ["cleanupGatewayData"],
       invoke: {
-        src: 'responseWatcher',
+        src: "responseWatcher",
         input: ({ context }) => ({
           gateway: context.gateway!,
         }),
       },
 
       on: {
-        DISCONNECT: 'offline.disabled',
+        DISCONNECT: "offline.disabled",
         REQUEST: {
           actions: enqueueActions(({ enqueue, context, event }) => {
-            enqueue.spawnChild('doRequest', {
+            enqueue.spawnChild("doRequest", {
               input: {
                 gateway: context.gateway!,
                 request: {
@@ -434,24 +476,22 @@ export const gatewayMachine = setup({
                   options: event.options,
                 },
               },
-            })
+            });
           }),
         },
         UPDATE_BUNDLES: {
           actions: assign({
             bundles: ({ event, context }) =>
-              event.method === 'replace'
+              event.method === "replace"
                 ? event.data
                 : produce(context.bundles, (draft) => {
                     switch (event.method) {
-                      case 'set':
-                        for (const [key, value] of event.data)
-                          draft.set(key, value)
-                        break
-                      case 'delete':
-                        for (const key of event.data.keys())
-                          draft.delete(key)
-                        break
+                      case "set":
+                        for (const [key, value] of event.data) draft.set(key, value);
+                        break;
+                      case "delete":
+                        for (const key of event.data.keys()) draft.delete(key);
+                        break;
                     }
                   }),
           }),
@@ -461,58 +501,58 @@ export const gatewayMachine = setup({
       states: {
         // #region config state
         config: {
-          initial: 'init',
+          initial: "init",
           states: {
             init: {
               after: {
-                50: 'pooling',
+                50: "pooling",
               },
             },
             idle: {
               on: {
-                REFRESH_CONFIG: 'pooling',
+                REFRESH_CONFIG: "pooling",
               },
               after: {
-                [60 * 1000]: 'pooling',
+                [60 * 1000]: "pooling",
               },
             },
 
             pooling: {
               invoke: {
-                src: 'doRequest',
+                src: "doRequest",
                 input: ({ context }) => ({
                   gateway: context.gateway!,
                   request: {
-                    alias: 'getConfig',
+                    alias: "getConfig",
                     params: {},
                   },
                 }),
                 onDone: {
-                  target: 'idle',
+                  target: "idle",
                   actions: enqueueActions(({ enqueue, event, context }) => {
-                    const response = event.output.response as RequestResultForAlias<'getConfig'>
+                    const response = event.output.response as RequestResultForAlias<"getConfig">;
                     response.forEach((result) => {
                       if (!result.isOk()) {
-                        console.error(result.error)
-                        return toast.warning('Something went wrong when refreshing config')
+                        console.error(result.error);
+                        return toast.warning("Something went wrong when refreshing config");
                       }
 
-                      const config = result.value
+                      const config = result.value;
 
                       // Save new config
-                      enqueue.assign({ config })
+                      enqueue.assign({ config });
 
                       // Update the name of the gateway if it changed
                       if (config.name !== context.credentials.name) {
                         enqueue.raise({
-                          type: 'UPDATE_CREDENTIALS',
+                          type: "UPDATE_CREDENTIALS",
                           data: {
                             ...context.credentials,
                             name: config.name,
                           },
-                        })
+                        });
                       }
-                    })
+                    });
                   }),
                 },
               },
@@ -523,41 +563,41 @@ export const gatewayMachine = setup({
 
         // #region devices state
         devices: {
-          initial: 'init',
+          initial: "init",
 
           states: {
             init: {
               after: {
-                100: 'pooling',
+                100: "pooling",
               },
             },
             idle: {
               on: {
-                REFRESH_DEVICES: 'pooling',
+                REFRESH_DEVICES: "pooling",
               },
               after: {
-                [60 * 1000]: 'pooling',
+                [60 * 1000]: "pooling",
               },
             },
 
             pooling: {
               invoke: {
-                src: 'fetchDevices',
+                src: "fetchDevices",
                 input: ({ context, event }) => ({
                   gateway: context.gateway!,
-                  manual: event.type === 'REFRESH_DEVICES' ? event.manual : false,
+                  manual: event.type === "REFRESH_DEVICES" ? event.manual : false,
                 }),
                 onDone: {
-                  target: 'idle',
+                  target: "idle",
                   actions: enqueueActions(({ enqueue, event }) => {
-                    enqueue.assign({ devices: event.output })
+                    enqueue.assign({ devices: event.output });
                   }),
                 },
                 onError: {
-                  target: 'idle',
+                  target: "idle",
                   actions: enqueueActions(({ event }) => {
-                    toast.error('Failed to fetch devices')
-                    console.error(event)
+                    toast.error("Failed to fetch devices");
+                    console.error(event);
                   }),
                 },
               },
@@ -569,93 +609,87 @@ export const gatewayMachine = setup({
             const { devices } = context
             devices.forEach(device => enqueue.stopChild(device))
             */
-            enqueue.assign({ devices: new Map() })
+            enqueue.assign({ devices: new Map() });
           }),
-
         },
         // #endregion
 
         // #region websocket state
         websocket: {
-
-          initial: 'disabled',
+          initial: "disabled",
           states: {
             running: {
               invoke: {
                 input: ({ event, context, self }) => {
-                  assertEvent(event, 'WEBSOCKET_CONNECT')
+                  assertEvent(event, "WEBSOCKET_CONNECT");
                   return {
                     gatewayID: context.credentials.id,
                     gateway: self,
                     uri: event.uri,
-                  }
+                  };
                 },
-                src: 'connectToGatewayWebsocket',
+                src: "connectToGatewayWebsocket",
               },
               on: {
-                WEBSOCKET_ERROR: 'error',
+                WEBSOCKET_ERROR: "error",
               },
             },
             disabled: {
               on: {
-                WEBSOCKET_CONNECT: 'running',
+                WEBSOCKET_CONNECT: "running",
               },
             },
-            error: {
-
-            },
+            error: {},
           },
         },
         // #endregion
 
         // #region bundles state
         bundles: {
-
-          initial: 'idle',
+          initial: "idle",
           states: {
             idle: {
               on: {
-                REFRESH_BUNDLES: 'fetching',
+                REFRESH_BUNDLES: "fetching",
               },
             },
             fetching: {
               invoke: {
                 input: ({ context, event }) => ({
                   gateway: context.gateway!,
-                  manual: event.type === 'REFRESH_BUNDLES' ? event.manual : false,
+                  manual: event.type === "REFRESH_BUNDLES" ? event.manual : false,
                 }),
-                src: 'fetchBundles',
+                src: "fetchBundles",
                 // TODO move in the fetchBundles invoke ?
                 onDone: {
-                  target: 'idle',
+                  target: "idle",
                   actions: raise(({ event }) => ({
-                    type: 'UPDATE_BUNDLES',
-                    method: 'replace',
+                    type: "UPDATE_BUNDLES",
+                    method: "replace",
                     data: event.output,
                   })),
                 },
                 // TODO Display an error message
-                onError: 'idle',
+                onError: "idle",
               },
             },
           },
         },
         // #endregion
       },
-
     },
 
     offline: {
-      initial: 'disabled',
+      initial: "disabled",
       on: {
-        CONNECT: 'connecting',
+        CONNECT: "connecting",
       },
       states: {
         disabled: {},
         error: {
-          initial: 'unknown',
+          initial: "unknown",
           on: {
-            DISCONNECT: 'disabled',
+            DISCONNECT: "disabled",
           },
           states: {
             unreachable: {},
@@ -663,7 +697,7 @@ export const gatewayMachine = setup({
               on: {
                 REQUEST: {
                   actions: enqueueActions(({ enqueue, context, event }) => {
-                    enqueue.spawnChild('doRequest', {
+                    enqueue.spawnChild("doRequest", {
                       input: {
                         gateway: context.gateway!,
                         request: {
@@ -672,7 +706,7 @@ export const gatewayMachine = setup({
                           options: event.options,
                         },
                       },
-                    })
+                    });
                   }),
                 },
               },
@@ -682,18 +716,15 @@ export const gatewayMachine = setup({
         },
       },
     },
-
   },
 
   on: {
     UPDATE_CREDENTIALS: {
-      target: '.init',
+      target: ".init",
       actions: [
         assign({ credentials: ({ event }) => event.data }),
-        sendTo(({ system }) => system.get('app'), { type: 'SAVE_SETTINGS' }),
+        sendTo(({ system }) => system.get("app"), { type: "SAVE_SETTINGS" }),
       ],
     },
-
   },
-
-})
+});

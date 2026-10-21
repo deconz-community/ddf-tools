@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x03"
-      ],
+      "uuid": ["$address.ext", "0x03"],
       "items": [
         {
           "name": "attr/id"

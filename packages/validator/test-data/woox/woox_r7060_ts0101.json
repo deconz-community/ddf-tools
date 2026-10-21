@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_SMART_PLUG",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -59,11 +56,7 @@
     {
       "type": "$TYPE_BATTERY_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0001"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0001"],
       "items": [
         {
           "name": "attr/id"

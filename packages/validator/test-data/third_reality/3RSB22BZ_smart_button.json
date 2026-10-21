@@ -10,11 +10,7 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0012"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0012"],
       "items": [
         {
           "name": "attr/id"

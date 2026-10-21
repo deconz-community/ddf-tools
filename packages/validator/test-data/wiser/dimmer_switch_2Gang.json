@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x03"
-      ],
+      "uuid": ["$address.ext", "0x03"],
       "items": [
         {
           "name": "attr/id"
@@ -61,10 +58,7 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x04"
-      ],
+      "uuid": ["$address.ext", "0x04"],
       "items": [
         {
           "name": "attr/id"
@@ -111,11 +105,7 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x15",
-        "0x0006"
-      ],
+      "uuid": ["$address.ext", "0x15", "0x0006"],
       "items": [
         {
           "name": "attr/id"

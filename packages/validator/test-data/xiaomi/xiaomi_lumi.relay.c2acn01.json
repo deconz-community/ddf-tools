@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -69,10 +66,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"
@@ -127,11 +121,7 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x000C"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x000C"],
       "items": [
         {
           "name": "attr/id"
@@ -225,11 +215,7 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0702"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0702"],
       "items": [
         {
           "name": "attr/id"

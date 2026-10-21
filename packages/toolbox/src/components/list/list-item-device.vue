@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useSelector } from '@xstate/vue'
-import type { ActorRefFrom } from 'xstate'
+import { useSelector } from "@xstate/vue";
+import type { ActorRefFrom } from "xstate";
 
 const props = defineProps<{
-  device: ActorRefFrom<typeof deviceMachine>
-}>()
+  device: ActorRefFrom<typeof deviceMachine>;
+}>();
 
-const route = useRoute()
-const data = useSelector(props.device, state => state.context.data)
+const route = useRoute();
+const data = useSelector(props.device, (state) => state.context.data);
 </script>
 
 <template>

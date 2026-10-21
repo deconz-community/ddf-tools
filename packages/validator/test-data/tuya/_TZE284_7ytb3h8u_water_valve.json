@@ -1,12 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "78deeaf7-16fa-44e4-b323-af5fb5e18cc0",
-  "manufacturername": [
-    "_TZE284_7ytb3h8u"
-  ],
-  "modelid": [
-    "TS0601"
-  ],
+  "manufacturername": ["_TZE284_7ytb3h8u"],
+  "modelid": ["TS0601"],
   "vendor": "GIEXperience",
   "product": "Tuya Smart water valve",
   "sleeper": false,
@@ -15,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -62,26 +55,26 @@
         },
         {
           "name": "state/on",
-		  "read": {
+          "read": {
             "fn": "none"
           },
-	      "write": {
-			"dpid": 2,
-		    "dt": "0x10",
-			"eval": "Item.val == 1 ? 1 : 0;",
-			"fn": "tuya"
-		  },
-		  "parse": {
-		     "dpid": 2,
-             "eval": "Item.val = Attr.val;",
-             "fn": "tuya"
+          "write": {
+            "dpid": 2,
+            "dt": "0x10",
+            "eval": "Item.val == 1 ? 1 : 0;",
+            "fn": "tuya"
+          },
+          "parse": {
+            "dpid": 2,
+            "eval": "Item.val = Attr.val;",
+            "fn": "tuya"
           },
           "default": 0
         },
         {
           "name": "state/seconds_remaining",
           "description": "The remaining time the valve is open in seconds.",
-		  "read": {
+          "read": {
             "fn": "none"
           },
           "parse": {
@@ -91,7 +84,7 @@
           }
         },
         {
-		  "name": "config/tuya_unlock"
+          "name": "config/tuya_unlock"
         },
         {
           "name": "state/reachable"
@@ -101,11 +94,7 @@
     {
       "type": "$TYPE_OPEN_CLOSE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0500"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0500"],
       "items": [
         {
           "name": "attr/id"
@@ -167,11 +156,11 @@
             "fn": "tuya"
           },
           "default": false
-        },		
+        },
         {
           "name": "config/on"
         },
-		{
+        {
           "name": "config/duration",
           "write": {
             "dpid": 104,
@@ -184,9 +173,9 @@
             "eval": "Item.val = Attr.val;",
             "fn": "tuya"
           },
-          "default": 0 
+          "default": 0
         },
-		{
+        {
           "name": "state/open",
           "read": {
             "fn": "none"

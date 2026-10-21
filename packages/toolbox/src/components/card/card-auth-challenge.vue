@@ -1,20 +1,17 @@
 <script setup lang="ts">
-import hmacSHA256 from 'crypto-js/hmac-sha256'
+import hmacSHA256 from "crypto-js/hmac-sha256";
 
-const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE)
-const challenge = ref<string>('')
+const installCode = ref<string>(import.meta.env.VITE_GATEWAY_INSTALL_CODE);
+const challenge = ref<string>("");
 const challengeResult = computed(() => {
-  if (challenge.value.length !== 64 || installCode.value.length !== 16)
-    return ''
-  return hmacSHA256(challenge.value, installCode.value.toLowerCase())
-})
+  if (challenge.value.length !== 64 || installCode.value.length !== 16) return "";
+  return hmacSHA256(challenge.value, installCode.value.toLowerCase());
+});
 </script>
 
 <template>
   <v-card>
-    <v-card-title>
-      Authentication Challenge
-    </v-card-title>
+    <v-card-title> Authentication Challenge </v-card-title>
     <v-card-text class="d-flex">
       <v-text-field
         v-model="installCode"
@@ -28,12 +25,7 @@ const challengeResult = computed(() => {
         class="mr-2"
         hint="Value from the challenge response of the `createChallenge` API call."
       />
-      <v-text-field
-        v-model="challengeResult"
-        readonly
-        disabled
-        label="Challenge result"
-      />
+      <v-text-field v-model="challengeResult" readonly disabled label="Challenge result" />
     </v-card-text>
   </v-card>
 </template>

@@ -73,9 +73,11 @@ import { createValidator } from '@deconz-community/ddf-validator'
 Main function to validate the DDF data object.
 
 #### Arguments
+
 - `generics` - : GenericsData; Base generic data to validate DDF.
 
 #### Return
+
 Return a new validator instance.
 
 #### Example
@@ -96,6 +98,7 @@ const validator = createValidator({
 Currently loaded generics.
 
 #### Return
+
 - `generics` - : GenericsData; Generic data to validate DDF.
 
 ### validator.loadGeneric()
@@ -104,9 +107,11 @@ Load generic data from an object.
 Support files with schema `constants1.schema.json`, `constants2.schema.json`, `resourceitem1.schema.json` and `subdevice1.schema.json`.
 
 #### Arguments
+
 - `data` - : object; File data.
 
 #### Return
+
 - `data` - : object; File data.
 
 Or throw [Zod Error](https://github.com/colinhacks/zod/blob/master/ERROR_HANDLING.md)
@@ -114,18 +119,18 @@ Or throw [Zod Error](https://github.com/colinhacks/zod/blob/master/ERROR_HANDLIN
 #### Example
 
 ```typescript
-import { createValidator } from '@deconz-community/ddf-validator'
+import { createValidator } from "@deconz-community/ddf-validator";
 
-const validator = createValidator()
+const validator = createValidator();
 validator.loadGeneric({
-  'schema': 'constants1.schema.json',
-  'manufacturers': {
-    $MF_FOO: 'Foo inc.'
+  schema: "constants1.schema.json",
+  manufacturers: {
+    $MF_FOO: "Foo inc.",
   },
-  'device-types': {
-    $TYPE_COLOR_LIGHT: 'Color light'
-  }
-})
+  "device-types": {
+    $TYPE_COLOR_LIGHT: "Color light",
+  },
+});
 ```
 
 ### validator.validate()
@@ -135,9 +140,11 @@ Support files with schema `constants1.schema.json`, `constants2.schema.json`, `r
 Make sure to load any need generic first.
 
 #### Arguments
+
 - `data` - : object; File data.
 
 #### Return
+
 - `data` - : object; File data.
 
 Or throw [Zod Error](https://github.com/colinhacks/zod/blob/master/ERROR_HANDLING.md)
@@ -145,18 +152,18 @@ Or throw [Zod Error](https://github.com/colinhacks/zod/blob/master/ERROR_HANDLIN
 #### Example
 
 ```typescript
-import { createValidator } from '@deconz-community/ddf-validator'
+import { createValidator } from "@deconz-community/ddf-validator";
 
-const validator = createValidator()
+const validator = createValidator();
 validator.validate({
-  'schema': 'constants1.schema.json',
-  'manufacturers': {
-    $MF_FOO: 'Foo inc.'
+  schema: "constants1.schema.json",
+  manufacturers: {
+    $MF_FOO: "Foo inc.",
   },
-  'device-types': {
-    $TYPE_COLOR_LIGHT: 'Color light'
-  }
-})
+  "device-types": {
+    $TYPE_COLOR_LIGHT: "Color light",
+  },
+});
 ```
 
 ### validator.bulkValidate()
@@ -164,6 +171,7 @@ validator.validate({
 Validate both generic and DDF data from two arrays
 
 #### Arguments
+
 - `genericFiles` - : FileDefinition[]; Generic files data.
 - `ddfFiles` - : FileDefinition[]; DDF files data.
 - `callbacks` - : object; Options.
@@ -172,6 +180,7 @@ Validate both generic and DDF data from two arrays
   - `onSectionEnd` - : function; Called when a section end.
 
 #### Return
+
 - `errors` - : FileDefinitionWithError[]; File definition with errors.
 
 #### Example
@@ -179,34 +188,39 @@ Validate both generic and DDF data from two arrays
 ```typescript
 validator.bulkValidate(genericFiles, ddfFiles, {
   onSectionStart: (type, total) => {
-    spinner.start(chalk.blue(`Parsing ${typeFilesText(type, total)} 1 of ${total}`))
+    spinner.start(chalk.blue(`Parsing ${typeFilesText(type, total)} 1 of ${total}`));
   },
   onSectionProgress: (type, current, total) => {
-    spinner.text = chalk.blue(`Parsing ${typeFilesText(type, total)} ${current} of ${total}`)
-    spinner.render()
+    spinner.text = chalk.blue(`Parsing ${typeFilesText(type, total)} ${current} of ${total}`);
+    spinner.render();
   },
   onSectionEnd(type, total, errorFiles) {
     if (errorFiles.length === 0)
-      return spinner.succeed(chalk.green(`No errors found in ${files.length} ${typeFilesText(type, total)}`))
+      return spinner.succeed(
+        chalk.green(`No errors found in ${files.length} ${typeFilesText(type, total)}`),
+      );
 
-    spinner.fail(chalk.red(`Found ${errorFiles.length} ${plural('error', 'errors', errorFiles.length)} in ${files.length} ${typeFilesText(type, total)}`))
+    spinner.fail(
+      chalk.red(
+        `Found ${errorFiles.length} ${plural("error", "errors", errorFiles.length)} in ${files.length} ${typeFilesText(type, total)}`,
+      ),
+    );
 
     errorFiles.forEach(({ path, error }) => {
-      let message = ''
+      let message = "";
       try {
         message = fromZodError(error, {
-          issueSeparator: '\n    ',
+          issueSeparator: "\n    ",
           prefix: null,
-        }).message
+        }).message;
+      } catch (e) {
+        message = error.toString();
       }
-      catch (e) {
-        message = error.toString()
-      }
-      console.log(`  ${chalk.cyan('File:')}`, path)
-      console.log(`    ${chalk.red(message)}`)
-    })
+      console.log(`  ${chalk.cyan("File:")}`, path);
+      console.log(`    ${chalk.red(message)}`);
+    });
   },
-})
+});
 ```
 
 ### validator.getSchema()
@@ -214,16 +228,17 @@ validator.bulkValidate(genericFiles, ddfFiles, {
 Return Zod schema with loaded generic data.
 
 #### Return
+
 - `schema` - : ZodType<DDF>; Zod Schema.
 
 #### Example
 
 ```typescript
-import { createValidator } from '@deconz-community/ddf-validator'
-import { toJSONSchema } from 'zod'
+import { createValidator } from "@deconz-community/ddf-validator";
+import { toJSONSchema } from "zod";
 
-const validator = createValidator()
-const schemaJson = toJSONSchema(validator.getSchema(), { unrepresentable: 'any' })
+const validator = createValidator();
+const schemaJson = toJSONSchema(validator.getSchema(), { unrepresentable: "any" });
 ```
 
 ### Type definition
@@ -235,7 +250,7 @@ The type definition of a valid DDF file. Contain union type for `constants1.sche
 #### Example
 
 ```typescript
-import type { DDF } from '@deconz-community/ddf-validator'
+import type { DDF } from "@deconz-community/ddf-validator";
 
-const data = {} as DDF
+const data = {} as DDF;
 ```

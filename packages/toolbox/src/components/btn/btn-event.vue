@@ -1,15 +1,15 @@
 <script setup lang="ts" generic="Type extends AppMachine['type']">
-import type { AppMachine, ExtractMachine, UseAppMachine } from '~/composables/useAppMachine'
+import type { AppMachine, ExtractMachine, UseAppMachine } from "~/composables/useAppMachine";
 
 defineOptions({
   inheritAttrs: false,
-})
+});
 
 const props = defineProps<{
-  machine: UseAppMachine<Type>
-  event: ExtractMachine<Type>['events']
-  label?: string
-}>()
+  machine: UseAppMachine<Type>;
+  event: ExtractMachine<Type>["events"];
+  label?: string;
+}>();
 </script>
 
 <template>

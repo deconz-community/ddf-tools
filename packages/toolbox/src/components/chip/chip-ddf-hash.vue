@@ -1,54 +1,54 @@
 <script setup lang="ts">
-import { decode } from '@deconz-community/ddf-bundler'
-import type { Bundle } from '@deconz-community/ddf-bundler'
+import { decode } from "@deconz-community/ddf-bundler";
+import type { Bundle } from "@deconz-community/ddf-bundler";
 
 const props = defineProps<{
-  source: 'store' | 'gateway'
-  gateway?: string
-  hash: string
-}>()
+  source: "store" | "gateway";
+  gateway?: string;
+  hash: string;
+}>();
 
-const gateway = useGateway(toRef(props, 'gateway'))
-const store = useStore()
+const gateway = useGateway(toRef(props, "gateway"));
+const store = useStore();
 
-const inspectorIsActive = ref(false)
-const bundleRef = ref<ReturnType<typeof Bundle> | undefined>()
+const inspectorIsActive = ref(false);
+const bundleRef = ref<ReturnType<typeof Bundle> | undefined>();
 
 async function inspect(hash: string) {
   switch (props.source) {
-    case 'store':{
-      const bundle = await store.client?.request(storeDownloadBundle(hash))
+    case "store": {
+      const bundle = await store.client?.request(storeDownloadBundle(hash));
 
       if (!bundle || !bundle.success)
-        return toast.error(`Error while downloading bundle from the store`)
+        return toast.error(`Error while downloading bundle from the store`);
 
-      const decoded = await decode(bundle.success)
+      const decoded = await decode(bundle.success);
 
-      bundleRef.value = decoded
-      bundleRef.value.data.name = hash
-      inspectorIsActive.value = true
+      bundleRef.value = decoded;
+      bundleRef.value.data.name = hash;
+      inspectorIsActive.value = true;
 
-      return
+      return;
     }
-    case 'gateway':{
-      const responses = await gateway.fetch('downloadDDFBundleDecoded', {
+    case "gateway": {
+      const responses = await gateway.fetch("downloadDDFBundleDecoded", {
         hash,
-      })
+      });
 
       for (const response of responses) {
         if (response.isOk()) {
-          bundleRef.value = response.value
-          bundleRef.value.data.name = hash
-          inspectorIsActive.value = true
-          return
+          bundleRef.value = response.value;
+          bundleRef.value.data.name = hash;
+          inspectorIsActive.value = true;
+          return;
         }
       }
     }
   }
 
-  bundleRef.value = undefined
-  inspectorIsActive.value = false
-  toast.error('Failed to download bundle')
+  bundleRef.value = undefined;
+  inspectorIsActive.value = false;
+  toast.error("Failed to download bundle");
 }
 </script>
 
@@ -70,18 +70,13 @@ async function inspect(hash: string) {
     <template #default>
       <v-card title="Inspect Bundle">
         <v-card-text>
-          <bundle-editor
-            v-if="bundleRef" v-model="bundleRef" variant="outlined" class="ma-2"
-          />
+          <bundle-editor v-if="bundleRef" v-model="bundleRef" variant="outlined" class="ma-2" />
         </v-card-text>
 
         <v-card-actions>
           <v-spacer />
 
-          <v-btn
-            text="Close Dialog"
-            @click="inspectorIsActive = false"
-          />
+          <v-btn text="Close Dialog" @click="inspectorIsActive = false" />
         </v-card-actions>
       </v-card>
     </template>

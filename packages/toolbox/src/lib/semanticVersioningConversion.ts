@@ -11,25 +11,22 @@
  */
 export function convertVersionToInt32(version: string): number {
   // Split a given version string into three parts.
-  const parts = version.split('.')
+  const parts = version.split(".");
   // Check if we got exactly three parts, otherwise throw an error.
-  if (parts.length !== 3)
-    throw new Error('Received invalid version string')
-    // Convert all parts into integers.
-  const partsInt = parts.map(part => Number.parseInt(part))
+  if (parts.length !== 3) throw new Error("Received invalid version string");
+  // Convert all parts into integers.
+  const partsInt = parts.map((part) => Number.parseInt(part));
   // Make sure that no part is larger than 1023 or else it
   // won't fit into a 32-bit integer.
   partsInt.forEach((part) => {
-    if (part >= 1024)
-      throw new Error(`Version string invalid, ${part} is too large`)
-  })
+    if (part >= 1024) throw new Error(`Version string invalid, ${part} is too large`);
+  });
   // Let's create a new number which we will return later on
-  let numericVersion = 0
+  let numericVersion = 0;
   // Shift all parts either 0, 10 or 20 bits to the left.
-  for (let i = 0; i < 3; i++)
-    numericVersion |= partsInt[i] << (2 - i) * 10
+  for (let i = 0; i < 3; i++) numericVersion |= partsInt[i] << ((2 - i) * 10);
 
-  return numericVersion
+  return numericVersion;
 }
 
 /**
@@ -40,5 +37,5 @@ export function convertVersionToInt32(version: string): number {
 export function convertInt32VersionToString(v: number): string {
   // Works by shifting the numeric version to the right and then masking it
   // with 0b1111111111 (or 1023 in decimal).
-  return `${v >> 20 & 1023}.${v >> 10 & 1023}.${v & 1023}`
+  return `${(v >> 20) & 1023}.${(v >> 10) & 1023}.${v & 1023}`;
 }

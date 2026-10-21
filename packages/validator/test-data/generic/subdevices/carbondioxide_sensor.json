@@ -5,11 +5,7 @@
   "ui_name": "Carbon dioxide sensor",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": [
-    "$address.ext",
-    "0x01",
-    "0x040D"
-  ],
+  "uuid": ["$address.ext", "0x01", "0x040D"],
   "items": [
     "config/on",
     "config/reachable",

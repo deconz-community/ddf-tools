@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { registerUser } from '@directus/sdk'
-import { useVuelidate } from '@vuelidate/core'
-import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
-import { useRouteQuery } from '@vueuse/router'
-import { toastError } from '~/lib/handleError'
+import { registerUser } from "@directus/sdk";
+import { useVuelidate } from "@vuelidate/core";
+import { email, helpers, minLength, required, sameAs } from "@vuelidate/validators";
+import { useRouteQuery } from "@vueuse/router";
+import { toastError } from "~/lib/handleError";
 
-const store = useStore()
-const router = useRouter()
+const store = useStore();
+const router = useRouter();
 
-const queryToken = useRouteQuery<string>('token', '')
+const queryToken = useRouteQuery<string>("token", "");
 
 const initialState = {
-  username: '',
-  email: '',
-  password: '',
-  password_confirm: '',
-}
+  username: "",
+  email: "",
+  password: "",
+  password_confirm: "",
+};
 
 const state = reactive({
   ...initialState,
-})
+});
 
-const baseMessage = 'Password must contain at least one'
+const baseMessage = "Password must contain at least one";
 
 const rules = {
   username: {
@@ -34,10 +34,7 @@ const rules = {
   password: {
     required,
     minLength: minLength(10),
-    includeNumbers: helpers.withMessage(
-      `${baseMessage} number`,
-      helpers.regex(/(?=.\d)/),
-    ),
+    includeNumbers: helpers.withMessage(`${baseMessage} number`, helpers.regex(/(?=.\d)/)),
     includeLowercase: helpers.withMessage(
       `${baseMessage} lowercase letter`,
       helpers.regex(/(?=.[a-z])/),
@@ -52,67 +49,62 @@ const rules = {
     ),
   },
   password_confirm: {
-    sameAs: sameAs(toRef(state, 'password')),
+    sameAs: sameAs(toRef(state, "password")),
   },
-}
+};
 
-const vuelidate = useVuelidate(rules, state)
+const vuelidate = useVuelidate(rules, state);
 
 function clear() {
-  vuelidate.value.$reset()
+  vuelidate.value.$reset();
 
-  for (const [key, value] of Object.entries(initialState))
-    state[key] = value
+  for (const [key, value] of Object.entries(initialState)) state[key] = value;
 }
 
-const loading = ref(false)
-const showPassword = ref(false)
+const loading = ref(false);
+const showPassword = ref(false);
 
 async function register() {
-  if (showPassword.value)
-    state.password_confirm = state.password
+  if (showPassword.value) state.password_confirm = state.password;
 
-  if (!await vuelidate.value.$validate())
-    return
+  if (!(await vuelidate.value.$validate())) return;
 
-  loading.value = true
+  loading.value = true;
 
   try {
-    await store.client?.request(registerUser(state.email, state.password, {
-      first_name: state.username,
-      verification_url: import.meta.env.VITE_DIRECTUS_REGISTER_VERIFICATION_URL,
-    }))
-    clear()
-    toast.success('Account created', {
-      description: 'Please check your email to confirm your account.',
-    })
-  }
-  catch (error) {
-    toastError(error)
-  }
-  finally {
-    loading.value = false
+    await store.client?.request(
+      registerUser(state.email, state.password, {
+        first_name: state.username,
+        verification_url: import.meta.env.VITE_DIRECTUS_REGISTER_VERIFICATION_URL,
+      }),
+    );
+    clear();
+    toast.success("Account created", {
+      description: "Please check your email to confirm your account.",
+    });
+  } catch (error) {
+    toastError(error);
+  } finally {
+    loading.value = false;
   }
 }
 
 async function validateEmail() {
   // Wait for release https://github.com/directus/directus/pull/22599
-  const registerUserVerify	= (token: string) => () => ({
-	    path: `/users/register/verify-email`,
-	    params: { token },
-	    method: 'GET',
-	  })
+  const registerUserVerify = (token: string) => () => ({
+    path: `/users/register/verify-email`,
+    params: { token },
+    method: "GET",
+  });
 
   try {
-    if (!queryToken.value)
-      return toast.error('Invalid token')
-    await store.client?.request(registerUserVerify(queryToken.value) as any)
-    router.push('/')
-    toast.success('Email verified')
-  }
-  catch (error) {
-    console.error(error)
-    toastError(error)
+    if (!queryToken.value) return toast.error("Invalid token");
+    await store.client?.request(registerUserVerify(queryToken.value) as any);
+    router.push("/");
+    toast.success("Email verified");
+  } catch (error) {
+    console.error(error);
+    toastError(error);
   }
 }
 </script>
@@ -121,11 +113,7 @@ async function validateEmail() {
   <v-card v-if="queryToken" class="ma-2">
     <v-card-title>Email Verification</v-card-title>
     <v-card-text>
-      <v-alert
-        class="mb-5"
-        type="info"
-        text="Click on the button below to verify your email."
-      />
+      <v-alert class="mb-5" type="info" text="Click on the button below to verify your email." />
     </v-card-text>
     <v-card-actions>
       <v-btn
@@ -151,7 +139,7 @@ async function validateEmail() {
 
         <v-text-field
           v-model="state.username"
-          :error-messages="vuelidate.username.$errors.map(e => e.$message)"
+          :error-messages="vuelidate.username.$errors.map((e) => e.$message)"
           label="Username"
           required
           autocomplete="username"
@@ -161,7 +149,7 @@ async function validateEmail() {
 
         <v-text-field
           v-model="state.email"
-          :error-messages="vuelidate.email.$errors.map(e => e.$message)"
+          :error-messages="vuelidate.email.$errors.map((e) => e.$message)"
           label="Email"
           required
           autocomplete="email"
@@ -172,13 +160,16 @@ async function validateEmail() {
         <v-text-field
           v-model="state.password"
           :counter="10"
-          :error-messages="vuelidate.password.$errors.map(e => e.$message)"
+          :error-messages="vuelidate.password.$errors.map((e) => e.$message)"
           label="Password"
           required
           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showPassword ? 'text' : 'password'"
           autocomplete="new-password"
-          @click:append="showPassword = !showPassword; state.password_confirm = state.password"
+          @click:append="
+            showPassword = !showPassword;
+            state.password_confirm = state.password;
+          "
           @blur="vuelidate.password.$touch"
           @input="vuelidate.password.$touch"
         />
@@ -188,7 +179,7 @@ async function validateEmail() {
             v-show="!showPassword"
             v-model="state.password_confirm"
             :counter="10"
-            :error-messages="vuelidate.password_confirm.$errors.map(e => e.$message)"
+            :error-messages="vuelidate.password_confirm.$errors.map((e) => e.$message)"
             label="Password confirmation"
             required
             type="password"
@@ -199,12 +190,7 @@ async function validateEmail() {
         </v-expand-transition>
       </v-card-text>
       <v-card-actions>
-        <v-btn
-          color="secondary"
-          variant="tonal"
-          append-icon="mdi-trash-can"
-          @click="clear"
-        >
+        <v-btn color="secondary" variant="tonal" append-icon="mdi-trash-can" @click="clear">
           clear
         </v-btn>
         <v-btn
@@ -222,9 +208,9 @@ async function validateEmail() {
 
 <route lang="json">
 {
-    "meta": {
-        "requiresAuth": false,
-        "hideLevelTwoSidebar": true
-    }
+  "meta": {
+    "requiresAuth": false,
+    "hideLevelTwoSidebar": true
+  }
 }
 </route>

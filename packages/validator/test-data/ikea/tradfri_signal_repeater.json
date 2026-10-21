@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "a2ba8dae-84af-4464-b263-e91d3473d9f6",
-  "manufacturername": [
-    "$MF_IKEA",
-    "$MF_IKEA"
-  ],
-  "modelid": [
-    "TRADFRI Signal Repeater",
-    "TRADFRI signal repeater"
-  ],
+  "manufacturername": ["$MF_IKEA", "$MF_IKEA"],
+  "modelid": ["TRADFRI Signal Repeater", "TRADFRI signal repeater"],
   "vendor": "IKEA",
   "product": "Tradfri signal repeater (E1746)",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_RANGE_EXTENDER",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"

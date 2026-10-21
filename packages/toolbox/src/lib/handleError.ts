@@ -1,64 +1,67 @@
-import type { ValidationError } from '@deconz-community/ddf-bundler'
+import type { ValidationError } from "@deconz-community/ddf-bundler";
 
-import { ZodError } from 'zod'
+import { ZodError } from "zod";
 
 export async function toastError(error: ZodError | Error | unknown) {
   handleError(error).forEach((error) => {
-    toast.error(error.message)
-  })
+    toast.error(error.message);
+  });
 }
 
 export function handleError(error: ZodError | Error | unknown): ValidationError[] {
   // Directus return errors like this
-  if (typeof error === 'object' && error !== null && 'errors' in error && Array.isArray(error.errors))
-    return error.errors.map(error => handleError(error)).flat()
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "errors" in error &&
+    Array.isArray(error.errors)
+  )
+    return error.errors.map((error) => handleError(error)).flat();
 
-  const errorsList: ValidationError[] = []
+  const errorsList: ValidationError[] = [];
 
   if (error instanceof ZodError) {
     // Build error list by json path
-    const errors: Record<string, string[]> = {}
+    const errors: Record<string, string[]> = {};
 
     // Build a list of errors based on the path in the JSON like {'subdevices/0/type' : ['error1', 'error2']}
     error.issues.forEach((issue) => {
-      const path = issue.path.join('/')
-      if (Array.isArray(errors[path]))
-        errors[path].push(issue.message)
-      else
-        errors[path] = [issue.message]
-    })
+      const path = issue.path.join("/");
+      if (Array.isArray(errors[path])) errors[path].push(issue.message);
+      else errors[path] = [issue.message];
+    });
 
-    const paths = Object.keys(errors)
+    const paths = Object.keys(errors);
 
     if (paths.length > 0) {
       paths.forEach((path) => {
         errors[path].forEach((message) => {
           errorsList.push({
-            type: 'simple',
+            type: "simple",
             message,
-          })
-        })
-      })
+          });
+        });
+      });
     }
-  }
-  else if (error instanceof Error || (typeof error === 'object' && error !== null && 'message' in error)) {
+  } else if (
+    error instanceof Error ||
+    (typeof error === "object" && error !== null && "message" in error)
+  ) {
     errorsList.push({
-      type: 'simple',
+      type: "simple",
       message: String(error.message),
-    })
-  }
-  else if (typeof error === 'string') {
+    });
+  } else if (typeof error === "string") {
     errorsList.push({
-      type: 'simple',
+      type: "simple",
       message: error,
-    })
-  }
-  else {
+    });
+  } else {
     errorsList.push({
-      type: 'simple',
-      message: 'Unknown Error',
-    })
+      type: "simple",
+      message: "Unknown Error",
+    });
   }
 
-  return errorsList
+  return errorsList;
 }

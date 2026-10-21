@@ -1,166 +1,184 @@
 <script setup lang="ts">
-import type { BundleFile, TextFile } from '@deconz-community/ddf-bundler'
-import type { VueMonacoEditorEmitsOptions } from '@guolao/vue-monaco-editor'
-import type { VListItem } from 'vuetify/lib/components/index.d.ts'
-import type { Node } from '~/lib/filePathsToTree'
-import { Bundle, decode, encode } from '@deconz-community/ddf-bundler'
-import { createValidator } from '@deconz-community/ddf-validator'
-import { bytesToHex } from '@noble/hashes/utils.js'
-import { useVModel } from '@vueuse/core'
-import { saveAs } from 'file-saver'
-import { toJSONSchema } from 'zod'
-import { filePathsToTree } from '~/lib/filePathsToTree'
-import { duktapeJS } from './duktapeJS'
+import type { BundleFile, TextFile } from "@deconz-community/ddf-bundler";
+import type { VueMonacoEditorEmitsOptions } from "@guolao/vue-monaco-editor";
+import type { VListItem } from "vuetify/lib/components/index.d.ts";
+import type { Node } from "~/lib/filePathsToTree";
+import { Bundle, decode, encode } from "@deconz-community/ddf-bundler";
+import { createValidator } from "@deconz-community/ddf-validator";
+import { bytesToHex } from "@noble/hashes/utils.js";
+import { useVModel } from "@vueuse/core";
+import { saveAs } from "file-saver";
+import { toJSONSchema } from "zod";
+import { filePathsToTree } from "~/lib/filePathsToTree";
+import { duktapeJS } from "./duktapeJS";
 
-type Editor = Parameters<VueMonacoEditorEmitsOptions['mount']>[0]
-type Monaco = Parameters<VueMonacoEditorEmitsOptions['mount']>[1]
+type Editor = Parameters<VueMonacoEditorEmitsOptions["mount"]>[0];
+type Monaco = Parameters<VueMonacoEditorEmitsOptions["mount"]>[1];
 
 defineOptions({
   inheritAttrs: false,
-})
+});
 
 const props = defineProps<{
-  modelValue: ReturnType<typeof Bundle>
-}>()
+  modelValue: ReturnType<typeof Bundle>;
+}>();
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
-const bundle = useVModel(props, 'modelValue', emit)
-const isDirty = ref(false)
-const codeEditor = shallowRef<Editor>()
-const monacoEditor = shallowRef<Monaco>()
-const schema = shallowRef(toJSONSchema(createValidator().getSchema(), { unrepresentable: 'any' }))
+const bundle = useVModel(props, "modelValue", emit);
+const isDirty = ref(false);
+const codeEditor = shallowRef<Editor>();
+const monacoEditor = shallowRef<Monaco>();
+const schema = shallowRef(toJSONSchema(createValidator().getSchema(), { unrepresentable: "any" }));
 
 function updateSchema() {
-  const validator = createValidator()
+  const validator = createValidator();
 
   validator.bulkValidate(
     // Generic files
     bundle.value.data.files
-      .filter(file => file.type === 'JSON')
+      .filter((file) => file.type === "JSON")
       .map((file) => {
         return {
           path: file.path,
           data: JSON.parse(file.data as string),
-        }
+        };
       }),
     // DDF file
     [],
-  )
+  );
 
-  schema.value = zodToJsonSchema(validator.getSchema())
+  schema.value = zodToJsonSchema(validator.getSchema());
 }
 
 // #region Constants
 
 const icons = {
   json: {
-    icon: 'mdi-code-json',
-    color: '#2ecc71',
+    icon: "mdi-code-json",
+    color: "#2ecc71",
   },
   javascript: {
-    icon: 'mdi-language-javascript',
-    color: '#3498db',
+    icon: "mdi-language-javascript",
+    color: "#3498db",
   },
   markdown: (type: string) => {
-    let color = '#ecf0f1'
+    let color = "#ecf0f1";
     switch (type) {
-      case 'CHLG':
-        color = '#3498db'
-        break
-      case 'INFO':
-        color = '#2ecc71'
-        break
-      case 'WARN':
-        color = '#f1c40f'
-        break
-      case 'KWIS':
-        color = '#e74c3c'
-        break
+      case "CHLG":
+        color = "#3498db";
+        break;
+      case "INFO":
+        color = "#2ecc71";
+        break;
+      case "WARN":
+        color = "#f1c40f";
+        break;
+      case "KWIS":
+        color = "#e74c3c";
+        break;
     }
 
     return {
-      icon: 'mdi-language-markdown',
+      icon: "mdi-language-markdown",
       color,
-    }
+    };
   },
-} as const
+} as const;
 
 const filesTypes = [
-  { type: 'DDFC', ...icons.json, ext: 'json', desc: 'JSON DDF File', format: 'json' },
-  { type: 'SCJS', ...icons.javascript, ext: 'js', desc: 'Javascript file for read, write or parse', format: 'javascript' },
-  { type: 'JSON', ...icons.json, ext: 'json', desc: 'Generic files for items / constants', format: 'json' },
-  { type: 'CHLG', ...icons.markdown('CHLG'), ext: 'md', desc: 'Changelog', format: 'markdown' },
-  { type: 'INFO', ...icons.markdown('INFO'), ext: 'md', desc: 'Informational note', format: 'markdown' },
-  { type: 'WARN', ...icons.markdown('WARN'), ext: 'md', desc: 'Warning note', format: 'markdown' },
-  { type: 'KWIS', ...icons.markdown('KWIS'), ext: 'md', desc: 'Know issue', format: 'markdown' },
-] as const
+  { type: "DDFC", ...icons.json, ext: "json", desc: "JSON DDF File", format: "json" },
+  {
+    type: "SCJS",
+    ...icons.javascript,
+    ext: "js",
+    desc: "Javascript file for read, write or parse",
+    format: "javascript",
+  },
+  {
+    type: "JSON",
+    ...icons.json,
+    ext: "json",
+    desc: "Generic files for items / constants",
+    format: "json",
+  },
+  { type: "CHLG", ...icons.markdown("CHLG"), ext: "md", desc: "Changelog", format: "markdown" },
+  {
+    type: "INFO",
+    ...icons.markdown("INFO"),
+    ext: "md",
+    desc: "Informational note",
+    format: "markdown",
+  },
+  { type: "WARN", ...icons.markdown("WARN"), ext: "md", desc: "Warning note", format: "markdown" },
+  { type: "KWIS", ...icons.markdown("KWIS"), ext: "md", desc: "Know issue", format: "markdown" },
+] as const;
 
 // #endregion
 
 // #region Left Menu
-const showLeftMenu = ref(true)
-const selectedLeftMenu = ref(['readme'])
+const showLeftMenu = ref(true);
+const selectedLeftMenu = ref(["readme"]);
 
 watch(selectedLeftMenu, (newValue, oldValue) => {
-  if (newValue[0] === undefined)
-    selectedLeftMenu.value = oldValue
+  if (newValue[0] === undefined) selectedLeftMenu.value = oldValue;
 
-  if (isDirty.value && newValue[0] === 'readme')
-    bundle.value.generateDESC()
-})
+  if (isDirty.value && newValue[0] === "readme") bundle.value.generateDESC();
+});
 
-const isFileSelected = computed(() => selectedLeftMenu.value[0]?.startsWith('file://'))
+const isFileSelected = computed(() => selectedLeftMenu.value[0]?.startsWith("file://"));
 
-const fileTree = computed(() => filePathsToVuetifyList(
-  bundle.value.data.files.map(file => file.path),
-  node => bundle.value.data.files.find(file => file.path === node.path)!,
-))
+const fileTree = computed(() =>
+  filePathsToVuetifyList(
+    bundle.value.data.files.map((file) => file.path),
+    (node) => bundle.value.data.files.find((file) => file.path === node.path)!,
+  ),
+);
 
-type FileListItem = {
-  type: 'divider'
-} | {
-  type: 'subheader'
-  title: string
-} | {
-  title: string
-  value: string
-  data?: {
-    errorCount?: number
-    isDirectory?: boolean
-    icon?: string
-    iconColor?: string
-  }
-  props?: VListItem['$props']
-  children?: FileListItem[]
-}
+type FileListItem =
+  | {
+      type: "divider";
+    }
+  | {
+      type: "subheader";
+      title: string;
+    }
+  | {
+      title: string;
+      value: string;
+      data?: {
+        errorCount?: number;
+        isDirectory?: boolean;
+        icon?: string;
+        iconColor?: string;
+      };
+      props?: VListItem["$props"];
+      children?: FileListItem[];
+    };
 
 function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>) => TextFile) {
   // TODO: Fix when path start with ../
   function convertLeaf(node: Node<TextFile>): FileListItem {
-    const data: (FileListItem & { type: undefined })['data'] = {
+    const data: (FileListItem & { type: undefined })["data"] = {
       errorCount: 0,
       isDirectory: true,
-    }
+    };
 
     if (node.data) {
-      data.isDirectory = false
-      const fileType = filesTypes.find(type => type.type === node.data!.type)
+      data.isDirectory = false;
+      const fileType = filesTypes.find((type) => type.type === node.data!.type);
       if (fileType) {
-        data.icon = fileType.icon
-        data.iconColor = fileType.color
-      }
-      else {
-        data.icon = 'mdi-file'
-        data.iconColor = 'grey'
+        data.icon = fileType.icon;
+        data.iconColor = fileType.color;
+      } else {
+        data.icon = "mdi-file";
+        data.iconColor = "grey";
       }
     }
 
-    const path = data.isDirectory
-      ? `folder://${node.path}`
-      : `file://${node.path}`
+    const path = data.isDirectory ? `folder://${node.path}` : `file://${node.path}`;
 
-    let lastClickTime = 0
+    let lastClickTime = 0;
 
     return {
       title: node.name,
@@ -169,94 +187,95 @@ function filePathsToVuetifyList(paths: string[], getData?: (node: Node<TextFile>
       props: {
         key: path,
         onClick: () => {
-          const currentTime = new Date().getTime()
-          const timeDiff = currentTime - lastClickTime
-          const isDoubleClick = timeDiff < 500 && timeDiff > 0
-          openFile(path, { isPersistent: isDoubleClick })
-          lastClickTime = currentTime
+          const currentTime = new Date().getTime();
+          const timeDiff = currentTime - lastClickTime;
+          const isDoubleClick = timeDiff < 500 && timeDiff > 0;
+          openFile(path, { isPersistent: isDoubleClick });
+          lastClickTime = currentTime;
         },
       },
       children: node.children.length > 0 ? node.children.map(convertLeaf) : undefined,
-    }
+    };
   }
 
-  return filePathsToTree<TextFile>(paths, getData).map(convertLeaf)
+  return filePathsToTree<TextFile>(paths, getData).map(convertLeaf);
 }
 
 const leftMenu = computed(() => {
-  const menu: FileListItem[] = []
+  const menu: FileListItem[] = [];
 
-  menu.push({ type: 'subheader', title: `${bundle.value.data.name}.ddb` })
+  menu.push({ type: "subheader", title: `${bundle.value.data.name}.ddb` });
   menu.push({
-    title: 'Read Me',
-    value: 'readme',
+    title: "Read Me",
+    value: "readme",
     data: {
-      icon: 'mdi-book-open',
-      iconColor: '#16a085',
+      icon: "mdi-book-open",
+      iconColor: "#16a085",
     },
-  })
-  menu.push({ type: 'subheader', title: 'Content' })
+  });
+  menu.push({ type: "subheader", title: "Content" });
 
-  menu.push(...fileTree.value)
+  menu.push(...fileTree.value);
 
-  menu.push({ type: 'divider' })
+  menu.push({ type: "divider" });
 
-  return menu
-})
+  return menu;
+});
 
 // #endregion
 
 // #region File editor
 
 interface EditedFile {
-  sourceFile: BundleFile
-  data: string
-  icon?: string
-  iconColor?: string
-  isPersistent: boolean
-  isDirty: boolean
-  isDisplayed: boolean
+  sourceFile: BundleFile;
+  data: string;
+  icon?: string;
+  iconColor?: string;
+  isPersistent: boolean;
+  isDirty: boolean;
+  isDisplayed: boolean;
 }
 
 const newFileData: EditedFile = {
   sourceFile: {
-    type: 'SCJS',
-    path: 'new_file.js',
+    type: "SCJS",
+    path: "new_file.js",
     last_modified: new Date(),
-    data: '',
+    data: "",
   },
-  data: '',
-  icon: 'mdi-file-plus',
+  data: "",
+  icon: "mdi-file-plus",
   isPersistent: false,
   isDirty: true,
   isDisplayed: true,
-} as const
+} as const;
 
-const openedFiles = ref<EditedFile[]>([])
+const openedFiles = ref<EditedFile[]>([]);
 // Any displayed file need to be in the openedFiles array
-const displayedFile = ref<EditedFile>(structuredClone(newFileData))
-const displayedFileIndex = ref(0)
+const displayedFile = ref<EditedFile>(structuredClone(newFileData));
+const displayedFileIndex = ref(0);
 
 watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
   if (oldDisplayedFile) {
-    oldDisplayedFile.isDisplayed = false
+    oldDisplayedFile.isDisplayed = false;
   }
 
-  openedFiles.value = openedFiles.value.filter(file => file.isPersistent || file === newDisplayedFile)
+  openedFiles.value = openedFiles.value.filter(
+    (file) => file.isPersistent || file === newDisplayedFile,
+  );
 
   if (newDisplayedFile) {
-    selectedLeftMenu.value = [`file://${newDisplayedFile.sourceFile.path}`]
-    displayedFileIndex.value = openedFiles.value.findIndex(file => file === newDisplayedFile)
-    newDisplayedFile.isDisplayed = true
-    if (newDisplayedFile.sourceFile.type === 'DDFC') {
-      updateSchema()
+    selectedLeftMenu.value = [`file://${newDisplayedFile.sourceFile.path}`];
+    displayedFileIndex.value = openedFiles.value.findIndex((file) => file === newDisplayedFile);
+    newDisplayedFile.isDisplayed = true;
+    if (newDisplayedFile.sourceFile.type === "DDFC") {
+      updateSchema();
     }
+  } else {
+    displayedFile.value = structuredClone(newFileData);
+    selectedLeftMenu.value = ["readme"];
   }
-  else {
-    displayedFile.value = structuredClone(newFileData)
-    selectedLeftMenu.value = ['readme']
-  }
-})
+});
 
 // #endregion
 
@@ -264,170 +283,173 @@ watch(displayedFile, (newDisplayedFile, oldDisplayedFile) => {
 
 const topMenu = [
   {
-    title: 'Bundle',
+    title: "Bundle",
     items: [
       {
-        title: 'New bundle',
+        title: "New bundle",
         props: {
-          prependIcon: 'mdi-file',
+          prependIcon: "mdi-file",
           onClick: () => createNew(),
         },
       },
       {
-        title: 'Open from disk',
+        title: "Open from disk",
         props: {
-          prependIcon: 'mdi-folder-open',
+          prependIcon: "mdi-folder-open",
           onClick: async () => {
-            const scope = effectScope()
+            const scope = effectScope();
             scope.run(() => {
               const { open, onCancel, onChange } = useFileDialog({
                 multiple: false,
-                accept: '.ddb',
+                accept: ".ddb",
                 directory: false,
-              })
+              });
 
               onChange(async (files) => {
                 if (files !== null && files.length === 1) {
-                  bundle.value = await decode(files[0])
+                  bundle.value = await decode(files[0]);
                 }
 
-                scope.stop()
-              })
+                scope.stop();
+              });
 
-              onCancel(scope.stop)
+              onCancel(scope.stop);
 
-              open()
-            })
+              open();
+            });
           },
         },
       },
       {
-        title: 'Download',
+        title: "Download",
         props: {
-          prependIcon: 'mdi-download',
+          prependIcon: "mdi-download",
           onClick: () => {
-            saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`)
+            saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`);
           },
         },
       },
     ],
   },
   {
-    title: 'File',
+    title: "File",
     items: [
       {
-        title: 'New file',
+        title: "New file",
         props: {
-          prependIcon: 'mdi-file-plus',
+          prependIcon: "mdi-file-plus",
         },
-        children: filesTypes.filter(fileType => fileType.type !== 'DDFC').map((fileType) => {
-          return {
-            title: fileType.desc,
-            props: {
-              prependIcon: fileType.icon,
-              onClick: () => newFile(fileType.type),
-            },
-          }
-        }),
+        children: filesTypes
+          .filter((fileType) => fileType.type !== "DDFC")
+          .map((fileType) => {
+            return {
+              title: fileType.desc,
+              props: {
+                prependIcon: fileType.icon,
+                onClick: () => newFile(fileType.type),
+              },
+            };
+          }),
       },
       {
-        title: 'Save',
+        title: "Save",
         props: {
-          prependIcon: 'mdi-content-save',
+          prependIcon: "mdi-content-save",
           onClick: () => saveFile(displayedFileIndex.value),
         },
       },
       {
-        title: 'Close',
+        title: "Close",
         props: {
-          prependIcon: 'mdi-close',
+          prependIcon: "mdi-close",
           onClick: () => closeFile(displayedFile.value.sourceFile.path),
         },
       },
     ],
   },
-]
+];
 
 // #endregion
 
 // #region Read Me
 
 const markdownFilesTypes = {
-  CHLG: 'Changelog',
-  INFO: 'Information',
-  WARN: 'Warning',
-  KWIS: 'Known issue',
-} as const
+  CHLG: "Changelog",
+  INFO: "Information",
+  WARN: "Warning",
+  KWIS: "Known issue",
+} as const;
 
 const markdownFiles = computed(() => {
-  if (!bundle.value)
-    return []
-  return bundle.value.data.files.filter(file => objectKeys(markdownFilesTypes).includes(file.type as any))
-})
+  if (!bundle.value) return [];
+  return bundle.value.data.files.filter((file) =>
+    objectKeys(markdownFilesTypes).includes(file.type as any),
+  );
+});
 
-const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
+const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified);
 
 const hash = computed(() => {
-  return bytesToHex(bundle.value.data.hash ?? new Uint8Array())
-})
+  return bytesToHex(bundle.value.data.hash ?? new Uint8Array());
+});
 
 // #endregion
 
 // #region Actions
 async function createNew() {
   // closeAllFiles()
-  const newBundle = Bundle()
+  const newBundle = Bundle();
 
   newBundle.data.files.push({
-    type: 'DDFC',
+    type: "DDFC",
     data: JSON.stringify(
       {
-        schema: 'devcap1.schema.json',
-        manufacturername: 'Sample Manufacturer',
-        modelid: 'Sample model id',
-        status: 'Draft',
+        schema: "devcap1.schema.json",
+        manufacturername: "Sample Manufacturer",
+        modelid: "Sample model id",
+        status: "Draft",
         subdevices: [],
       },
       null,
       2,
     ),
-    path: 'new_bundle.json',
+    path: "new_bundle.json",
     last_modified: new Date(),
-  })
-  bundle.value = newBundle
+  });
+  bundle.value = newBundle;
 }
 
-function newFile(type: TextFile['type'] = 'SCJS') {
+function newFile(type: TextFile["type"] = "SCJS") {
   // TODO check if the DDFC is open and not saved
   openedFiles.value
-    .filter(file => file.sourceFile.type === 'DDFC' && file.isDirty)
-    .map(file => saveFile(file.sourceFile.path))
+    .filter((file) => file.sourceFile.type === "DDFC" && file.isDirty)
+    .map((file) => saveFile(file.sourceFile.path));
 
-  const fileType = filesTypes.find(fileType => fileType.type === type)
+  const fileType = filesTypes.find((fileType) => fileType.type === type);
 
   if (!fileType) {
-    console.error(`File type not found: ${type}`)
-    return
+    console.error(`File type not found: ${type}`);
+    return;
   }
 
-  let path = `new_file.${fileType?.ext}`
+  let path = `new_file.${fileType?.ext}`;
 
-  if (bundle.value.data.files.some(file => file.path === path)) {
-    let i = 1
-    while (bundle.value.data.files.some(
-      file => file.path === `new_file_${i}.${fileType?.ext}`,
-    )) { i++ }
-    path = `new_file_${i}.${fileType?.ext}`
+  if (bundle.value.data.files.some((file) => file.path === path)) {
+    let i = 1;
+    while (bundle.value.data.files.some((file) => file.path === `new_file_${i}.${fileType?.ext}`)) {
+      i++;
+    }
+    path = `new_file_${i}.${fileType?.ext}`;
   }
 
   const newFileData = {
     type,
     path,
     last_modified: new Date(),
-    data: '',
-  }
+    data: "",
+  };
 
-  bundle.value.data.files.push(newFileData)
+  bundle.value.data.files.push(newFileData);
 
   /*
   TODO: Add the file to the DDFC file
@@ -461,36 +483,43 @@ function newFile(type: TextFile['type'] = 'SCJS') {
   }
       */
 
-  bundle.value.sortFiles()
+  bundle.value.sortFiles();
 
-  openFile(newFileData.path, { isPersistent: true })
+  openFile(newFileData.path, { isPersistent: true });
 }
 
-function openFile(path: string, { isPersistent = false, isDisplayed = true } = {}): EditedFile | undefined {
-  if (path.startsWith('file://')) {
-    path = path.replaceAll('/__parent_directory__/', '/../').replace('file://', '')
+function openFile(
+  path: string,
+  { isPersistent = false, isDisplayed = true } = {},
+): EditedFile | undefined {
+  if (path.startsWith("file://")) {
+    path = path.replaceAll("/__parent_directory__/", "/../").replace("file://", "");
   }
 
-  const alreadyOpenedFile = openedFiles.value.find(candidate => candidate.sourceFile.path === path)
+  const alreadyOpenedFile = openedFiles.value.find(
+    (candidate) => candidate.sourceFile.path === path,
+  );
 
   if (alreadyOpenedFile) {
-    alreadyOpenedFile.isPersistent = alreadyOpenedFile.isPersistent || isPersistent
+    alreadyOpenedFile.isPersistent = alreadyOpenedFile.isPersistent || isPersistent;
 
     if (isDisplayed && displayedFile.value !== alreadyOpenedFile) {
-      displayedFile.value = alreadyOpenedFile
+      displayedFile.value = alreadyOpenedFile;
     }
 
-    return alreadyOpenedFile
+    return alreadyOpenedFile;
   }
 
-  const sourceFile = bundle.value.data.files.find(candidate => candidate.path === path)
+  const sourceFile = bundle.value.data.files.find((candidate) => candidate.path === path);
 
   if (!sourceFile) {
-    console.error(`File not found: ${path}`)
-    return
+    console.error(`File not found: ${path}`);
+    return;
   }
 
-  const fileInTree = fileTree.value.find(candidate => !('type' in candidate) && candidate.value === path) as (FileListItem & { type: undefined }) | undefined
+  const fileInTree = fileTree.value.find(
+    (candidate) => !("type" in candidate) && candidate.value === path,
+  ) as (FileListItem & { type: undefined }) | undefined;
   const openingFile: EditedFile = {
     sourceFile,
     data: sourceFile.data,
@@ -499,145 +528,147 @@ function openFile(path: string, { isPersistent = false, isDisplayed = true } = {
     isPersistent,
     isDirty: false,
     isDisplayed: false, // Will be updated lated by the displayedFile watcher
-  }
+  };
 
-  openedFiles.value.push(openingFile)
+  openedFiles.value.push(openingFile);
 
   if (isDisplayed) {
-    displayedFile.value = openingFile
+    displayedFile.value = openingFile;
   }
 
-  return openingFile
+  return openingFile;
 }
 
 function saveFile(pathOrOpenedFileIndex: string | number) {
-  const savingFileIndex = typeof pathOrOpenedFileIndex === 'number'
-    ? pathOrOpenedFileIndex
-    : openedFiles.value.findIndex(candidate => candidate.sourceFile.path === pathOrOpenedFileIndex)
+  const savingFileIndex =
+    typeof pathOrOpenedFileIndex === "number"
+      ? pathOrOpenedFileIndex
+      : openedFiles.value.findIndex(
+          (candidate) => candidate.sourceFile.path === pathOrOpenedFileIndex,
+        );
 
-  const savingFile = openedFiles.value[savingFileIndex]
+  const savingFile = openedFiles.value[savingFileIndex];
 
   if (!savingFile) {
-    console.error(`File not found: ${pathOrOpenedFileIndex}`)
-    return
+    console.error(`File not found: ${pathOrOpenedFileIndex}`);
+    return;
   }
-  savingFile.sourceFile.data = savingFile.data
-  savingFile.sourceFile.last_modified = new Date()
-  savingFile.isDirty = false
+  savingFile.sourceFile.data = savingFile.data;
+  savingFile.sourceFile.last_modified = new Date();
+  savingFile.isDirty = false;
 
-  isDirty.value = true
+  isDirty.value = true;
 }
 
 function renameFile(oldPath: string, newPath: string) {
-  console.warn('TODO: renameFile', oldPath, newPath)
+  console.warn("TODO: renameFile", oldPath, newPath);
 }
 
 function closeFile(path: string, saveBeforeClose = false) {
   // TODO add a confirmation dialog
 
-  const closingIndex = openedFiles.value.findIndex(candidate => candidate.sourceFile.path === path)
+  const closingIndex = openedFiles.value.findIndex(
+    (candidate) => candidate.sourceFile.path === path,
+  );
 
   if (closingIndex === -1) {
-    console.error(`File not found: ${path}`)
-    return
+    console.error(`File not found: ${path}`);
+    return;
   }
 
-  if (saveBeforeClose)
-    saveFile(closingIndex)
+  if (saveBeforeClose) saveFile(closingIndex);
 
   if (openedFiles.value[closingIndex].isDisplayed) {
-    displayedFile.value = openedFiles.value[closingIndex - 1] ?? openedFiles.value[closingIndex + 1]
+    displayedFile.value =
+      openedFiles.value[closingIndex - 1] ?? openedFiles.value[closingIndex + 1];
   }
 
-  openedFiles.value.splice(closingIndex, 1)
+  openedFiles.value.splice(closingIndex, 1);
 }
 
 function closeAllFiles() {
-  openedFiles.value.forEach(file => closeFile(file.sourceFile.path))
+  openedFiles.value.forEach((file) => closeFile(file.sourceFile.path));
 }
 
 function fileChanged() {
-  if (displayedFile.value.isDirty === false)
-    displayedFile.value.isDirty = true
+  if (displayedFile.value.isDirty === false) displayedFile.value.isDirty = true;
 
-  if (displayedFile.value.isPersistent === false)
-    displayedFile.value.isPersistent = true
+  if (displayedFile.value.isPersistent === false) displayedFile.value.isPersistent = true;
 }
 
 watchImmediate(bundle, () => {
-  openedFiles.value = []
+  openedFiles.value = [];
 
-  const DDFCPath = bundle.value.data.files.find(file => file.type === 'DDFC')?.path
-  const SCJSPath = bundle.value.data.files.find(file => file.type === 'SCJS')?.path
-  openFile(`file://${DDFCPath}`, { isPersistent: true })
-  if (SCJSPath)
-    openFile(`file://${SCJSPath}`, { isPersistent: true })
-  openFile(`file://${DDFCPath}`)
-})
+  const DDFCPath = bundle.value.data.files.find((file) => file.type === "DDFC")?.path;
+  const SCJSPath = bundle.value.data.files.find((file) => file.type === "SCJS")?.path;
+  openFile(`file://${DDFCPath}`, { isPersistent: true });
+  if (SCJSPath) openFile(`file://${SCJSPath}`, { isPersistent: true });
+  openFile(`file://${DDFCPath}`);
+});
 
-const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, monaco) => {
-  codeEditor.value = editor
-  monacoEditor.value = monaco
-  const { languages } = monaco
-  const jsonLanguageId = languages.json.jsonDefaults.languageId
+const handleMonacoEditorMount: VueMonacoEditorEmitsOptions["mount"] = (editor, monaco) => {
+  codeEditor.value = editor;
+  monacoEditor.value = monaco;
+  const { languages } = monaco;
+  const jsonLanguageId = languages.json.jsonDefaults.languageId;
 
   editor.addAction({
-    id: 'save-file',
-    label: 'Save file',
+    id: "save-file",
+    label: "Save file",
     keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
     run: () => saveFile(displayedFileIndex.value),
-  })
+  });
 
   editor.addAction({
-    id: 'close-file',
-    label: 'Close file',
+    id: "close-file",
+    label: "Close file",
     run: () => closeFile(displayedFile.value.sourceFile.path),
-  })
+  });
 
   filesTypes.forEach((fileType) => {
     editor.addAction({
       id: `new-file-${fileType.type}`,
       label: `New File : ${fileType.desc}`,
       run: () => newFile(fileType.type),
-    })
-  })
+    });
+  });
 
   languages.typescript.javascriptDefaults.setDiagnosticsOptions({
     noSemanticValidation: true,
     noSyntaxValidation: false,
-  })
+  });
 
   languages.typescript.javascriptDefaults.setCompilerOptions({
     target: languages.typescript.ScriptTarget.ES5,
     allowNonTsExtensions: true,
     allowJs: true,
-    lib: ['es5'],
-  })
+    lib: ["es5"],
+  });
 
-  languages.typescript.javascriptDefaults.addExtraLib(duktapeJS(), 'duktape.d.ts')
+  languages.typescript.javascriptDefaults.addExtraLib(duktapeJS(), "duktape.d.ts");
 
   languages.registerTypeDefinitionProvider(jsonLanguageId, {
     provideTypeDefinition: async (model, position, token) => {
       // TODO open the generic file in the editor
       // It's the right click + go to type definition feature
-      console.log('provideTypeDefinition', model, position, token)
-      return null
+      console.log("provideTypeDefinition", model, position, token);
+      return null;
     },
-  })
+  });
 
   languages.registerHoverProvider(jsonLanguageId, {
     provideHover: async (model, position, token) => {
       // console.log('provideHover', model, position, token)
-      return null
+      return null;
     },
-  })
+  });
 
   languages.registerInlayHintsProvider(jsonLanguageId, {
     provideInlayHints: async (model, range, token) => {
       // console.log('provideInlayHints', model, range, token)
-      return null
+      return null;
     },
-  })
+  });
   /*
   languages.registerCodeActionProvider(jsonLanguageId, {
     provideCodeActions: async (model, range, context, token) => {
@@ -658,7 +689,6 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
   */
 
   setTimeout(() => {
-
     /*
     languages.setMonarchTokensProvider(jsonLanguageId, {
       tokenizer: {
@@ -682,7 +712,7 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
       },
     })
     */
-  }, 100)
+  }, 100);
 
   watchImmediate(schema, () => {
     // console.log(schema.value.anyOf[0].properties.subdevices.items.properties.items.items.properties.read.anyOf[1].properties.script)
@@ -694,14 +724,16 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
     languages.json.jsonDefaults.setDiagnosticsOptions({
       ...languages.json.jsonDefaults.diagnosticsOptions,
       validate: true,
-      schemas: [{
-        uri: '',
-        fileMatch: ['*.json'],
-        schema: schema.value,
-      }],
-    })
-  })
-}
+      schemas: [
+        {
+          uri: "",
+          fileMatch: ["*.json"],
+          schema: schema.value,
+        },
+      ],
+    });
+  });
+};
 
 // #endregion
 </script>
@@ -709,10 +741,7 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
 <template>
   <v-card class="bundle-editor-v2" v-bind="$attrs">
     <v-layout class="fill-height">
-      <v-app-bar
-        color="primary"
-        prominent
-      >
+      <v-app-bar color="primary" prominent>
         <v-app-bar-nav-icon variant="text" @click.stop="showLeftMenu = !showLeftMenu" />
 
         <v-btn v-for="menu in topMenu" :key="menu.title">
@@ -751,11 +780,7 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
                 :icon="item.data?.icon"
                 :color="item.data?.iconColor"
               />
-              <VIcon
-                v-else
-                icon="mdi-file"
-                :color="item.data?.iconColor"
-              />
+              <VIcon v-else icon="mdi-file" :color="item.data?.iconColor" />
             </template>
           </template>
           <template #append="{ item }">
@@ -776,16 +801,13 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
             {{ bundle.data.desc.product }}
           </v-card-title>
           <v-card-subtitle>
-            For deconz {{ bundle.data.desc.version_deconz }}
-            • Last modified {{ timeAgo }}
-            <br>
+            For deconz {{ bundle.data.desc.version_deconz }} • Last modified {{ timeAgo }}
+            <br />
             Hash : {{ hash }}
           </v-card-subtitle>
           <v-card-text>
             <v-card class="ma-2">
-              <v-card-title>
-                Supported devices
-              </v-card-title>
+              <v-card-title> Supported devices </v-card-title>
               <v-card-text>
                 <list-supported-devices :device-identifiers="bundle.data.desc.device_identifiers" />
               </v-card-text>
@@ -806,20 +828,10 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
       </v-main>
 
       <v-main v-show="isFileSelected" class="d-flex flex-column">
-        <v-slide-group
-          v-model:model-value="displayedFileIndex"
-          center-active
-          show-arrows
-        >
-          <v-slide-group-item
-            v-for="file in openedFiles"
-            :key="file.sourceFile.path"
-          >
+        <v-slide-group v-model:model-value="displayedFileIndex" center-active show-arrows>
+          <v-slide-group-item v-for="file in openedFiles" :key="file.sourceFile.path">
             <!-- TODO add the capability to change the order with drag and drop -->
-            <v-btn-group
-              density="default"
-              rounded="0"
-            >
+            <v-btn-group density="default" rounded="0">
               <v-tooltip :text="file.sourceFile.path.replace(/file:\//, '')" open-delay="200">
                 <template #activator="{ props: tooltipProps }">
                   <v-btn
@@ -867,7 +879,10 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions['mount'] = (editor, m
             v-model:value="displayedFile.data"
             :path="displayedFile.sourceFile.path"
             theme="vs-dark"
-            :language="filesTypes.find((type) => type.type === displayedFile!.sourceFile.type)?.format ?? 'plaintext'"
+            :language="
+              filesTypes.find((type) => type.type === displayedFile!.sourceFile.type)?.format ??
+              'plaintext'
+            "
             @change="fileChanged"
             @mount="handleMonacoEditorMount"
           />

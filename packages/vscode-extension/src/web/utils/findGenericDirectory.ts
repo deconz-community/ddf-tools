@@ -1,24 +1,22 @@
-import { Uri, window } from 'vscode'
-import { doesFileExist } from './doesFileExist'
+import { Uri, window } from "vscode";
+import { doesFileExist } from "./doesFileExist";
 
 export async function findGenericDirectory(filePath: Uri): Promise<Uri | undefined> {
-  const directoryPath = Uri.joinPath(filePath, '../')
+  const directoryPath = Uri.joinPath(filePath, "../");
 
   if (directoryPath.fsPath === filePath.fsPath) {
-    return undefined
+    return undefined;
   }
 
   try {
-    if (await doesFileExist(Uri.joinPath(directoryPath, 'generic', 'constants.json'))) {
-      return Uri.joinPath(directoryPath, 'generic')
+    if (await doesFileExist(Uri.joinPath(directoryPath, "generic", "constants.json"))) {
+      return Uri.joinPath(directoryPath, "generic");
+    } else {
+      return findGenericDirectory(directoryPath);
     }
-    else {
-      return findGenericDirectory(directoryPath)
-    }
-  }
-  catch (error) {
+  } catch (error) {
     if (error instanceof Error)
-      window.showErrorMessage(`Failed to find generic directory: ${error.message}`)
-    return undefined
+      window.showErrorMessage(`Failed to find generic directory: ${error.message}`);
+    return undefined;
   }
 }

@@ -1,1 +1,1 @@
-export { createValidator } from './src/validator'
+export { createValidator } from "./src/validator";

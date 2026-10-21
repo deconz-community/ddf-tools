@@ -1,117 +1,136 @@
-import { assign, fromPromise, raise, sendTo, setup } from 'xstate'
-import { produce } from 'immer'
-import type { AuthenticationClient, DirectusClient, RestClient } from '@directus/sdk'
-import { authentication, createDirectus, readMe, readSettings, rest, serverHealth } from '@directus/sdk'
-import type { Collections, Schema } from '~/interfaces/store'
-import { toastError } from '~/lib/handleError'
+import { assign, fromPromise, raise, sendTo, setup } from "xstate";
+import { produce } from "immer";
+import type { AuthenticationClient, DirectusClient, RestClient } from "@directus/sdk";
+import {
+  authentication,
+  createDirectus,
+  readMe,
+  readSettings,
+  rest,
+  serverHealth,
+} from "@directus/sdk";
+import type { Collections, Schema } from "~/interfaces/store";
+import { toastError } from "~/lib/handleError";
 
-export type Directus = DirectusClient<Schema>
-  & RestClient<Schema>
-  & AuthenticationClient<Schema>
+export type Directus = DirectusClient<Schema> & RestClient<Schema> & AuthenticationClient<Schema>;
 
-export type DirectusSettings = Pick<Collections.DirectusSettings, PublicSettingsKeys>
+export type DirectusSettings = Pick<Collections.DirectusSettings, PublicSettingsKeys>;
 
-export type PublicSettingsKeys = 'public_key_stable' | 'public_key_beta' | 'public_key_deprecated'
+export type PublicSettingsKeys = "public_key_stable" | "public_key_beta" | "public_key_deprecated";
 
 export interface StoreContext {
-  directusUrl: string
-  directus?: Directus
-  profile?: Collections.DirectusUser & { avatar_url?: string }
-  settings?: DirectusSettings
+  directusUrl: string;
+  directus?: Directus;
+  profile?: Collections.DirectusUser & { avatar_url?: string };
+  settings?: DirectusSettings;
 }
 
 export const storeMachine = setup({
-
   types: {
     context: {} as StoreContext,
-    input: {} as Partial<Pick<StoreContext, 'directusUrl'>>,
-    events: {} as {
-      type: 'LOGIN_WITH_PASSWORD'
-      email: string
-      password: string
-    } | {
-      type: 'LOGIN_WITH_TOKEN'
-      username: string
-      token: string
-    } | {
-      type: 'UPDATE_PROFILE'
-      profile: Collections.DirectusUser
-    } | {
-      type: 'LOGOUT'
-    } | {
-      type: 'UPDATE_DIRECTUS_URL'
-      directusUrl: string
-    } | {
-      type: 'REFRESH_PROFILE'
-    },
+    input: {} as Partial<Pick<StoreContext, "directusUrl">>,
+    events: {} as
+      | {
+          type: "LOGIN_WITH_PASSWORD";
+          email: string;
+          password: string;
+        }
+      | {
+          type: "LOGIN_WITH_TOKEN";
+          username: string;
+          token: string;
+        }
+      | {
+          type: "UPDATE_PROFILE";
+          profile: Collections.DirectusUser;
+        }
+      | {
+          type: "LOGOUT";
+        }
+      | {
+          type: "UPDATE_DIRECTUS_URL";
+          directusUrl: string;
+        }
+      | {
+          type: "REFRESH_PROFILE";
+        },
   },
 
   actors: {
     // #region fetchProfile
     fetchProfile: fromPromise(async ({ input }: { input: Directus }) => {
-      return await input.request(readMe()) as Collections.DirectusUser
+      return (await input.request(readMe())) as Collections.DirectusUser;
     }),
     // #endregion
 
     // #region initDirectus
-    initDirectus: fromPromise<{
-      isAuthenticated: boolean
-      directus: Directus
-      settings: DirectusSettings
-    }, {
-      directusUrl: string
-    }>(async ({ input }) => {
-      const makeClient = () => {
-        return createDirectus<Schema>(input.directusUrl)
-          .with(rest({
-            onRequest: (fetchOptions) => {
-              let timeout = 3000
-              if (typeof fetchOptions.headers === 'object' && 'X-Timeout' in fetchOptions.headers) {
-                const timeoutHeader = fetchOptions.headers['X-Timeout']
-                if (typeof timeoutHeader === 'string') {
-                  const converted = Number.parseInt(timeoutHeader)
-                  if (!Number.isNaN(converted))
-                    timeout = converted
-                }
-              }
-              const abortController = new AbortController()
-              const timeoutHandler = setTimeout(() => abortController.abort(), timeout)
-              fetchOptions.signal = abortController.signal
-              fetchOptions.signal.addEventListener('abort', () => clearTimeout(timeoutHandler))
-              return fetchOptions
-            },
-            onResponse: (_result, fetchOptions) => {
-              if (fetchOptions.signal?.aborted === false)
-                fetchOptions.signal.dispatchEvent(new Event('abort'))
-              return _result
-            },
-          }))
-          // TODO: Don't use cookie
-          .with(authentication('cookie', {
-            credentials: 'include', // TODO What do this does ?
-          }))
+    initDirectus: fromPromise<
+      {
+        isAuthenticated: boolean;
+        directus: Directus;
+        settings: DirectusSettings;
+      },
+      {
+        directusUrl: string;
       }
+    >(async ({ input }) => {
+      const makeClient = () => {
+        return (
+          createDirectus<Schema>(input.directusUrl)
+            .with(
+              rest({
+                onRequest: (fetchOptions) => {
+                  let timeout = 3000;
+                  if (
+                    typeof fetchOptions.headers === "object" &&
+                    "X-Timeout" in fetchOptions.headers
+                  ) {
+                    const timeoutHeader = fetchOptions.headers["X-Timeout"];
+                    if (typeof timeoutHeader === "string") {
+                      const converted = Number.parseInt(timeoutHeader);
+                      if (!Number.isNaN(converted)) timeout = converted;
+                    }
+                  }
+                  const abortController = new AbortController();
+                  const timeoutHandler = setTimeout(() => abortController.abort(), timeout);
+                  fetchOptions.signal = abortController.signal;
+                  fetchOptions.signal.addEventListener("abort", () => clearTimeout(timeoutHandler));
+                  return fetchOptions;
+                },
+                onResponse: (_result, fetchOptions) => {
+                  if (fetchOptions.signal?.aborted === false)
+                    fetchOptions.signal.dispatchEvent(new Event("abort"));
+                  return _result;
+                },
+              }),
+            )
+            // TODO: Don't use cookie
+            .with(
+              authentication("cookie", {
+                credentials: "include", // TODO What do this does ?
+              }),
+            )
+        );
+      };
 
-      const client = makeClient()
+      const client = makeClient();
 
-      const health = await client.request(serverHealth())
+      const health = await client.request(serverHealth());
 
-      if (health.status !== 'ok')
-        throw new Error('Could not connect to Directus')
+      if (health.status !== "ok") throw new Error("Could not connect to Directus");
 
-      const settings = await client.request(readSettings())
+      const settings = await client.request(readSettings());
 
       try {
-        const auth = await client.refresh()
+        const auth = await client.refresh();
         if (auth.access_token !== null) {
           return {
             directus: client,
             settings,
             isAuthenticated: true,
-          }
+          };
         }
-      }
-      catch (error) {
+      } catch (error) {
         // toastError(error)
       }
 
@@ -119,38 +138,42 @@ export const storeMachine = setup({
         directus: client,
         settings,
         isAuthenticated: false,
-      }
+      };
     }),
     // #endregion
 
     // #region Login
-    login: fromPromise<{
-      success: boolean
-    }, {
-      directus: Directus
-      email: string
-      password: string
-    }>(async ({ input }) => {
+    login: fromPromise<
+      {
+        success: boolean;
+      },
+      {
+        directus: Directus;
+        email: string;
+        password: string;
+      }
+    >(async ({ input }) => {
       try {
-        await input.directus.login(input.email, input.password)
-        toast.success('Logged in.')
+        await input.directus.login(input.email, input.password);
+        toast.success("Logged in.");
+      } catch (error) {
+        toastError(error);
+        return { success: false };
       }
-      catch (error) {
-        toastError(error)
-        return { success: false }
-      }
-      return { success: true }
+      return { success: true };
     }),
 
-    logout: fromPromise<void, {
-      directus: Directus
-    }>(async ({ input }) => {
-      try {
-        await input.directus.logout()
-        toast.info('Logged out.')
+    logout: fromPromise<
+      void,
+      {
+        directus: Directus;
       }
-      catch (error) {
-        toastError(error)
+    >(async ({ input }) => {
+      try {
+        await input.directus.logout();
+        toast.info("Logged out.");
+      } catch (error) {
+        toastError(error);
       }
     }),
 
@@ -158,42 +181,44 @@ export const storeMachine = setup({
   },
 
   actions: {
-    updateProfile: assign(({ context, event }) => produce(context, (draft) => {
-      /*
+    updateProfile: assign(({ context, event }) =>
+      produce(context, (draft) => {
+        /*
       if (event.type !== 'UPDATE_PROFILE' && 'profile' in event === false)
         throw new Error(`Invalid event type = ${event.type}`)
       */
 
-      const profile = 'profile' in event ? event.profile : undefined as Collections.DirectusUser | undefined
+        const profile =
+          "profile" in event ? event.profile : (undefined as Collections.DirectusUser | undefined);
 
-      if (!profile) {
-        draft.profile = undefined
-        return
-      }
+        if (!profile) {
+          draft.profile = undefined;
+          return;
+        }
 
-      const avatar_url = (context.directus && profile.avatar)
-        ? `${context.directus.url}assets/${profile.avatar}`
-        : undefined
+        const avatar_url =
+          context.directus && profile.avatar
+            ? `${context.directus.url}assets/${profile.avatar}`
+            : undefined;
 
-      draft.profile = {
-        ...profile,
-        avatar_url,
-      }
-    })),
+        draft.profile = {
+          ...profile,
+          avatar_url,
+        };
+      }),
+    ),
   },
-
 }).createMachine({
-
-  id: 'store',
+  id: "store",
 
   context: ({ input }) => ({
-    directusUrl: input.directusUrl ?? '',
+    directusUrl: input.directusUrl ?? "",
   }),
 
   states: {
     init: {
       after: {
-        10: 'connecting',
+        10: "connecting",
       },
     },
 
@@ -202,121 +227,132 @@ export const storeMachine = setup({
         input: ({ context }) => ({
           directusUrl: context.directusUrl,
         }),
-        src: 'initDirectus',
+        src: "initDirectus",
         onError: {
-          target: 'offline',
-          actions: assign(({ context }) => produce(context, (draft) => {
-            draft.directus = undefined
-            draft.settings = undefined
-          })),
+          target: "offline",
+          actions: assign(({ context }) =>
+            produce(context, (draft) => {
+              draft.directus = undefined;
+              draft.settings = undefined;
+            }),
+          ),
         },
         onDone: [
           {
-            target: 'online.auth.connected',
+            target: "online.auth.connected",
             guard: ({ event }) => event.output.isAuthenticated === true,
-            actions: assign(({ context, event }) => produce(context, (draft) => {
-              draft.directus = event.output.directus as any
-              draft.settings = event.output.settings
-            })),
+            actions: assign(({ context, event }) =>
+              produce(context, (draft) => {
+                draft.directus = event.output.directus as any;
+                draft.settings = event.output.settings;
+              }),
+            ),
           },
           {
-            target: 'online.auth.anonymous',
-            actions: assign(({ context, event }) => produce(context, (draft) => {
-              draft.directus = event.output.directus as any
-              draft.settings = event.output.settings
-            })),
+            target: "online.auth.anonymous",
+            actions: assign(({ context, event }) =>
+              produce(context, (draft) => {
+                draft.directus = event.output.directus as any;
+                draft.settings = event.output.settings;
+              }),
+            ),
           },
         ],
-
       },
     },
 
     online: {
-      type: 'parallel',
+      type: "parallel",
       states: {
         auth: {
-          initial: 'anonymous',
+          initial: "anonymous",
           states: {
             anonymous: {
               on: {
                 LOGIN_WITH_PASSWORD: {
-                  target: 'connecting',
+                  target: "connecting",
                 },
               },
             },
             connecting: {
               invoke: {
-                src: 'login',
+                src: "login",
                 input: ({ context, event }) => {
-                  if (event.type !== 'LOGIN_WITH_PASSWORD')
-                    throw new Error('Invalid event type')
+                  if (event.type !== "LOGIN_WITH_PASSWORD") throw new Error("Invalid event type");
 
-                  return { directus: context.directus!, email: event.email, password: event.password }
+                  return {
+                    directus: context.directus!,
+                    email: event.email,
+                    password: event.password,
+                  };
                 },
                 onDone: [
                   {
                     guard: ({ event }) => event.output.success === true,
-                    target: 'connected',
+                    target: "connected",
                   },
                   {
-                    target: 'anonymous',
+                    target: "anonymous",
                   },
                 ],
               },
             },
             disconnecting: {
               invoke: {
-                src: 'logout',
+                src: "logout",
                 input: ({ context }) => ({ directus: context.directus! }),
                 onDone: {
-                  target: 'anonymous',
-                  actions: 'updateProfile',
+                  target: "anonymous",
+                  actions: "updateProfile",
                 },
               },
             },
             connected: {
               on: {
                 LOGOUT: {
-                  target: 'disconnecting',
+                  target: "disconnecting",
                 },
                 UPDATE_PROFILE: {
-                  actions: 'updateProfile',
+                  actions: "updateProfile",
                 },
                 REFRESH_PROFILE: {
-                  target: 'connected',
+                  target: "connected",
                   reenter: true,
                 },
               },
 
               invoke: {
                 input: ({ context }) => context.directus!,
-                src: 'fetchProfile',
+                src: "fetchProfile",
                 onDone: {
-                  actions: raise(({ event }) => ({ type: 'UPDATE_PROFILE', profile: event.output })),
+                  actions: raise(({ event }) => ({
+                    type: "UPDATE_PROFILE",
+                    profile: event.output,
+                  })),
                 },
               },
             },
           },
         },
       },
-
     },
 
     offline: {},
   },
 
-  initial: 'init',
+  initial: "init",
 
   on: {
     UPDATE_DIRECTUS_URL: {
-      target: '.connecting',
+      target: ".connecting",
       actions: [
-        assign(({ context, event }) => produce(context, (draft) => {
-          draft.directusUrl = event.directusUrl
-        })),
-        sendTo(({ system }) => system.get('app'), { type: 'SAVE_SETTINGS' }),
+        assign(({ context, event }) =>
+          produce(context, (draft) => {
+            draft.directusUrl = event.directusUrl;
+          }),
+        ),
+        sendTo(({ system }) => system.get("app"), { type: "SAVE_SETTINGS" }),
       ],
     },
   },
-
-})
+});

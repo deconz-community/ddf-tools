@@ -11,11 +11,7 @@
     {
       "type": "$TYPE_THERMOSTAT",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0201"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0201"],
       "meta": {
         "values": {
           "config/mode": {
@@ -24,9 +20,7 @@
             "heat": 4
           }
         },
-        "group.endpoints": [
-          1
-        ]
+        "group.endpoints": [1]
       },
       "items": [
         {
@@ -133,10 +127,7 @@
             "fn": "zcl:attr",
             "mf": "0x10f2"
           },
-          "range": [
-            -1000,
-            1000
-          ]
+          "range": [-1000, 1000]
         },
         {
           "name": "config/on"

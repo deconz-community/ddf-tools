@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "ff9f8ad1-4527-4004-896b-4ef947eb382b",
-  "manufacturername": [
-    "$MF_IKEA",
-    "$MF_IKEA"
-  ],
-  "modelid": [
-    "TRADFRI Driver 10W",
-    "TRADFRI Driver 30W"
-  ],
+  "manufacturername": ["$MF_IKEA", "$MF_IKEA"],
+  "modelid": ["TRADFRI Driver 10W", "TRADFRI Driver 30W"],
   "vendor": "IKEA",
   "product": "Tradfri LED Driver for Wireless Control 30W (ICPSHC24-10EU-IL-1/ICPSHC24-10NA-IL-1)",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -90,12 +81,7 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0008",
-            "at": [
-              "0x000f",
-              "0x0010",
-              "0x0011",
-              "0x4000"
-            ]
+            "at": ["0x000f", "0x0010", "0x0011", "0x4000"]
           },
           "refresh.interval": 3600
         },

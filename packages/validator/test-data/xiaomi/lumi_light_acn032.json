@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "54714159-03d4-45dc-93f9-11e30a4da772",
-  "manufacturername": [
-    "$MF_AQARA",
-    "$MF_LUMI"
-  ],
-  "modelid": [
-    "lumi.light.acn032",
-    "lumi.light.acn032"
-  ],
+  "manufacturername": ["$MF_AQARA", "$MF_LUMI"],
+  "modelid": ["lumi.light.acn032", "lumi.light.acn032"],
   "vendor": "Xiaomi Aqara",
   "product": "Ceiling Light T1M (CL-L02D)",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_COLOR_TEMPERATURE_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -72,12 +63,7 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0300",
-            "at": [
-              "0x400a",
-              "0x400b",
-              "0x400c",
-              "0x000f"
-            ]
+            "at": ["0x400a", "0x400b", "0x400c", "0x000f"]
           },
           "refresh.interval": 86400
         },
@@ -123,10 +109,7 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0008",
-            "at": [
-              "0x000f",
-              "0x0010"
-            ]
+            "at": ["0x000f", "0x0010"]
           },
           "refresh.interval": 86400
         },
@@ -145,10 +128,7 @@
             "ep": "0x01",
             "cl": "0xFCC0",
             "mf": "0x115F",
-            "at": [
-              "0x0516",
-              "0x0515"
-            ]
+            "at": ["0x0516", "0x0515"]
           },
           "refresh.interval": 3600,
           "write": {
@@ -217,9 +197,7 @@
             "ep": "0x01",
             "cl": "0xFCC0",
             "mf": "0x115F",
-            "at": [
-              "0x0517"
-            ]
+            "at": ["0x0517"]
           },
           "write": {
             "fn": "zcl:attr",
@@ -269,10 +247,7 @@
             "fn": "zcl:attr",
             "ep": "0x01",
             "cl": "0x0300",
-            "at": [
-              "0x0008",
-              "0x0007"
-            ]
+            "at": ["0x0008", "0x0007"]
           },
           "refresh.interval": 360
         },
@@ -325,10 +300,7 @@
     {
       "type": "$TYPE_EXTENDED_COLOR_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"
@@ -376,12 +348,7 @@
             "fn": "zcl:attr",
             "ep": "0x02",
             "cl": "0x0300",
-            "at": [
-              "0x400a",
-              "0x400b",
-              "0x400c",
-              "0x000f"
-            ]
+            "at": ["0x400a", "0x400b", "0x400c", "0x000f"]
           },
           "refresh.interval": 86400
         },
@@ -424,11 +391,7 @@
             "fn": "zcl:attr",
             "ep": "0x02",
             "cl": "0x0008",
-            "at": [
-              "0x000f",
-              "0x0010",
-              "0x0011"
-            ]
+            "at": ["0x000f", "0x0010", "0x0011"]
           },
           "refresh.interval": 86400
         },
@@ -447,10 +410,7 @@
             "ep": "0x02",
             "cl": "0xFCC0",
             "mf": "0x115F",
-            "at": [
-              "0x0516",
-              "0x0515"
-            ]
+            "at": ["0x0516", "0x0515"]
           },
           "refresh.interval": 3600,
           "write": {
@@ -519,9 +479,7 @@
             "ep": "0x02",
             "cl": "0xFCC0",
             "mf": "0x115F",
-            "at": [
-              "0x051B"
-            ]
+            "at": ["0x051B"]
           },
           "refresh.interval": 86400,
           "write": {
@@ -549,9 +507,7 @@
             "ep": "0x02",
             "cl": "0xFCC0",
             "mf": "0x115F",
-            "at": [
-              "0x0517"
-            ]
+            "at": ["0x0517"]
           },
           "write": {
             "fn": "zcl:attr",
@@ -601,12 +557,7 @@
             "fn": "zcl:attr",
             "ep": "0x02",
             "cl": "0x0300",
-            "at": [
-              "0x0008",
-              "0x0003",
-              "0x0004",
-              "0x0007"
-            ]
+            "at": ["0x0008", "0x0003", "0x0004", "0x0007"]
           },
           "refresh.interval": 360
         },

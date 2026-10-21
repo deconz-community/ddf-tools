@@ -1,7 +1,7 @@
-import { defineConfig } from 'taze'
+import { defineConfig } from "taze";
 
 export default defineConfig({
-  mode: 'major',
+  mode: "major",
   recursive: true,
 
   // fetch latest package info from registry without cache
@@ -12,8 +12,8 @@ export default defineConfig({
   install: true,
   // override with different bumping mode for each package
   packageMode: {
-    '@types/node': 'minor',
+    "@types/node": "minor",
   },
   // include locked and dev dependencies in the result
   includeLocked: true,
-})
+});

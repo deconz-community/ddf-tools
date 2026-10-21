@@ -1,38 +1,43 @@
 <script setup lang="ts">
-import type { RestCommand } from '@directus/sdk'
-import type { Schema } from '~/interfaces/store'
-import Snarkdown from '@swayable/vue-snarkdown'
-import { useRouteQuery } from '@vueuse/router'
+import type { RestCommand } from "@directus/sdk";
+import type { Schema } from "~/interfaces/store";
+import Snarkdown from "@swayable/vue-snarkdown";
+import { useRouteQuery } from "@vueuse/router";
 
-const store = useStore()
+const store = useStore();
 
-const page = useRouteQuery('page', '1', { transform: Number })
-const product = useRouteQuery('product', '')
-const manufacturer = useRouteQuery('manufacturer', '')
-const model = useRouteQuery('model', '')
-const stableOnly = useRouteQuery('showStableOnly', 'false', { transform: (v: string) => v === 'true' })
-const showDeprecated = useRouteQuery('showDeprecated', 'false', { transform: (v: string) => v === 'true' })
-const itemsPerPage = ref(5)
+const page = useRouteQuery("page", "1", { transform: Number });
+const product = useRouteQuery("product", "");
+const manufacturer = useRouteQuery("manufacturer", "");
+const model = useRouteQuery("model", "");
+const stableOnly = useRouteQuery("showStableOnly", "false", {
+  transform: (v: string) => v === "true",
+});
+const showDeprecated = useRouteQuery("showDeprecated", "false", {
+  transform: (v: string) => v === "true",
+});
+const itemsPerPage = ref(5);
 
-const bundleList = store.request(computed(() => {
-  const keyStable = store.state?.context?.settings?.public_key_stable ?? ''
+const bundleList = store.request(
+  computed(() => {
+    const keyStable = store.state?.context?.settings?.public_key_stable ?? "";
 
-  return bundleSearch({
-    page: page.value,
-    limit: itemsPerPage.value,
-    product: product.value,
-    manufacturer: manufacturer.value,
-    model: model.value,
-    showDeprecated: showDeprecated.value,
-    hasKey: stableOnly.value ? keyStable : '',
-  })
-}))
+    return bundleSearch({
+      page: page.value,
+      limit: itemsPerPage.value,
+      product: product.value,
+      manufacturer: manufacturer.value,
+      model: model.value,
+      showDeprecated: showDeprecated.value,
+      hasKey: stableOnly.value ? keyStable : "",
+    });
+  }),
+);
 
 const pageCount = computed(() => {
-  if (!bundleList.state.value)
-    return 0
-  return Math.ceil(bundleList.state.value.totalCount / itemsPerPage.value)
-})
+  if (!bundleList.state.value) return 0;
+  return Math.ceil(bundleList.state.value.totalCount / itemsPerPage.value);
+});
 </script>
 
 <template>
@@ -74,24 +79,9 @@ const pageCount = computed(() => {
               hide-details
               class="ma-2"
             />
-            <v-text-field
-              v-model="model"
-              label="Model"
-              outlined
-              dense
-              hide-details
-              class="ma-2"
-            />
-            <v-switch
-              v-model="stableOnly"
-              label="Stable only"
-              hide-details
-            />
-            <v-switch
-              v-model="showDeprecated"
-              label="Show deprecated"
-              hide-details
-            />
+            <v-text-field v-model="model" label="Model" outlined dense hide-details class="ma-2" />
+            <v-switch v-model="stableOnly" label="Stable only" hide-details />
+            <v-switch v-model="showDeprecated" label="Show deprecated" hide-details />
           </div>
         </template>
 
@@ -125,27 +115,22 @@ const pageCount = computed(() => {
             <v-card-subtitle class="d-flex flex-wrap align-center">
               <chip-signatures only="user" :signatures="item.raw.signatures" class="ma-2" />
               <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.source_last_modified">
-                published {{ timeAgo }} ({{ new Date(item.raw.source_last_modified).toLocaleDateString() }})
+                published {{ timeAgo }} ({{
+                  new Date(item.raw.source_last_modified).toLocaleDateString()
+                }})
               </UseTimeAgo>
-              <chip-signatures
-                only="system"
-                :signatures="item.raw.signatures"
-              />
+              <chip-signatures only="system" :signatures="item.raw.signatures" />
               <chip-ddf-hash source="store" :hash="item.raw.id" />
             </v-card-subtitle>
             <v-card-text>
               <v-card v-if="item.raw.info" variant="elevated" class="ma-2">
-                <v-card-title>
-                  Information
-                </v-card-title>
+                <v-card-title> Information </v-card-title>
                 <v-card-text>
                   <Snarkdown :markdown="item.raw.info" />
                 </v-card-text>
               </v-card>
               <v-card variant="elevated" class="ma-2">
-                <v-card-title>
-                  Supported devices
-                </v-card-title>
+                <v-card-title> Supported devices </v-card-title>
                 <v-card-text>
                   <list-supported-devices :device-identifiers="item.raw.device_identifiers" />
                 </v-card-text>
@@ -159,7 +144,12 @@ const pageCount = computed(() => {
         </template>
       </v-data-iterator>
     </template>
-    <v-alert v-if="bundleList.state.value?.totalCount === 0 && stableOnly" type="info" title="Info" class="ma-2">
+    <v-alert
+      v-if="bundleList.state.value?.totalCount === 0 && stableOnly"
+      type="info"
+      title="Info"
+      class="ma-2"
+    >
       No result ? try to disable the stable only option
     </v-alert>
   </v-card>

@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "useDefineForClassFields": true,
     "rootDir": "./",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
@@ -23,15 +18,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src",
-    "index.ts"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "node_modules",
-    "test/**"
-  ],
+  "include": ["src", "index.ts"],
+  "exclude": ["**/*.test.ts", "node_modules", "test/**"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node",

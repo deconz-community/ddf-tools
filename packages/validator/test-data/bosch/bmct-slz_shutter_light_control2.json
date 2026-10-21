@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -96,10 +93,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"
@@ -143,10 +137,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x03"
-      ],
+      "uuid": ["$address.ext", "0x03"],
       "items": [
         {
           "name": "attr/id"
@@ -190,19 +181,12 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x02",
-        "0x0006"
-      ],
+      "uuid": ["$address.ext", "0x02", "0x0006"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0100",
         "endpoint": "0x02",
-        "in": [
-          "0x0005",
-          "0x0006"
-        ]
+        "in": ["0x0005", "0x0006"]
       },
       "meta": {
         "values": {
@@ -270,18 +254,9 @@
             "mf": "0x1209"
           },
           "values": [
-            [
-              "\"disabled\"",
-              "Device is not configured"
-            ],
-            [
-              "\"shutter\"",
-              "Device controls a shutter"
-            ],
-            [
-              "\"light\"",
-              "Device controls lights"
-            ]
+            ["\"disabled\"", "Device is not configured"],
+            ["\"shutter\"", "Device controls a shutter"],
+            ["\"light\"", "Device controls lights"]
           ],
           "default": "disabled"
         },
@@ -314,22 +289,10 @@
           },
           "default": "momentary",
           "values": [
-            [
-              "\"momentary\"",
-              "All inputs in momentary mode"
-            ],
-            [
-              "\"momentaryswitched\"",
-              "All inputs in momentary mode (sides switched)"
-            ],
-            [
-              "\"rocker\"",
-              "All inputs in rocker mode"
-            ],
-            [
-              "\"rockerswitched\"",
-              "All inputs in rocker mode (sides switched)"
-            ]
+            ["\"momentary\"", "All inputs in momentary mode"],
+            ["\"momentaryswitched\"", "All inputs in momentary mode (sides switched)"],
+            ["\"rocker\"", "All inputs in rocker mode"],
+            ["\"rockerswitched\"", "All inputs in rocker mode (sides switched)"]
           ]
         },
         {
@@ -378,18 +341,12 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0b04"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0b04"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0202",
         "endpoint": "0x01",
-        "in": [
-          "0x0B04"
-        ]
+        "in": ["0x0B04"]
       },
       "items": [
         {
@@ -436,18 +393,12 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0702"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0702"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0202",
         "endpoint": "0x01",
-        "in": [
-          "0x0702"
-        ]
+        "in": ["0x0702"]
       },
       "items": [
         {

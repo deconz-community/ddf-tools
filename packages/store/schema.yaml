@@ -11,7 +11,7 @@ collections:
       collapse: open
       collection: bundles
       color: null
-      display_template: '{{product}}'
+      display_template: "{{product}}"
       group: null
       hidden: false
       icon: null
@@ -109,7 +109,7 @@ collections:
       collapse: open
       collection: device_identifiers
       color: null
-      display_template: '{{manufacturer}} - {{model}}'
+      display_template: "{{manufacturer}} - {{model}}"
       group: bundles
       hidden: false
       icon: null
@@ -133,7 +133,7 @@ collections:
       collapse: open
       collection: signatures
       color: null
-      display_template: '{{type}} - {{key}}'
+      display_template: "{{type}} - {{key}}"
       group: bundles
       hidden: false
       icon: null
@@ -157,7 +157,7 @@ collections:
       collapse: open
       collection: sub_devices
       color: null
-      display_template: '{{name}}'
+      display_template: "{{name}}"
       group: bundles
       hidden: false
       icon: null
@@ -235,7 +235,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+        template: "{{avatar.$thumbnail}} {{first_name}} {{last_name}}"
       readonly: true
       required: false
       sort: 7
@@ -316,7 +316,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+        template: "{{avatar.$thumbnail}} {{first_name}} {{last_name}}"
       readonly: true
       required: false
       sort: 9
@@ -1160,7 +1160,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+        template: "{{avatar.$thumbnail}} {{first_name}} {{last_name}}"
       readonly: false
       required: false
       sort: 2
@@ -1241,7 +1241,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{avatar.$thumbnail}} {{first_name}} {{last_name}}'
+        template: "{{avatar.$thumbnail}} {{first_name}} {{last_name}}"
       readonly: true
       required: false
       sort: 4
@@ -1493,7 +1493,7 @@ fields:
       conditions: null
       display: related-values
       display_options:
-        template: '{{bundles_id.product}}'
+        template: "{{bundles_id.product}}"
       field: bundles
       group: null
       hidden: false
@@ -1987,7 +1987,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{product}} - {{version}} - {{tag}}'
+        template: "{{product}} - {{version}} - {{tag}}"
       readonly: false
       required: false
       sort: 2

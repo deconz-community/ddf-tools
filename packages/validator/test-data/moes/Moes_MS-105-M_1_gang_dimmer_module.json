@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "09286594-6296-427e-9919-8eb9c31ac189",
-  "manufacturername": [
-    "_TZE200_la2c2uo9",
-    "_TZE204_dcnsggvz"
-  ],
-  "modelid": [
-    "TS0601",
-    "TS0601"
-  ],
+  "manufacturername": ["_TZE200_la2c2uo9", "_TZE204_dcnsggvz"],
+  "modelid": ["TS0601", "TS0601"],
   "vendor": "Moes",
   "product": "1-gang dimmer module (ZM-105-M)",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_DIMMABLE_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"

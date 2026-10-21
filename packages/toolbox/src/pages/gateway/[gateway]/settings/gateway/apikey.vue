@@ -1,55 +1,51 @@
 <script setup lang="ts">
-import { produce } from 'immer'
-import { objectEntries } from 'ts-extras'
+import { produce } from "immer";
+import { objectEntries } from "ts-extras";
 
 const props = defineProps<{
-  gateway: string
-}>()
+  gateway: string;
+}>();
 
-const gateway = useGateway(toRef(props, 'gateway'))
+const gateway = useGateway(toRef(props, "gateway"));
 
-const search = ref('')
+const search = ref("");
 
 const keys = computed(() => {
-  if (!gateway.config || !('whitelist' in gateway.config))
-    return []
+  if (!gateway.config || !("whitelist" in gateway.config)) return [];
   return objectEntries(gateway.config.whitelist).map(([key, value]) => ({
     key,
     name: value.name,
-    created: value['create date'],
-    lastUsed: value['last use date'],
-  }))
-})
+    created: value["create date"],
+    lastUsed: value["last use date"],
+  }));
+});
 
 async function deleteKey(key: string) {
-  if (!gateway.state?.matches('online'))
-    return
+  if (!gateway.state?.matches("online")) return;
 
-  const results = await gateway.fetch('deleteAPIKey', { oldApiKey: key })
+  const results = await gateway.fetch("deleteAPIKey", { oldApiKey: key });
   results.forEach((result) => {
-    if (result.isErr())
-      toast.error(result.error.message)
-    else
-      toast.success('API Key deleted')
-  })
+    if (result.isErr()) toast.error(result.error.message);
+    else toast.success("API Key deleted");
+  });
 
   if (gateway.credentials && gateway.credentials?.apiKey === key) {
     gateway.send({
-      type: 'UPDATE_CREDENTIALS',
+      type: "UPDATE_CREDENTIALS",
       data: produce(gateway.credentials, (draft) => {
-        draft.apiKey = ''
+        draft.apiKey = "";
       }),
-    })
-    return
+    });
+    return;
   }
 
-  gateway.send({ type: 'REFRESH_CONFIG' })
+  gateway.send({ type: "REFRESH_CONFIG" });
 }
 
 const isLoading = refDebounced(
-  computed(() => !gateway.state?.matches({ online: { config: 'idle' } })),
+  computed(() => !gateway.state?.matches({ online: { config: "idle" } })),
   50,
-)
+);
 </script>
 
 <template>
@@ -78,32 +74,42 @@ const isLoading = refDebounced(
       <v-data-table
         :loading="isLoading"
         :search="search"
-        :headers="[{
-          title: 'Key',
-          key: 'key',
-        }, {
-          title: 'Name',
-          key: 'name',
-        }, {
-          title: 'Created',
-          key: 'created',
-        }, {
-          title: 'Last Used',
-          key: 'lastUsed',
-        }, {
-          title: 'Actions',
-          key: 'actions',
-        }]"
-        :sort-by="[{
-          key: 'created',
-          order: 'desc',
-        }]"
+        :headers="[
+          {
+            title: 'Key',
+            key: 'key',
+          },
+          {
+            title: 'Name',
+            key: 'name',
+          },
+          {
+            title: 'Created',
+            key: 'created',
+          },
+          {
+            title: 'Last Used',
+            key: 'lastUsed',
+          },
+          {
+            title: 'Actions',
+            key: 'actions',
+          },
+        ]"
+        :sort-by="[
+          {
+            key: 'created',
+            order: 'desc',
+          },
+        ]"
         :items="keys"
         item-value="key"
       >
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.created="{ item }">
-          <v-tooltip :text="`${item.created.toLocaleDateString()} ${item.created.toLocaleTimeString()}`">
+          <v-tooltip
+            :text="`${item.created.toLocaleDateString()} ${item.created.toLocaleTimeString()}`"
+          >
             <template #activator="{ props: localProps }">
               <p v-bind="localProps">
                 <UseTimeAgo v-slot="{ timeAgo }" :time="item.created">
@@ -115,7 +121,9 @@ const isLoading = refDebounced(
         </template>
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.lastUsed="{ item }">
-          <v-tooltip :text="`${item.lastUsed.toLocaleDateString()} ${item.lastUsed.toLocaleTimeString()}`">
+          <v-tooltip
+            :text="`${item.lastUsed.toLocaleDateString()} ${item.lastUsed.toLocaleTimeString()}`"
+          >
             <template #activator="{ props: localProps }">
               <p v-bind="localProps">
                 <UseTimeAgo v-slot="{ timeAgo }" :time="item.lastUsed">

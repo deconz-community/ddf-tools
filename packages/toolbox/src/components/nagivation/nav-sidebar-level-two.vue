@@ -1,15 +1,13 @@
 <script setup lang="ts">
-const route = useRoute()
+const route = useRoute();
 
-const isGatewayRoute = computed(() => route.params.gateway !== undefined)
+const isGatewayRoute = computed(() => route.params.gateway !== undefined);
 </script>
 
 <template>
   <v-toolbar height="48" title="-->Titre<--" />
 
-  <portal-target name="sidebar-level-two">
-    Portal taget
-  </portal-target>
+  <portal-target name="sidebar-level-two"> Portal taget </portal-target>
 
   <v-list id="#nav-level-two-list">
     <nav-sidebar-level-two-gateway v-if="isGatewayRoute" />

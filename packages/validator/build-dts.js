@@ -1,60 +1,60 @@
 #!/usr/bin/env ts-node
 
-import fs from 'node:fs'
-import fastGlob from 'fast-glob'
-import { toJSONSchema } from 'zod'
-import { createAuxiliaryTypeStore, createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
+import fs from "node:fs";
+import fastGlob from "fast-glob";
+import { toJSONSchema } from "zod";
+import { createAuxiliaryTypeStore, createTypeAlias, printNode, zodToTs } from "zod-to-ts";
 // eslint-disable-next-line antfu/no-import-dist
-import { createValidator } from './dist/ddf-validator.cjs'
+import { createValidator } from "./dist/ddf-validator.cjs";
 
-const { globSync } = fastGlob
+const { globSync } = fastGlob;
 
 // Generate zod Schema
-const validator = createValidator()
-const genericFiles = globSync('test-data/generic/**/*.json')
+const validator = createValidator();
+const genericFiles = globSync("test-data/generic/**/*.json");
 
 const genericFilesData = genericFiles.map((filePath) => {
-  const data = fs.readFileSync(filePath, { encoding: 'utf-8' })
-  const decoded = JSON.parse(data)
-  return { path: filePath, data: decoded }
-})
+  const data = fs.readFileSync(filePath, { encoding: "utf-8" });
+  const decoded = JSON.parse(data);
+  return { path: filePath, data: decoded };
+});
 
 genericFilesData.sort((a, b) => {
-  if (a.data.schema !== b.data.schema)
-    return a.data.schema.localeCompare(b.data.schema)
+  if (a.data.schema !== b.data.schema) return a.data.schema.localeCompare(b.data.schema);
 
   // Reverse the order to load state/airqualityppb before state/airquality
-  return b.path.localeCompare(a.path)
-})
+  return b.path.localeCompare(a.path);
+});
 
 genericFilesData.forEach((file) => {
-  validator.loadGeneric(file.data)
-})
+  validator.loadGeneric(file.data);
+});
 
-const schemaZod = validator.getSchema()
+const schemaZod = validator.getSchema();
 
 // Prepare output dir
-const outputDirectory = './dist'
-if (!fs.existsSync(outputDirectory))
-  fs.mkdirSync(outputDirectory, { recursive: true })
+const outputDirectory = "./dist";
+if (!fs.existsSync(outputDirectory)) fs.mkdirSync(outputDirectory, { recursive: true });
 
 // Write json schema
 fs.writeFileSync(
   `${outputDirectory}/ddf-schema.json`,
-  JSON.stringify(toJSONSchema(schemaZod, {
-    unrepresentable: 'any',
-  })),
-)
+  JSON.stringify(
+    toJSONSchema(schemaZod, {
+      unrepresentable: "any",
+    }),
+  ),
+);
 
 // Write typescript schema
-const auxiliaryTypeStore = createAuxiliaryTypeStore()
+const auxiliaryTypeStore = createAuxiliaryTypeStore();
 const { node } = zodToTs(schemaZod, {
   auxiliaryTypeStore,
-  unrepresentable: 'any',
-})
-const typeAlias = createTypeAlias(node, 'DDF')
+  unrepresentable: "any",
+});
+const typeAlias = createTypeAlias(node, "DDF");
 
-const nodeString = printNode(typeAlias)
+const nodeString = printNode(typeAlias);
 
 const schemaTS = `import { ZodType, ZodError } from "zod";
 
@@ -92,9 +92,6 @@ export declare function createValidator(generics?: GenericsData): {
 };
 
 export {};
-`
+`;
 
-fs.writeFileSync(
-  `${outputDirectory}/ddf-validator.d.ts`,
-  schemaTS,
-)
+fs.writeFileSync(`${outputDirectory}/ddf-validator.d.ts`, schemaTS);

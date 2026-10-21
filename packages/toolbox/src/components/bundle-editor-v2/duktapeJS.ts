@@ -1,5 +1,5 @@
 export function duktapeJS() {
-  return /* typescript */`
+  return /* typescript */ `
 export {}
 
 declare global {
@@ -250,5 +250,5 @@ String.prototype.padStart = String.prototype.padStart || function (this: string,
   return Utils.padStart(this.toString(), targetLength, padString)
 }
 
-`
+`;
 }

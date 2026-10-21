@@ -1,63 +1,61 @@
 <script setup lang="ts">
-const app = useAppMachine('app')
-const store = useStore()
+const app = useAppMachine("app");
+const store = useStore();
 
-const isDevelopper = computed(() => app.state?.context.settings?.developerMode)
+const isDevelopper = computed(() => app.state?.context.settings?.developerMode);
 
-type Link = ({ icon: string, title: string, to: string } | 'divider' | { gateway: string })
+type Link = { icon: string; title: string; to: string } | "divider" | { gateway: string };
 
 const links = computed(() => {
-  const list: Link[] = []
+  const list: Link[] = [];
 
-  list.push({ icon: 'mdi-home', title: 'Home', to: '/' })
+  list.push({ icon: "mdi-home", title: "Home", to: "/" });
 
-  if (store.state?.matches('online'))
-    list.push({ icon: 'mdi-storefront', title: 'DDF store', to: '/store/search' })
+  if (store.state?.matches("online"))
+    list.push({ icon: "mdi-storefront", title: "DDF store", to: "/store/search" });
 
-  list.push('divider')
+  list.push("divider");
 
-  list.push({ icon: 'mdi-compass', title: 'Gateways', to: '/gateway' })
+  list.push({ icon: "mdi-compass", title: "Gateways", to: "/gateway" });
 
   if (app.state?.context.gateways) {
-    const gateways = Array.from(app.state?.context.gateways.keys())
+    const gateways = Array.from(app.state?.context.gateways.keys());
     if (gateways.length > 0) {
       gateways.forEach((gatewayId) => {
-        list.push({ gateway: gatewayId })
-      })
+        list.push({ gateway: gatewayId });
+      });
 
-      list.push('divider')
+      list.push("divider");
     }
   }
 
   if (isDevelopper.value) {
-    list.push('divider')
+    list.push("divider");
 
-    list.push({ icon: 'mdi-folder-zip', title: 'DDF Bundler', to: '/dev-tools/bundler' })
+    list.push({ icon: "mdi-folder-zip", title: "DDF Bundler", to: "/dev-tools/bundler" });
 
-    if (import.meta.env.VITE_DEBUG === 'true')
-      list.push({ icon: 'mdi-shovel', title: 'Sandbox', to: '/dev-tools/sandbox' })
+    if (import.meta.env.VITE_DEBUG === "true")
+      list.push({ icon: "mdi-shovel", title: "Sandbox", to: "/dev-tools/sandbox" });
 
-    list.push('divider')
+    list.push("divider");
   }
 
-  list.push({ icon: 'mdi-robot', title: 'Auto DDF Bundler', to: '/auto-bundler' })
+  list.push({ icon: "mdi-robot", title: "Auto DDF Bundler", to: "/auto-bundler" });
 
-  list.push({ icon: 'mdi-cog', title: 'App Settings', to: '/settings' })
+  list.push({ icon: "mdi-cog", title: "App Settings", to: "/settings" });
 
-  return list
-})
+  return list;
+});
 </script>
 
 <template>
   <v-navigation-drawer width="72" permanent>
     <v-list id="#nav-level-one-list" nav class="d-flex flex-column pa-0" height="100%">
       <perfect-scrollbar>
-        <template v-for="link, _index in links" :key="_index">
+        <template v-for="(link, _index) in links" :key="_index">
           <v-divider v-if="link === 'divider'" />
           <template v-else-if="'gateway' in link">
-            <gateway-badge
-              :gateway-id="link.gateway"
-            />
+            <gateway-badge :gateway-id="link.gateway" />
           </template>
           <v-list-item v-else class="ma-1 justify-center">
             <btn-rounded-circle :to="link.to">

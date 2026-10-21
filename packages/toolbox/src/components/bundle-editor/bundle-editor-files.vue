@@ -1,166 +1,161 @@
-<script setup   lang="ts">
-import type { BundleFile } from '@deconz-community/ddf-bundler'
-import { filePathsToUniqueTree } from '~/lib/filePathsToTree'
+<script setup lang="ts">
+import type { BundleFile } from "@deconz-community/ddf-bundler";
+import { filePathsToUniqueTree } from "~/lib/filePathsToTree";
 
 const props = defineProps<{
-  modelValue: BundleFile[]
-}>()
+  modelValue: BundleFile[];
+}>();
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(["update:modelValue", "change"]);
 
-const createConfirm = useConfirm()
+const createConfirm = useConfirm();
 
-const files = useVModel(props, 'modelValue', emit)
+const files = useVModel(props, "modelValue", emit);
 
-const currentPath = ref('')
+const currentPath = ref("");
 const breadcrumbs = computed(() => {
-  const result = currentPath.value.split('/').filter(Boolean)
-  result.unshift('root')
-  return result.map(item => ({ title: item }))
-})
+  const result = currentPath.value.split("/").filter(Boolean);
+  result.unshift("root");
+  return result.map((item) => ({ title: item }));
+});
 
-const fileTree = computed(() => filePathsToUniqueTree<BundleFile>(
-  files.value.map(file => file.path),
-  node => files.value.find(file => file.path === node.path)!,
-))
+const fileTree = computed(() =>
+  filePathsToUniqueTree<BundleFile>(
+    files.value.map((file) => file.path),
+    (node) => files.value.find((file) => file.path === node.path)!,
+  ),
+);
 
-const currentTreePosition = computed(
-  () => {
-    return breadcrumbs.value.slice(1).reduce(
-      (acc, cur) => {
-        const next = acc.children.find(child => child.name === cur.title)
-        if (next)
-          return next
-        currentPath.value = acc.path
-        return acc
-      },
-      fileTree.value,
-    )
-  },
-)
+const currentTreePosition = computed(() => {
+  return breadcrumbs.value.slice(1).reduce((acc, cur) => {
+    const next = acc.children.find((child) => child.name === cur.title);
+    if (next) return next;
+    currentPath.value = acc.path;
+    return acc;
+  }, fileTree.value);
+});
 
 const tableHeaders = [
   {
-    title: 'File name',
-    align: 'start',
-    order: 'asc',
+    title: "File name",
+    align: "start",
+    order: "asc",
     sortable: true,
-    key: 'name',
+    key: "name",
   },
   {
-    title: 'Type',
-    align: 'start',
+    title: "Type",
+    align: "start",
     sortable: true,
-    key: 'type',
+    key: "type",
   },
   {
-    title: 'Modified',
-    align: 'start',
+    title: "Modified",
+    align: "start",
     sortable: true,
-    key: 'last_modified',
+    key: "last_modified",
   },
-  { title: 'Actions', key: 'actions', sortable: false },
-
-] as const
+  { title: "Actions", key: "actions", sortable: false },
+] as const;
 
 const tableItems = computed(() => {
-  const data = []
+  const data = [];
   for (const file of currentTreePosition.value.children) {
     data.push({
       name: file.name,
       path: file.path,
-      type: file.data?.type ?? 'Folder',
+      type: file.data?.type ?? "Folder",
       isDirectory: file.children.length > 0,
       last_modified: file.data?.last_modified,
-    })
+    });
   }
-  return data
-})
+  return data;
+});
 
 const filesTypes = [
-  { type: 'DDFC', desc: 'JSON DDF File', format: 'json' },
-  { type: 'SCJS', desc: 'Javascript file for read, write or parse', format: 'javascript' },
-  { type: 'JSON', desc: 'Generic files for items / constants', format: 'json' },
-  { type: 'CHLG', desc: 'Changelog', format: 'markdown' },
-  { type: 'INFO', desc: 'Informational note', format: 'markdown' },
-  { type: 'WARN', desc: 'Warning note', format: 'markdown' },
-  { type: 'KWIS', desc: 'Know issue', format: 'markdown' },
-] as const
+  { type: "DDFC", desc: "JSON DDF File", format: "json" },
+  { type: "SCJS", desc: "Javascript file for read, write or parse", format: "javascript" },
+  { type: "JSON", desc: "Generic files for items / constants", format: "json" },
+  { type: "CHLG", desc: "Changelog", format: "markdown" },
+  { type: "INFO", desc: "Informational note", format: "markdown" },
+  { type: "WARN", desc: "Warning note", format: "markdown" },
+  { type: "KWIS", desc: "Know issue", format: "markdown" },
+] as const;
 
 const defaultFile: BundleFile = {
-  type: 'SCJS',
-  path: 'new_file.js',
+  type: "SCJS",
+  path: "new_file.js",
   last_modified: new Date(),
-  data: '',
-} as const
-const editedItemPath = ref('')
-const editedItem = ref<BundleFile>({ ...defaultFile })
-const dialog = ref(false)
+  data: "",
+} as const;
+const editedItemPath = ref("");
+const editedItem = ref<BundleFile>({ ...defaultFile });
+const dialog = ref(false);
 
 function newFile() {
-  editedItemPath.value = `${currentPath.value === '' ? '' : `${currentPath.value}/`}new_file.js`
-  editedItem.value = Object.assign({}, defaultFile)
-  dialog.value = true
+  editedItemPath.value = `${currentPath.value === "" ? "" : `${currentPath.value}/`}new_file.js`;
+  editedItem.value = Object.assign({}, defaultFile);
+  dialog.value = true;
 }
 
 function loadFile(path: string) {
-  editedItemPath.value = path
-  editedItem.value = Object.assign({}, files.value.find(file => file.path === path))
-  dialog.value = true
+  editedItemPath.value = path;
+  editedItem.value = Object.assign(
+    {},
+    files.value.find((file) => file.path === path),
+  );
+  dialog.value = true;
 }
 
 async function deleteFile(path: string) {
   const isConfirmed = await createConfirm({
     content: `Delete file '${path}'`,
-  })
+  });
 
-  if (!isConfirmed)
-    return
+  if (!isConfirmed) return;
 
-  const index = files.value.findIndex(file => file.path === path)
-  if (index === -1)
-    return
-  files.value.splice(index, 1)
-  emit('change')
+  const index = files.value.findIndex((file) => file.path === path);
+  if (index === -1) return;
+  files.value.splice(index, 1);
+  emit("change");
 }
 
 function openDirectory(path: string) {
-  currentPath.value = path
+  currentPath.value = path;
 }
 
 async function deleteDirectory(path: string) {
   const isConfirmed = await createConfirm({
     content: `Delete folder '${path}' and all its content`,
-  })
+  });
 
-  if (!isConfirmed)
-    return
+  if (!isConfirmed) return;
 
-  files.value = files.value.filter(file => !file.path.startsWith(path))
-  emit('change')
+  files.value = files.value.filter((file) => !file.path.startsWith(path));
+  emit("change");
 }
 
 function save() {
-  dialog.value = false
+  dialog.value = false;
 
-  const index = files.value.findIndex(file => file.path === editedItem.value.path)
-  if (index === -1)
-    files.value.push(editedItem.value)
-  else
-    files.value[index] = editedItem.value
+  const index = files.value.findIndex((file) => file.path === editedItem.value.path);
+  if (index === -1) files.value.push(editedItem.value);
+  else files.value[index] = editedItem.value;
 }
 
 function close() {
-  dialog.value = false
-  editedItem.value = { ...defaultFile }
-  editedItemPath.value = ''
+  dialog.value = false;
+  editedItem.value = { ...defaultFile };
+  editedItemPath.value = "";
 }
 
 function selectDirectory(index: number) {
-  if (index <= 0)
-    currentPath.value = ''
+  if (index <= 0) currentPath.value = "";
   else
-    currentPath.value = breadcrumbs.value.map(item => item.title).slice(1, index + 1).join('/')
+    currentPath.value = breadcrumbs.value
+      .map((item) => item.title)
+      .slice(1, index + 1)
+      .join("/");
 }
 </script>
 
@@ -168,7 +163,9 @@ function selectDirectory(index: number) {
   <v-dialog v-model="dialog">
     <v-card>
       <v-card-title>
-        <span v-if="editedItemPath" class="text-headline-medium">Editing : {{ editedItemPath }}</span>
+        <span v-if="editedItemPath" class="text-headline-medium"
+          >Editing : {{ editedItemPath }}</span
+        >
         <span v-else class="text-headline-medium">New file</span>
       </v-card-title>
 
@@ -181,15 +178,14 @@ function selectDirectory(index: number) {
           label="Select"
         />
 
-        <v-text-field
-          v-model="editedItem.path"
-          label="File path"
-        />
+        <v-text-field v-model="editedItem.path" label="File path" />
         <template v-if="typeof editedItem.data === 'string'">
           <VueMonacoEditor
             v-model:value="editedItem.data"
             theme="vs-dark"
-            :language="filesTypes.find((type) => type.type === editedItem.type)?.format ?? 'plaintext'"
+            :language="
+              filesTypes.find((type) => type.type === editedItem.type)?.format ?? 'plaintext'
+            "
             height="300px"
             @change="emit('change')"
           />
@@ -198,30 +194,13 @@ function selectDirectory(index: number) {
 
       <v-card-actions>
         <v-spacer />
-        <v-btn
-          color="blue-darken-1"
-          variant="text"
-          @click="close"
-        >
-          Cancel
-        </v-btn>
-        <v-btn
-          color="blue-darken-1"
-          variant="text"
-          @click="save"
-        >
-          Save
-        </v-btn>
+        <v-btn color="blue-darken-1" variant="text" @click="close"> Cancel </v-btn>
+        <v-btn color="blue-darken-1" variant="text" @click="save"> Save </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
-  <v-data-table
-    :headers="tableHeaders"
-    :items="tableItems"
-    item-value="name"
-    class="elevation-1"
-  >
+  <v-data-table :headers="tableHeaders" :items="tableItems" item-value="name" class="elevation-1">
     <!-- eslint-disable vue/valid-v-slot -->
     <template #top>
       <v-toolbar>
@@ -236,13 +215,7 @@ function selectDirectory(index: number) {
           </template>
         </v-breadcrumbs>
         <v-spacer />
-        <v-btn
-          variant="tonal"
-          prepend-icon="mdi-plus"
-          @click="newFile()"
-        >
-          New file
-        </v-btn>
+        <v-btn variant="tonal" prepend-icon="mdi-plus" @click="newFile()"> New file </v-btn>
       </v-toolbar>
     </template>
     <template #item.name="{ item }">

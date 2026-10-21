@@ -6,11 +6,11 @@
 const group_count = ZclFrame.at(1);
 
 if (group_count > 0) {
-    // Groups IDs are a list of uint16s starting at offset 2
-    const last_group = ZclFrame.at(group_count * 2 + 1) << 8 | ZclFrame.at(group_count * 2);
-    Item.val = last_group;
+  // Groups IDs are a list of uint16s starting at offset 2
+  const last_group = (ZclFrame.at(group_count * 2 + 1) << 8) | ZclFrame.at(group_count * 2);
+  Item.val = last_group;
 } else {
-    // No groups set
-    // deCONZ's JS engine won't accept an empty string, so use a single space (which gets converted to an empty string)
-    Item.val = " ";
+  // No groups set
+  // deCONZ's JS engine won't accept an empty string, so use a single space (which gets converted to an empty string)
+  Item.val = " ";
 }

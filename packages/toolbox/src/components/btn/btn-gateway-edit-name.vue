@@ -1,48 +1,45 @@
 <script setup lang="ts">
-import { getParamZodSchema } from '@deconz-community/rest-client'
+import { getParamZodSchema } from "@deconz-community/rest-client";
 
 const props = defineProps<{
-  gateway: string
-}>()
+  gateway: string;
+}>();
 
-const gateway = useGateway(toRef(props, 'gateway'))
+const gateway = useGateway(toRef(props, "gateway"));
 
 const editName = useDialogAction(() => {
-  if (!gateway.config)
-    return
+  if (!gateway.config) return;
 
-  const currentName = gateway.config.name
+  const currentName = gateway.config.name;
 
   return {
-    title: 'Update gateway name',
+    title: "Update gateway name",
     contentComponentProps: {
-      label: 'Name',
+      label: "Name",
       placeholder: currentName,
     },
     defaultValue: currentName,
-    confirmationText: 'Save',
-    schema: getParamZodSchema('updateConfig', 'body').shape.name,
+    confirmationText: "Save",
+    schema: getParamZodSchema("updateConfig", "body").shape.name,
     onSubmit: async (name) => {
-      if (name === currentName)
-        return toast.info('No changes made')
+      if (name === currentName) return toast.info("No changes made");
 
-      const results = await gateway.fetch('updateConfig', { body: { name } })
+      const results = await gateway.fetch("updateConfig", { body: { name } });
 
       results.forEach((result) => {
         if (result.isOk()) {
-          toast.success('Gateway name updated')
-          gateway.send({ type: 'REFRESH_CONFIG' })
-        }
-        else {
-          console.error(result.error)
-          toast.error('Failed to update gateway name', {
+          toast.success("Gateway name updated");
+          gateway.send({ type: "REFRESH_CONFIG" });
+        } else {
+          console.error(result.error);
+          toast.error("Failed to update gateway name", {
             description: result.error.message,
-          })
+          });
         }
-      })
+      });
     },
-  }
-})
+  };
+});
 </script>
 
 <template>

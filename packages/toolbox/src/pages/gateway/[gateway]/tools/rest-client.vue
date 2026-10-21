@@ -1,87 +1,86 @@
 <script setup lang="ts">
-import type { EndpointAlias, RequestResultForAlias } from '@deconz-community/rest-client'
-import type { Component } from 'vue'
-import { endpoints } from '@deconz-community/rest-client'
-import { useRouteQuery } from '@vueuse/router'
-import { saveAs } from 'file-saver'
-import { z } from 'zod'
-import BtnGatewayDownloadBackup from '~/components/btn/btn-gateway-download-backup.vue'
-import CardAuthChallenge from '~/components/card/card-auth-challenge.vue'
+import type { EndpointAlias, RequestResultForAlias } from "@deconz-community/rest-client";
+import type { Component } from "vue";
+import { endpoints } from "@deconz-community/rest-client";
+import { useRouteQuery } from "@vueuse/router";
+import { saveAs } from "file-saver";
+import { z } from "zod";
+import BtnGatewayDownloadBackup from "~/components/btn/btn-gateway-download-backup.vue";
+import CardAuthChallenge from "~/components/card/card-auth-challenge.vue";
 
 const props = defineProps<{
-  gateway: string
-}>()
+  gateway: string;
+}>();
 
-const fancyUI = ref(true)
+const fancyUI = ref(true);
 
-const queryAlias = useRouteQuery<string>('alias', 'discover')
+const queryAlias = useRouteQuery<string>("alias", "discover");
 
 const endpointAlias = computed({
   get() {
-    const alias = queryAlias.value as keyof typeof endpoints
-    if (typeof alias !== 'string' || !(alias in endpoints))
-      return undefined
+    const alias = queryAlias.value as keyof typeof endpoints;
+    if (typeof alias !== "string" || !(alias in endpoints)) return undefined;
 
-    return alias
+    return alias;
   },
   set(newValue) {
-    queryAlias.value = newValue as string
+    queryAlias.value = newValue as string;
   },
-})
+});
 
 // #region API Tree
 
 interface APITree {
-  alias?: string
-  title: string
-  subtitle?: string
-  props?: Record<string, any>
-  children?: APITree[]
+  alias?: string;
+  title: string;
+  subtitle?: string;
+  props?: Record<string, any>;
+  children?: APITree[];
 }
 
 const apiTree = computed<APITree[]>(() => {
-  const tree: APITree[] = []
+  const tree: APITree[] = [];
   Object.entries(endpoints).forEach(([alias, api]) => {
-    const path = api.path.replace('/api/{:apiKey:}', '')
-    const subtitle = `${api.method.toUpperCase()} ${path}`
-    const leaf = tree.find(leaf => leaf.title === api.category)
+    const path = api.path.replace("/api/{:apiKey:}", "");
+    const subtitle = `${api.method.toUpperCase()} ${path}`;
+    const leaf = tree.find((leaf) => leaf.title === api.category);
     if (leaf) {
-      if (!leaf.children)
-        leaf.children = []
+      if (!leaf.children) leaf.children = [];
       leaf.children.push({
         alias,
         title: api.name,
         props: {
           subtitle,
         },
-      })
-    }
-    else {
+      });
+    } else {
       tree.push({
         title: api.category,
-        children: [{
-          alias,
-          title: api.name,
-          props: {
-            subtitle,
+        children: [
+          {
+            alias,
+            title: api.name,
+            props: {
+              subtitle,
+            },
           },
-        }],
-      })
+        ],
+      });
     }
-  })
-  return tree.sort((a, b) => a.title.localeCompare(b.title))
-})
+  });
+  return tree.sort((a, b) => a.title.localeCompare(b.title));
+});
 
 function selectAPI(params: unknown) {
-  const alias = z.array(z.string())
+  const alias = z
+    .array(z.string())
     .length(1)
-    .transform(a => a[0])
-    .safeParse(params)
+    .transform((a) => a[0])
+    .safeParse(params);
 
-  if (!alias.success)
-    return
+  if (!alias.success) return;
 
-  endpointAlias.value = alias.data as any
+  endpointAlias.value = alias.data as any;
 }
 
 // #endregion
@@ -89,94 +88,90 @@ function selectAPI(params: unknown) {
 // #region Gateway
 
 const endpoint = computed(() => {
-  if (!endpointAlias.value)
-    return undefined
+  if (!endpointAlias.value) return undefined;
 
-  return endpoints[endpointAlias.value]
-})
+  return endpoints[endpointAlias.value];
+});
 
 const endpointsParams = computed(() => {
-  if (endpoint.value === undefined)
-    return []
+  if (endpoint.value === undefined) return [];
 
-  return Object.entries(endpoint.value.parameters)
-    .filter(([name, parameter]) => parameter.knownParam !== 'hidden')
-})
+  return Object.entries(endpoint.value.parameters).filter(
+    ([name, parameter]) => parameter.knownParam !== "hidden",
+  );
+});
 
-const gateway = useGateway(toRef(props, 'gateway'))
+const gateway = useGateway(toRef(props, "gateway"));
 
-const hasResponse = ref(false)
-const loading = ref(false)
-const params = ref<Record<string, any>>({})
+const hasResponse = ref(false);
+const loading = ref(false);
+const params = ref<Record<string, any>>({});
 
-const rawResponse = ref<any>('')
-const statusCode = ref<number | undefined>(undefined)
-const clientResponse = ref<RequestResultForAlias<EndpointAlias>>([])
+const rawResponse = ref<any>("");
+const statusCode = ref<number | undefined>(undefined);
+const clientResponse = ref<RequestResultForAlias<EndpointAlias>>([]);
 
 watch(endpointAlias, () => {
-  hasResponse.value = false
-  loading.value = true
-  clientResponse.value = []
-  statusCode.value = undefined
-  rawResponse.value = undefined
-})
+  hasResponse.value = false;
+  loading.value = true;
+  clientResponse.value = [];
+  statusCode.value = undefined;
+  rawResponse.value = undefined;
+});
 
 async function send() {
-  if (!endpointAlias.value)
-    return toast.error('No endpoint selected')
+  if (!endpointAlias.value) return toast.error("No endpoint selected");
 
-  hasResponse.value = false
-  loading.value = true
-  clientResponse.value = []
-  statusCode.value = undefined
-  rawResponse.value = undefined
+  hasResponse.value = false;
+  loading.value = true;
+  clientResponse.value = [];
+  statusCode.value = undefined;
+  rawResponse.value = undefined;
 
-  const response = await gateway.fetch(endpointAlias.value, toRaw(params.value))
+  const response = await gateway.fetch(endpointAlias.value, toRaw(params.value));
 
-  hasResponse.value = true
-  loading.value = false
-  clientResponse.value = response
+  hasResponse.value = true;
+  loading.value = false;
+  clientResponse.value = response;
 
-  if ('statusCode' in response)
-    statusCode.value = response.statusCode as number
+  if ("statusCode" in response) statusCode.value = response.statusCode as number;
 
-  if ('rawResponse' in response)
-    rawResponse.value = response.rawResponse
+  if ("rawResponse" in response) rawResponse.value = response.rawResponse;
 }
 // #endregion
 
 // #region Extra tools
 const extraTools = computed<Component[]>(() => {
-  const tools: Component[] = []
+  const tools: Component[] = [];
   switch (endpointAlias.value) {
-    case 'createChallenge':
-    case 'createAPIKey':
-      tools.push(CardAuthChallenge)
-      break
-    case 'exportConfigBackup':
-      tools.push(BtnGatewayDownloadBackup)
-      break
+    case "createChallenge":
+    case "createAPIKey":
+      tools.push(CardAuthChallenge);
+      break;
+    case "exportConfigBackup":
+      tools.push(BtnGatewayDownloadBackup);
+      break;
   }
-  return tools
-})
+  return tools;
+});
 // #endregion
 
 const downloadFileName = computed(() => {
   switch (endpointAlias.value) {
-    case 'downloadDDFBundleBlob':
-      return `${params.value.hash}.ddb`
+    case "downloadDDFBundleBlob":
+      return `${params.value.hash}.ddb`;
     default:
-      return 'data.dat'
+      return "data.dat";
   }
-})
+});
 
 async function download(data: unknown) {
-  const blob = isBlob(data) ? data : new Blob([data as any])
-  saveAs(blob, downloadFileName.value)
+  const blob = isBlob(data) ? data : new Blob([data as any]);
+  saveAs(blob, downloadFileName.value);
 }
 
 function isBlob(data: unknown): data is Blob {
-  return data instanceof Blob
+  return data instanceof Blob;
 }
 </script>
 
@@ -188,20 +183,14 @@ function isBlob(data: unknown): data is Blob {
     text="Gateway offline, please check the settings."
   />
   <v-card class="ma-2">
-    <v-card-title>
-      REST Client
-    </v-card-title>
-    <v-card-text>
-      This tool allows you to send requests to the gateway's API.
-    </v-card-text>
+    <v-card-title> REST Client </v-card-title>
+    <v-card-text> This tool allows you to send requests to the gateway's API. </v-card-text>
   </v-card>
   <v-divider />
   <template v-if="gateway.state?.can({ type: 'REQUEST' } as any)">
     <div class="d-flex flex-wrap flex-lg-nowrap">
       <v-card min-width="300px" class="ma-2 mr-0">
-        <v-card-title>
-          Endpoints
-        </v-card-title>
+        <v-card-title> Endpoints </v-card-title>
         <v-card-text>
           <VTreeview
             :items="apiTree"
@@ -218,7 +207,7 @@ function isBlob(data: unknown): data is Blob {
         <v-form @submit.prevent="send()">
           <v-card-title>
             {{ endpoint.method.toLocaleUpperCase() }}
-            {{ ('baseURL' in endpoint ? endpoint.baseURL : '') + endpoint.path }}
+            {{ ("baseURL" in endpoint ? endpoint.baseURL : "") + endpoint.path }}
           </v-card-title>
           <v-card-subtitle class="text-wrap">
             {{ endpointAlias }} - {{ endpoint.description }}
@@ -239,12 +228,10 @@ function isBlob(data: unknown): data is Blob {
                   true-icon="mdi-death-star"
                 />
               </v-card-title>
-              <v-card-text v-if="endpointsParams.length === 0">
-                None
-              </v-card-text>
+              <v-card-text v-if="endpointsParams.length === 0"> None </v-card-text>
               <v-card-text v-else>
                 <input-rest-client-param
-                  v-for="([name, parameter]) in endpointsParams"
+                  v-for="[name, parameter] in endpointsParams"
                   :key="`${endpointAlias}/${name}`"
                   v-model="params"
                   :fancy-ui="fancyUI"
@@ -272,20 +259,22 @@ function isBlob(data: unknown): data is Blob {
     </div>
 
     <div v-show="hasResponse">
-      <v-container style="max-width: none;">
+      <v-container style="max-width: none">
         <v-row>
           <v-col v-if="statusCode" cols="12" lg="6">
             <v-card>
-              <v-card-title>
-                API Response
-              </v-card-title>
+              <v-card-title> API Response </v-card-title>
               <v-card-text>
                 <v-alert
                   :text="`Status code: ${statusCode}`"
                   :type="statusCode === 200 ? 'success' : 'error'"
                 />
                 <v-btn
-                  v-if="typeof rawResponse === 'object' && rawResponse !== null && rawResponse.type === 'blob'"
+                  v-if="
+                    typeof rawResponse === 'object' &&
+                    rawResponse !== null &&
+                    rawResponse.type === 'blob'
+                  "
                   class="ma-2"
                   append-icon="mdi-download"
                   @click="download(rawResponse.data)"
@@ -298,9 +287,7 @@ function isBlob(data: unknown): data is Blob {
                   :error="false"
                   height="800px"
                 />
-                <p v-else class="mt-6 ma-2">
-                  No content
-                </p>
+                <p v-else class="mt-6 ma-2">No content</p>
               </v-card-text>
             </v-card>
           </v-col>
@@ -309,7 +296,7 @@ function isBlob(data: unknown): data is Blob {
               <v-card-title>
                 JS Client :
                 {{ clientResponse.length }}
-                {{ clientResponse.length > 1 ? 'responses' : 'response' }}
+                {{ clientResponse.length > 1 ? "responses" : "response" }}
               </v-card-title>
               <v-card-text>
                 <div v-for="(response, index) of clientResponse" :key="index" elevation="5">
@@ -326,19 +313,10 @@ function isBlob(data: unknown): data is Blob {
                     >
                       Download Blob
                     </v-btn>
-                    <object-editor
-                      v-else
-                      v-model="response.value"
-                      :error="false"
-                      height="800px"
-                    />
+                    <object-editor v-else v-model="response.value" :error="false" height="800px" />
                   </div>
                   <div v-else>
-                    <ObjectEditor
-                      v-model="response.error"
-                      :error="false"
-                      height="800px"
-                    />
+                    <ObjectEditor v-model="response.error" :error="false" height="800px" />
                   </div>
                 </div>
               </v-card-text>

@@ -4,23 +4,11 @@
   "datatype": "UInt8",
   "access": "RW",
   "public": true,
-  "range": [
-    0,
-    2
-  ],
+  "range": [0, 2],
   "values": [
-    [
-      0,
-      "Silent Mode"
-    ],
-    [
-      1,
-      "Low Volume"
-    ],
-    [
-      2,
-      "High"
-    ]
+    [0, "Silent Mode"],
+    [1, "Low Volume"],
+    [2, "High"]
   ],
   "default": 0,
   "description": "The sound volume has three possible settings: silent, low and high volumes.",

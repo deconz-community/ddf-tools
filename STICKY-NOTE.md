@@ -22,6 +22,7 @@ Add a note for the frimware version of the 2 DDF of TRADFRI on/off switch
 - [Single file build](https://github.com/richardtallent/vite-plugin-singlefile)
 
 ## Monaco Editor JSON
+
 - https://stackoverflow.com/questions/78021090/how-to-find-line-number-by-path-in-monaco-editor-json
 - https://github.com/YECHUNAN/json-color-token
 - https://stackoverflow.com/questions/79082718/monaco-editor-add-javascript-display-inside-json-property
@@ -32,9 +33,11 @@ Add a note for the frimware version of the 2 DDF of TRADFRI on/off switch
 - https://github.com/anparfenov/vue-window-component
 
 ## Waiting for fix
+
 - https://github.com/rlaffers/eslint-plugin-xstate/issues/30
 
 ## Other stuff
+
 - Zod deep required : https://github.com/colinhacks/zod/issues/2251
 - An other UI Library : https://primevue.org/treetable/
 - https://www.ag-grid.com/vue-data-grid/getting-started/

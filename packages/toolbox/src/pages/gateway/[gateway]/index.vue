@@ -1,36 +1,33 @@
 <script setup lang="ts">
 const props = defineProps<{
-  gateway: string
-}>()
+  gateway: string;
+}>();
 
-const gateway = useGateway(toRef(props, 'gateway'))
+const gateway = useGateway(toRef(props, "gateway"));
 
 const permitJoin = computed(() =>
-  gateway.config && 'permitjoin' in gateway.config
-    ? gateway.config.permitjoin
-    : undefined,
-)
+  gateway.config && "permitjoin" in gateway.config ? gateway.config.permitjoin : undefined,
+);
 
-const drawer = ref(false)
-onMounted(() => setTimeout(() => drawer.value = true, 0))
+const drawer = ref(false);
+onMounted(() => setTimeout(() => (drawer.value = true), 0));
 
 async function openGateway() {
-  await gateway.fetch('findSensor', {})
-  getResult()
-  gateway.send({ type: 'REFRESH_CONFIG' })
+  await gateway.fetch("findSensor", {});
+  getResult();
+  gateway.send({ type: "REFRESH_CONFIG" });
 }
 
-const findResult = ref()
+const findResult = ref();
 
 async function getResult() {
-  const results = await gateway.fetch('getSensorFindResult', {})
+  const results = await gateway.fetch("getSensorFindResult", {});
 
   results.forEach((result) => {
-    if (!result.isOk())
-      return
+    if (!result.isOk()) return;
 
-    findResult.value = result.value
-  })
+    findResult.value = result.value;
+  });
 }
 </script>
 

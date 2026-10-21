@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 export const errorSchema = z.array(
   z.strictObject({
@@ -7,4 +7,4 @@ export const errorSchema = z.array(
     type: z.number(),
     code: z.string(),
   }),
-)
+);

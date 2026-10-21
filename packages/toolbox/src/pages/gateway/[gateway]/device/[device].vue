@@ -175,8 +175,7 @@ const avaliableBundles = computed(() => {
       <v-progress-linear indeterminate />
     </v-card-text>
   </v-card>
--->
-</template>
+--></template>
 
 <route lang="json">
 {

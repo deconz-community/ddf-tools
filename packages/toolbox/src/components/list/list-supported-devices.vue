@@ -1,47 +1,46 @@
 <script setup lang="ts">
-type deviceIdentifiers = [ string, string ] | {
-  device_identifiers_id: {
-    manufacturer: string
-    model: string
-  }
-}
+type deviceIdentifiers =
+  | [string, string]
+  | {
+      device_identifiers_id: {
+        manufacturer: string;
+        model: string;
+      };
+    };
 const props = defineProps<{
-  deviceIdentifiers?: deviceIdentifiers[]
-}>()
+  deviceIdentifiers?: deviceIdentifiers[];
+}>();
 
 const supportedDevices = computed(() => {
-  if (!props.deviceIdentifiers)
-    return []
+  if (!props.deviceIdentifiers) return [];
   return props.deviceIdentifiers.reduce(
     (acc: Record<string, string[]>, item: deviceIdentifiers) => {
-      let manufacturer: string
-      let model: string
+      let manufacturer: string;
+      let model: string;
 
       if (Array.isArray(item)) {
-        manufacturer = item[0]
-        model = item[1]
+        manufacturer = item[0];
+        model = item[1];
+      } else {
+        manufacturer = item.device_identifiers_id.manufacturer;
+        model = item.device_identifiers_id.model;
       }
-      else {
-        manufacturer = item.device_identifiers_id.manufacturer
-        model = item.device_identifiers_id.model
-      }
 
-      if (!acc[manufacturer])
-        acc[manufacturer] = []
+      if (!acc[manufacturer]) acc[manufacturer] = [];
 
-      acc[manufacturer].push(model)
+      acc[manufacturer].push(model);
 
-      return acc
+      return acc;
     },
     {},
-  )
-})
+  );
+});
 </script>
 
 <template>
-  <h3 v-for="devices, manufacturer in supportedDevices" :key="manufacturer" class="ma-1 ml-4">
+  <h3 v-for="(devices, manufacturer) in supportedDevices" :key="manufacturer" class="ma-1 ml-4">
     {{ manufacturer }}
-    <v-chip v-for="device, index in devices" :key="index" class="ma-1">
+    <v-chip v-for="(device, index) in devices" :key="index" class="ma-1">
       {{ device }}
     </v-chip>
     <v-divider />

@@ -31,6 +31,7 @@ pnpm preview --help
 ### Help
 
 You can see the help by running:
+
 ```bash
 ddf-tools --help
 ```
@@ -61,39 +62,50 @@ ddf-tools bundle --upload --store-token <token> devices/
 ```
 
 ##### Argument <path> (required)
+
 The path to the json DDF source file or a directory containing the json DDF source files.
 If a directory is provided, all json files in the directory will be bundled.
 
 ##### -g, --generic <path>
+
 The directory where all generic files are located.
 If not provided, the bundler will look for the generic directory in parent directories.
 
 ##### -o, --output <path>
+
 The directory where the bundled DDFs will be saved.
 Defaults to the DDF directory.
 
 ##### --no-validate
+
 Skip the validation of the DDFs.
 
 ##### --private-key <privateKey>
+
 The private key to sign the DDFs with. If upload enabled your private key will be used to sign the DDFs.
 
 ##### --upload
+
 Upload the DDFs to the DDF server.
 
 ##### --store-url <url>
+
 The url of the DDF server to upload the DDFs to. By default it's using the global DDF server at https://ddf.cryonet.io.
 
 ##### --store-token <token>
+
 The token to authenticate with the DDF server.
 
 ##### --store-bundle-status <status>
+
 Status of the bundle (alpha, beta, stable) (default: "alpha")
 
 ##### --file-modified-method <method>
+
 Method to use to get the last modified date of the files (gitlog, mtime, ctime) (default: "gitlog")
 
 ##### --debug
+
 Enable debug mode.
 
 #### Bulk operations

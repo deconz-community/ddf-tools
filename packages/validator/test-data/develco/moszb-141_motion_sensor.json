@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "ee657811-3f43-499e-8f71-05ff152d3940",
-  "manufacturername": [
-    "Develco Products A/S",
-    "frient A/S"
-  ],
-  "modelid": [
-    "MOSZB-141",
-    "MOSZB-141"
-  ],
+  "manufacturername": ["Develco Products A/S", "frient A/S"],
+  "modelid": ["MOSZB-141", "MOSZB-141"],
   "vendor": "Develco Products",
   "product": "Motion sensor (MOSZB-141)",
   "sleeper": true,
@@ -17,18 +11,12 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x29",
-        "0x0406"
-      ],
+      "uuid": ["$address.ext", "0x29", "0x0406"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0107",
         "endpoint": "0x29",
-        "in": [
-          "0x0406"
-        ]
+        "in": ["0x0406"]
       },
       "items": [
         {
@@ -141,18 +129,12 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x28",
-        "0x0406"
-      ],
+      "uuid": ["$address.ext", "0x28", "0x0406"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0107",
         "endpoint": "0x28",
-        "in": [
-          "0x0406"
-        ]
+        "in": ["0x0406"]
       },
       "items": [
         {
@@ -265,19 +247,12 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x23",
-        "0x0500"
-      ],
+      "uuid": ["$address.ext", "0x23", "0x0500"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0402",
         "endpoint": "0x23",
-        "in": [
-          "0x0001",
-          "0x0500"
-        ]
+        "in": ["0x0001", "0x0500"]
       },
       "items": [
         {
@@ -364,10 +339,7 @@
             "fn": "zcl:attr",
             "mf": "0x1015"
           },
-          "range": [
-            20,
-            65535
-          ],
+          "range": [20, 65535],
           "default": 20
         },
         {
@@ -398,18 +370,12 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x22",
-        "0x0406"
-      ],
+      "uuid": ["$address.ext", "0x22", "0x0406"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0107",
         "endpoint": "0x22",
-        "in": [
-          "0x0406"
-        ]
+        "in": ["0x0406"]
       },
       "items": [
         {

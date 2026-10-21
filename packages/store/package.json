@@ -1,34 +1,23 @@
 {
   "name": "@deconz-community/store",
-  "type": "module",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.33.0",
   "description": "",
+  "keywords": [
+    "conbee",
+    "deconz",
+    "drezden"
+  ],
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "license": "MIT",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
     "url": "https://github.com/Zehir"
   },
-  "license": "MIT",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deconz-community/ddf-tools.git"
-  },
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
-  },
-  "keywords": [
-    "deconz",
-    "drezden",
-    "conbee"
-  ],
-  "icon": "extension",
   "maintainers": [
     {
       "name": "Zehir",
@@ -36,10 +25,15 @@
       "url": "https://github.com/Zehir"
     }
   ],
-  "engines": {
-    "pnpm": ">=8.6.8",
-    "node": ">=16.0.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deconz-community/ddf-tools.git"
   },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
+  },
+  "type": "module",
   "scripts": {
     "dev": "node ./scripts/directus_dev.cjs",
     "import:schema": "CONFIG_PATH='./scripts/load_env.cjs' npx directus schema apply ./schema.yaml",
@@ -62,5 +56,11 @@
     "pinia": "^3.0.4",
     "spawn-command": "1.0.0",
     "vue": "^3.5.32"
-  }
+  },
+  "icon": "extension",
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.6.8"
+  },
+  "packageManager": "pnpm@10.33.0"
 }

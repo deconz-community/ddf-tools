@@ -10,11 +10,7 @@
     {
       "type": "$TYPE_VIBRATION_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0xef00"
-      ],
+      "uuid": ["$address.ext", "0x01", "0xef00"],
       "items": [
         {
           "name": "attr/lastseen"

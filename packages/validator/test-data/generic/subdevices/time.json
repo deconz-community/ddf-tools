@@ -5,16 +5,6 @@
   "ui_name": "Time",
   "restapi": "/sensors",
   "order": 20,
-  "uuid": [
-    "$address.ext",
-    "0x01",
-    "0x000a"
-  ],
-  "items": [
-    "config/on",
-    "config/reachable",
-    "state/lastupdated",
-    "state/localtime",
-    "state/utc"
-  ]
+  "uuid": ["$address.ext", "0x01", "0x000a"],
+  "items": ["config/on", "config/reachable", "state/lastupdated", "state/localtime", "state/utc"]
 }

@@ -1,23 +1,24 @@
 <script setup lang="ts">
 // import type { EffectScope } from 'vue'
 
-const route = useRoute()
+const route = useRoute();
 
 const baseURL = computed(() => {
-  if (route.params.gateway === undefined)
-    return ''
-  return `/gateway/${route.params.gateway}`
-})
+  if (route.params.gateway === undefined) return "";
+  return `/gateway/${route.params.gateway}`;
+});
 
-const machines = createUseAppMachine()
-const app = machines.use('app')
-const gateway = machines.use('gateway', computed(() => ({ id: route.params.gateway as string })))
+const machines = createUseAppMachine();
+const app = machines.use("app");
+const gateway = machines.use(
+  "gateway",
+  computed(() => ({ id: route.params.gateway as string })),
+);
 
-const isDevelopper = computed(() => app.state?.context.settings?.developerMode)
+const isDevelopper = computed(() => app.state?.context.settings?.developerMode);
 
-const scope = getCurrentScope()
-if (!scope)
-  throw new Error('no scope')
+const scope = getCurrentScope();
+if (!scope) throw new Error("no scope");
 
 /*
 const devices = ref(new Map<string, {
@@ -102,9 +103,7 @@ const sortedDevices = computed(() => {
     />
     <template v-if="isDevelopper">
       <v-divider />
-      <v-list-subheader>
-        Dev Tools
-      </v-list-subheader>
+      <v-list-subheader> Dev Tools </v-list-subheader>
       <v-list-item
         prepend-icon="mdi-api"
         title="REST Client"

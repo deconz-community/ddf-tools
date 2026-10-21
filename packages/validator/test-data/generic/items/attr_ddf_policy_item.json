@@ -8,21 +8,9 @@
   "description": "Determines how DDF bundle is selected.",
   "default": "latest_prefer_stable",
   "values": [
-    [
-      "latest_prefer_stable",
-      "Use latest DDF bundle: Beta signed one if no stable available."
-    ],
-    [
-      "latest",
-      "Use latest DDF bundle either Beta or Stable signed."
-    ],
-    [
-      "pin",
-      "Stay on the pinned version (DDF bundle hash)."
-    ],
-    [
-      "raw_json",
-      "For development just use raw .json DDF."
-    ]
+    ["latest_prefer_stable", "Use latest DDF bundle: Beta signed one if no stable available."],
+    ["latest", "Use latest DDF bundle either Beta or Stable signed."],
+    ["pin", "Stay on the pinned version (DDF bundle hash)."],
+    ["raw_json", "For development just use raw .json DDF."]
   ]
 }

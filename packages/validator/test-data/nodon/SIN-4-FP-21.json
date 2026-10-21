@@ -12,14 +12,17 @@
     {
       "type": "$TYPE_THERMOSTAT",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0201"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0201"],
       "meta": {
         "values": {
-          "config/mode": {"confort": 1, "confort-1": 4, "confort-2": 5, "eco": 2, "hors gel": 3, "off": 0}
+          "config/mode": {
+            "confort": 1,
+            "confort-1": 4,
+            "confort-2": 5,
+            "eco": 2,
+            "hors gel": 3,
+            "off": 0
+          }
         }
       },
       "items": [
@@ -89,11 +92,7 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0702"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0702"],
       "items": [
         {
           "name": "attr/id"
@@ -190,6 +189,6 @@
           "change": "0x00000001"
         }
       ]
-    } 
+    }
   ]
 }

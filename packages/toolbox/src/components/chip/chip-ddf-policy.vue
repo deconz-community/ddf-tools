@@ -1,100 +1,101 @@
 <script setup lang="ts">
-import type { ExtractResponseSchemaForAlias } from '@deconz-community/rest-client'
+import type { ExtractResponseSchemaForAlias } from "@deconz-community/rest-client";
 
 const props = defineProps<{
-  ddfPolicy: ExtractResponseSchemaForAlias<'getDevice'>['ddf_policy']
-  ddfHash: string
-  gateway: string
-  deviceId: string
-  deviceName: string
-  manufacturerName: string
-  modelId: string
-}>()
+  ddfPolicy: ExtractResponseSchemaForAlias<"getDevice">["ddf_policy"];
+  ddfHash: string;
+  gateway: string;
+  deviceId: string;
+  deviceName: string;
+  manufacturerName: string;
+  modelId: string;
+}>();
 
 const attrs = {
   latest_prefer_stable: {
-    value: 'latest_prefer_stable',
-    title: 'Latest stable (Default)',
-    icon: 'mdi-cursor-default',
+    value: "latest_prefer_stable",
+    title: "Latest stable (Default)",
+    icon: "mdi-cursor-default",
     chip: {
-      text: 'Latest stable',
-      color: 'green',
+      text: "Latest stable",
+      color: "green",
     },
   },
   latest: {
-    value: 'latest',
-    title: 'Latest',
-    icon: 'mdi-history',
+    value: "latest",
+    title: "Latest",
+    icon: "mdi-history",
     chip: {
-      text: 'Latest',
-      color: 'orange',
+      text: "Latest",
+      color: "orange",
     },
   },
   pin: {
-    value: 'pin',
-    title: 'Pinned',
-    icon: 'mdi-pin-outline',
+    value: "pin",
+    title: "Pinned",
+    icon: "mdi-pin-outline",
     chip: {
-      text: 'Pinned',
-      color: 'primary',
+      text: "Pinned",
+      color: "primary",
     },
   },
   raw_json: {
-    value: 'raw_json',
-    title: 'Raw JSON',
-    icon: 'mdi-code-json',
+    value: "raw_json",
+    title: "Raw JSON",
+    icon: "mdi-code-json",
     chip: {
-      text: 'Raw JSON',
-      color: 'secondary',
+      text: "Raw JSON",
+      color: "secondary",
     },
   },
-} as const
+} as const;
 
-const gateway = useGateway(toRef(props, 'gateway'))
-const bundleSearch = ref('')
-const isActive = ref(false)
+const gateway = useGateway(toRef(props, "gateway"));
+const bundleSearch = ref("");
+const isActive = ref(false);
 
-const { cloned: policy, sync: syncPolicy } = useCloned(toRef(props, 'ddfPolicy'))
-const { cloned: hash, sync: syncHash } = useCloned(toRef(props, 'ddfHash'))
+const { cloned: policy, sync: syncPolicy } = useCloned(toRef(props, "ddfPolicy"));
+const { cloned: hash, sync: syncHash } = useCloned(toRef(props, "ddfHash"));
 
 const avaliableBundles = computed(() => {
   return Array.from(gateway.bundles.entries())
-    .filter(([_hash, bundle]) => bundle.device_identifiers.some(
-      ([ma, mo]) => props.manufacturerName === ma && props.modelId === mo,
-    ))
+    .filter(([_hash, bundle]) =>
+      bundle.device_identifiers.some(
+        ([ma, mo]) => props.manufacturerName === ma && props.modelId === mo,
+      ),
+    )
     .map(([hash, bundle]) => ({
       ...bundle,
       hash,
       last_modified: new Date(bundle.last_modified),
     }))
-    .sort((a, b) => b.last_modified.getTime() - a.last_modified.getTime())
-})
+    .sort((a, b) => b.last_modified.getTime() - a.last_modified.getTime());
+});
 
 async function save() {
   if (!policy.value) {
-    toast.error('Please select a policy')
-    return
+    toast.error("Please select a policy");
+    return;
   }
 
-  const results = await gateway.fetch('setDeviceDDFPolicy', {
+  const results = await gateway.fetch("setDeviceDDFPolicy", {
     deviceUniqueID: props.deviceId,
     body: {
       policy: policy.value,
       hash: hash.value.length > 0 ? hash.value : undefined,
     },
-  })
+  });
 
   results.forEach((result) => {
     if (result.isErr()) {
-      console.error(result.error)
-      toast.error('Failed to set DDF policy')
+      console.error(result.error);
+      toast.error("Failed to set DDF policy");
+    } else {
+      isActive.value = false;
+      gateway.send({ type: "REFRESH_DEVICES" });
+      toast.success("Successfully set DDF policy");
     }
-    else {
-      isActive.value = false
-      gateway.send({ type: 'REFRESH_DEVICES' })
-      toast.success('Successfully set DDF policy')
-    }
-  })
+  });
 }
 </script>
 
@@ -103,7 +104,10 @@ async function save() {
     v-if="props.ddfPolicy"
     v-model="isActive"
     max-width="800"
-    @after-leave="syncHash(); syncPolicy()"
+    @after-leave="
+      syncHash();
+      syncPolicy();
+    "
   >
     <template #activator="{ props: activatorProps }">
       <v-chip
@@ -118,9 +122,7 @@ async function save() {
 
     <template #default="">
       <v-card>
-        <v-card-title>
-          Edit DDF Policy for {{ props.deviceName }}
-        </v-card-title>
+        <v-card-title> Edit DDF Policy for {{ props.deviceName }} </v-card-title>
         <v-card-text>
           <v-btn-toggle
             v-model="policy"
@@ -131,7 +133,8 @@ async function save() {
             class="ma-2"
           >
             <v-btn
-              v-for="attr of Object.values(attrs)" :key="attr.value"
+              v-for="attr of Object.values(attrs)"
+              :key="attr.value"
               :value="attr.value"
               :text="attr.title"
               :append-icon="attr.icon"
@@ -152,41 +155,47 @@ async function save() {
 
           <v-data-table
             :search="bundleSearch"
-            :headers="[{
-              title: 'Hash',
-              key: 'hash',
-            }, {
-              title: 'Product',
-              key: 'product',
-            }, {
-              title: 'Version deCONZ',
-              key: 'version_deconz',
-            }, {
-              title: 'Last Modified',
-              key: 'last_modified',
-            }, {
-              title: 'Select',
-              key: 'select',
-            }]"
-            :sort-by="[{
-              key: 'last_modified',
-              order: 'desc',
-            }]"
+            :headers="[
+              {
+                title: 'Hash',
+                key: 'hash',
+              },
+              {
+                title: 'Product',
+                key: 'product',
+              },
+              {
+                title: 'Version deCONZ',
+                key: 'version_deconz',
+              },
+              {
+                title: 'Last Modified',
+                key: 'last_modified',
+              },
+              {
+                title: 'Select',
+                key: 'select',
+              },
+            ]"
+            :sort-by="[
+              {
+                key: 'last_modified',
+                order: 'desc',
+              },
+            ]"
             :items="avaliableBundles"
             item-value="hash"
           >
             <!-- eslint-disable-next-line vue/valid-v-slot -->
             <template #item.hash="{ item }">
-              <chip-ddf-hash
-                source="gateway"
-                :hash="item.hash"
-                :gateway="props.gateway"
-              />
+              <chip-ddf-hash source="gateway" :hash="item.hash" :gateway="props.gateway" />
             </template>
 
             <!-- eslint-disable-next-line vue/valid-v-slot -->
             <template #item.last_modified="{ item }">
-              <v-tooltip :text="`${item.last_modified.toLocaleDateString()} ${item.last_modified.toLocaleTimeString()}`">
+              <v-tooltip
+                :text="`${item.last_modified.toLocaleDateString()} ${item.last_modified.toLocaleTimeString()}`"
+              >
                 <template #activator="{ props: localProps }">
                   <p v-bind="localProps">
                     <UseTimeAgo v-slot="{ timeAgo }" :time="item.last_modified">
@@ -204,7 +213,10 @@ async function save() {
                 width="90"
                 :text="policy === 'pin' && item.hash === hash ? 'Selected' : 'Select'"
                 :disabled="policy === 'pin' && item.hash === hash"
-                @click="hash = item.hash; policy = 'pin'"
+                @click="
+                  hash = item.hash;
+                  policy = 'pin';
+                "
               />
             </template>
           </v-data-table>
@@ -218,7 +230,7 @@ async function save() {
             color="success"
             append-icon="mdi-floppy"
             variant="elevated"
-            @click="save();"
+            @click="save()"
           />
           <v-btn
             text="Close Dialog"
@@ -232,7 +244,5 @@ async function save() {
     </template>
   </v-dialog>
 
-  <v-chip v-else class="ma-2" color="warning">
-    None
-  </v-chip>
+  <v-chip v-else class="ma-2" color="warning"> None </v-chip>
 </template>

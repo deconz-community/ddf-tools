@@ -4,10 +4,7 @@
   "datatype": "UInt8",
   "access": "RW",
   "public": true,
-  "range": [
-    0,
-    5
-  ],
+  "range": [0, 5],
   "default": 0,
   "description": "Specifies the overall operating environment of the thermostat, and thus the possible system modes that the thermostat can operate in."
 }

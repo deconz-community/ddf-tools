@@ -1,51 +1,35 @@
 {
   "name": "@deconz-community/directus-extension-ddf-store",
-  "type": "module",
   "version": "0.27.0",
   "description": "Extension for Directus to store DDF files in the database, used only by the Deconz Community",
+  "keywords": [
+    "directus",
+    "directus-custom-bundle",
+    "directus-extension"
+  ],
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store-extension",
+  "bugs": {
+    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  },
+  "license": "MIT",
   "author": {
     "name": "Zehir",
     "email": "zehir@zorim.fr",
     "url": "https://github.com/Zehir"
   },
-  "license": "MIT",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/Zehir"
-  },
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/store-extension",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/deconz-community/ddf-tools.git"
   },
-  "bugs": {
-    "url": "https://github.com/deconz-community/ddf-tools/issues/"
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/Zehir"
   },
-  "keywords": [
-    "directus",
-    "directus-extension",
-    "directus-custom-bundle"
-  ],
-  "icon": "extension",
+  "type": "module",
   "scripts": {
     "build": "directus-extension build",
     "dev": "directus-extension build -w --no-minify",
     "add": "directus-extension add"
-  },
-  "directus:extension": {
-    "host": "^10.1.10",
-    "type": "bundle",
-    "path": {
-      "app": "dist/app.js",
-      "api": "dist/api.js"
-    },
-    "entries": [
-      {
-        "type": "endpoint",
-        "name": "bundle",
-        "source": "src/api/index.ts"
-      }
-    ]
   },
   "dependencies": {
     "@deconz-community/ddf-bundler": "workspace:^",
@@ -66,5 +50,21 @@
     "@types/pako": "^2.0.4",
     "express": "^5.2.1",
     "typescript": "^6.0.2"
+  },
+  "icon": "extension",
+  "directus:extension": {
+    "host": "^10.1.10",
+    "type": "bundle",
+    "path": {
+      "app": "dist/app.js",
+      "api": "dist/api.js"
+    },
+    "entries": [
+      {
+        "type": "endpoint",
+        "name": "bundle",
+        "source": "src/api/index.ts"
+      }
+    ]
   }
 }

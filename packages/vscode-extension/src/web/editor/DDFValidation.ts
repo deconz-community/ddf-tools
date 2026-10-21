@@ -1,29 +1,31 @@
-import { createValidator } from '@deconz-community/ddf-validator'
-import { createScanner, getLocation, SyntaxKind } from 'jsonc-parser'
-import * as vscode from 'vscode'
+import { createValidator } from "@deconz-community/ddf-validator";
+import { createScanner, getLocation, SyntaxKind } from "jsonc-parser";
+import * as vscode from "vscode";
 
 function getJsonPath(document: vscode.TextDocument, position: vscode.Position) {
-  const text = document.getText()
-  const offset = document.offsetAt(position)
-  const scanner = createScanner(text, true)
+  const text = document.getText();
+  const offset = document.offsetAt(position);
+  const scanner = createScanner(text, true);
 
-  return getLocation(text, offset)
+  return getLocation(text, offset);
 }
 
 export async function registerDDFValidation(context: vscode.ExtensionContext) {
-  const diagnosticCollection = vscode.languages.createDiagnosticCollection('jsonValidation')
+  const diagnosticCollection = vscode.languages.createDiagnosticCollection("jsonValidation");
   const validators = {
     root: createValidator(),
-  }
+  };
 
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(document => validate(document, diagnosticCollection)),
-    vscode.workspace.onDidSaveTextDocument(document => validate(document, diagnosticCollection)),
-    vscode.workspace.onDidChangeTextDocument(({ document }) => validate(document, diagnosticCollection)),
-  )
+    vscode.workspace.onDidOpenTextDocument((document) => validate(document, diagnosticCollection)),
+    vscode.workspace.onDidSaveTextDocument((document) => validate(document, diagnosticCollection)),
+    vscode.workspace.onDidChangeTextDocument(({ document }) =>
+      validate(document, diagnosticCollection),
+    ),
+  );
 
   // Validate open documents on startup
-  vscode.workspace.textDocuments.forEach(document => validate(document, diagnosticCollection))
+  vscode.workspace.textDocuments.forEach((document) => validate(document, diagnosticCollection));
 
   /*
   // https://code.visualstudio.com/Docs/editor/editingevolved#_inlay-hints
@@ -50,13 +52,15 @@ export async function registerDDFValidation(context: vscode.ExtensionContext) {
   })
   */
 
-  async function validate(document: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection) {
-    if (document.languageId !== 'json')
-      return
+  async function validate(
+    document: vscode.TextDocument,
+    diagnosticCollection: vscode.DiagnosticCollection,
+  ) {
+    if (document.languageId !== "json") return;
 
-    console.log('DDFValidate')
+    console.log("DDFValidate");
 
-    console.log(document.version)
+    console.log(document.version);
 
     diagnosticCollection.set(document.uri, [
       /*
@@ -66,6 +70,6 @@ export async function registerDDFValidation(context: vscode.ExtensionContext) {
         vscode.DiagnosticSeverity.Warning,
       ),
       */
-    ])
+    ]);
   }
 }

@@ -1,44 +1,41 @@
 <script setup lang="ts">
-import type { ParameterDefinition } from '@deconz-community/rest-client'
+import type { ParameterDefinition } from "@deconz-community/rest-client";
 
 // #region Props
 const props = defineProps<{
-  gateway: string
-  name: string
-  param: ParameterDefinition
-  fancyUi: boolean
-}>()
+  gateway: string;
+  name: string;
+  param: ParameterDefinition;
+  fancyUi: boolean;
+}>();
 
-const model = defineModel<Record<string, any>>({ default: {} })
+const model = defineModel<Record<string, any>>({ default: {} });
 
 const value = computed({
   get: () => model.value[props.name],
-  set: value => model.value[props.name] = value,
-})
+  set: (value) => (model.value[props.name] = value),
+});
 // #endregion
 
-const gateway = useGateway(props.gateway)
+const gateway = useGateway(props.gateway);
 
 const sampleValue = computed(() => {
-  if (props.param.format === 'blob')
-    return undefined
+  if (props.param.format === "blob") return undefined;
 
-  if (typeof props.param.sample === 'function')
-    return props.param.sample(gateway)
-  return props.param.sample
-})
+  if (typeof props.param.sample === "function") return props.param.sample(gateway);
+  return props.param.sample;
+});
 
 // #region Gateway Data
 const apiKeys = computed(() => {
-  if (!gateway.config || !gateway.config.authenticated)
-    return []
+  if (!gateway.config || !gateway.config.authenticated) return [];
   return Object.entries(gateway.config.whitelist).map(([key, value]) => ({
     key,
     props: {
       subtitle: `${value.name}`,
     },
-  }))
-})
+  }));
+});
 
 const devicesUUID = computed(() => {
   return Array.from(gateway.devices.entries())
@@ -49,8 +46,8 @@ const devicesUUID = computed(() => {
         subtitle: uuid,
       },
     }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-})
+    .sort((a, b) => a.name.localeCompare(b.name));
+});
 
 const bundlesHash = computed(() => {
   return Array.from(gateway.bundles.entries())
@@ -61,38 +58,36 @@ const bundlesHash = computed(() => {
         subtitle: bundle.last_modified,
       },
     }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-})
+    .sort((a, b) => a.name.localeCompare(b.name));
+});
 
 // #endregion
 
 // #region Set default value
 switch (props.param.knownParam) {
   case undefined:
-    value.value = sampleValue.value
-    break
-  case 'apiKey':
-    value.value = apiKeys.value[0]?.key
-    break
-  case 'device/uuid':{
-    gateway.send({ type: 'REFRESH_DEVICES' })
-    const selectFirst = () => value.value = devicesUUID.value[0]?.key
-    selectFirst()
-    if (value.value === undefined)
-      watchOnce(refDebounced(devicesUUID, 200), selectFirst)
-    break
+    value.value = sampleValue.value;
+    break;
+  case "apiKey":
+    value.value = apiKeys.value[0]?.key;
+    break;
+  case "device/uuid": {
+    gateway.send({ type: "REFRESH_DEVICES" });
+    const selectFirst = () => (value.value = devicesUUID.value[0]?.key);
+    selectFirst();
+    if (value.value === undefined) watchOnce(refDebounced(devicesUUID, 200), selectFirst);
+    break;
   }
-  case 'bundle/hash':{
-    gateway.send({ type: 'REFRESH_BUNDLES' })
-    const selectFirst = () => value.value = bundlesHash.value[0]?.key
-    selectFirst()
-    if (value.value === undefined)
-      watchOnce(refDebounced(bundlesHash, 200), selectFirst)
-    break
+  case "bundle/hash": {
+    gateway.send({ type: "REFRESH_BUNDLES" });
+    const selectFirst = () => (value.value = bundlesHash.value[0]?.key);
+    selectFirst();
+    if (value.value === undefined) watchOnce(refDebounced(bundlesHash, 200), selectFirst);
+    break;
   }
-  case 'alarmSystem/id':
-    value.value = '1'
-    break
+  case "alarmSystem/id":
+    value.value = "1";
+    break;
 }
 
 // #endregion
@@ -101,10 +96,7 @@ switch (props.param.knownParam) {
 <template>
   <template v-if="props.param.knownParam !== 'hidden'">
     <template v-if="props.param.format === 'blob'">
-      <v-file-input
-        v-model="value"
-        :label="props.param.description"
-      />
+      <v-file-input v-model="value" :label="props.param.description" />
     </template>
     <template v-else-if="props.param.format === 'string'">
       <v-autocomplete
@@ -166,25 +158,15 @@ switch (props.param.knownParam) {
         :label="props.param.description"
       />
       <template v-else>
-        <v-alert
-          type="error"
-          text="No UI for that format yet."
-        />
+        <v-alert type="error" text="No UI for that format yet." />
         <pre>{{ props.param }}</pre>
       </template>
     </template>
     <template v-else-if="props.param.format === 'json'">
-      <ObjectEditor
-        v-model="value"
-        :label="props.param.description"
-        :error="false"
-      />
+      <ObjectEditor v-model="value" :label="props.param.description" :error="false" />
     </template>
     <template v-else>
-      <v-alert
-        type="error"
-        text="No UI for that format yet."
-      />
+      <v-alert type="error" text="No UI for that format yet." />
       <pre>{{ props.param }}</pre>
     </template>
   </template>

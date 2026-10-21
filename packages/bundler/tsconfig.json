@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "useDefineForClassFields": true,
     "rootDir": "./",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": [
-      "vite/client"
-    ],
+    "types": ["vite/client"],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitReturns": true,
@@ -24,13 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src",
-    "index.ts"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "node_modules",
-    "test/**"
-  ]
+  "include": ["src", "index.ts"],
+  "exclude": ["**/*.test.ts", "node_modules", "test/**"]
 }

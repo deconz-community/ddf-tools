@@ -4,10 +4,7 @@
   "datatype": "UInt8",
   "access": "RW",
   "public": true,
-  "range": [
-    0,
-    255
-  ],
+  "range": [0, 255],
   "description": "The sensor sensitivity.",
   "default": 0
 }

@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -50,14 +47,7 @@
             "fn": "zcl:attr",
             "ep": 1,
             "cl": "0x0000",
-            "at": [
-              "0x0004",
-              "0x0000",
-              "0x0001",
-              "0x0005",
-              "0x0007",
-              "0xfffe"
-            ]
+            "at": ["0x0004", "0x0000", "0x0001", "0x0005", "0x0007", "0xfffe"]
           },
           "parse": {
             "fn": "zcl:attr",
@@ -81,10 +71,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"

@@ -5,11 +5,7 @@
   "ui_name": "Temperature sensor",
   "restapi": "/sensors",
   "order": 23,
-  "uuid": [
-    "$address.ext",
-    "0x01",
-    "0x0402"
-  ],
+  "uuid": ["$address.ext", "0x01", "0x0402"],
   "items": [
     "config/on",
     "config/offset",

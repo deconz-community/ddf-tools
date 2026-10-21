@@ -1,12 +1,16 @@
-import type { EndpointAlias, ExtractParamsForAlias, RequestResultForAlias } from '@deconz-community/rest-client'
-import type { MaybeRef } from 'vue'
-import { gatewayRequest } from '~/machines/gateway'
+import type {
+  EndpointAlias,
+  ExtractParamsForAlias,
+  RequestResultForAlias,
+} from "@deconz-community/rest-client";
+import type { MaybeRef } from "vue";
+import { gatewayRequest } from "~/machines/gateway";
 
 export function useGateway(gatewayId: MaybeRef<string | undefined>) {
-  const machines = createUseAppMachine()
-  const gatewayIdRef = computed(() => ({ id: toValue(gatewayId) ?? '' }))
+  const machines = createUseAppMachine();
+  const gatewayIdRef = computed(() => ({ id: toValue(gatewayId) ?? "" }));
 
-  const gatewayMachine = machines.use('gateway', gatewayIdRef)
+  const gatewayMachine = machines.use("gateway", gatewayIdRef);
 
   function fetch<Alias extends EndpointAlias>(
     alias: Alias,
@@ -16,21 +20,21 @@ export function useGateway(gatewayId: MaybeRef<string | undefined>) {
       gatewayMachine.send(
         gatewayRequest(alias, params, {
           onDone: (result) => {
-            resolve(result as any)
+            resolve(result as any);
           },
         }),
-      )
-    })
+      );
+    });
   }
 
   return reactive({
     fetch,
     send: gatewayMachine.send,
     select: gatewayMachine.select,
-    state: gatewayMachine.select(state => state),
-    credentials: gatewayMachine.select(state => state.context.credentials),
-    config: gatewayMachine.select(state => state.context.config),
-    devices: gatewayMachine.select(state => state.context.devices),
-    bundles: gatewayMachine.select(state => state.context.bundles),
-  })
+    state: gatewayMachine.select((state) => state),
+    credentials: gatewayMachine.select((state) => state.context.credentials),
+    config: gatewayMachine.select((state) => state.context.config),
+    devices: gatewayMachine.select((state) => state.context.devices),
+    bundles: gatewayMachine.select((state) => state.context.bundles),
+  });
 }

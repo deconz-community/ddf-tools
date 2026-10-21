@@ -1,55 +1,69 @@
 <script setup lang="ts">
-import type { Source } from '@deconz-community/ddf-bundler'
-import { buildFromFiles, Bundle, createSource, decode, generateHash } from '@deconz-community/ddf-bundler'
+import type { Source } from "@deconz-community/ddf-bundler";
+import {
+  buildFromFiles,
+  Bundle,
+  createSource,
+  decode,
+  generateHash,
+} from "@deconz-community/ddf-bundler";
 
-const baseDEUrl = 'https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices'
+const baseDEUrl =
+  "https://raw.githubusercontent.com/dresden-elektronik/deconz-rest-plugin/master/devices";
 // const baseDCUrl = 'https://raw.githubusercontent.com/deconz-community/ddf/main'
 
-const genericDE = `${baseDEUrl}/generic`
+const genericDE = `${baseDEUrl}/generic`;
 // const devicesDC = `${baseDCUrl}/devices`
 // const genericDC = `${devicesDC}/generic`
 
 const sampleList = {
-  'STARKVIND Air purifier': [genericDE, `${baseDEUrl}/ikea/starkvind_air_purifier.json`],
-  'FYRTUR block-out roller blind': [genericDE, `${baseDEUrl}/ikea/fyrtur_block-out_roller_blind.json`],
-  'SYMFONISK sound remote gen2': [genericDE, `${baseDEUrl}/ikea/symfonisk_sound_remote_gen2.json`],
-  'Lutron Aurora': [genericDE, `${baseDEUrl}/lutron/lutron_aurora_foh.json`],
-  'Mijia open/close sensor MCCGQ01LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`],
-  'Mijia smart plug ZNCZ04LM': [genericDE, `${baseDEUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`],
-  'Danalock V3': [genericDE, `${baseDEUrl}/danalock/danalock_v3.json`],
-} as const
+  "STARKVIND Air purifier": [genericDE, `${baseDEUrl}/ikea/starkvind_air_purifier.json`],
+  "FYRTUR block-out roller blind": [
+    genericDE,
+    `${baseDEUrl}/ikea/fyrtur_block-out_roller_blind.json`,
+  ],
+  "SYMFONISK sound remote gen2": [genericDE, `${baseDEUrl}/ikea/symfonisk_sound_remote_gen2.json`],
+  "Lutron Aurora": [genericDE, `${baseDEUrl}/lutron/lutron_aurora_foh.json`],
+  "Mijia open/close sensor MCCGQ01LM": [
+    genericDE,
+    `${baseDEUrl}/xiaomi/xiaomi_mccgq01lm_openclose_sensor.json`,
+  ],
+  "Mijia smart plug ZNCZ04LM": [
+    genericDE,
+    `${baseDEUrl}/xiaomi/xiaomi_zncz04lm_smart_plug_v24.json`,
+  ],
+  "Danalock V3": [genericDE, `${baseDEUrl}/danalock/danalock_v3.json`],
+} as const;
 
-const defaultSample: keyof typeof sampleList = 'STARKVIND Air purifier'
+const defaultSample: keyof typeof sampleList = "STARKVIND Air purifier";
 
-const genericDirectoryUrl = ref<string>('')
-const fileUrl = ref<string>('')
-const files = ref<File | undefined>()
-const error = ref('')
-const bundle = ref<ReturnType<typeof Bundle> | undefined>()
+const genericDirectoryUrl = ref<string>("");
+const fileUrl = ref<string>("");
+const files = ref<File | undefined>();
+const error = ref("");
+const bundle = ref<ReturnType<typeof Bundle> | undefined>();
 
 watch(files, async () => {
-  error.value = ''
+  error.value = "";
 
-  if (files.value instanceof File === false)
-    return
+  if (files.value instanceof File === false) return;
 
-  const firstBundle = await decode(files.value)
-  firstBundle.data.hash = await generateHash(firstBundle.data)
-  bundle.value = firstBundle
-})
+  const firstBundle = await decode(files.value);
+  firstBundle.data.hash = await generateHash(firstBundle.data);
+  bundle.value = firstBundle;
+});
 
 async function buildFromGithub() {
-  error.value = ''
+  error.value = "";
 
-  const sources = new Map<string, Source>()
+  const sources = new Map<string, Source>();
 
   try {
     const newBundle = await buildFromFiles(
       genericDirectoryUrl.value,
       fileUrl.value,
       async (path) => {
-        if (sources.has(path))
-          return sources.get(path)!
+        if (sources.has(path)) return sources.get(path)!;
 
         /*
           // This is disabled because it's get API rate limited to quickly but it does work
@@ -91,49 +105,46 @@ async function buildFromGithub() {
         }
         */
 
-        const result = await fetch(path)
-        if (result.status !== 200)
-          throw new Error(result.statusText)
-        const data = await result.blob()
+        const result = await fetch(path);
+        if (result.status !== 200) throw new Error(result.statusText);
+        const data = await result.blob();
 
         const source = createSource(data, {
           path,
           last_modified: new Date(),
-        })
-        sources.set(path, source)
-        return source
+        });
+        sources.set(path, source);
+        return source;
       },
-    )
+    );
 
-    newBundle.data.hash = await generateHash(newBundle.data)
-    bundle.value = newBundle
-  }
-  catch (e) {
-    error.value = 'Something went wrong while loading the bundle.'
-    console.warn(e)
+    newBundle.data.hash = await generateHash(newBundle.data);
+    bundle.value = newBundle;
+  } catch (e) {
+    error.value = "Something went wrong while loading the bundle.";
+    console.warn(e);
   }
 }
 
 async function createNew() {
-  const newBundle = Bundle()
-  newBundle.data.hash = await generateHash(newBundle.data)
-  bundle.value = newBundle
+  const newBundle = Bundle();
+  newBundle.data.hash = await generateHash(newBundle.data);
+  bundle.value = newBundle;
 }
 
-function loadSample(sample: typeof sampleList[keyof typeof sampleList]) {
-  const [generic, ddf] = sample
-  if (!generic || !ddf)
-    return
+function loadSample(sample: (typeof sampleList)[keyof typeof sampleList]) {
+  const [generic, ddf] = sample;
+  if (!generic || !ddf) return;
 
-  genericDirectoryUrl.value = generic
-  fileUrl.value = ddf
+  genericDirectoryUrl.value = generic;
+  fileUrl.value = ddf;
 }
 
-if (import.meta.env.VITE_DEBUG === 'true') {
+if (import.meta.env.VITE_DEBUG === "true") {
   onMounted(() => {
-    loadSample(sampleList[defaultSample])
+    loadSample(sampleList[defaultSample]);
     // buildFromGithub()
-  })
+  });
 }
 </script>
 
@@ -159,66 +170,35 @@ if (import.meta.env.VITE_DEBUG === 'true') {
         <p>This is a small HTML/JS to test reading and writing the RIFF based DDF bundle.</p>
       </v-alert>
 
-      <v-alert
-        v-show="error"
-        class="ma-2"
-        type="error"
-        title="Error"
-        :text="error"
-      />
+      <v-alert v-show="error" class="ma-2" type="error" title="Error" :text="error" />
 
-      <bundle-editor
-        v-if="bundle" v-model="bundle" variant="outlined" class="ma-2"
-      />
+      <bundle-editor v-if="bundle" v-model="bundle" variant="outlined" class="ma-2" />
       <template v-else>
         <v-card variant="outlined" class="ma-2">
           <v-card-title>
             Create new
-            <v-btn
-              color="primary"
-              class="float-right"
-              @click="createNew()"
-            >
-              Create
-            </v-btn>
+            <v-btn color="primary" class="float-right" @click="createNew()"> Create </v-btn>
           </v-card-title>
         </v-card>
 
         <v-card variant="outlined" class="ma-2">
-          <v-card-title>
-            Open file
-          </v-card-title>
+          <v-card-title> Open file </v-card-title>
           <v-card-text>
-            <v-file-input
-              v-model="files"
-              label="Open .ddb bundle from disk"
-              accept=".ddb"
-            />
+            <v-file-input v-model="files" label="Open .ddb bundle from disk" accept=".ddb" />
           </v-card-text>
         </v-card>
 
         <v-card variant="outlined" class="ma-2">
           <v-card-title>
             Build from GitHub source
-            <v-btn
-              color="primary"
-              class="float-right"
-              @click="buildFromGithub()"
-            >
-              Build
-            </v-btn>
+            <v-btn color="primary" class="float-right" @click="buildFromGithub()"> Build </v-btn>
           </v-card-title>
           <v-card-text>
-            <v-text-field
-              v-model="genericDirectoryUrl"
-              label="Generic directory url"
-            />
-            <v-text-field
-              v-model="fileUrl"
-              label="Load DDF From URL"
-            />
+            <v-text-field v-model="genericDirectoryUrl" label="Generic directory url" />
+            <v-text-field v-model="fileUrl" label="Load DDF From URL" />
             <v-btn
-              v-for="(sample, name) in sampleList" :key="name"
+              v-for="(sample, name) in sampleList"
+              :key="name"
               class="ma-2"
               @click="loadSample(sample)"
             >

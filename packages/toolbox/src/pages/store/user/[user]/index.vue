@@ -1,33 +1,31 @@
 <script setup lang="ts">
-import { computedAsync } from '@vueuse/core'
-import { readUser } from '@directus/sdk'
-import type { Collections } from '~/interfaces/store'
+import { computedAsync } from "@vueuse/core";
+import { readUser } from "@directus/sdk";
+import type { Collections } from "~/interfaces/store";
 
 const props = defineProps<{
-  user: string
-}>()
+  user: string;
+}>();
 
-const store = useStore()
+const store = useStore();
 
 const userProfile = computedAsync(
   async () => {
-    if (store.profile?.id === undefined)
-      return undefined
+    if (store.profile?.id === undefined) return undefined;
 
     // If I look my own profile, I can get it from the profile store
-    if (store.profile.id === props.user)
-      return store.profile
+    if (store.profile.id === props.user) return store.profile;
 
-    return (await store.client?.request<Collections.DirectusUser>(readUser(props.user)))
+    return await store.client?.request<Collections.DirectusUser>(readUser(props.user));
   },
   undefined, // initial state
-)
+);
 
-const avatarSize = 150
+const avatarSize = 150;
 // const userProfilLink = computed(() => `https://github.com/${userProfile.value?.name}`)
-const tab = ref('bundles')
-const bundlesCount = ref(0)
-const collectionsCount = ref(0)
+const tab = ref("bundles");
+const bundlesCount = ref(0);
+const collectionsCount = ref(0);
 </script>
 
 <template>
@@ -39,7 +37,7 @@ const collectionsCount = ref(0)
         :title="`${userProfile?.first_name ?? ''} ${userProfile?.last_name ?? ''}`"
         :subtitle="store.profile?.email ?? undefined"
       >
-      <!--
+        <!--
         <v-card-text>
           <v-btn :href="userProfilLink" target="_blank">
             Github profile
@@ -53,9 +51,7 @@ const collectionsCount = ref(0)
     <v-tabs v-model="tab">
       <v-tab value="bundles">
         Bundles
-        <template v-if="bundlesCount > 0">
-          ({{ bundlesCount }})
-        </template>
+        <template v-if="bundlesCount > 0"> ({{ bundlesCount }}) </template>
       </v-tab>
       <!--
       <v-tab value="collections">
@@ -72,7 +68,7 @@ const collectionsCount = ref(0)
         <v-window-item value="bundles">
           <ListBundles
             :filter="`contributors~'${props.user}'`"
-            @update-total-count="(v) => bundlesCount = v"
+            @update-total-count="(v) => (bundlesCount = v)"
           />
         </v-window-item>
 

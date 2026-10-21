@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -68,10 +65,7 @@
     {
       "type": "$TYPE_ON_OFF_LIGHT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"
@@ -125,19 +119,12 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x29",
-        "0x0012"
-      ],
+      "uuid": ["$address.ext", "0x29", "0x0012"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0100",
         "endpoint": "0x29",
-        "in": [
-          "0x0012",
-          "0x0000"
-        ]
+        "in": ["0x0012", "0x0000"]
       },
       "items": [
         {
@@ -205,14 +192,8 @@
             "mf": "0x115f"
           },
           "values": [
-            [
-              "\"compatibility\"",
-              "Default mode for Xiaomi devices"
-            ],
-            [
-              "\"zigbee\"",
-              "Closer to zigbee standard"
-            ]
+            ["\"compatibility\"", "Default mode for Xiaomi devices"],
+            ["\"zigbee\"", "Closer to zigbee standard"]
           ],
           "default": "compatibility"
         },
@@ -244,14 +225,8 @@
             "mf": "0x115f"
           },
           "values": [
-            [
-              true,
-              "Device LED always on"
-            ],
-            [
-              false,
-              "Device LED off from 9pm - 9am"
-            ]
+            [true, "Device LED always on"],
+            [false, "Device LED off from 9pm - 9am"]
           ],
           "default": true
         },
@@ -272,19 +247,12 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x15",
-        "0x000c"
-      ],
+      "uuid": ["$address.ext", "0x15", "0x000c"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0100",
         "endpoint": "0x15",
-        "in": [
-          "0x000C",
-          "0x0000"
-        ]
+        "in": ["0x000C", "0x0000"]
       },
       "items": [
         {
@@ -354,19 +322,12 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x1f",
-        "0x000c"
-      ],
+      "uuid": ["$address.ext", "0x1f", "0x000c"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0100",
         "endpoint": "0x1F",
-        "in": [
-          "0x000C",
-          "0x0000"
-        ]
+        "in": ["0x000C", "0x0000"]
       },
       "items": [
         {

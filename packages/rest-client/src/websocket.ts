@@ -1,235 +1,239 @@
-import { z } from 'zod'
-import { alarmSystemSchema } from './gateway/schemas/alarmSystemSchema'
-import { groupSchema } from './gateway/schemas/groupSchema'
-import { lightSchema } from './gateway/schemas/lightSchema'
-import { sensorSchema } from './gateway/schemas/sensorSchema'
+import { z } from "zod";
+import { alarmSystemSchema } from "./gateway/schemas/alarmSystemSchema";
+import { groupSchema } from "./gateway/schemas/groupSchema";
+import { lightSchema } from "./gateway/schemas/lightSchema";
+import { sensorSchema } from "./gateway/schemas/sensorSchema";
 
-export type WebsocketEvent = z.infer<ReturnType<typeof websocketSchema>>
+export type WebsocketEvent = z.infer<ReturnType<typeof websocketSchema>>;
 
-type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
 
 export function websocketSchema() {
-  const firstProcess = z.object({
-    t: z.literal('event'),
-    e: z.enum(['scene-called', 'added', 'changed', 'deleted']),
-    r: z.enum(['alarmsystems', 'scenes', 'sensors', 'lights', 'groups']).optional(),
-  }).loose()
-
-  const initialSchema = z.preprocess((data) => {
-    const initialData = firstProcess.parse(data)
-    let eventSchema = ''
-    const keys = ['t', 'e', 'r', 'attr', 'state', 'config', 'capabilities'] as const
-    keys.forEach((key) => {
-      if (key in initialData)
-        eventSchema += `/${typeof initialData[key] === 'string' ? initialData[key] : key}`
+  const firstProcess = z
+    .object({
+      t: z.literal("event"),
+      e: z.enum(["scene-called", "added", "changed", "deleted"]),
+      r: z.enum(["alarmsystems", "scenes", "sensors", "lights", "groups"]).optional(),
     })
-    return {
-      ...initialData,
-      eventSchema,
-    }
-  }, z.discriminatedUnion('eventSchema', [
+    .loose();
 
-    /*
+  const initialSchema = z.preprocess(
+    (data) => {
+      const initialData = firstProcess.parse(data);
+      let eventSchema = "";
+      const keys = ["t", "e", "r", "attr", "state", "config", "capabilities"] as const;
+      keys.forEach((key) => {
+        if (key in initialData)
+          eventSchema += `/${typeof initialData[key] === "string" ? initialData[key] : key}`;
+      });
+      return {
+        ...initialData,
+        eventSchema,
+      };
+    },
+    z.discriminatedUnion("eventSchema", [
+      /*
     Notes:
     Look for QLatin1String("event") in code
     webSocketServer->broadcastTextMessage
     */
 
-    // #region Alarm system
-    // Alarm system state change
-    // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/alarm_system_event_handler.cpp#L92
-    z.object({
-      eventSchema: z.literal('/event/changed/alarmsystems/attr'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('alarmsystems'),
-      attr: alarmSystemSchema.partial()
-        .pick({ name: true })
-        .extend({
+      // #region Alarm system
+      // Alarm system state change
+      // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/alarm_system_event_handler.cpp#L92
+      z.object({
+        eventSchema: z.literal("/event/changed/alarmsystems/attr"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("alarmsystems"),
+        attr: alarmSystemSchema.partial().pick({ name: true }).extend({
           id: z.string(),
         }),
-    }),
+      }),
 
-    z.object({
-      eventSchema: z.literal('/event/changed/alarmsystems/config'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('alarmsystems'),
-      config: alarmSystemSchema.shape.config,
-    }),
+      z.object({
+        eventSchema: z.literal("/event/changed/alarmsystems/config"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("alarmsystems"),
+        config: alarmSystemSchema.shape.config,
+      }),
 
-    z.object({
-      eventSchema: z.literal('/event/changed/alarmsystems/state'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('alarmsystems'),
-      state: alarmSystemSchema.shape.state,
-    }),
+      z.object({
+        eventSchema: z.literal("/event/changed/alarmsystems/state"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("alarmsystems"),
+        state: alarmSystemSchema.shape.state,
+      }),
 
-    // #endregion
+      // #endregion
 
-    // #region Scenes
-    // Scene called
-    // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/de_web_plugin.cpp#L13139
-    z.object({
-      eventSchema: z.literal('/event/scene-called/scenes'),
-      t: z.literal('event'),
-      e: z.literal('scene-called'),
-      r: z.literal('scenes'),
-      gid: z.string(),
-      scid: z.string(),
-    }),
+      // #region Scenes
+      // Scene called
+      // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/de_web_plugin.cpp#L13139
+      z.object({
+        eventSchema: z.literal("/event/scene-called/scenes"),
+        t: z.literal("event"),
+        e: z.literal("scene-called"),
+        r: z.literal("scenes"),
+        gid: z.string(),
+        scid: z.string(),
+      }),
 
-    // #endregion
+      // #endregion
 
-    // #region Groups
-    // Group added
-    // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3527
-    z.object({
-      eventSchema: z.literal('/event/added/groups'),
-      t: z.literal('event'),
-      e: z.literal('added'),
-      r: z.literal('groups'),
-      id: z.string(),
-    }),
+      // #region Groups
+      // Group added
+      // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3527
+      z.object({
+        eventSchema: z.literal("/event/added/groups"),
+        t: z.literal("event"),
+        e: z.literal("added"),
+        r: z.literal("groups"),
+        id: z.string(),
+      }),
 
-    // Group changed state
-    // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3512
-    z.object({
-      eventSchema: z.literal('/event/changed/groups/attr'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('groups'),
-      id: z.string(),
-      attr: groupSchema.partial().omit({ state: true, etag: true }),
-    }),
+      // Group changed state
+      // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3512
+      z.object({
+        eventSchema: z.literal("/event/changed/groups/attr"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("groups"),
+        id: z.string(),
+        attr: groupSchema.partial().omit({ state: true, etag: true }),
+      }),
 
-    // Group changed state
-    // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3467
-    z.object({
-      eventSchema: z.literal('/event/changed/groups/state'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('groups'),
-      id: z.string(),
-      state: groupSchema.shape.state,
-    }),
+      // Group changed state
+      // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3467
+      z.object({
+        eventSchema: z.literal("/event/changed/groups/state"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("groups"),
+        id: z.string(),
+        state: groupSchema.shape.state,
+      }),
 
-    // Group deleted
-    // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3537
-    z.object({
-      eventSchema: z.literal('/event/deleted/groups'),
-      t: z.literal('event'),
-      e: z.literal('deleted'),
-      r: z.literal('groups'),
-      id: z.string(),
-    }),
-    // #endregion
+      // Group deleted
+      // https://github.com/dresden-elektronik/deconz-rest-plugin/blob/b6eb920ba3ec919f5f525720e551f9b788bf9fa3/rest_groups.cpp#L3537
+      z.object({
+        eventSchema: z.literal("/event/deleted/groups"),
+        t: z.literal("event"),
+        e: z.literal("deleted"),
+        r: z.literal("groups"),
+        id: z.string(),
+      }),
+      // #endregion
 
-    // #region Sensors
-    // New sensor added
-    z.object({
-      eventSchema: z.literal('/event/added/sensors'),
-      t: z.literal('event'),
-      e: z.literal('added'),
-      r: z.literal('sensors'),
-      id: z.string(),
-      uniqueid: z.string(),
-      sensor: sensorSchema.partial(),
-    }),
+      // #region Sensors
+      // New sensor added
+      z.object({
+        eventSchema: z.literal("/event/added/sensors"),
+        t: z.literal("event"),
+        e: z.literal("added"),
+        r: z.literal("sensors"),
+        id: z.string(),
+        uniqueid: z.string(),
+        sensor: sensorSchema.partial(),
+      }),
 
-    // Sensor announcement
-    z.object({
-      eventSchema: z.literal('/event/changed/sensors/attr'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('sensors'),
-      id: z.string(),
-      uniqueid: z.string(),
-      attr: sensorSchema.partial().omit({ state: true, config: true, etag: true }),
-    }),
+      // Sensor announcement
+      z.object({
+        eventSchema: z.literal("/event/changed/sensors/attr"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("sensors"),
+        id: z.string(),
+        uniqueid: z.string(),
+        attr: sensorSchema.partial().omit({ state: true, config: true, etag: true }),
+      }),
 
-    // Sensor state change
-    z.object({
-      eventSchema: z.literal('/event/changed/sensors/state'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('sensors'),
-      id: z.string(),
-      uniqueid: z.string(),
-      state: sensorSchema.shape.state,
-    }),
+      // Sensor state change
+      z.object({
+        eventSchema: z.literal("/event/changed/sensors/state"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("sensors"),
+        id: z.string(),
+        uniqueid: z.string(),
+        state: sensorSchema.shape.state,
+      }),
 
-    // Sensor config change
-    z.object({
-      eventSchema: z.literal('/event/changed/sensors/config'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('sensors'),
-      id: z.string(),
-      uniqueid: z.string(),
-      config: sensorSchema.shape.config,
-    }),
+      // Sensor config change
+      z.object({
+        eventSchema: z.literal("/event/changed/sensors/config"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("sensors"),
+        id: z.string(),
+        uniqueid: z.string(),
+        config: sensorSchema.shape.config,
+      }),
 
-    // Sensor deleted
-    z.object({
-      eventSchema: z.literal('/event/sensors/deleted'),
-      t: z.literal('event'),
-      e: z.literal('deleted'),
-      r: z.literal('sensors'),
-      id: z.string(),
-    }),
-    // #endregion
+      // Sensor deleted
+      z.object({
+        eventSchema: z.literal("/event/sensors/deleted"),
+        t: z.literal("event"),
+        e: z.literal("deleted"),
+        r: z.literal("sensors"),
+        id: z.string(),
+      }),
+      // #endregion
 
-    // #region Lights
-    // New light added
-    z.object({
-      eventSchema: z.literal('/event/added/lights'),
-      t: z.literal('event'),
-      e: z.literal('added'),
-      r: z.literal('lights'),
-      id: z.string(),
-      uniqueid: z.string(),
-      light: lightSchema.partial(),
-    }),
+      // #region Lights
+      // New light added
+      z.object({
+        eventSchema: z.literal("/event/added/lights"),
+        t: z.literal("event"),
+        e: z.literal("added"),
+        r: z.literal("lights"),
+        id: z.string(),
+        uniqueid: z.string(),
+        light: lightSchema.partial(),
+      }),
 
-    // Light announcement
-    z.object({
-      eventSchema: z.literal('/event/changed/lights/attr'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('lights'),
-      id: z.string(),
-      uniqueid: z.string(),
-      attr: lightSchema.partial().omit({ state: true, config: true, etag: true }),
-    }),
+      // Light announcement
+      z.object({
+        eventSchema: z.literal("/event/changed/lights/attr"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("lights"),
+        id: z.string(),
+        uniqueid: z.string(),
+        attr: lightSchema.partial().omit({ state: true, config: true, etag: true }),
+      }),
 
-    // Light state change
-    z.object({
-      eventSchema: z.literal('/event/changed/lights/state'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('lights'),
-      id: z.string(),
-      uniqueid: z.string(),
-      state: lightSchema.shape.state,
-    }),
+      // Light state change
+      z.object({
+        eventSchema: z.literal("/event/changed/lights/state"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("lights"),
+        id: z.string(),
+        uniqueid: z.string(),
+        state: lightSchema.shape.state,
+      }),
 
-    // Light capabilities change
-    z.object({
-      eventSchema: z.literal('/event/changed/lights/capabilities'),
-      t: z.literal('event'),
-      e: z.literal('changed'),
-      r: z.literal('lights'),
-      id: z.string(),
-      uniqueid: z.string(),
-      capabilities: lightSchema.shape.capabilities,
-    }),
-    // #endregion
-  ]))
+      // Light capabilities change
+      z.object({
+        eventSchema: z.literal("/event/changed/lights/capabilities"),
+        t: z.literal("event"),
+        e: z.literal("changed"),
+        r: z.literal("lights"),
+        id: z.string(),
+        uniqueid: z.string(),
+        capabilities: lightSchema.shape.capabilities,
+      }),
+      // #endregion
+    ]),
+  );
 
-  return initialSchema.transform<UnionOmit<z.infer<typeof initialSchema>, 'eventSchema'>>((data: any) => {
-    delete data.eventSchema
-    return data
-  })
+  return initialSchema.transform<UnionOmit<z.infer<typeof initialSchema>, "eventSchema">>(
+    (data: any) => {
+      delete data.eventSchema;
+      return data;
+    },
+  );
 }

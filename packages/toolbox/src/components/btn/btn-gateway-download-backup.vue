@@ -1,20 +1,19 @@
 <script setup lang="ts">
 const props = defineProps<{
-  gateway: string
-}>()
+  gateway: string;
+}>();
 
-const gateway = useGateway(toRef(props, 'gateway'))
+const gateway = useGateway(toRef(props, "gateway"));
 
-const baseUrl = gateway.select(state => state.context.gateway?.address)
+const baseUrl = gateway.select((state) => state.context.gateway?.address);
 
 const downloadUrl = computed(() => {
-  if (!baseUrl.value)
-    return
+  if (!baseUrl.value) return;
 
-  return typeof baseUrl.value === 'function'
+  return typeof baseUrl.value === "function"
     ? `${baseUrl.value()}/deCONZ.tar.gz`
-    : `${baseUrl.value}/deCONZ.tar.gz`
-})
+    : `${baseUrl.value}/deCONZ.tar.gz`;
+});
 </script>
 
 <template>

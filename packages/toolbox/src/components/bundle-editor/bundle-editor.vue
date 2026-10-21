@@ -1,76 +1,77 @@
 <script setup lang="ts">
-import type { Bundle } from '@deconz-community/ddf-bundler'
-import { encode, generateHash } from '@deconz-community/ddf-bundler'
-import { bytesToHex } from '@noble/hashes/utils.js'
-import { useVModel } from '@vueuse/core'
-import { saveAs } from 'file-saver'
-import { produce } from 'immer'
+import type { Bundle } from "@deconz-community/ddf-bundler";
+import { encode, generateHash } from "@deconz-community/ddf-bundler";
+import { bytesToHex } from "@noble/hashes/utils.js";
+import { useVModel } from "@vueuse/core";
+import { saveAs } from "file-saver";
+import { produce } from "immer";
 
 defineOptions({
   inheritAttrs: false,
-})
+});
 
 const props = defineProps<{
-  modelValue: ReturnType<typeof Bundle>
-}>()
+  modelValue: ReturnType<typeof Bundle>;
+}>();
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
-const bundle = useVModel(props, 'modelValue', emit)
+const bundle = useVModel(props, "modelValue", emit);
 
-const signatures = computed(() => bundle.value.data.signatures.map((signature) => {
-  return {
-    key: bytesToHex(signature.key),
-  }
-}))
+const signatures = computed(() =>
+  bundle.value.data.signatures.map((signature) => {
+    return {
+      key: bytesToHex(signature.key),
+    };
+  }),
+);
 
-const tab = ref<'info' | 'files' | 'validation' | 'signatures'>('info')
-const dirty = ref(false)
+const tab = ref<"info" | "files" | "validation" | "signatures">("info");
+const dirty = ref(false);
 
 const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.files, {
   clone: (data: typeof bundle.value.data.files) => {
-    return [...data.map(item => produce(item, () => {}))]
+    return [...data.map((item) => produce(item, () => {}))];
   },
-})
+});
 
 async function save() {
-  bundle.value.data.files = files.value
-  bundle.value.generateDESC()
-  bundle.value.data.hash = await generateHash(bundle.value.data)
-  dirty.value = false
+  bundle.value.data.files = files.value;
+  bundle.value.generateDESC();
+  bundle.value.data.hash = await generateHash(bundle.value.data);
+  dirty.value = false;
 }
 
 watch(bundle, () => {
-  syncFiles()
-  dirty.value = false
-})
+  syncFiles();
+  dirty.value = false;
+});
 
 const hash = computed(() => {
-  return bytesToHex(bundle.value.data.hash ?? new Uint8Array())
-})
+  return bytesToHex(bundle.value.data.hash ?? new Uint8Array());
+});
 
 async function download() {
-  saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`)
+  saveAs(encode(bundle.value), `${bundle.value.data.name}.ddb`);
 }
 
-const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified)
+const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified);
 
 function setDirty() {
-  dirty.value = true
+  dirty.value = true;
 }
 </script>
 
 <template>
   <v-card v-bind="$attrs">
     <template #title>
-      {{ bundle.data.desc.product }} {{ dirty ? '• Modified' : '' }}
+      {{ bundle.data.desc.product }} {{ dirty ? "• Modified" : "" }}
       <chip-signatures :signatures="signatures" class="ma-2" />
     </template>
 
     <template #subtitle>
-      For deconz {{ bundle.data.desc.version_deconz }}
-      • Last modified {{ timeAgo }}
-      <br>
+      For deconz {{ bundle.data.desc.version_deconz }} • Last modified {{ timeAgo }}
+      <br />
       Hash : {{ hash }}
     </template>
 
@@ -81,7 +82,7 @@ function setDirty() {
       </v-tab>
       <v-tab value="files">
         <v-icon size="x-large" icon="mdi-file" start />
-        {{ `${files.length} ${files.length > 1 ? 'Files' : 'File'}` }}
+        {{ `${files.length} ${files.length > 1 ? "Files" : "File"}` }}
       </v-tab>
       <v-tab value="validation">
         <v-icon size="x-large" icon="mdi-file-code" start />
@@ -89,7 +90,9 @@ function setDirty() {
       </v-tab>
       <v-tab value="signatures">
         <v-icon size="x-large" icon="mdi-file" start />
-        {{ `${bundle.data.signatures.length} ${bundle.data.signatures.length > 1 ? 'Signatures' : 'Signature'}` }}
+        {{
+          `${bundle.data.signatures.length} ${bundle.data.signatures.length > 1 ? "Signatures" : "Signature"}`
+        }}
       </v-tab>
 
       <v-spacer />
@@ -98,9 +101,9 @@ function setDirty() {
         :prepend-icon="dirty ? 'mdi-content-save' : 'mdi-download'"
         color="blue-grey"
         class="ma-1"
-        @click="() => dirty ? save() : download()"
+        @click="() => (dirty ? save() : download())"
       >
-        {{ dirty ? 'Save changes' : 'Download' }}
+        {{ dirty ? "Save changes" : "Download" }}
       </v-btn>
     </v-tabs>
 
@@ -111,17 +114,11 @@ function setDirty() {
         </v-window-item>
 
         <v-window-item value="files">
-          <bundle-editor-files
-            v-model="files"
-            @change="setDirty()"
-          />
+          <bundle-editor-files v-model="files" @change="setDirty()" />
         </v-window-item>
 
         <v-window-item value="validation">
-          <bundle-editor-validation
-            :bundle="bundle"
-            @change="setDirty()"
-          />
+          <bundle-editor-validation :bundle="bundle" @change="setDirty()" />
         </v-window-item>
 
         <v-window-item value="signatures">

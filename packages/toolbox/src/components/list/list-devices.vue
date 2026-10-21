@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { ActorRefFrom } from 'xstate'
+import type { ActorRefFrom } from "xstate";
 
 const props = defineProps<{
-  gateway: ActorRefFrom<typeof gatewayMachine>
-}>()
+  gateway: ActorRefFrom<typeof gatewayMachine>;
+}>();
 </script>
 
-<template>
-  FOOOO
-</template>
+<template>FOOOO</template>

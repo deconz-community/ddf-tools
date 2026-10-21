@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_DIMMABLE_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -105,10 +102,7 @@
     {
       "type": "$TYPE_DIMMABLE_PLUGIN_UNIT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"

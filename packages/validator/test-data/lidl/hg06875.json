@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -66,18 +63,14 @@
           "name": "state/reachable"
         },
         {
-         "name": "config/tuya_unlock"
+          "name": "config/tuya_unlock"
         }
       ]
     },
     {
       "type": "$TYPE_OPEN_CLOSE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0500"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0500"],
       "items": [
         {
           "name": "attr/id"

@@ -11,11 +11,7 @@
     {
       "type": "$TYPE_DOOR_LOCK_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0101"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0101"],
       "items": [
         {
           "name": "attr/id"

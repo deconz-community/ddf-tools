@@ -11,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -74,10 +71,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"
@@ -131,10 +125,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x03"
-      ],
+      "uuid": ["$address.ext", "0x03"],
       "items": [
         {
           "name": "attr/id"
@@ -188,10 +179,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x04"
-      ],
+      "uuid": ["$address.ext", "0x04"],
       "items": [
         {
           "name": "attr/id"

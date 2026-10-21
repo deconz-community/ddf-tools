@@ -18,10 +18,7 @@
     "fn": "zcl:attr",
     "ep": 0,
     "cl": "0x0300",
-    "at": [
-      "0x400b",
-      "0x400c"
-    ]
+    "at": ["0x400b", "0x400c"]
   },
   "refresh.interval": 86400
 }

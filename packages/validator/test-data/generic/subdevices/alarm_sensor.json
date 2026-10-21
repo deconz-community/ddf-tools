@@ -5,21 +5,7 @@
   "ui_name": "Alarm sensor",
   "restapi": "/sensors",
   "order": 30,
-  "uuid": [
-    "$address.ext",
-    "0x01",
-    "0x0500"
-  ],
-  "items": [
-    "config/on",
-    "config/reachable",
-    "state/alarm",
-    "state/lastupdated"
-  ],
-  "items_optional": [
-    "config/enrolled",
-    "config/pending",
-    "config/battery",
-    "state/lowbattery"
-  ]
+  "uuid": ["$address.ext", "0x01", "0x0500"],
+  "items": ["config/on", "config/reachable", "state/alarm", "state/lastupdated"],
+  "items_optional": ["config/enrolled", "config/pending", "config/battery", "state/lowbattery"]
 }

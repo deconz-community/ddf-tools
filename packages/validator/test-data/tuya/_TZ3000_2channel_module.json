@@ -8,13 +8,7 @@
     "_TZ3000_nuenzetq",
     "_TZ3000_aaifmpuq"
   ],
-  "modelid": [
-    "TS0002",
-    "TS0002",
-    "TS0002",
-    "TS0002",
-    "TS0002"
-  ],
+  "modelid": ["TS0002", "TS0002", "TS0002", "TS0002", "TS0002"],
   "vendor": "Tuya",
   "product": "2 output module (TS0002)",
   "sleeper": false,
@@ -23,10 +17,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -83,10 +74,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x02"
-      ],
+      "uuid": ["$address.ext", "0x02"],
       "items": [
         {
           "name": "attr/id"

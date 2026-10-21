@@ -9,19 +9,21 @@ let btnev;
 // Frame is enum8 step mode, uint8 step size, uint16 transition time (tenths of a second)
 const step_mode = ZclFrame.at(0);
 const step_size = ZclFrame.at(1);
-const transition_time = ZclFrame.at(3) << 8 | ZclFrame.at(2);
+const transition_time = (ZclFrame.at(3) << 8) | ZclFrame.at(2);
 // Multiplication factor scaling uint8 to 360 degrees, with actual range for step being 1 to 240, gives:
 // angle = (step_size - step_min) * 360 / (step_max - step_min + 1);
 let angle = (step_size - 1) * 1.5;
-if (step_mode === 0) { // Up
-    btnev = 1030; // Button 1, rotate clockwise
-} else if (step_mode === 1) { // Down
-    btnev = 1031; // Button 1, rotate counter-clockwise
-    angle = -angle;
+if (step_mode === 0) {
+  // Up
+  btnev = 1030; // Button 1, rotate clockwise
+} else if (step_mode === 1) {
+  // Down
+  btnev = 1031; // Button 1, rotate counter-clockwise
+  angle = -angle;
 }
 
 if (btnev !== undefined) {
-    R.item('state/angle').val = angle;
-    R.item('state/eventduration').val = transition_time;
-    R.item('state/buttonevent').val = btnev;
+  R.item("state/angle").val = angle;
+  R.item("state/eventduration").val = transition_time;
+  R.item("state/buttonevent").val = btnev;
 }

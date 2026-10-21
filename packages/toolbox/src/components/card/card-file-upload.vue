@@ -1,32 +1,34 @@
 <script setup lang="ts">
-export type Language = 'json' | 'javascript' | 'markdown' | 'plaintext'
-const props = withDefaults(defineProps<{
-  modelValue: string
-  title: string
-  language: Language
-  height?: string
-}>(), {
-  height: '400px',
-})
+export type Language = "json" | "javascript" | "markdown" | "plaintext";
+const props = withDefaults(
+  defineProps<{
+    modelValue: string;
+    title: string;
+    language: Language;
+    height?: string;
+  }>(),
+  {
+    height: "400px",
+  },
+);
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(["update:modelValue", "change"]);
 
-const data = useVModel(props, 'modelValue', emit)
+const data = useVModel(props, "modelValue", emit);
 
-const fileInput = ref<File>()
+const fileInput = ref<File>();
 
 watch(fileInput, (file) => {
-  if (!file)
-    return
-  file.text().then(text => data.value = text)
-})
+  if (!file) return;
+  file.text().then((text) => (data.value = text));
+});
 
 watch(data, (value) => {
   if (value.length === 0) {
-    fileInput.value = undefined
+    fileInput.value = undefined;
   }
-  emit('change')
-})
+  emit("change");
+});
 </script>
 
 <template>

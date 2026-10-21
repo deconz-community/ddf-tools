@@ -1,57 +1,59 @@
 <script setup lang="ts">
-import type { Bundle, ValidationError } from '@deconz-community/ddf-bundler'
-import { createValidator } from '@deconz-community/ddf-validator'
-import { ZodError } from 'zod'
-import { fromZodError } from 'zod-validation-error'
+import type { Bundle, ValidationError } from "@deconz-community/ddf-bundler";
+import { createValidator } from "@deconz-community/ddf-validator";
+import { ZodError } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 const props = defineProps<{
-  bundle: ReturnType<typeof Bundle>
-}>()
+  bundle: ReturnType<typeof Bundle>;
+}>();
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(["update:modelValue", "change"]);
 
-const bundle = useVModel(props, 'bundle', emit)
+const bundle = useVModel(props, "bundle", emit);
 
 function validate() {
-  const validator = createValidator()
+  const validator = createValidator();
 
-  const ddfcSource = bundle.value.data.files.find(file => file.type === 'DDFC')?.data
+  const ddfcSource = bundle.value.data.files.find((file) => file.type === "DDFC")?.data;
 
   if (!ddfcSource) {
     bundle.value.data.validation = {
-      result: 'error',
+      result: "error",
       version: validator.version,
-      errors: [{
-        type: 'simple',
-        message: 'No DDFC file found.',
-      }],
-    }
+      errors: [
+        {
+          type: "simple",
+          message: "No DDFC file found.",
+        },
+      ],
+    };
 
-    emit('change')
-    return
+    emit("change");
+    return;
   }
 
-  const ddfc = JSON.parse(ddfcSource)
+  const ddfc = JSON.parse(ddfcSource);
 
   if (ddfc.ddfvalidate === false) {
     bundle.value.data.validation = {
-      result: 'skipped',
+      result: "skipped",
       version: validator.version,
-    }
+    };
 
-    emit('change')
-    return
+    emit("change");
+    return;
   }
 
   const validationResult = validator.bulkValidate(
     // Generic files
     bundle.value.data.files
-      .filter(file => file.type === 'JSON')
+      .filter((file) => file.type === "JSON")
       .map((file) => {
         return {
           path: file.path,
           data: JSON.parse(file.data as string),
-        }
+        };
       }),
     // DDF file
     [
@@ -60,54 +62,51 @@ function validate() {
         data: ddfc,
       },
     ],
-  )
+  );
 
   if (validationResult.length === 0) {
     bundle.value.data.validation = {
-      result: 'success',
+      result: "success",
       version: validator.version,
-    }
+    };
 
-    emit('change')
-    return
+    emit("change");
+    return;
   }
 
-  const errors: ValidationError[] = []
+  const errors: ValidationError[] = [];
 
   validationResult.forEach(({ path, error }) => {
     if (error instanceof ZodError) {
       fromZodError(error).details.forEach((detail) => {
         errors.push({
-          type: 'code',
+          type: "code",
           message: detail.message,
           file: path,
           path: detail.path,
-        })
-      })
-    }
-    else {
+        });
+      });
+    } else {
       errors.push({
-        type: 'simple',
+        type: "simple",
         message: error.toString(),
         file: path,
-      })
+      });
     }
-  })
+  });
 
   bundle.value.data.validation = {
-    result: 'error',
+    result: "error",
     version: validator.version,
     errors,
-  }
+  };
 
-  emit('change')
+  emit("change");
 }
 </script>
 
 <template>
-  <v-btn class="ma-2" variant="tonal" @click="validate()">
-    Validate
-  </v-btn>
+  <v-btn class="ma-2" variant="tonal" @click="validate()"> Validate </v-btn>
 
   <v-alert
     v-if="bundle.data.validation?.result === 'success'"

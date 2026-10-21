@@ -1,296 +1,280 @@
 <script setup lang="ts">
-import { useTimeAgo } from '@vueuse/core'
-import { useRouteQuery } from '@vueuse/router'
-import { VTextarea } from 'vuetify/components'
-import { useConfirm } from 'vuetify-use-dialog'
-import type { BundleSignatureState } from '~/composables/useStore'
-import { listBundles, readBundles } from '~/interfaces/store'
-import { toastError } from '~/lib/handleError'
+import { useTimeAgo } from "@vueuse/core";
+import { useRouteQuery } from "@vueuse/router";
+import { VTextarea } from "vuetify/components";
+import { useConfirm } from "vuetify-use-dialog";
+import type { BundleSignatureState } from "~/composables/useStore";
+import { listBundles, readBundles } from "~/interfaces/store";
+import { toastError } from "~/lib/handleError";
 
 const props = defineProps<{
-  bundle: string
-}>()
+  bundle: string;
+}>();
 
-const app = useApp()
-const store = useStore()
-const createConfirm = useConfirm()
+const app = useApp();
+const store = useStore();
+const createConfirm = useConfirm();
 
-const activeTab = useRouteQuery('activeTab', 'readme')
-const activeGatewayId = useRouteQuery<string>('gatewayID', '')
-const activeGateway = useGateway(activeGatewayId)
+const activeTab = useRouteQuery("activeTab", "readme");
+const activeGatewayId = useRouteQuery<string>("gatewayID", "");
+const activeGateway = useGateway(activeGatewayId);
 
 onMounted(() => {
-  watch(activeGatewayId, () => {
-    activeGateway.send({ type: 'REFRESH_BUNDLES' })
-  }, { immediate: true })
-})
+  watch(
+    activeGatewayId,
+    () => {
+      activeGateway.send({ type: "REFRESH_BUNDLES" });
+    },
+    { immediate: true },
+  );
+});
 
-const isReady = store.select(state => state.matches('online') === true)
+const isReady = store.select((state) => state.matches("online") === true);
 
-const bundle = store.request(computed(() => readBundles(props.bundle, {
-  fields: [
-    'id',
-    'ddf_uuid',
-    'product',
-    'version_deconz',
-    'source_last_modified',
-    'content_size',
-    'file_count',
-    'deprecation_message',
-    {
-      device_identifiers: [
+const bundle = store.request(
+  computed(() =>
+    readBundles(props.bundle, {
+      fields: [
+        "id",
+        "ddf_uuid",
+        "product",
+        "version_deconz",
+        "source_last_modified",
+        "content_size",
+        "file_count",
+        "deprecation_message",
         {
-          device_identifiers_id: [
-            'manufacturer',
-            'model',
+          device_identifiers: [
+            {
+              device_identifiers_id: ["manufacturer", "model"],
+            },
           ],
         },
+        {
+          signatures: ["key", "type"],
+        },
       ],
-    },
-    {
-      signatures: [
-        'key',
-        'type',
+    }),
+  ),
+);
+
+const otherVersions = store.request(
+  computed(() => {
+    if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== "string") return undefined;
+
+    return listBundles({
+      fields: [
+        "id",
+        "version_deconz",
+        "source_last_modified",
+        "deprecation_message",
+        {
+          signatures: ["key", "type"],
+        },
       ],
-    },
-  ],
-})))
-
-const otherVersions = store.request(computed(() => {
-  if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== 'string')
-    return undefined
-
-  return listBundles({
-    fields: [
-      'id',
-      'version_deconz',
-      'source_last_modified',
-      'deprecation_message',
-      {
-        signatures: [
-          'key',
-          'type',
-        ],
+      filter: {
+        ddf_uuid: {
+          _eq: bundle.state.value.ddf_uuid,
+        },
       },
-    ],
-    filter: {
-      ddf_uuid: {
-        _eq: bundle.state.value.ddf_uuid,
-      },
-    },
-    sort: ['-source_last_modified', '-date_created'],
-  })
-}))
+      sort: ["-source_last_modified", "-date_created"],
+    });
+  }),
+);
 
 const downloadURL = computed(() => {
-  if (!isReady.value || !store.client)
-    return undefined
+  if (!isReady.value || !store.client) return undefined;
 
-  return `${store.client.url}bundle/download/${props.bundle}`
-})
+  return `${store.client.url}bundle/download/${props.bundle}`;
+});
 
 const settingsProps = computed(() => {
-  if (!store.profile?.is_contributor)
-    return undefined
+  if (!store.profile?.is_contributor) return undefined;
 
-  if (!bundle.state.value)
-    return undefined
+  if (!bundle.state.value) return undefined;
 
-  const settings = store.state?.context?.settings
+  const settings = store.state?.context?.settings;
 
-  if (!settings)
-    return undefined
+  if (!settings) return undefined;
 
   const settingsMap = {
     alpha: {
-      state: 'Alpha',
+      state: "Alpha",
       down: [],
-      up: ['beta', 'stable'],
+      up: ["beta", "stable"],
     },
     beta: {
-      state: 'Beta',
-      down: ['alpha'],
-      up: ['stable'],
+      state: "Beta",
+      down: ["alpha"],
+      up: ["stable"],
     },
     stable: {
-      state: 'Stable',
-      down: ['alpha', 'beta'],
+      state: "Stable",
+      down: ["alpha", "beta"],
       up: [],
     },
-  } as const
+  } as const;
 
-  if (bundle.state.value.signatures === null)
-    return settingsMap.alpha
+  if (bundle.state.value.signatures === null) return settingsMap.alpha;
 
-  if (bundle.state.value.signatures.some(s => s.key === settings.public_key_beta))
-    return settingsMap.beta
+  if (bundle.state.value.signatures.some((s) => s.key === settings.public_key_beta))
+    return settingsMap.beta;
 
-  if (bundle.state.value.signatures.some(s => s.key === settings.public_key_stable))
-    return settingsMap.stable
+  if (bundle.state.value.signatures.some((s) => s.key === settings.public_key_stable))
+    return settingsMap.stable;
 
-  return settingsMap.alpha
-})
+  return settingsMap.alpha;
+});
 
-const newState = ref<BundleSignatureState>('alpha')
+const newState = ref<BundleSignatureState>("alpha");
 watch(settingsProps, () => {
-  newState.value = settingsProps.value?.state.toLocaleLowerCase() as BundleSignatureState ?? 'alpha'
-})
-const updatingState = ref(false)
+  newState.value =
+    (settingsProps.value?.state.toLocaleLowerCase() as BundleSignatureState) ?? "alpha";
+});
+const updatingState = ref(false);
 async function updateState() {
-  if (!['alpha', 'beta', 'stable'].includes(newState.value))
-    return
+  if (!["alpha", "beta", "stable"].includes(newState.value)) return;
 
-  if (updatingState.value === true)
-    return
+  if (updatingState.value === true) return;
 
-  if (settingsProps.value?.state.toLocaleLowerCase() === newState.value)
-    return
+  if (settingsProps.value?.state.toLocaleLowerCase() === newState.value) return;
 
-  updatingState.value = true
+  updatingState.value = true;
 
   try {
-    const bundleID = bundle.state.value?.id
-    if (!bundleID)
-      throw new Error('No bundle ID')
+    const bundleID = bundle.state.value?.id;
+    if (!bundleID) throw new Error("No bundle ID");
 
     const result = await store.client?.request(
       storeSignBundle(bundleID, newState.value.toLocaleLowerCase() as BundleSignatureState),
-    )
+    );
 
     if (result && result.success) {
-      await bundle.execute()
-      toast.success(`Bundle state updated to ${newState.value}`)
+      await bundle.execute();
+      toast.success(`Bundle state updated to ${newState.value}`);
     }
-  }
-  catch (error) {
-    toastError(error)
-  }
-  finally {
-    updatingState.value = false
+  } catch (error) {
+    toastError(error);
+  } finally {
+    updatingState.value = false;
   }
 }
 
 const deprecation_message = computed(() => {
   if (bundle.state.value && bundle.state.value.deprecation_message) {
     return {
-      title: 'This version is deprecated',
+      title: "This version is deprecated",
       text: bundle.state.value.deprecation_message,
-    }
+    };
+  } else {
+    return undefined;
   }
-
-  else { return undefined }
-})
+});
 
 async function deprecate() {
-  const input = ref('')
-  const textArea = ref<VTextarea>()
+  const input = ref("");
+  const textArea = ref<VTextarea>();
 
   const rules = [
-    (v: string) => !!v || 'Message is required',
-    (v: string) => (v && v.length >= 10) || 'Message must be more than 10 characters',
-  ]
+    (v: string) => !!v || "Message is required",
+    (v: string) => (v && v.length >= 10) || "Message must be more than 10 characters",
+  ];
 
   const isConfirmed = createConfirm({
     title: `This will mark this version as deprecated`,
     contentComponent: VTextarea,
     contentComponentProps: {
-      'label': 'Deprecation message',
-      'model-value': input,
-      'rules': rules,
-      'placeholder': `Don't use this version anymore because...`,
-      'ref': textArea,
+      label: "Deprecation message",
+      "model-value": input,
+      rules: rules,
+      placeholder: `Don't use this version anymore because...`,
+      ref: textArea,
     },
-    confirmationText: 'Deprecate',
+    confirmationText: "Deprecate",
     confirmationButtonProps: {
       // TODO disable this button until the input is valid
-      color: 'red',
+      color: "red",
     },
     dialogProps: {
       width: 600,
     },
-  })
+  });
 
-  textArea.value?.focus()
+  textArea.value?.focus();
 
-  if (!await isConfirmed)
-    return
+  if (!(await isConfirmed)) return;
 
   for (const rule of rules) {
-    const result = rule(input.value)
-    if (typeof result === 'string')
-      return toast.error(`Error while deprecating this bundle.`)
+    const result = rule(input.value);
+    if (typeof result === "string") return toast.error(`Error while deprecating this bundle.`);
   }
 
   try {
-    if (bundle.state.value === null)
-      throw new Error('No bundle')
+    if (bundle.state.value === null) throw new Error("No bundle");
 
-    const result = await store.client?.request(storeDeprecateBundle({
-      type: 'version',
-      message: input.value,
-      bundle_id: bundle.state.value.id,
-    }))
+    const result = await store.client?.request(
+      storeDeprecateBundle({
+        type: "version",
+        message: input.value,
+        bundle_id: bundle.state.value.id,
+      }),
+    );
 
     if (result && result.success) {
-      await bundle.execute()
-      toast.success(`Deprecation message updated`)
+      await bundle.execute();
+      toast.success(`Deprecation message updated`);
     }
-  }
-  catch (error) {
-    toastError(error)
+  } catch (error) {
+    toastError(error);
   }
 }
 
 async function reinstate() {
   try {
-    if (bundle.state.value === null)
-      throw new Error('No bundle')
+    if (bundle.state.value === null) throw new Error("No bundle");
 
-    const result = await store.client?.request(storeDeprecateBundle({
-      type: 'version',
-      message: 'null',
-      bundle_id: bundle.state.value.id,
-    }))
+    const result = await store.client?.request(
+      storeDeprecateBundle({
+        type: "version",
+        message: "null",
+        bundle_id: bundle.state.value.id,
+      }),
+    );
 
     if (result && result.success) {
-      await bundle.execute()
-      toast.success(`Deprecation message updated`)
+      await bundle.execute();
+      toast.success(`Deprecation message updated`);
     }
-  }
-  catch (error) {
-    toastError(error)
+  } catch (error) {
+    toastError(error);
   }
 }
 
 async function installBundle() {
-  if (!activeGatewayId.value)
-    return
+  if (!activeGatewayId.value) return;
 
   try {
-    const bundle = await store.client?.request(storeDownloadBundle(props.bundle))
+    const bundle = await store.client?.request(storeDownloadBundle(props.bundle));
 
     if (!bundle || !bundle.success)
-      return toast.error(`Error while downloading bundle from the store`)
+      return toast.error(`Error while downloading bundle from the store`);
 
-    const uploadResult = await activeGateway.fetch('uploadDDFBundle', {
-      body: new File([bundle.success], 'bundle.ddb', {
-        type: 'application/x-deconz-ddf-bundle',
+    const uploadResult = await activeGateway.fetch("uploadDDFBundle", {
+      body: new File([bundle.success], "bundle.ddb", {
+        type: "application/x-deconz-ddf-bundle",
       }),
-    })
+    });
 
     uploadResult.forEach((result) => {
-      if (result.isOk())
-        toast.success(`Bundle uploaded to ${activeGateway.config?.name}`)
-      else
-        toast.error(`Error while uploading bundle to ${activeGateway.config?.name}`)
-    })
+      if (result.isOk()) toast.success(`Bundle uploaded to ${activeGateway.config?.name}`);
+      else toast.error(`Error while uploading bundle to ${activeGateway.config?.name}`);
+    });
 
     setTimeout(() => {
-      activeGateway.send({ type: 'REFRESH_BUNDLES' })
-    }, 3000)
-  }
-  catch (error) {
-    toastError(error)
+      activeGateway.send({ type: "REFRESH_BUNDLES" });
+    }, 3000);
+  } catch (error) {
+    toastError(error);
   }
 }
 </script>
@@ -299,25 +283,26 @@ async function installBundle() {
   <v-card v-if="bundle.state.value" class="ma-2">
     <v-card-title>
       {{ bundle.state.value.product }}
-      <v-chip v-if="deprecation_message" variant="flat" color="orange">
-        Deprecated
-      </v-chip>
-      <chip-signatures v-else-if="bundle.state.value.signatures" :signatures="bundle.state.value.signatures" only="system" class="ma-2" />
+      <v-chip v-if="deprecation_message" variant="flat" color="orange"> Deprecated </v-chip>
+      <chip-signatures
+        v-else-if="bundle.state.value.signatures"
+        :signatures="bundle.state.value.signatures"
+        only="system"
+        class="ma-2"
+      />
       <v-chip class="ma-2" color="grey">
         {{ bundle.state.value.id.substring(bundle.state.value.id.length - 10) }}
       </v-chip>
     </v-card-title>
 
     <v-card-subtitle>
-      Published {{ useTimeAgo(bundle.state.value.source_last_modified).value }}
-      ({{ (new Date(bundle.state.value.source_last_modified)).toLocaleDateString() }})
+      Published {{ useTimeAgo(bundle.state.value.source_last_modified).value }} ({{
+        new Date(bundle.state.value.source_last_modified).toLocaleDateString()
+      }})
     </v-card-subtitle>
 
     <v-card-text>
-      <v-tabs
-        v-model="activeTab"
-        bg-color="primary"
-      >
+      <v-tabs v-model="activeTab" bg-color="primary">
         <v-tab value="readme">
           <v-icon icon="mdi-book-open-outline" class="mr-2" />
           Readme
@@ -343,20 +328,18 @@ async function installBundle() {
                 type="warning"
               />
 
-              <v-card v-if="Array.isArray(bundle.state.value.device_identifiers)" elevation="2" class="ma-2">
-                <template #title>
-                  Supported devices
-                </template>
+              <v-card
+                v-if="Array.isArray(bundle.state.value.device_identifiers)"
+                elevation="2"
+                class="ma-2"
+              >
+                <template #title> Supported devices </template>
                 <template #text>
                   <v-table>
                     <thead>
                       <tr>
-                        <th class="text-left">
-                          Manufacturer
-                        </th>
-                        <th class="text-left">
-                          Model
-                        </th>
+                        <th class="text-left">Manufacturer</th>
+                        <th class="text-left">Model</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -377,28 +360,15 @@ async function installBundle() {
               <v-table>
                 <thead>
                   <tr>
-                    <th class="text-left">
-                      Hash
-                    </th>
-                    <th class="text-left">
-                      Tag
-                    </th>
-                    <th class="text-left">
-                      Version Deconz
-                    </th>
-                    <th class="text-left">
-                      Published
-                    </th>
-                    <th class="text-left">
-                      Actions
-                    </th>
+                    <th class="text-left">Hash</th>
+                    <th class="text-left">Tag</th>
+                    <th class="text-left">Version Deconz</th>
+                    <th class="text-left">Published</th>
+                    <th class="text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="version in otherVersions.state.value"
-                    :key="version.id"
-                  >
+                  <tr v-for="version in otherVersions.state.value" :key="version.id">
                     <td>
                       <v-chip class="ml-2" color="grey">
                         {{ version.id.substring(version.id.length - 10) }}
@@ -408,14 +378,17 @@ async function installBundle() {
                       <v-chip v-if="version.deprecation_message" variant="flat" color="orange">
                         Deprecated
                       </v-chip>
-                      <chip-signatures v-else :signatures="version.signatures ?? []" only="system" class="ma-2" />
+                      <chip-signatures
+                        v-else
+                        :signatures="version.signatures ?? []"
+                        only="system"
+                        class="ma-2"
+                      />
                     </td>
                     <td>{{ version.version_deconz }}</td>
                     <td>{{ useTimeAgo(version.source_last_modified).value }}</td>
                     <td>
-                      <v-btn :to="`/store/bundle/${version.id}`">
-                        Open
-                      </v-btn>
+                      <v-btn :to="`/store/bundle/${version.id}`"> Open </v-btn>
                     </td>
                   </tr>
                 </tbody>
@@ -424,9 +397,7 @@ async function installBundle() {
 
             <v-window-item v-if="settingsProps" value="settings">
               <v-card class="ma-2" title="Lifecycle">
-                <v-card-text>
-                  Current state : {{ settingsProps.state }}
-                </v-card-text>
+                <v-card-text> Current state : {{ settingsProps.state }} </v-card-text>
 
                 <v-card-actions>
                   <v-btn-toggle
@@ -460,7 +431,11 @@ async function installBundle() {
                   </v-btn-toggle>
                 </v-card-actions>
               </v-card>
-              <v-card v-if="!bundle.state.value?.deprecation_message" class="ma-2" title="Deprecate bundle version">
+              <v-card
+                v-if="!bundle.state.value?.deprecation_message"
+                class="ma-2"
+                title="Deprecate bundle version"
+              >
                 <v-card-text>
                   This will mark this version of the bundle as deprecated.
                   <v-spacer />
@@ -492,12 +467,22 @@ async function installBundle() {
           <v-list class="d-flex flex-column">
             <v-list-item title="Install">
               <v-btn-group class="d-flex">
-                <v-tooltip :text="activeGateway.bundles?.has(props.bundle) ? `Re-install bundle on gateway ${activeGateway.config?.name}` : `Install bundle on gateway ${activeGateway.config?.name}`">
+                <v-tooltip
+                  :text="
+                    activeGateway.bundles?.has(props.bundle)
+                      ? `Re-install bundle on gateway ${activeGateway.config?.name}`
+                      : `Install bundle on gateway ${activeGateway.config?.name}`
+                  "
+                >
                   <template #activator="{ props: tooltipProps }">
                     <v-btn
                       v-bind="tooltipProps"
                       color="primary"
-                      :icon="activeGateway.bundles?.has(props.bundle) ? 'mdi-update' : 'mdi-file-move-outline'"
+                      :icon="
+                        activeGateway.bundles?.has(props.bundle)
+                          ? 'mdi-update'
+                          : 'mdi-file-move-outline'
+                      "
                       :disabled="!activeGatewayId"
                       width="50"
                       class="mb-2"
@@ -522,7 +507,7 @@ async function installBundle() {
                   </template>
                   <v-list>
                     <gateway-data
-                      v-for="(gatewayId) in app.gatewayIds"
+                      v-for="gatewayId in app.gatewayIds"
                       :id="gatewayId"
                       :key="gatewayId"
                       v-slot="{ data, satisfiesVersion }"
@@ -530,7 +515,7 @@ async function installBundle() {
                     >
                       <v-list-item
                         v-if="data.config"
-                        :title="(data.config.name ?? gatewayId)"
+                        :title="data.config.name ?? gatewayId"
                         :subtitle="`${gatewayId} - v${data.config.apiversion} ${satisfiesVersion ? '' : ' (Unsupported version)'}`"
                         :disabled="!satisfiesVersion"
                         @click="activeGatewayId = gatewayId"
@@ -540,7 +525,8 @@ async function installBundle() {
                 </v-menu>
               </v-btn-group>
               <v-btn
-                block color="primary"
+                block
+                color="primary"
                 prepend-icon="mdi-download"
                 :disabled="!downloadURL"
                 :href="downloadURL"
@@ -554,7 +540,7 @@ async function installBundle() {
             </v-list-item>
             <v-list-item title="Published">
               {{ useTimeAgo(bundle.state.value.source_last_modified).value }}
-              ({{ (new Date(bundle.state.value.source_last_modified)).toLocaleDateString() }})
+              ({{ new Date(bundle.state.value.source_last_modified).toLocaleDateString() }})
             </v-list-item>
             <v-list-item title="Version deconz">
               {{ bundle.state.value.version_deconz }}
@@ -563,13 +549,18 @@ async function installBundle() {
               {{ bundle.state.value.device_identifiers.length }}
             </v-list-item>
             <v-list-item title="Bundle Size">
-              {{ bundle.state.value.content_size ?? 'Unknown' }}
+              {{ bundle.state.value.content_size ?? "Unknown" }}
             </v-list-item>
             <v-list-item title="Total Files">
-              {{ bundle.state.value.file_count ?? 'Unknown' }}
+              {{ bundle.state.value.file_count ?? "Unknown" }}
             </v-list-item>
             <v-list-item v-if="bundle.state.value.signatures" title="Signed by">
-              <chip-signatures :signatures="bundle.state.value.signatures" only="user" class="mr-4 ma-2" size="large" />
+              <chip-signatures
+                :signatures="bundle.state.value.signatures"
+                only="user"
+                class="mr-4 ma-2"
+                size="large"
+              />
             </v-list-item>
           </v-list>
           <!--

@@ -9,10 +9,7 @@
       "~/*": ["src/*"]
     },
     "resolveJsonModule": true,
-    "types": [
-      "vitest",
-      "vitest/globals"
-    ],
+    "types": ["vitest", "vitest/globals"],
     "allowJs": true,
     "strict": true,
     "strictNullChecks": true,
@@ -22,10 +19,7 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": [
-    "packages",
-    "vitest.config.ts"
-  ],
+  "include": ["packages", "vitest.config.ts"],
   "exclude": [
     "**/dist",
     "**/*.test.ts",

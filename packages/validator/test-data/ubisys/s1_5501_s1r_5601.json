@@ -1,14 +1,8 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "d275912e-9490-4deb-9225-c17b882703ae",
-  "manufacturername": [
-    "ubisys",
-    "ubisys"
-  ],
-  "modelid": [
-    "S1 (5501)",
-    "S1-R (5601)"
-  ],
+  "manufacturername": ["ubisys", "ubisys"],
+  "modelid": ["S1 (5501)", "S1-R (5601)"],
   "vendor": "ubisys",
   "product": "Power switch (S1 (5501)/S1-R (5601))",
   "sleeper": false,
@@ -17,10 +11,7 @@
     {
       "type": "$TYPE_ON_OFF_OUTPUT",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -65,23 +56,13 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x02",
-        "0x0006"
-      ],
+      "uuid": ["$address.ext", "0x02", "0x0006"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0001",
         "endpoint": "0x02",
-        "in": [
-          "0x0000"
-        ],
-        "out": [
-          "0x0005",
-          "0x0006",
-          "0x0008"
-        ]
+        "in": ["0x0000"],
+        "out": ["0x0005", "0x0006", "0x0008"]
       },
       "meta": {
         "values": {
@@ -150,18 +131,9 @@
           },
           "default": "momentary",
           "values": [
-            [
-              "\"momentary\"",
-              "Momentary mode"
-            ],
-            [
-              "\"rocker\"",
-              "Rocker mode"
-            ],
-            [
-              "\"custom_010048....\"",
-              "Custom mode"
-            ]
+            ["\"momentary\"", "Momentary mode"],
+            ["\"rocker\"", "Rocker mode"],
+            ["\"custom_010048....\"", "Custom mode"]
           ]
         },
         {
@@ -181,19 +153,12 @@
     {
       "type": "$TYPE_POWER_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x03",
-        "0x0b04"
-      ],
+      "uuid": ["$address.ext", "0x03", "0x0b04"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0501",
         "endpoint": "0x03",
-        "in": [
-          "0x0000",
-          "0x0B04"
-        ]
+        "in": ["0x0000", "0x0B04"]
       },
       "items": [
         {
@@ -273,19 +238,12 @@
     {
       "type": "$TYPE_CONSUMPTION_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x03",
-        "0x0702"
-      ],
+      "uuid": ["$address.ext", "0x03", "0x0702"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0501",
         "endpoint": "0x03",
-        "in": [
-          "0x0000",
-          "0x0702"
-        ]
+        "in": ["0x0000", "0x0702"]
       },
       "items": [
         {

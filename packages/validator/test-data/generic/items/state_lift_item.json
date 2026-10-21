@@ -4,10 +4,7 @@
   "datatype": "UInt8",
   "access": "RW",
   "public": true,
-  "range": [
-    0,
-    100
-  ],
+  "range": [0, 100],
   "description": "The lift percentage of a roller blind.",
   "parse": {
     "at": "0x0008",

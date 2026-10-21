@@ -11,11 +11,7 @@
     {
       "type": "$TYPE_LIGHT_LEVEL_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0400"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0400"],
       "items": [
         {
           "name": "attr/lastseen"
@@ -106,11 +102,7 @@
     {
       "type": "$TYPE_PRESENCE_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0406"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0406"],
       "items": [
         {
           "name": "attr/lastseen"

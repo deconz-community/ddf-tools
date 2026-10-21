@@ -4,10 +4,7 @@
   "datatype": "UInt16",
   "access": "R",
   "public": true,
-  "range": [
-    0,
-    360
-  ],
+  "range": [0, 360],
   "default": 0,
   "description": "The current tilt angle."
 }

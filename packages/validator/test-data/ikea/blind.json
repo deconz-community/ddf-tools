@@ -1,12 +1,7 @@
 {
   "schema": "devcap1.schema.json",
   "uuid": "b6e5fb8d-50ee-4c6a-9526-01ef58219853",
-  "manufacturername": [
-    "$MF_IKEA",
-    "$MF_IKEA",
-    "$MF_IKEA",
-    "$MF_IKEA"
-  ],
+  "manufacturername": ["$MF_IKEA", "$MF_IKEA", "$MF_IKEA", "$MF_IKEA"],
   "modelid": [
     "FYRTUR block-out roller blind",
     "KADRILJ roller blind",
@@ -21,10 +16,7 @@
     {
       "type": "$TYPE_WINDOW_COVERING_DEVICE",
       "restapi": "/lights",
-      "uuid": [
-        "$address.ext",
-        "0x01"
-      ],
+      "uuid": ["$address.ext", "0x01"],
       "items": [
         {
           "name": "attr/id"
@@ -100,23 +92,13 @@
     {
       "type": "$TYPE_BATTERY_SENSOR",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0001"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0001"],
       "fingerprint": {
         "profile": "0x0104",
         "device": "0x0202",
         "endpoint": "0x01",
-        "in": [
-          "0x0000",
-          "0x0001",
-          "0x0102"
-        ],
-        "out": [
-          "0x0019"
-        ]
+        "in": ["0x0000", "0x0001", "0x0102"],
+        "out": ["0x0019"]
       },
       "items": [
         {

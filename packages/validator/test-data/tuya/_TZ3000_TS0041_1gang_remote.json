@@ -11,16 +11,7 @@
     "_TZ3000_yj6k7vfo",
     "_TZ3000_axpdxqgu"
   ],
-  "modelid": [
-    "TS0041",
-    "TS0041",
-    "TS0041",
-    "TS0041",
-    "TS0041",
-    "TS0041",
-    "TS0041",
-    "TS0041"
-  ],
+  "modelid": ["TS0041", "TS0041", "TS0041", "TS0041", "TS0041", "TS0041", "TS0041", "TS0041"],
   "vendor": "Tuya",
   "product": "1-gang remote (TS0041)",
   "sleeper": false,
@@ -29,11 +20,7 @@
     {
       "type": "$TYPE_SWITCH",
       "restapi": "/sensors",
-      "uuid": [
-        "$address.ext",
-        "0x01",
-        "0x0006"
-      ],
+      "uuid": ["$address.ext", "0x01", "0x0006"],
       "items": [
         {
           "name": "attr/id"
