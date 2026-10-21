@@ -1,9 +1,0 @@
-{
-  "entries": [
-    {
-      "filePath": "./index.ts",
-      "outFile": "./dist/ddf-bundler.d.ts",
-      "noCheck": false
-    }
-  ]
-}

@@ -22,6 +22,15 @@ const fileName = {
 const formats = Object.keys(fileName) as Array<keyof typeof fileName>;
 
 export default defineConfig({
+  // Single bundled declaration file, built with the TypeScript 7 native emitter
+  pack: {
+    entry: ["index.ts"],
+    format: "esm",
+    clean: false,
+    dts: { emitDtsOnly: true },
+    outExtensions: () => ({ dts: ".d.ts" }),
+    outputOptions: { codeSplitting: false },
+  },
   test: {
     // Vitest v4 compatibility: preserve mock call history.
     // Remove after tests no longer rely on calls from setup or earlier tests.

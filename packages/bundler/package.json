@@ -37,34 +37,25 @@
   },
   "files": [
     "./dist/ddf-bundler.cjs",
-    "./dist/ddf-bundler.d.ts",
-    "./dist/ddf-bundler.mjs"
+    "./dist/ddf-bundler.mjs",
+    "./dist/index.d.ts"
   ],
   "type": "module",
   "main": "./dist/ddf-bundler.cjs",
   "module": "./dist/ddf-bundler.mjs",
-  "types": "./dist/ddf-bundler.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/ddf-bundler.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/ddf-bundler.mjs",
       "require": "./dist/ddf-bundler.cjs"
     }
-  },
-  "scripts": {
-    "build": "vp run build:vite && vp run build:dts",
-    "build:vite": "vp build",
-    "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.json",
-    "lint": "vp lint",
-    "test": "vp test run",
-    "test:watch": "vp test"
   },
   "dependencies": {
     "@noble/curves": "^2.4.0",
     "@noble/hashes": "^2.4.0"
   },
   "devDependencies": {
-    "dts-bundle-generator": "^9.5.1",
     "lint-staged": "^17.6.0",
     "stylelint": "^17.16.0",
     "stylelint-config-recommended": "^18.0.0",
