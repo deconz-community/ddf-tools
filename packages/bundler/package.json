@@ -52,7 +52,7 @@
     }
   },
   "scripts": {
-    "build": "pnpm run build:vite && pnpm run build:dts",
+    "build": "vp run build:vite && vp run build:dts",
     "build:vite": "vp build",
     "build:dts": "dts-bundle-generator --config ./dts-bundle-generator.config.json",
     "lint": "vp lint",
@@ -60,19 +60,19 @@
     "test:watch": "vp test"
   },
   "dependencies": {
-    "@noble/curves": "^2.0.1",
-    "@noble/hashes": "^2.0.1"
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0"
   },
   "devDependencies": {
     "dts-bundle-generator": "^9.5.1",
-    "lint-staged": "^16.4.0",
-    "stylelint": "^17.6.0",
+    "lint-staged": "^17.6.0",
+    "stylelint": "^17.16.0",
     "stylelint-config-recommended": "^18.0.0",
     "stylelint-config-sass-guidelines": "^13.0.0",
-    "taze": "^19.11.0",
-    "typescript": "^6.0.2",
+    "taze": "^21.3.0",
+    "typescript": "^7.0.2",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@12.14.0"
 }
