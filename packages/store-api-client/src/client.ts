@@ -1,8 +1,24 @@
-import type { AppType, ErrorCode } from "@deconz-community/store-api/app";
+import type { AppType } from "@deconz-community/store-api/app";
 import { hc } from "hono/client";
-import type { InferRequestType, InferResponseType } from "hono/client";
 
-export type { AppType, ErrorCode };
+type ServerTypedStoreClient = ReturnType<typeof hc<AppType>>;
+type DdfUuidGenerationClient = {
+  v1: {
+    "ddf-uuids": {
+      $post(input: { json: { count: number } }): Promise<Response>;
+    };
+  };
+};
+
+export type ErrorCode =
+  | "validation_error"
+  | "bundle_not_found"
+  | "bundle_forbidden"
+  | "contributor_required"
+  | "invalid_deprecation_message"
+  | "system_signing_unavailable"
+  | "system_key_invalid"
+  | "signing_failed";
 
 export interface StoreClientOptions {
   url: string;
@@ -135,14 +151,59 @@ export interface StoreAccountClient {
   getUserByPublicKey(key: string): Promise<PublicStoreUser>;
 }
 
-export type StoreClient = ReturnType<typeof hc<AppType>>;
+export type StoreClient = ReturnType<typeof hc<any>>;
 
-export type SearchBundlesQuery = InferRequestType<StoreClient["v1"]["bundles"]["$get"]>["query"];
-export type SearchBundlesResult = Extract<
-  InferResponseType<StoreClient["v1"]["bundles"]["$get"], 200>,
-  { items: unknown }
->;
-export type BundleSummary = SearchBundlesResult["items"][number];
+export interface SearchBundlesQuery {
+  page?: string | string[];
+  limit?: string | string[];
+  vendor?: string;
+  product?: string;
+  manufacturer?: string;
+  model?: string;
+  has_key?: string;
+  show_deprecated?: "true" | "false";
+}
+
+export interface BundleSignature {
+  key: string;
+  type: "system" | "user";
+}
+
+export interface BundleSummary {
+  id: string;
+  ddf_uuid: string;
+  vendor: string;
+  product: string;
+  version_deconz: string;
+  info: string | null;
+  source_last_modified: string;
+  content_hash: string;
+  deprecation_message: string | null;
+  device_identifiers: Array<{ manufacturer: string; model: string }>;
+  signatures: BundleSignature[];
+}
+
+export interface SearchBundlesResult {
+  items: BundleSummary[];
+  total_count: number;
+  page: number;
+  limit: number;
+}
+
+export interface BundleDetail extends BundleSummary {
+  content_size: number;
+  file_count: number;
+}
+
+export interface BundleVersionsResult {
+  items: BundleSummary[];
+  total_count: number;
+}
+
+export interface GenerateDdfUuidsResult {
+  uuid: string[];
+  expire_at: string;
+}
 
 export type BundleSignatureState = "alpha" | "beta" | "stable";
 
@@ -189,7 +250,7 @@ export function createStoreClient(options: StoreClientOptions): StoreClient {
         credentials: options.token ? "omit" : "include",
       });
     }) as typeof fetch,
-  });
+  }) as unknown as StoreClient;
 }
 
 export function createStoreAccountClient(options: StoreAccountClientOptions): StoreAccountClient {
@@ -251,15 +312,51 @@ export async function searchBundles(
   client: StoreClient,
   query: SearchBundlesQuery = {},
 ): Promise<SearchBundlesResult> {
-  const response = await client.v1.bundles.$get({ query });
+  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles.$get({ query });
   if (!response.ok) throw await toError(response);
   return (await response.json()) as SearchBundlesResult;
 }
 
+export async function getBundle(client: StoreClient, id: string): Promise<BundleDetail> {
+  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[":id"].$get({
+    param: { id },
+  });
+  if (!response.ok) throw await toError(response);
+  return (await response.json()) as BundleDetail;
+}
+
+export async function getBundleVersions(
+  client: StoreClient,
+  id: string,
+): Promise<BundleVersionsResult> {
+  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
+    ":id"
+  ].versions.$get({
+    param: { id },
+  });
+  if (!response.ok) throw await toError(response);
+  return (await response.json()) as BundleVersionsResult;
+}
+
 export async function downloadBundle(client: StoreClient, id: string): Promise<Blob> {
-  const response = await client.v1.bundles[":id"].download.$get({ param: { id } });
+  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
+    ":id"
+  ].download.$get({
+    param: { id },
+  });
   if (!response.ok) throw await toError(response);
   return await response.blob();
+}
+
+export async function generateDdfUuids(
+  client: StoreClient,
+  count: number,
+): Promise<GenerateDdfUuidsResult> {
+  const response = await (client as unknown as DdfUuidGenerationClient).v1["ddf-uuids"].$post({
+    json: { count },
+  });
+  if (!response.ok) throw await toError(response);
+  return (await response.json()) as GenerateDdfUuidsResult;
 }
 
 export async function signBundle(
@@ -267,7 +364,9 @@ export async function signBundle(
   id: string,
   state: BundleSignatureState,
 ): Promise<BundleSignatureResult> {
-  const response = await client.v1.bundles[":id"].signatures.$post({
+  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
+    ":id"
+  ].signatures.$post({
     param: { id: encodeURIComponent(id) },
     json: { state },
   });
@@ -280,7 +379,9 @@ export async function deprecateBundle(
   id: string,
   message: string | null,
 ): Promise<BundleDeprecationResult> {
-  const response = await client.v1.bundles[":id"].deprecate.$post({
+  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
+    ":id"
+  ].deprecate.$post({
     param: { id: encodeURIComponent(id) },
     json: { message },
   });
@@ -300,7 +401,10 @@ export async function uploadBundles(
       form.append("files", file.content, file.name);
     }
     form.set("state", state);
-    const response = await client.v1.bundles.$post({}, { init: { body: form } });
+    const response = await (client as unknown as ServerTypedStoreClient).v1.bundles.$post(
+      {},
+      { init: { body: form } },
+    );
     if (!response.ok) throw await toError(response);
     const result = (await response.json()) as StoreBundleUploadResult;
     results.push(...result.results);

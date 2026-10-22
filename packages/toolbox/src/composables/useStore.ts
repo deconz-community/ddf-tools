@@ -1,12 +1,10 @@
-import type { RestCommand } from "@directus/sdk";
-import type { UseAsyncStateOptions } from "@vueuse/core";
-import type { MaybeRef, UnwrapNestedRefs } from "vue";
-
 import type { PublicStoreUser } from "@deconz-community/store-api-client";
 import {
   createToolboxStoreClient,
   deprecateStoreBundle,
   downloadStoreBundle,
+  getStoreBundle,
+  getStoreBundleVersions,
   searchStoreBundles,
   signStoreBundle,
   storeBundleDownloadUrl,
@@ -14,18 +12,11 @@ import {
 } from "~/lib/store-api";
 import type {
   BundleSignatureState,
+  BundleDetail,
   StoreBundleSearchFilters,
+  BundleVersionsResult,
   StoreUploadState,
 } from "~/lib/store-api";
-import type { UseAppMachine } from "./useAppMachine";
-import type { Schema } from "~/interfaces/store";
-
-export type RequestOptions<Output extends object | unknown> = {
-  initialState?: Output;
-  needAuth?: boolean;
-  debounce?: number;
-  maxWait?: number;
-} & Omit<UseAsyncStateOptions<true, Output | null>, "shallow" | "resetOnExecute">;
 
 export type PublicUser = PublicStoreUser & { is_contributor?: boolean };
 
@@ -33,7 +24,7 @@ export type { BundleSignatureState };
 
 export function useStore() {
   const store = useAppMachine("store");
-  const client = computed(() => store.state?.context.directus);
+  const client = computed(() => store.state?.context.storeClient);
   const api = computed(() => store.state?.context.storeApi);
   const profile = computed(() => store.state?.context.profile);
   const storeUrl = computed(() => store.state?.context.storeApiUrl);
@@ -61,51 +52,14 @@ export function useStore() {
       ? await deprecateStoreBundle(bundleClient.value, bundleId, message)
       : undefined;
 
+  const getBundle = async (bundleId: string): Promise<BundleDetail | undefined> =>
+    bundleClient.value ? await getStoreBundle(bundleClient.value, bundleId) : undefined;
+
+  const getBundleVersions = async (bundleId: string): Promise<BundleVersionsResult | undefined> =>
+    bundleClient.value ? await getStoreBundleVersions(bundleClient.value, bundleId) : undefined;
+
   const bundleDownloadUrl = (bundleId: string) =>
     storeUrl.value ? storeBundleDownloadUrl(storeUrl.value, bundleId) : undefined;
-
-  // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
-
-  function request<Output extends object | unknown>(
-    getOptions: MaybeRef<RestCommand<Output, Schema> | undefined>,
-    options: RequestOptions<Output> = {},
-  ) {
-    const { needAuth = false, debounce = 200, maxWait = 2000, initialState = null } = options;
-
-    if (!client.value) options.immediate = false;
-
-    const shell = useAsyncState(
-      async () => {
-        if (!client.value) return initialState;
-
-        // We need to be logged in to access this data but we are not
-        if (needAuth === true && !profile.value) return initialState;
-
-        const options = unref(getOptions);
-        if (options === undefined) return initialState;
-
-        return await client.value.request(options);
-      },
-      initialState,
-      {
-        ...options,
-        shallow: true,
-        resetOnExecute: false,
-      },
-    );
-
-    // Watch directus state
-    watch(client, () => shell.execute());
-
-    // We needed to be logged so we watch the profile
-    if (needAuth) watch(profile, () => shell.execute());
-
-    if (isRef(getOptions)) watchDebounced(getOptions, () => shell.execute(), { debounce, maxWait });
-
-    return shell;
-
-    // return result as unknown as Output
-  }
 
   const getUserByKey = async (userKey: string) => {
     try {
@@ -120,27 +74,14 @@ export function useStore() {
     client,
     api,
     profile,
-    request,
     getUserByKey,
     searchBundles,
     downloadBundle,
+    getBundle,
+    getBundleVersions,
     uploadBundles,
     signBundle,
     deprecateBundle,
     bundleDownloadUrl,
-  }) as UnwrapNestedRefs<
-    UseAppMachine<"store"> & {
-      client: typeof client;
-      api: typeof api;
-      profile: typeof profile;
-      request: typeof request;
-      getUserByKey: typeof getUserByKey;
-      searchBundles: typeof searchBundles;
-      downloadBundle: typeof downloadBundle;
-      uploadBundles: typeof uploadBundles;
-      signBundle: typeof signBundle;
-      deprecateBundle: typeof deprecateBundle;
-      bundleDownloadUrl: typeof bundleDownloadUrl;
-    }
-  >;
+  });
 }

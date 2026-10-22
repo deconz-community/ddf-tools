@@ -178,3 +178,47 @@ describe("GET /v1/bundles", () => {
     expect((await response.json()).error.code).toBe("validation_error");
   });
 });
+
+describe("bundle detail routes", () => {
+  it("returns typed details and all versions for an existing bundle", async () => {
+    const { app, seedBundle } = setup();
+    const uuid = "33333333-3333-4333-8333-333333333333";
+    seedBundle({
+      id: "older",
+      ddf_uuid: uuid,
+      source_last_modified: "2024-01-01T00:00:00.000Z",
+      devices: [{ manufacturer: "IKEA", model: "TRADFRI" }],
+      signatures: [{ key: "stable", type: "system" }],
+    });
+    seedBundle({
+      id: "newer",
+      ddf_uuid: uuid,
+      source_last_modified: "2024-02-01T00:00:00.000Z",
+    });
+
+    const detailResponse = await app.request("/v1/bundles/older");
+    const versionsResponse = await app.request("/v1/bundles/older/versions");
+
+    expect(detailResponse.status).toBe(200);
+    expect(await detailResponse.json()).toMatchObject({
+      id: "older",
+      ddf_uuid: uuid,
+      product: "Product",
+      device_identifiers: [{ manufacturer: "IKEA", model: "TRADFRI" }],
+      signatures: [{ key: "stable", type: "system" }],
+    });
+    expect(await versionsResponse.json()).toMatchObject({
+      items: [{ id: "newer" }, { id: "older" }],
+      total_count: 2,
+    });
+  });
+
+  it("returns a typed not-found error for an unknown bundle", async () => {
+    const { app } = setup();
+
+    const response = await app.request("/v1/bundles/missing");
+
+    expect(response.status).toBe(404);
+    expect((await response.json()).error.code).toBe("bundle_not_found");
+  });
+});

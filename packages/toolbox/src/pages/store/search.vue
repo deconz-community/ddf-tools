@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Snarkdown from "@swayable/vue-snarkdown";
 import { useRouteQuery } from "@vueuse/router";
+import { STABLE_PUBLIC_KEY } from "@deconz-community/ddf-bundler";
 
 const store = useStore();
 
@@ -23,7 +24,7 @@ const filters = computed(() => ({
   manufacturer: manufacturer.value,
   model: model.value,
   showDeprecated: showDeprecated.value,
-  hasKey: stableOnly.value ? (store.state?.context?.settings?.public_key_stable ?? "") : "",
+  hasKey: stableOnly.value ? STABLE_PUBLIC_KEY : "",
 }));
 
 const bundleList = useAsyncState(

@@ -10,7 +10,7 @@ const storeUrl = useRouteQuery("storeUrl", "");
 if (storeUrl.value) app.send({ type: "UPDATE_SETTINGS", settings: { developerMode: true } });
 
 function updateStoreUrl() {
-  store.send({ type: "UPDATE_DIRECTUS_URL", directusUrl: storeUrl.value });
+  store.send({ type: "UPDATE_STORE_URL", storeApiUrl: storeUrl.value });
 }
 
 const developerMode = computed({
@@ -54,11 +54,11 @@ watch(isDarkTheme, (value) => {
           title="Connected"
           type="success"
         >
-          Connected to DDF Store at {{ store.state?.context?.directusUrl }}
+          Connected to DDF Store at {{ store.state?.context?.storeApiUrl }}
         </v-alert>
         <v-alert v-show="store.state?.matches('offline')" class="mb-2" title="Offline" type="error">
-          <template v-if="store.state?.context?.directusUrl">
-            The store at {{ store.state?.context?.directusUrl }} seems offline.
+          <template v-if="store.state?.context?.storeApiUrl">
+            The store at {{ store.state?.context?.storeApiUrl }} seems offline.
           </template>
           <template v-else> No store url configured. </template>
         </v-alert>
@@ -68,9 +68,9 @@ watch(isDarkTheme, (value) => {
           title="Connecting"
           type="info"
         >
-          Connecting to the store at {{ store.state?.context?.directusUrl }}...
+          Connecting to the store at {{ store.state?.context?.storeApiUrl }}...
         </v-alert>
-        <v-text-field v-model="storeUrl" label="Directus URL" />
+        <v-text-field v-model="storeUrl" label="DDF Store URL" />
       </template>
 
       <template #actions>

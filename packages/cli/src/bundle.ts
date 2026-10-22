@@ -1,5 +1,4 @@
 import type { Source, ValidationError } from "@deconz-community/ddf-bundler";
-import type { PrimaryKey } from "@directus/types";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -12,7 +11,11 @@ import {
   sign,
 } from "@deconz-community/ddf-bundler";
 import { createValidator } from "@deconz-community/ddf-validator";
-import { createDirectus, rest, serverHealth, staticToken } from "@directus/sdk";
+import {
+  createStoreClient,
+  uploadBundles,
+  type StoreUploadState,
+} from "@deconz-community/store-api-client";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import chalk from "chalk";
 import glob from "fast-glob";
@@ -551,20 +554,7 @@ export function bundleCommand() {
         const CHUNK_SIZE = 10;
 
         spinner.start(chalk.blue(`Uploading bundles to the store by group of ${CHUNK_SIZE}`));
-        const client = createDirectus(storeUrl!).with(staticToken(storeToken!)).with(rest());
-
-        try {
-          const health = await client.request(serverHealth());
-          if (health.status !== "ok") {
-            spinner.fail(chalk.red("Error while connecting to the store"));
-            log(chalk.red(JSON.stringify(health)));
-            return;
-          }
-        } catch (error) {
-          spinner.fail(chalk.red("Error while connecting to the store"));
-          log(chalk.red(JSON.stringify(error)));
-          return;
-        }
+        const client = createStoreClient({ url: storeUrl!, token: storeToken! });
 
         const entries = Object.entries(bundleToUpload);
         let errorCount = 0;
@@ -573,45 +563,30 @@ export function bundleCommand() {
           spinner.text = chalk.blue(`Processing chunk #${i / CHUNK_SIZE + 1}`);
           const chunk = entries.slice(i, i + CHUNK_SIZE);
 
-          const formData = new FormData();
-          for (const [uuid, { encoded }] of chunk) formData.append(uuid, encoded);
-
-          // TODO: use this : https://github.com/directus/directus/blob/main/sdk/src/rest/helpers/custom-endpoint.ts
           try {
-            const { result } = await client.request<// TODO: import type from the store extension
-            {
-              result: Record<
-                string,
-                {
-                  success: boolean;
-                  createdId?: PrimaryKey | undefined;
-                  message?: string | undefined;
-                }
-              >;
-            }>(() => {
-              return {
-                method: "POST",
-                path: `/bundle/upload/${storeBundleStatus}`,
-                body: formData,
-                headers: { "Content-Type": "multipart/form-data" },
-              };
-            });
+            const { results } = await uploadBundles(
+              client,
+              chunk.map(([, { name, encoded }]) => ({ name, content: encoded })),
+              storeBundleStatus as StoreUploadState,
+            );
 
-            for (const [uuid, { name }] of chunk) {
-              if (result[uuid].success === true) {
+            for (const [index, result] of results.entries()) {
+              const name = chunk[index]?.[1].name ?? result.file;
+              if (result.success) {
                 spinner.info(
                   chalk.green(
-                    `[${name}] uploaded successfully at ${storeUrl}/bundle/download/${result[uuid].createdId}`,
+                    `[${name}] uploaded successfully at ${storeUrl}/v1/bundles/${encodeURIComponent(result.bundle_id)}/download`,
                   ),
                 );
               } else {
                 errorCount++;
-                log(chalk.red(`[${name}] failed to upload : ${result[uuid].message}`));
+                log(chalk.red(`[${name}] failed to upload : ${result.error.message}`));
               }
             }
           } catch (error) {
             spinner.fail(chalk.red("Failed to upload bundles"));
             console.error(error);
+            errorCount += chunk.length;
           }
         }
 

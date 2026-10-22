@@ -81,7 +81,6 @@ export const appMachine = setup({
           id: "store",
           systemId: "store",
           input: {
-            directusUrl: import.meta.env.VITE_DIRECTUS_URL,
             storeApiUrl: import.meta.env.VITE_STORE_API_URL ?? "http://localhost:3000",
           },
         }),
@@ -113,8 +112,8 @@ export const appMachine = setup({
 
         if (data.store?.url) {
           system.get("store").send({
-            type: "UPDATE_DIRECTUS_URL",
-            directusUrl: data.store.url,
+            type: "UPDATE_STORE_URL",
+            storeApiUrl: data.store.url,
           });
         }
       } catch (e) {
@@ -126,7 +125,7 @@ export const appMachine = setup({
       const data: StorageSchema = {
         settings: context.settings,
         store: {
-          url: system.get("store").getSnapshot()?.context.directusUrl,
+          url: system.get("store").getSnapshot()?.context.storeApiUrl,
         },
         credentials: {},
       };

@@ -3,11 +3,14 @@ import { createTestStore } from "../../../apps/store/test/support.js";
 import {
   createStoreClient,
   downloadBundle,
+  getBundle,
+  getBundleVersions,
   searchBundles,
   StoreApiError,
   type BundleSummary,
   type ErrorCode,
   deprecateBundle,
+  generateDdfUuids,
   signBundle,
   uploadBundles,
 } from "../index.js";
@@ -64,6 +67,28 @@ describe("store client", () => {
     const blob = await downloadBundle(api, id);
 
     expect(Buffer.from(await blob.arrayBuffer()).equals(content)).toBe(true);
+  });
+
+  it("reads bundle details and every version through typed routes", async () => {
+    const { api, seedBundle } = setup();
+    const uuid = "44444444-4444-4444-8444-444444444444";
+    seedBundle({
+      id: "older",
+      ddf_uuid: uuid,
+      source_last_modified: "2024-01-01T00:00:00.000Z",
+    });
+    seedBundle({
+      id: "newer",
+      ddf_uuid: uuid,
+      source_last_modified: "2024-02-01T00:00:00.000Z",
+    });
+
+    const detail = await getBundle(api, "older");
+    const versions = await getBundleVersions(api, "older");
+
+    expect(detail).toMatchObject({ id: "older", ddf_uuid: uuid });
+    expect(versions.items.map((item) => item.id)).toEqual(["newer", "older"]);
+    expect(versions.total_count).toBe(2);
   });
 
   it("signs and deprecates a bundle through typed lifecycle operations", async () => {
@@ -185,6 +210,25 @@ describe("store client", () => {
       { file: "one.ddb", success: true, bundle_id: "bundle-one" },
       { file: "two.ddb", success: false, error: { code: "invalid_bundle" } },
     ]);
+  });
+
+  it("generates owned DDF UUIDs through the versioned API", async () => {
+    const { requests, fetchImpl } = recordingFetch(() =>
+      Response.json({ uuid: ["new-uuid"], expire_at: "2030-01-22T00:00:00.000Z" }, { status: 201 }),
+    );
+    const client = createStoreClient({
+      url: "https://store.test",
+      token: "store-token",
+      fetch: fetchImpl,
+    });
+
+    const result = await generateDdfUuids(client, 1);
+
+    expect(new URL(requests[0]!.url).pathname).toBe("/v1/ddf-uuids");
+    expect(requests[0]!.method).toBe("POST");
+    expect(requests[0]!.headers.get("authorization")).toBe("Bearer store-token");
+    expect(await requests[0]!.json()).toEqual({ count: 1 });
+    expect(result).toEqual({ uuid: ["new-uuid"], expire_at: "2030-01-22T00:00:00.000Z" });
   });
 
   it("converts upload request errors into typed StoreApiErrors", async () => {

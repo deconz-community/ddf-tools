@@ -9,7 +9,7 @@ export async function toastError(error: ZodError | Error | unknown) {
 }
 
 export function handleError(error: ZodError | Error | unknown): ValidationError[] {
-  // Directus return errors like this
+  // Some API errors include nested validation errors.
   if (
     typeof error === "object" &&
     error !== null &&

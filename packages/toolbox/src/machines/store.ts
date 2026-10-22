@@ -1,48 +1,30 @@
 import { assign, fromPromise, raise, sendTo, setup } from "xstate";
-import { produce } from "immer";
-import type { AuthenticationClient, DirectusClient, RestClient } from "@directus/sdk";
-import { authentication, createDirectus, readSettings, rest, serverHealth } from "@directus/sdk";
 import {
   createStoreAccountClient,
+  createStoreClient,
+  searchBundles,
   type StoreAccountClient,
+  type StoreClient,
   type StoreProfile,
 } from "@deconz-community/store-api-client";
-import type { Collections, Schema } from "~/interfaces/store";
 import { toastError } from "~/lib/handleError";
 
-export type Directus = DirectusClient<Schema> & RestClient<Schema> & AuthenticationClient<Schema>;
-
-export type DirectusSettings = Pick<Collections.DirectusSettings, PublicSettingsKeys>;
-
-export type PublicSettingsKeys = "public_key_stable" | "public_key_beta" | "public_key_deprecated";
-
 export interface StoreContext {
-  directusUrl: string;
   storeApiUrl: string;
-  directus?: Directus;
+  storeClient?: StoreClient;
   storeApi?: StoreAccountClient;
-  profile?: StoreProfile & {
-    avatar?: string | null;
-    is_contributor?: boolean;
-    token?: string | null;
-  };
-  settings?: DirectusSettings;
+  profile?: StoreProfile;
 }
 
 export const storeMachine = setup({
   types: {
     context: {} as StoreContext,
-    input: {} as Partial<Pick<StoreContext, "directusUrl" | "storeApiUrl">>,
+    input: {} as Partial<Pick<StoreContext, "storeApiUrl">>,
     events: {} as
       | {
           type: "LOGIN_WITH_PASSWORD";
           email: string;
           password: string;
-        }
-      | {
-          type: "LOGIN_WITH_TOKEN";
-          username: string;
-          token: string;
         }
       | {
           type: "UPDATE_PROFILE";
@@ -51,82 +33,30 @@ export const storeMachine = setup({
       | {
           type: "LOGOUT";
         }
-      | {
-          type: "UPDATE_DIRECTUS_URL";
-          directusUrl: string;
-        }
+      | { type: "UPDATE_STORE_URL"; storeApiUrl: string }
       | {
           type: "REFRESH_PROFILE";
         },
   },
 
   actors: {
-    // #region fetchProfile
     fetchProfile: fromPromise(async ({ input }: { input: StoreAccountClient }) => {
       return await input.getProfile();
     }),
-    // #endregion
 
-    // #region initDirectus
-    initDirectus: fromPromise<
+    connectStore: fromPromise<
       {
         isAuthenticated: boolean;
-        directus: Directus;
+        storeClient: StoreClient;
         storeApi: StoreAccountClient;
-        settings: DirectusSettings;
         profile?: StoreProfile;
       },
       {
-        directusUrl: string;
         storeApiUrl: string;
       }
     >(async ({ input }) => {
-      const makeClient = () => {
-        return (
-          createDirectus<Schema>(input.directusUrl)
-            .with(
-              rest({
-                onRequest: (fetchOptions) => {
-                  let timeout = 3000;
-                  if (
-                    typeof fetchOptions.headers === "object" &&
-                    "X-Timeout" in fetchOptions.headers
-                  ) {
-                    const timeoutHeader = fetchOptions.headers["X-Timeout"];
-                    if (typeof timeoutHeader === "string") {
-                      const converted = Number.parseInt(timeoutHeader);
-                      if (!Number.isNaN(converted)) timeout = converted;
-                    }
-                  }
-                  const abortController = new AbortController();
-                  const timeoutHandler = setTimeout(() => abortController.abort(), timeout);
-                  fetchOptions.signal = abortController.signal;
-                  fetchOptions.signal.addEventListener("abort", () => clearTimeout(timeoutHandler));
-                  return fetchOptions;
-                },
-                onResponse: (_result, fetchOptions) => {
-                  if (fetchOptions.signal?.aborted === false)
-                    fetchOptions.signal.dispatchEvent(new Event("abort"));
-                  return _result;
-                },
-              }),
-            )
-            // TODO: Don't use cookie
-            .with(
-              authentication("cookie", {
-                credentials: "include", // TODO What do this does ?
-              }),
-            )
-        );
-      };
-
-      const client = makeClient();
-
-      const health = await client.request(serverHealth());
-
-      if (health.status !== "ok") throw new Error("Could not connect to Directus");
-
-      const settings = await client.request(readSettings());
+      const storeClient = createStoreClient({ url: input.storeApiUrl });
+      await searchBundles(storeClient);
       const storeApi = createStoreAccountClient({ url: input.storeApiUrl });
       let profile: StoreProfile | undefined;
       try {
@@ -136,16 +66,13 @@ export const storeMachine = setup({
       }
 
       return {
-        directus: client,
+        storeClient,
         storeApi,
-        settings,
         isAuthenticated: profile !== undefined,
         profile,
       };
     }),
-    // #endregion
 
-    // #region Login
     login: fromPromise<
       {
         success: boolean;
@@ -179,43 +106,17 @@ export const storeMachine = setup({
         await toastError(error);
       }
     }),
-
-    // #endregion
   },
 
   actions: {
-    updateProfile: assign(({ context, event }) =>
-      produce(context, (draft) => {
-        /*
-      if (event.type !== 'UPDATE_PROFILE' && 'profile' in event === false)
-        throw new Error(`Invalid event type = ${event.type}`)
-      */
-
-        const profile = "profile" in event ? event.profile : undefined;
-
-        if (!profile) {
-          draft.profile = undefined;
-          return;
-        }
-
-        const avatar_url =
-          profile.avatar_url ??
-          (context.directus && profile.avatar
-            ? `${context.directus.url}assets/${profile.avatar}`
-            : null);
-
-        draft.profile = {
-          ...profile,
-          avatar_url,
-        };
-      }),
-    ),
+    updateProfile: assign(({ event }) => ({
+      profile: "profile" in event ? event.profile : undefined,
+    })),
   },
 }).createMachine({
   id: "store",
 
   context: ({ input }) => ({
-    directusUrl: input.directusUrl ?? "",
     storeApiUrl: input.storeApiUrl ?? import.meta.env.VITE_STORE_API_URL ?? "http://localhost:3000",
   }),
 
@@ -229,43 +130,30 @@ export const storeMachine = setup({
     connecting: {
       invoke: {
         input: ({ context }) => ({
-          directusUrl: context.directusUrl,
           storeApiUrl: context.storeApiUrl,
         }),
-        src: "initDirectus",
+        src: "connectStore",
         onError: {
           target: "offline",
-          actions: assign(({ context }) =>
-            produce(context, (draft) => {
-              draft.directus = undefined;
-              draft.storeApi = undefined;
-              draft.settings = undefined;
-            }),
-          ),
+          actions: assign({ storeClient: undefined, storeApi: undefined, profile: undefined }),
         },
         onDone: [
           {
             target: "online.auth.connected",
             guard: ({ event }) => event.output.isAuthenticated === true,
-            actions: assign(({ context, event }) =>
-              produce(context, (draft) => {
-                draft.directus = event.output.directus as any;
-                draft.storeApi = event.output.storeApi;
-                draft.settings = event.output.settings;
-                draft.profile = event.output.profile;
-              }),
-            ),
+            actions: assign(({ event }) => ({
+              storeClient: event.output.storeClient,
+              storeApi: event.output.storeApi,
+              profile: event.output.profile,
+            })),
           },
           {
             target: "online.auth.anonymous",
-            actions: assign(({ context, event }) =>
-              produce(context, (draft) => {
-                draft.directus = event.output.directus as any;
-                draft.storeApi = event.output.storeApi;
-                draft.settings = event.output.settings;
-                draft.profile = undefined;
-              }),
-            ),
+            actions: assign(({ event }) => ({
+              storeClient: event.output.storeClient,
+              storeApi: event.output.storeApi,
+              profile: undefined,
+            })),
           },
         ],
       },
@@ -353,14 +241,10 @@ export const storeMachine = setup({
   initial: "init",
 
   on: {
-    UPDATE_DIRECTUS_URL: {
+    UPDATE_STORE_URL: {
       target: ".connecting",
       actions: [
-        assign(({ context, event }) =>
-          produce(context, (draft) => {
-            draft.directusUrl = event.directusUrl;
-          }),
-        ),
+        assign(({ event }) => ({ storeApiUrl: event.storeApiUrl })),
         sendTo(({ system }) => system.get("app"), { type: "SAVE_SETTINGS" }),
       ],
     },
