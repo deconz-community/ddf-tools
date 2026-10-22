@@ -14,7 +14,10 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
     );
   });
   api.notFound((context) =>
-    context.json({ error: { code: "not_found", message: "The requested resource does not exist." } }, 404),
+    context.json(
+      { error: { code: "not_found", message: "The requested resource does not exist." } },
+      404,
+    ),
   );
   registerAccountRoutes(api, database, options);
 
@@ -40,13 +43,18 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
             403,
           );
         }
-        context.header("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
-        context.header("Access-Control-Allow-Headers", "Content-Type, X-Store-Request");
+        context.header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+        context.header(
+          "Access-Control-Allow-Headers",
+          "Content-Type, Authorization, X-Store-Request",
+        );
         context.header("Access-Control-Max-Age", "600");
         return context.body(null, 204);
       }
+      // Bearer requests carry no ambient credentials, so they need no origin or CSRF header.
       if (
         !["GET", "HEAD"].includes(context.req.method) &&
+        context.req.header("authorization") === undefined &&
         (!allowed || context.req.header("x-store-request") !== "1")
       ) {
         return context.json(

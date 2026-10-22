@@ -17,6 +17,9 @@ export type StoreAccountErrorCode =
   | "invalid_credentials"
   | "email_not_verified"
   | "unauthenticated"
+  | "invalid_api_token"
+  | "token_revoked"
+  | "token_not_found"
   | "email_delivery_failed"
   | "rate_limited"
   | "profile_conflict"
@@ -29,6 +32,8 @@ export type StoreAccountErrorCode =
 export interface StoreAccountClientOptions {
   url: string;
   origin?: string;
+  /** API token sent as a Bearer credential; cookies are not used when set. */
+  token?: string;
   fetch?: typeof fetch;
 }
 
@@ -62,7 +67,24 @@ export interface StoreProfileUpdate {
   private_key?: string | null;
 }
 
+export interface StoreApiToken {
+  id: string;
+  name: string;
+  prefix: string;
+  date_created: string;
+  last_used: string | null;
+  revoked: boolean;
+}
+
+export interface CreatedStoreApiToken extends StoreApiToken {
+  /** Shown only once, when the token is created. */
+  secret: string;
+}
+
 export interface StoreAccountClient {
+  listTokens(): Promise<StoreApiToken[]>;
+  createToken(name: string): Promise<CreatedStoreApiToken>;
+  revokeToken(id: string): Promise<void>;
   register(input: { email: string; password: string; first_name?: string }): Promise<{
     user: { id: string; email: string };
     verification_required: boolean;
@@ -112,18 +134,19 @@ export function createStoreAccountClient(options: StoreAccountClientOptions): St
 
   async function request<T>(
     path: string,
-    method: "GET" | "POST" | "PATCH",
+    method: "GET" | "POST" | "PATCH" | "DELETE",
     body?: unknown,
   ): Promise<T> {
     const headers = new Headers();
     if (body !== undefined) headers.set("Content-Type", "application/json");
     if (method !== "GET") headers.set("X-Store-Request", "1");
     if (options.origin) headers.set("Origin", options.origin);
+    if (options.token) headers.set("Authorization", `Bearer ${options.token}`);
     const response = await fetcher(`${baseUrl}${path}`, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
-      credentials: "include",
+      credentials: options.token ? "omit" : "include",
     });
     if (!response.ok) throw await toError(response);
     if (response.status === 204) return undefined as T;
@@ -131,6 +154,9 @@ export function createStoreAccountClient(options: StoreAccountClientOptions): St
   }
 
   return {
+    listTokens: async () => (await request<{ items: StoreApiToken[] }>("/me/tokens", "GET")).items,
+    createToken: (name) => request("/me/tokens", "POST", { name }),
+    revokeToken: (id) => request(`/me/tokens/${encodeURIComponent(id)}`, "DELETE"),
     register: (input) => request("/auth/register", "POST", input),
     verifyEmail: (token) => request("/auth/verify-email", "POST", { token }),
     login: (input) => request("/auth/login", "POST", input),

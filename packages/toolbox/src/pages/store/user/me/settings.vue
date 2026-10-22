@@ -2,6 +2,7 @@
 import { useConfirm } from "vuetify-use-dialog";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { utils, getPublicKey } from "@noble/secp256k1";
+import { createTokenManager } from "~/lib/store-tokens";
 
 const createConfirm = useConfirm();
 
@@ -47,6 +48,27 @@ watch(toRef(settings, "private_key"), () => {
     errorMessage.value = "Invalid private key.";
   }
 });
+
+const tokenName = ref("");
+const tokenManager = computed(() => (store.api ? createTokenManager(store.api) : undefined));
+
+watch(
+  tokenManager,
+  (manager) => {
+    manager?.refresh();
+  },
+  { immediate: true },
+);
+
+async function createToken() {
+  await tokenManager.value?.create(tokenName.value);
+  if (!tokenManager.value?.state.error) tokenName.value = "";
+}
+
+async function copySecret(secret: string) {
+  await navigator.clipboard.writeText(secret);
+  toast.success("Token copied.");
+}
 
 async function save() {
   try {
@@ -111,6 +133,65 @@ async function save() {
       <v-spacer />
       <v-btn variant="outlined" @click="save"> Save </v-btn>
     </v-card-actions>
+  </v-card>
+
+  <v-card v-if="tokenManager" class="ma-2" title="API tokens">
+    <v-card-text>
+      <p class="mb-4">Use API tokens to authenticate the CLI without your password.</p>
+      <v-alert
+        v-if="tokenManager.state.revealedSecret"
+        type="warning"
+        class="mb-4"
+        closable
+        @click:close="tokenManager.dismissSecret()"
+      >
+        <div>
+          Copy the token "{{ tokenManager.state.revealedSecret.name }}" now. It will not be shown
+          again.
+        </div>
+        <code class="d-block my-2" data-testid="token-secret">
+          {{ tokenManager.state.revealedSecret.secret }}
+        </code>
+        <v-btn
+          size="small"
+          variant="outlined"
+          @click="copySecret(tokenManager.state.revealedSecret.secret)"
+        >
+          Copy
+        </v-btn>
+      </v-alert>
+      <v-alert v-if="tokenManager.state.error" type="error" class="mb-4">
+        {{ tokenManager.state.error }}
+      </v-alert>
+      <div class="d-flex align-center">
+        <v-text-field
+          v-model="tokenName"
+          label="Token name"
+          maxlength="100"
+          hide-details
+          class="mr-2"
+          @keyup.enter="createToken"
+        />
+        <v-btn variant="outlined" @click="createToken"> Create token </v-btn>
+      </div>
+      <v-list>
+        <v-list-item
+          v-for="token in tokenManager.state.tokens"
+          :key="token.id"
+          :title="token.name"
+          :subtitle="`${token.prefix}… · created ${token.date_created} · ${
+            token.last_used ? `last used ${token.last_used}` : 'never used'
+          }`"
+        >
+          <template #append>
+            <v-chip v-if="token.revoked" size="small">Revoked</v-chip>
+            <v-btn v-else variant="text" color="error" @click="tokenManager.revoke(token.id)">
+              Revoke
+            </v-btn>
+          </template>
+        </v-list-item>
+      </v-list>
+    </v-card-text>
   </v-card>
 </template>
 

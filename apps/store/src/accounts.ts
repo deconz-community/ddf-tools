@@ -1,11 +1,11 @@
 import argon2 from "argon2";
-import { and, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
 import type { StoreDatabase } from "./database.js";
-import { accountTokens, rateLimits, sessions, users } from "./schema.js";
+import { accountTokens, apiTokens, rateLimits, sessions, users } from "./schema.js";
 
 export interface AccountMailer {
   sendVerification(email: string, token: string): Promise<void>;
@@ -49,6 +49,7 @@ const profileSchema = z
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0);
+const tokenNameSchema = z.object({ name: z.string().trim().min(1).max(100) });
 const tokenLifetime = 24 * 60 * 60 * 1000;
 const sessionLifetime = 30 * 24 * 60 * 60 * 1000;
 const cookieName = "store_session";
@@ -58,7 +59,12 @@ export function tokenHash(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-function failure(context: Context, status: 400 | 404 | 409 | 500, code: string, message: string) {
+function failure(
+  context: Context,
+  status: 400 | 401 | 404 | 409 | 500,
+  code: string,
+  message: string,
+) {
   return context.json({ error: { code, message } }, status);
 }
 
@@ -100,7 +106,7 @@ function clearSessionCookie(context: Context, secure: boolean) {
   context.header("Set-Cookie", attributes.join("; "));
 }
 
-async function authenticatedUser(database: StoreDatabase, context: Context, timestamp: number) {
+async function sessionUser(database: StoreDatabase, context: Context, timestamp: number) {
   const token = getCookie(context, cookieName);
   if (!token) return null;
   const [session] = await database
@@ -111,6 +117,60 @@ async function authenticatedUser(database: StoreDatabase, context: Context, time
   if (!session) return null;
   const [user] = await database.select().from(users).where(eq(users.id, session.userId)).limit(1);
   return user ?? null;
+}
+
+type Authentication =
+  | { user: typeof users.$inferSelect }
+  | { error: "unauthenticated" | "invalid_api_token" | "token_revoked" };
+
+const authenticationMessages = {
+  unauthenticated: "Sign in to continue.",
+  invalid_api_token: "The API token is invalid.",
+  token_revoked: "The API token has been revoked.",
+};
+
+// A Bearer header takes precedence over any cookie so API tokens never fall back to a session.
+async function authenticate(
+  database: StoreDatabase,
+  context: Context,
+  timestamp: number,
+): Promise<Authentication> {
+  const header = context.req.header("authorization");
+  if (header !== undefined) {
+    const match = /^Bearer\s+(\S+)$/i.exec(header.trim());
+    if (!match) return { error: "invalid_api_token" };
+    const [record] = await database
+      .select()
+      .from(apiTokens)
+      .where(eq(apiTokens.tokenHash, tokenHash(match[1]!)))
+      .limit(1);
+    if (!record) return { error: "invalid_api_token" };
+    if (record.revokedAt !== null) return { error: "token_revoked" };
+    const [user] = await database.select().from(users).where(eq(users.id, record.userId)).limit(1);
+    if (!user) return { error: "invalid_api_token" };
+    await database
+      .update(apiTokens)
+      .set({ lastUsedAt: timestamp })
+      .where(eq(apiTokens.id, record.id));
+    return { user };
+  }
+  const user = await sessionUser(database, context, timestamp);
+  return user ? { user } : { error: "unauthenticated" };
+}
+
+function unauthorized(context: Context, error: keyof typeof authenticationMessages) {
+  return failure(context, 401, error, authenticationMessages[error]);
+}
+
+function tokenView(record: typeof apiTokens.$inferSelect) {
+  return {
+    id: record.id,
+    name: record.name,
+    prefix: record.tokenPrefix,
+    date_created: new Date(record.createdAt).toISOString(),
+    last_used: record.lastUsedAt === null ? null : new Date(record.lastUsedAt).toISOString(),
+    revoked: record.revokedAt !== null,
+  };
 }
 
 async function accountEmailForToken(
@@ -324,7 +384,7 @@ export function registerAccountRoutes(
 
   app.post("/auth/logout", async (context) => {
     const token = getCookie(context, cookieName);
-    const user = await authenticatedUser(database, context, now());
+    const user = await sessionUser(database, context, now());
     if (token) await database.delete(sessions).where(eq(sessions.tokenHash, tokenHash(token)));
     clearSessionCookie(context, options.secureCookies ?? false);
     if (await rateLimited(database, context, "logout", user?.email, now()))
@@ -411,22 +471,16 @@ export function registerAccountRoutes(
   });
 
   app.get("/profile", async (context) => {
-    const user = await authenticatedUser(database, context, now());
-    if (!user)
-      return context.json(
-        { error: { code: "unauthenticated", message: "Sign in to continue." } },
-        401,
-      );
+    const authentication = await authenticate(database, context, now());
+    if ("error" in authentication) return unauthorized(context, authentication.error);
+    const { user } = authentication;
     return context.json(profile(user));
   });
 
   app.patch("/profile", async (context) => {
-    const user = await authenticatedUser(database, context, now());
-    if (!user)
-      return context.json(
-        { error: { code: "unauthenticated", message: "Sign in to continue." } },
-        401,
-      );
+    const authentication = await authenticate(database, context, now());
+    if ("error" in authentication) return unauthorized(context, authentication.error);
+    const { user } = authentication;
     const parsed = profileSchema.safeParse(await context.req.json().catch(() => null));
     if (!parsed.success)
       return failure(context, 400, "invalid_request", "The profile update is invalid.");
@@ -453,6 +507,68 @@ export function registerAccountRoutes(
     }
     const [updated] = await database.select().from(users).where(eq(users.id, user.id)).limit(1);
     return context.json(profile(updated!));
+  });
+
+  // Token management is limited to browser sessions so an API token cannot mint or revoke tokens.
+  async function sessionOwner(context: Context) {
+    if (context.req.header("authorization") !== undefined) return null;
+    return await sessionUser(database, context, now());
+  }
+
+  app.get("/me/tokens", async (context) => {
+    const user = await sessionOwner(context);
+    if (!user) return unauthorized(context, "unauthenticated");
+    const records = await database
+      .select()
+      .from(apiTokens)
+      .where(eq(apiTokens.userId, user.id))
+      .orderBy(desc(apiTokens.createdAt));
+    return context.json({ items: records.map(tokenView) });
+  });
+
+  app.post("/me/tokens", async (context) => {
+    const user = await sessionOwner(context);
+    if (!user) return unauthorized(context, "unauthenticated");
+    const parsed = tokenNameSchema.safeParse(await context.req.json().catch(() => null));
+    if (!parsed.success)
+      return failure(
+        context,
+        400,
+        "invalid_request",
+        "A token name of 1 to 100 characters is required.",
+      );
+    const secret = `ddf_${randomBytes(32).toString("base64url")}`;
+    const record = {
+      id: randomUUID(),
+      userId: user.id,
+      name: parsed.data.name,
+      tokenHash: tokenHash(secret),
+      tokenPrefix: secret.slice(0, 8),
+      createdAt: now(),
+    };
+    await database.insert(apiTokens).values(record);
+    const [created] = await database
+      .select()
+      .from(apiTokens)
+      .where(eq(apiTokens.id, record.id))
+      .limit(1);
+    return context.json({ ...tokenView(created!), secret }, 201);
+  });
+
+  app.delete("/me/tokens/:id", async (context) => {
+    const user = await sessionOwner(context);
+    if (!user) return unauthorized(context, "unauthenticated");
+    const [record] = await database
+      .select()
+      .from(apiTokens)
+      .where(and(eq(apiTokens.id, context.req.param("id")), eq(apiTokens.userId, user.id)))
+      .limit(1);
+    if (!record) return failure(context, 404, "token_not_found", "The API token does not exist.");
+    await database
+      .update(apiTokens)
+      .set({ revokedAt: now() })
+      .where(and(eq(apiTokens.id, record.id), isNull(apiTokens.revokedAt)));
+    return context.body(null, 204);
   });
 
   app.get("/users/:id", async (context) => {
