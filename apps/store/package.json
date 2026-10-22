@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "exports": {
+    "./app": "./src/app.ts"
+  },
   "scripts": {
     "build": "vp build",
     "check": "vp check",
@@ -13,6 +16,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.1.5",
+    "@hono/zod-validator": "^0.9.1",
     "argon2": "^0.45.1",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",

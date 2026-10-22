@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
+import { bundlesRoutes } from "./bundles.js";
 import { registerAccountRoutes, type AccountOptions } from "./accounts.js";
 import type { StoreDatabase } from "./database.js";
 
@@ -13,10 +14,7 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
     );
   });
   api.notFound((context) =>
-    context.json(
-      { error: { code: "not_found", message: "The requested resource does not exist." } },
-      404,
-    ),
+    context.json({ error: { code: "not_found", message: "The requested resource does not exist." } }, 404),
   );
   registerAccountRoutes(api, database, options);
 
@@ -66,5 +64,9 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
       } catch {
         return context.json({ status: "unhealthy" }, 503);
       }
-    });
+    })
+    .route("/v1", bundlesRoutes(database));
 }
+
+export type AppType = ReturnType<typeof createApp>;
+export type { ErrorCode } from "./errors.js";

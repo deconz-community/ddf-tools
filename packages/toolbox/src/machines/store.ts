@@ -3,10 +3,10 @@ import { produce } from "immer";
 import type { AuthenticationClient, DirectusClient, RestClient } from "@directus/sdk";
 import { authentication, createDirectus, readSettings, rest, serverHealth } from "@directus/sdk";
 import {
-  createStoreClient,
-  type StoreClient,
+  createStoreAccountClient,
+  type StoreAccountClient,
   type StoreProfile,
-} from "@deconz-community/store-client";
+} from "@deconz-community/store-api-client";
 import type { Collections, Schema } from "~/interfaces/store";
 import { toastError } from "~/lib/handleError";
 
@@ -20,7 +20,7 @@ export interface StoreContext {
   directusUrl: string;
   storeApiUrl: string;
   directus?: Directus;
-  storeApi?: StoreClient;
+  storeApi?: StoreAccountClient;
   profile?: StoreProfile & {
     avatar?: string | null;
     is_contributor?: boolean;
@@ -62,7 +62,7 @@ export const storeMachine = setup({
 
   actors: {
     // #region fetchProfile
-    fetchProfile: fromPromise(async ({ input }: { input: StoreClient }) => {
+    fetchProfile: fromPromise(async ({ input }: { input: StoreAccountClient }) => {
       return await input.getProfile();
     }),
     // #endregion
@@ -72,7 +72,7 @@ export const storeMachine = setup({
       {
         isAuthenticated: boolean;
         directus: Directus;
-        storeApi: StoreClient;
+        storeApi: StoreAccountClient;
         settings: DirectusSettings;
         profile?: StoreProfile;
       },
@@ -127,7 +127,7 @@ export const storeMachine = setup({
       if (health.status !== "ok") throw new Error("Could not connect to Directus");
 
       const settings = await client.request(readSettings());
-      const storeApi = createStoreClient({ baseUrl: input.storeApiUrl });
+      const storeApi = createStoreAccountClient({ url: input.storeApiUrl });
       let profile: StoreProfile | undefined;
       try {
         profile = await storeApi.getProfile();
@@ -151,7 +151,7 @@ export const storeMachine = setup({
         success: boolean;
       },
       {
-        storeApi: StoreClient;
+        storeApi: StoreAccountClient;
         email: string;
         password: string;
       }
@@ -169,7 +169,7 @@ export const storeMachine = setup({
     logout: fromPromise<
       void,
       {
-        storeApi: StoreClient;
+        storeApi: StoreAccountClient;
       }
     >(async ({ input }) => {
       try {

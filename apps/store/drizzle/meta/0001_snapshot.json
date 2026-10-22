@@ -1,11 +1,11 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5de05b17-1139-4804-87a7-eb8d1796efa0",
+  "id": "2f8bfbe4-ef86-402f-9c39-4edd18072937",
   "prevId": "34013a9f-10e7-46ee-8e78-41062f1c94ab",
   "tables": {
-    "account_tokens": {
-      "name": "account_tokens",
+    "bundles": {
+      "name": "bundles",
       "columns": {
         "id": {
           "name": "id",
@@ -14,62 +14,161 @@
           "notNull": true,
           "autoincrement": false
         },
-        "token_hash": {
-          "name": "token_hash",
+        "ddf_uuid": {
+          "name": "ddf_uuid",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
+        "date_created": {
+          "name": "date_created",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "purpose": {
-          "name": "purpose",
+        "source_last_modified": {
+          "name": "source_last_modified",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "expires_at": {
-          "name": "expires_at",
+        "vendor": {
+          "name": "vendor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product": {
+          "name": "product",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "version_deconz": {
+          "name": "version_deconz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "info": {
+          "name": "info",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "blob",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content_size": {
+          "name": "content_size",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "created_at": {
-          "name": "created_at",
+        "file_count": {
+          "name": "file_count",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content_hash": {
+          "name": "content_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "deprecation_message": {
+          "name": "deprecation_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bundles_ddf_uuid_idx": {
+          "name": "bundles_ddf_uuid_idx",
+          "columns": ["ddf_uuid", "source_last_modified", "date_created"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "bundles_ddf_uuid_ddf_uuids_id_fk": {
+          "name": "bundles_ddf_uuid_ddf_uuids_id_fk",
+          "tableFrom": "bundles",
+          "tableTo": "ddf_uuids",
+          "columnsFrom": ["ddf_uuid"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "bundles_device_identifiers": {
+      "name": "bundles_device_identifiers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "bundles_id": {
+          "name": "bundles_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "device_identifiers_id": {
+          "name": "device_identifiers_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {
-        "account_tokens_token_hash_unique": {
-          "name": "account_tokens_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
-          "isUnique": true
+        "bundles_device_identifiers_bundle_idx": {
+          "name": "bundles_device_identifiers_bundle_idx",
+          "columns": ["bundles_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
-        "account_tokens_user_id_users_id_fk": {
-          "name": "account_tokens_user_id_users_id_fk",
-          "tableFrom": "account_tokens",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+        "bundles_device_identifiers_bundles_id_bundles_id_fk": {
+          "name": "bundles_device_identifiers_bundles_id_bundles_id_fk",
+          "tableFrom": "bundles_device_identifiers",
+          "tableTo": "bundles",
+          "columnsFrom": ["bundles_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bundles_device_identifiers_device_identifiers_id_device_identifiers_id_fk": {
+          "name": "bundles_device_identifiers_device_identifiers_id_device_identifiers_id_fk",
+          "tableFrom": "bundles_device_identifiers",
+          "tableTo": "device_identifiers",
+          "columnsFrom": ["device_identifiers_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -78,28 +177,28 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "rate_limits": {
-      "name": "rate_limits",
+    "ddf_uuids": {
+      "name": "ddf_uuids",
       "columns": {
-        "key": {
-          "name": "key",
+        "id": {
+          "name": "id",
           "type": "text",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
-        "count": {
-          "name": "count",
-          "type": "integer",
+        "date_created": {
+          "name": "date_created",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "window_started_at": {
-          "name": "window_started_at",
-          "type": "integer",
+        "expire_at": {
+          "name": "expire_at",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -109,8 +208,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "sessions": {
-      "name": "sessions",
+    "device_identifiers": {
+      "name": "device_identifiers",
       "columns": {
         "id": {
           "name": "id",
@@ -119,59 +218,29 @@
           "notNull": true,
           "autoincrement": false
         },
-        "token_hash": {
-          "name": "token_hash",
+        "manufacturer": {
+          "name": "manufacturer",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
+        "model": {
+          "name": "model",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {
-        "sessions_token_hash_unique": {
-          "name": "sessions_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+        "device_identifiers_manufacturer_model_unique": {
+          "name": "device_identifiers_manufacturer_model_unique",
+          "columns": ["manufacturer", "model"],
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "sessions_user_id_users_id_fk": {
-          "name": "sessions_user_id_users_id_fk",
-          "tableFrom": "sessions",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -200,8 +269,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "users": {
-      "name": "users",
+    "signatures": {
+      "name": "signatures",
       "columns": {
         "id": {
           "name": "id",
@@ -210,94 +279,51 @@
           "notNull": true,
           "autoincrement": false
         },
-        "email": {
-          "name": "email",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "password_hash": {
-          "name": "password_hash",
+        "bundle": {
+          "name": "bundle",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "first_name": {
-          "name": "first_name",
+        "type": {
+          "name": "type",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "avatar_url": {
-          "name": "avatar_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "public_key": {
-          "name": "public_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "private_key": {
-          "name": "private_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "email_verified_at": {
-          "name": "email_verified_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
-          "isUnique": true
+        "signatures_bundle_idx": {
+          "name": "signatures_bundle_idx",
+          "columns": ["bundle"],
+          "isUnique": false
         },
-        "users_public_key_unique": {
-          "name": "users_public_key_unique",
-          "columns": [
-            "public_key"
-          ],
-          "isUnique": true
+        "signatures_key_idx": {
+          "name": "signatures_key_idx",
+          "columns": ["key"],
+          "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "signatures_bundle_bundles_id_fk": {
+          "name": "signatures_bundle_bundles_id_fk",
+          "tableFrom": "signatures",
+          "tableTo": "bundles",
+          "columnsFrom": ["bundle"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

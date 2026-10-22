@@ -17,12 +17,11 @@ const bundleRef = ref<ReturnType<typeof Bundle> | undefined>();
 async function inspect(hash: string) {
   switch (props.source) {
     case "store": {
-      const bundle = await store.client?.request(storeDownloadBundle(hash));
+      const bundle = await store.downloadBundle(hash).catch(() => undefined);
 
-      if (!bundle || !bundle.success)
-        return toast.error(`Error while downloading bundle from the store`);
+      if (!bundle) return toast.error(`Error while downloading bundle from the store`);
 
-      const decoded = await decode(bundle.success);
+      const decoded = await decode(bundle);
 
       bundleRef.value = decoded;
       bundleRef.value.data.name = hash;

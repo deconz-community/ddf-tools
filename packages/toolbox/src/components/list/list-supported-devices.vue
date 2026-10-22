@@ -1,6 +1,7 @@
 <script setup lang="ts">
 type deviceIdentifiers =
   | [string, string]
+  | { manufacturer: string; model: string }
   | {
       device_identifiers_id: {
         manufacturer: string;
@@ -21,9 +22,12 @@ const supportedDevices = computed(() => {
       if (Array.isArray(item)) {
         manufacturer = item[0];
         model = item[1];
-      } else {
+      } else if ("device_identifiers_id" in item) {
         manufacturer = item.device_identifiers_id.manufacturer;
         model = item.device_identifiers_id.model;
+      } else {
+        manufacturer = item.manufacturer;
+        model = item.model;
       }
 
       if (!acc[manufacturer]) acc[manufacturer] = [];

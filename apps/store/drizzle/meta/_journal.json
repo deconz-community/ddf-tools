@@ -12,8 +12,15 @@
     {
       "idx": 1,
       "version": "6",
-      "when": 1792655852633,
-      "tag": "0001_account-auth",
+      "when": 1792655792043,
+      "tag": "0001_bundles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792657162950,
+      "tag": "0002_account_auth",
       "breakpoints": true
     }
   ]
