@@ -9,6 +9,7 @@ import {
   StoreApiError,
   type BundleSummary,
   type ErrorCode,
+  type StoreClient,
   deprecateBundle,
   generateDdfUuids,
   signBundle,
@@ -43,6 +44,15 @@ afterEach(() => {
 
 describe("store client", () => {
   it("searches bundles with typed snake_case filters", async () => {
+    type BundleSearchInput = Parameters<StoreClient["v1"]["bundles"]["$get"]>[0];
+    const validInput: BundleSearchInput = { query: { vendor: "IKEA" } };
+    expectTypeOf(validInput.query?.vendor).toEqualTypeOf<string | undefined>();
+    const invalidInput: BundleSearchInput = {
+      // @ts-expect-error The client only exposes filters defined by the server route.
+      query: { unknown_filter: "value" },
+    };
+    expect(invalidInput).toBeDefined();
+
     const { api, seedBundle } = setup();
     const { id } = seedBundle({ vendor: "IKEA", devices: [{ manufacturer: "IKEA", model: "X" }] });
     seedBundle({ vendor: "Other" });
@@ -180,7 +190,7 @@ describe("store client", () => {
     const { requests, fetchImpl } = recordingFetch(() =>
       Response.json({
         results: [
-          { file: "one.ddb", success: true, bundle_id: "bundle-one" },
+          { file: "one.ddb", success: true, id: "bundle-one" },
           {
             file: "two.ddb",
             success: false,
@@ -204,17 +214,21 @@ describe("store client", () => {
     expect(requests[0]!.method).toBe("POST");
     expect(requests[0]!.headers.get("authorization")).toBe("Bearer store-token");
     const body = await requests[0]!.formData();
-    expect(body.get("state")).toBe("alpha");
+    expect(new URL(requests[0]!.url).searchParams.get("state")).toBe("alpha");
+    expect(body.get("state")).toBeNull();
     expect(body.getAll("files").map((file) => (file as File).name)).toEqual(["one.ddb", "two.ddb"]);
     expect(result.results).toMatchObject([
-      { file: "one.ddb", success: true, bundle_id: "bundle-one" },
+      { file: "one.ddb", success: true, id: "bundle-one" },
       { file: "two.ddb", success: false, error: { code: "invalid_bundle" } },
     ]);
   });
 
   it("generates owned DDF UUIDs through the versioned API", async () => {
     const { requests, fetchImpl } = recordingFetch(() =>
-      Response.json({ uuid: ["new-uuid"], expire_at: "2030-01-22T00:00:00.000Z" }, { status: 201 }),
+      Response.json(
+        { uuids: ["new-uuid"], expire_at: "2030-01-22T00:00:00.000Z" },
+        { status: 201 },
+      ),
     );
     const client = createStoreClient({
       url: "https://store.test",
@@ -228,7 +242,7 @@ describe("store client", () => {
     expect(requests[0]!.method).toBe("POST");
     expect(requests[0]!.headers.get("authorization")).toBe("Bearer store-token");
     expect(await requests[0]!.json()).toEqual({ count: 1 });
-    expect(result).toEqual({ uuid: ["new-uuid"], expire_at: "2030-01-22T00:00:00.000Z" });
+    expect(result).toEqual({ uuids: ["new-uuid"], expire_at: "2030-01-22T00:00:00.000Z" });
   });
 
   it("converts upload request errors into typed StoreApiErrors", async () => {
@@ -257,7 +271,7 @@ describe("store client", () => {
         results: form.getAll("files").map((file) => ({
           file: (file as File).name,
           success: true,
-          bundle_id: "bundle",
+          id: "bundle",
         })),
       });
     });

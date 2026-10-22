@@ -15,11 +15,11 @@ import {
   verifySignature,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
-import type { AccountOptions, StoreAuthentication } from "./accounts.js";
-import { authenticateStoreRequest } from "./accounts.js";
+import type { AccountOptions, SigningKey } from "./accounts.js";
+import { authenticateStoreRequest, authenticationErrorResponse } from "./accounts.js";
 import type { StoreDatabase } from "./database.js";
 import { errorResponse } from "./errors.js";
-import { bundles, ddfUuids, signatures, users } from "./schema.js";
+import { bundles, ddfUuids, signatures } from "./schema.js";
 
 const signatureRequestSchema = z.object({ state: z.enum(["alpha", "beta", "stable"]) }).strict();
 const deprecationRequestSchema = z
@@ -27,23 +27,9 @@ const deprecationRequestSchema = z
   .strict();
 
 type LifecycleSignatureState = z.infer<typeof signatureRequestSchema>["state"];
-type SigningKey = { publicKey: string; privateKey: Uint8Array };
-type LifecycleEnvironment = { Variables: { lifecycleUser: typeof users.$inferSelect } };
-
-function authenticationFailure(
-  context: Context,
-  authentication: Extract<StoreAuthentication, { error: string }>,
-) {
-  const messages = {
-    unauthenticated: "Sign in to continue.",
-    invalid_api_token: "The API token is invalid.",
-    token_revoked: "The API token has been revoked.",
-  };
-  return context.json(
-    { error: { code: authentication.error, message: messages[authentication.error] } },
-    401,
-  );
-}
+type LifecycleEnvironment = {
+  Variables: { lifecycleUser: { id: string; isContributor: boolean } };
+};
 
 function configuredSigningKey(
   options: AccountOptions,
@@ -88,7 +74,7 @@ async function authenticate(context: Context, database: StoreDatabase, options: 
     options.now?.() ?? Date.now(),
   );
   return "error" in authentication
-    ? authenticationFailure(context, authentication)
+    ? authenticationErrorResponse(context, authentication.error)
     : authentication;
 }
 
@@ -103,7 +89,10 @@ function requireAuthentication(
   return async (context, next) => {
     const authentication = await authenticate(context, database, options);
     if (authentication instanceof Response) return authentication;
-    context.set("lifecycleUser", authentication.user);
+    context.set("lifecycleUser", {
+      id: authentication.user.id,
+      isContributor: authentication.user.isContributor,
+    });
     await next();
   };
 }

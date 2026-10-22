@@ -1,7 +1,7 @@
 import type { AppType } from "@deconz-community/store-api/app";
 import { hc } from "hono/client";
 
-type ServerTypedStoreClient = ReturnType<typeof hc<AppType>>;
+export type ServerTypedStoreClient = ReturnType<typeof hc<AppType>>;
 type DdfUuidGenerationClient = {
   v1: {
     "ddf-uuids": {
@@ -67,7 +67,7 @@ export type StoreUploadErrorCode =
   | "bundle_hash_already_exists";
 
 export type StoreBundleUploadFileResult =
-  | { file: string; success: true; bundle_id: string }
+  | { file: string; success: true; id: string }
   | {
       file: string;
       success: false;
@@ -151,7 +151,7 @@ export interface StoreAccountClient {
   getUserByPublicKey(key: string): Promise<PublicStoreUser>;
 }
 
-export type StoreClient = ReturnType<typeof hc<any>>;
+export type StoreClient = ServerTypedStoreClient;
 
 export interface SearchBundlesQuery {
   page?: string | string[];
@@ -201,7 +201,7 @@ export interface BundleVersionsResult {
 }
 
 export interface GenerateDdfUuidsResult {
-  uuid: string[];
+  uuids: string[];
   expire_at: string;
 }
 
@@ -289,10 +289,10 @@ export function createStoreAccountClient(options: StoreAccountClientOptions): St
     requestPasswordReset: (email) => request("/auth/password-reset/request", "POST", { email }),
     confirmPasswordReset: (token, password) =>
       request("/auth/password-reset/confirm", "POST", { token, password }),
-    getProfile: () => request("/profile", "GET"),
-    updateProfile: (input) => request("/profile", "PATCH", input),
+    getProfile: () => request("/me", "GET"),
+    updateProfile: (input) => request("/me", "PATCH", input),
     getUserById: (id) => request(`/users/${encodeURIComponent(id)}`, "GET"),
-    getUserByPublicKey: (key) => request(`/users/key/${encodeURIComponent(key)}`, "GET"),
+    getUserByPublicKey: (key) => request(`/users?public_key=${encodeURIComponent(key)}`, "GET"),
   };
 }
 
@@ -312,13 +312,13 @@ export async function searchBundles(
   client: StoreClient,
   query: SearchBundlesQuery = {},
 ): Promise<SearchBundlesResult> {
-  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles.$get({ query });
+  const response = await client.v1.bundles.$get({ query });
   if (!response.ok) throw await toError(response);
   return (await response.json()) as SearchBundlesResult;
 }
 
 export async function getBundle(client: StoreClient, id: string): Promise<BundleDetail> {
-  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[":id"].$get({
+  const response = await client.v1.bundles[":id"].$get({
     param: { id },
   });
   if (!response.ok) throw await toError(response);
@@ -329,9 +329,7 @@ export async function getBundleVersions(
   client: StoreClient,
   id: string,
 ): Promise<BundleVersionsResult> {
-  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
-    ":id"
-  ].versions.$get({
+  const response = await client.v1.bundles[":id"].versions.$get({
     param: { id },
   });
   if (!response.ok) throw await toError(response);
@@ -339,9 +337,7 @@ export async function getBundleVersions(
 }
 
 export async function downloadBundle(client: StoreClient, id: string): Promise<Blob> {
-  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
-    ":id"
-  ].download.$get({
+  const response = await client.v1.bundles[":id"].download.$get({
     param: { id },
   });
   if (!response.ok) throw await toError(response);
@@ -364,9 +360,7 @@ export async function signBundle(
   id: string,
   state: BundleSignatureState,
 ): Promise<BundleSignatureResult> {
-  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
-    ":id"
-  ].signatures.$post({
+  const response = await client.v1.bundles[":id"].signatures.$post({
     param: { id: encodeURIComponent(id) },
     json: { state },
   });
@@ -379,9 +373,7 @@ export async function deprecateBundle(
   id: string,
   message: string | null,
 ): Promise<BundleDeprecationResult> {
-  const response = await (client as unknown as ServerTypedStoreClient).v1.bundles[
-    ":id"
-  ].deprecate.$post({
+  const response = await client.v1.bundles[":id"].deprecate.$post({
     param: { id: encodeURIComponent(id) },
     json: { message },
   });
@@ -400,11 +392,7 @@ export async function uploadBundles(
     for (const file of files.slice(offset, offset + 100)) {
       form.append("files", file.content, file.name);
     }
-    form.set("state", state);
-    const response = await (client as unknown as ServerTypedStoreClient).v1.bundles.$post(
-      {},
-      { init: { body: form } },
-    );
+    const response = await client.v1.bundles.$post({ query: { state } }, { init: { body: form } });
     if (!response.ok) throw await toError(response);
     const result = (await response.json()) as StoreBundleUploadResult;
     results.push(...result.results);

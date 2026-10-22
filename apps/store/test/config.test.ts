@@ -6,7 +6,7 @@ describe("store service configuration", () => {
     expect(
       loadConfig({
         DATABASE_PATH: "./store.db",
-        ALLOWED_ORIGINS: "https://toolbox.example, https://preview.example",
+        CORS_ORIGINS: "https://toolbox.example, https://preview.example",
         SMTP_URL: "smtp://mail.example",
         SMTP_FROM: "store@example.com",
         TOOLBOX_URL: "https://toolbox.example/",

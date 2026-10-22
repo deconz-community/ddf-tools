@@ -82,7 +82,7 @@ describe("account registration and verification", () => {
     expect(cookie).toMatch(/^store_session=/);
     expect(login.headers.get("set-cookie")).toContain("HttpOnly");
     expect(login.headers.get("set-cookie")).toContain("SameSite=Lax");
-    const profile = await app.request("/v1/profile", {
+    const profile = await app.request("/v1/me", {
       headers: { cookie: cookie ?? "" },
     });
     expect(profile.status).toBe(200);
@@ -90,7 +90,7 @@ describe("account registration and verification", () => {
     expect(profileData).toMatchObject({ email: "person@example.com" });
     expect(profileData.is_contributor).toBe(false);
     const reloadedApp = createApp(database, { allowedOrigins: [origin] });
-    const persistedProfile = await reloadedApp.request("/v1/profile", {
+    const persistedProfile = await reloadedApp.request("/v1/me", {
       headers: { cookie: cookie ?? "" },
     });
     expect(persistedProfile.status).toBe(200);
@@ -103,7 +103,7 @@ describe("account registration and verification", () => {
     expect(secureLogin.headers.get("set-cookie")).toContain("Secure");
     expect(secureLogin.headers.get("set-cookie")).toContain("SameSite=None");
 
-    const profileUpdate = await app.request("/v1/profile", {
+    const profileUpdate = await app.request("/v1/me", {
       method: "PATCH",
       headers: { ...headers, cookie: cookie ?? "" },
       body: JSON.stringify({
@@ -120,14 +120,15 @@ describe("account registration and verification", () => {
       public_key: "public-key-1",
       private_key: "private-key-1",
     });
-    const attemptToChangeOwner = await app.request("/v1/profile", {
+    const attemptToChangeOwner = await app.request("/v1/me", {
       method: "PATCH",
       headers: { ...headers, cookie: cookie ?? "" },
       body: JSON.stringify({ id: "another-user" }),
     });
     expect(attemptToChangeOwner.status).toBe(400);
-    const publicProfile = await app.request("/v1/users/key/public-key-1");
+    const publicProfile = await app.request("/v1/users?public_key=public-key-1");
     expect(publicProfile.status).toBe(200);
+    expect(publicProfile.headers.get("cache-control")).toBe("public, max-age=3600");
     const publicProfileData = await publicProfile.json();
     expect(publicProfileData).toMatchObject({
       id: profileData.id,
@@ -137,6 +138,7 @@ describe("account registration and verification", () => {
     expect(publicProfileData).not.toHaveProperty("private_key");
     const publicById = await app.request(`/v1/users/${profileData.id}`);
     expect(publicById.status).toBe(200);
+    expect(publicById.headers.get("cache-control")).toBe("public, max-age=3600");
     expect(await publicById.json()).not.toHaveProperty("email");
 
     const passwordResetRequest = await app.request("/v1/auth/password-reset/request", {
@@ -158,7 +160,7 @@ describe("account registration and verification", () => {
       body: JSON.stringify({ token: resetMessages[0]?.token, password: "another password" }),
     });
     expect(reusedReset.status).toBe(400);
-    const invalidatedSession = await app.request("/v1/profile", {
+    const invalidatedSession = await app.request("/v1/me", {
       headers: { cookie: cookie ?? "" },
     });
     expect(invalidatedSession.status).toBe(401);
@@ -183,7 +185,7 @@ describe("account registration and verification", () => {
       },
     });
     expect(logout.status).toBe(204);
-    const afterLogout = await app.request("/v1/profile", {
+    const afterLogout = await app.request("/v1/me", {
       headers: { cookie: newPasswordLogin.headers.get("set-cookie")?.split(";")[0] ?? "" },
     });
     expect(afterLogout.status).toBe(401);

@@ -150,7 +150,7 @@ export async function migrateDirectus(options: MigrationOptions): Promise<Migrat
         privateKey: text(user.private_key),
         isContributor: Number(user.is_contributor) === 1,
         emailVerifiedAt: user.status === "active" ? timestamp : null,
-        createdAt: timestamp,
+        createdAt: Date.parse(isoDate(user.date_created, "directus_users.date_created")),
         updatedAt: timestamp,
       };
     });

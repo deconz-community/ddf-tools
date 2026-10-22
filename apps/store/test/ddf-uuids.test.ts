@@ -58,14 +58,14 @@ describe("POST /v1/ddf-uuids", () => {
     });
 
     expect(response.status).toBe(201);
-    const result = (await response.json()) as { uuid: string[]; expire_at: string };
-    expect(result.uuid).toHaveLength(2);
-    expect(new Set(result.uuid).size).toBe(2);
+    const result = (await response.json()) as { uuids: string[]; expire_at: string };
+    expect(result.uuids).toHaveLength(2);
+    expect(new Set(result.uuids).size).toBe(2);
     expect(result.expire_at).toBe("2026-01-22T00:00:00.000Z");
     const rows = client
       .prepare("SELECT id, owner_id, expire_at FROM ddf_uuids ORDER BY id")
       .all() as Array<{ id: string; owner_id: string; expire_at: string }>;
-    expect(rows.map((row) => row.id).sort()).toEqual([...result.uuid].sort());
+    expect(rows.map((row) => row.id).sort()).toEqual([...result.uuids].sort());
     expect(rows.every((row) => row.owner_id === userId && row.expire_at === result.expire_at)).toBe(
       true,
     );
@@ -81,7 +81,7 @@ describe("POST /v1/ddf-uuids", () => {
     });
 
     expect(response.status).toBe(201);
-    expect((await response.json()).uuid).toHaveLength(count);
+    expect((await response.json()).uuids).toHaveLength(count);
   });
 
   it.each([0, 101, 1.5, "2"])("rejects an invalid UUID count: %s", async (count) => {

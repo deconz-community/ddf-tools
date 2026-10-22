@@ -57,7 +57,8 @@ export async function createLegacyDatabase(
   db.exec(`
     CREATE TABLE directus_users (id char(36) PRIMARY KEY, first_name varchar(50), last_name varchar(50),
       email varchar(128) UNIQUE, password varchar(255), avatar char(36), status varchar(16),
-      token varchar(255), public_key varchar(255), private_key varchar(255), is_contributor boolean DEFAULT 0);
+      token varchar(255), public_key varchar(255), private_key varchar(255), is_contributor boolean DEFAULT 0,
+      date_created datetime);
     CREATE TABLE directus_files (id char(36) PRIMARY KEY, filename_download varchar(255));
     CREATE TABLE directus_settings (id integer PRIMARY KEY, project_name varchar(100),
       public_key_stable varchar(255), private_key_stable varchar(255), public_key_beta varchar(255),
@@ -86,7 +87,7 @@ export async function createLegacyDatabase(
       ];
     }),
   ) as LegacyFixture["systemKeys"];
-  db.prepare("INSERT INTO directus_users VALUES (?,?,?,?,?,?,?,?,?,?,?)").run(
+  db.prepare("INSERT INTO directus_users VALUES (?,?,?,?,?,?,?,?,?,?,?,?)").run(
     userId,
     "Ada",
     "Example",
@@ -98,8 +99,9 @@ export async function createLegacyDatabase(
     contributorPublicKey,
     bytesToHex(contributorKey),
     1,
+    "2019-05-06 07:08:09",
   );
-  db.prepare("INSERT INTO directus_users VALUES (?,?,?,?,?,?,?,?,?,?,?)").run(
+  db.prepare("INSERT INTO directus_users VALUES (?,?,?,?,?,?,?,?,?,?,?,?)").run(
     randomUUID(),
     null,
     null,
@@ -111,6 +113,7 @@ export async function createLegacyDatabase(
     null,
     null,
     0,
+    "2020-06-07 08:09:10",
   );
   db.prepare("INSERT INTO directus_files VALUES (?, ?)").run(
     "22222222-2222-4222-8222-222222222222",

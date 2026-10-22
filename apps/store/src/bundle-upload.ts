@@ -2,7 +2,9 @@ import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { and, eq } from "drizzle-orm";
-import { Hono, type Context } from "hono";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 import {
   decode,
   encode,
@@ -14,8 +16,8 @@ import {
   STABLE_PUBLIC_KEY,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
-import type { AccountOptions, StoreAuthentication } from "./accounts.js";
-import { authenticateStoreRequest } from "./accounts.js";
+import type { AccountOptions, SigningKey, StoreAuthentication } from "./accounts.js";
+import { authenticateStoreRequest, authenticationErrorResponse } from "./accounts.js";
 import type { StoreDatabase } from "./database.js";
 import {
   bundles,
@@ -25,9 +27,10 @@ import {
   signatures,
 } from "./schema.js";
 
-type UploadState = "alpha" | "beta" | "stable";
+const stateSchema = z.enum(["alpha", "beta", "stable"]).default("alpha");
+type UploadState = z.infer<typeof stateSchema>;
 type FileResult =
-  | { file: string; success: true; bundle_id: string }
+  | { file: string; success: true; id: string }
   | { file: string; success: false; error: { code: string; message: string } };
 
 class UploadError extends Error {
@@ -39,28 +42,12 @@ class UploadError extends Error {
   }
 }
 
-const stateSchema = ["alpha", "beta", "stable"] as const;
 const systemPublicKeys = { beta: BETA_PUBLIC_KEY, stable: STABLE_PUBLIC_KEY };
-
-function authError(
-  context: Context,
-  authentication: Extract<StoreAuthentication, { error: string }>,
-) {
-  const messages = {
-    unauthenticated: "Sign in to continue.",
-    invalid_api_token: "The API token is invalid.",
-    token_revoked: "The API token has been revoked.",
-  };
-  return context.json(
-    { error: { code: authentication.error, message: messages[authentication.error] } },
-    401,
-  );
-}
 
 function stateKey(
   options: AccountOptions,
   state: Exclude<UploadState, "alpha">,
-): { publicKey: string; privateKey: Uint8Array } | undefined {
+): SigningKey | undefined {
   const configured = options.systemSigningKeys?.[state];
   if (!configured) return undefined;
   const publicKey = configured.publicKey ?? systemPublicKeys[state];
@@ -71,15 +58,9 @@ function stateKey(
   return { publicKey: publicKey.toLowerCase(), privateKey };
 }
 
-function parseState(value: FormDataEntryValue | null): UploadState {
-  const state = typeof value === "string" && value.length > 0 ? value : "alpha";
-  if (!(stateSchema as readonly string[]).includes(state)) {
-    throw new UploadError("invalid_state", "state must be alpha, beta, or stable.");
-  }
-  return state as UploadState;
-}
-
-function publicKeyForUser(authentication: Extract<StoreAuthentication, { user: unknown }>) {
+function publicKeyForUser(
+  authentication: Extract<StoreAuthentication, { user: unknown }>,
+): SigningKey {
   const { publicKey, privateKey } = authentication.user;
   if (!publicKey || !privateKey) {
     throw new UploadError(
@@ -114,8 +95,8 @@ async function processFile(
   user: Extract<StoreAuthentication, { user: unknown }>["user"],
   state: UploadState,
   file: File,
-  uploaderKey: { publicKey: string; privateKey: Uint8Array },
-  serverKey?: { publicKey: string; privateKey: Uint8Array },
+  uploaderKey: SigningKey,
+  serverKey?: SigningKey,
 ): Promise<FileResult> {
   try {
     const bundle = await decode(file);
@@ -312,7 +293,7 @@ async function processFile(
           .run();
       }
     });
-    return { file: file.name, success: true, bundle_id: bundleId };
+    return { file: file.name, success: true, id: bundleId };
   } catch (error) {
     if (error instanceof UploadError) return fileFailure(file.name, error.code, error.message);
     if (error instanceof Error) return fileFailure(file.name, "invalid_bundle", error.message);
@@ -321,92 +302,101 @@ async function processFile(
 }
 
 export function bundleUploadRoutes(database: StoreDatabase, options: AccountOptions) {
-  return new Hono().post("/bundles", async (context) => {
-    const authentication = await authenticateStoreRequest(
-      database,
-      context,
-      options.now?.() ?? Date.now(),
-    );
-    if ("error" in authentication) return authError(context, authentication);
-
-    let form: FormData;
-    try {
-      form = await context.req.formData();
-    } catch {
-      return context.json(
-        { error: { code: "validation_error", message: "A multipart form is required." } },
-        422,
-      );
-    }
-    let state: UploadState;
-    try {
-      state = parseState(form.get("state"));
-    } catch (error) {
-      const reason = error instanceof UploadError ? error.message : "Invalid upload state.";
-      return context.json({ error: { code: "validation_error", message: reason } }, 422);
-    }
-    const files = form.getAll("files").filter((value): value is File => value instanceof File);
-    if (files.length === 0 || files.length > 100) {
-      return context.json(
-        {
-          error: { code: "validation_error", message: "Upload between one and one hundred files." },
-        },
-        422,
-      );
-    }
-
-    let uploaderKey: { publicKey: string; privateKey: Uint8Array } | undefined;
-    let keyError: UploadError | undefined;
-    try {
-      uploaderKey = publicKeyForUser(authentication);
-    } catch (error) {
-      keyError =
-        error instanceof UploadError
-          ? error
-          : new UploadError("uploader_keypair_invalid", "The uploader signing key is invalid.");
-    }
-
-    let serverKey: { publicKey: string; privateKey: Uint8Array } | undefined;
-    let stateError: UploadError | undefined;
-    if (state !== "alpha") {
-      if (!authentication.user.isContributor) {
-        stateError = new UploadError(
-          "contributor_required",
-          "Only contributors can publish beta or stable bundles.",
+  return new Hono().post(
+    "/bundles",
+    zValidator("query", z.object({ state: stateSchema }), (result, context) => {
+      if (!result.success) {
+        return context.json(
+          { error: { code: "validation_error", message: "state must be alpha, beta, or stable." } },
+          422,
         );
-      } else {
-        try {
-          serverKey = stateKey(options, state);
-          if (!serverKey) {
-            stateError = new UploadError(
-              "system_signing_unavailable",
-              `The server is missing the ${state} signing key.`,
-            );
+      }
+    }),
+    async (context) => {
+      const authentication = await authenticateStoreRequest(
+        database,
+        context,
+        options.now?.() ?? Date.now(),
+      );
+      if ("error" in authentication)
+        return authenticationErrorResponse(context, authentication.error);
+
+      let form: FormData;
+      try {
+        form = await context.req.formData();
+      } catch {
+        return context.json(
+          { error: { code: "validation_error", message: "A multipart form is required." } },
+          422,
+        );
+      }
+      const { state } = context.req.valid("query");
+      const files = form.getAll("files").filter((value): value is File => value instanceof File);
+      if (files.length === 0 || files.length > 100) {
+        return context.json(
+          {
+            error: {
+              code: "validation_error",
+              message: "Upload between one and one hundred files.",
+            },
+          },
+          422,
+        );
+      }
+
+      let uploaderKey: SigningKey | undefined;
+      let keyError: UploadError | undefined;
+      try {
+        uploaderKey = publicKeyForUser(authentication);
+      } catch (error) {
+        keyError =
+          error instanceof UploadError
+            ? error
+            : new UploadError("uploader_keypair_invalid", "The uploader signing key is invalid.");
+      }
+
+      let serverKey: SigningKey | undefined;
+      let stateError: UploadError | undefined;
+      if (state !== "alpha") {
+        if (!authentication.user.isContributor) {
+          stateError = new UploadError(
+            "contributor_required",
+            "Only contributors can publish beta or stable bundles.",
+          );
+        } else {
+          try {
+            serverKey = stateKey(options, state);
+            if (!serverKey) {
+              stateError = new UploadError(
+                "system_signing_unavailable",
+                `The server is missing the ${state} signing key.`,
+              );
+            }
+          } catch (error) {
+            stateError =
+              error instanceof UploadError
+                ? error
+                : new UploadError("system_key_invalid", "The system signing key is invalid.");
           }
-        } catch (error) {
-          stateError =
-            error instanceof UploadError
-              ? error
-              : new UploadError("system_key_invalid", "The system signing key is invalid.");
         }
       }
-    }
 
-    const results = await Promise.all(
-      files.map(async (file): Promise<FileResult> => {
-        const error = keyError ?? stateError;
-        if (error) return fileFailure(file.name, error.code, error.message);
-        return processFile(
-          database,
-          options,
-          authentication.user,
-          state,
-          file,
-          uploaderKey!,
-          serverKey,
-        );
-      }),
-    );
-    return context.json({ results });
-  });
+      const results = await Promise.all(
+        files.map(async (file): Promise<FileResult> => {
+          const error = keyError ?? stateError;
+          if (error) return fileFailure(file.name, error.code, error.message);
+          return processFile(
+            database,
+            options,
+            authentication.user,
+            state,
+            file,
+            uploaderKey!,
+            serverKey,
+          );
+        }),
+      );
+      return context.json({ results });
+    },
+  );
 }

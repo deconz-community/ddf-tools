@@ -110,8 +110,7 @@ async function upload(
   form: FormData,
   state?: string,
 ) {
-  if (state) form.set("state", state);
-  return app.request("/v1/bundles", {
+  return app.request(`/v1/bundles${state ? `?state=${encodeURIComponent(state)}` : ""}`, {
     method: "POST",
     headers: { authorization },
     body: form,
@@ -128,7 +127,7 @@ describe("POST /v1/bundles", () => {
 
     expect(response.status).toBe(200);
     const result = (await response.json()) as {
-      results: Array<{ file: string; success: boolean; bundle_id?: string }>;
+      results: Array<{ file: string; success: boolean; id?: string }>;
     };
     expect(result.results).toHaveLength(1);
     expect(result.results[0]).toMatchObject({ file: "starkvind.ddb", success: true });
@@ -137,7 +136,8 @@ describe("POST /v1/bundles", () => {
         .prepare("SELECT owner_id, expire_at FROM ddf_uuids WHERE id = ?")
         .get("f4c00c4c-2a92-489e-a930-7befe9b6484c"),
     ).toEqual({ owner_id: author.id, expire_at: null });
-    const downloaded = await app.request(`/v1/bundles/${result.results[0]?.bundle_id}/download`);
+    expect(result.results[0]?.id).toBeDefined();
+    const downloaded = await app.request(`/v1/bundles/${result.results[0]?.id}/download`);
     expect(downloaded.status).toBe(200);
     const storedBytes = new Uint8Array(await downloaded.arrayBuffer());
     expect(storedBytes).toEqual(new Uint8Array(await input.arrayBuffer()));
@@ -168,6 +168,23 @@ describe("POST /v1/bundles", () => {
       file: "invalid.ddb",
       success: false,
       error: { code: "invalid_bundle" },
+    });
+  });
+
+  it("reads upload state from the query instead of multipart fields", async () => {
+    const { app, addAuthor } = setup();
+    const author = addAuthor("owner");
+    const form = formFor([
+      "starkvind.ddb",
+      await signedBundle("f4c00c4c-2a92-489e-a930-7befe9b6484c"),
+    ]);
+    form.set("state", "beta");
+
+    const response = await upload(app, author.authorization, form);
+
+    expect((await response.json()).results[0]).toMatchObject({
+      file: "starkvind.ddb",
+      success: true,
     });
   });
 
@@ -343,7 +360,7 @@ describe("POST /v1/bundles", () => {
     const result = (await response.json()).results[0];
 
     expect(result.success).toBe(true);
-    const stored = await app.request(`/v1/bundles/${result.bundle_id}/download`);
+    const stored = await app.request(`/v1/bundles/${result.id}/download`);
     const bundle = await decode(new Blob([await stored.arrayBuffer()]));
     expect(bundle.data.signatures.map((signature) => bytesToHex(signature.key))).toContain(
       systemPublicKey,

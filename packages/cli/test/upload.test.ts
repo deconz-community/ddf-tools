@@ -59,10 +59,15 @@ describe("CLI bundle upload", () => {
   it("uploads one bundle through an in-process store and reports its result", async () => {
     const { store, secret, privateKey } = setup();
     const lines: string[] = [];
+    const requests: Request[] = [];
     const command = new Command();
     const signed = await signedFixture(privateKey);
     registerUploadCommands(command, {
-      fetch: (async (input, init) => store.app.fetch(new Request(input, init))) as typeof fetch,
+      fetch: (async (input, init) => {
+        const request = new Request(input, init);
+        requests.push(request.clone());
+        return store.app.fetch(request);
+      }) as typeof fetch,
       readFile: async () => new Uint8Array(await signed.arrayBuffer()),
       out: (line) => lines.push(line),
       error: (line) => lines.push(line),
@@ -84,7 +89,10 @@ describe("CLI bundle upload", () => {
 
     expect(lines.join("\n")).toContain("starkvind_air_purifier.ddb uploaded successfully");
     expect(lines.join("\n")).toContain("(alpha)");
-    expect(store.client.prepare("SELECT id FROM bundles").all()).toHaveLength(1);
+    expect(new URL(requests[0]!.url).searchParams.get("state")).toBe("alpha");
+    expect((await requests[0]!.formData()).get("state")).toBeNull();
+    const [bundle] = store.client.prepare("SELECT id FROM bundles").all() as Array<{ id: string }>;
+    expect(lines.join("\n")).toContain(`/v1/bundles/${bundle!.id}/download`);
   });
 
   it("supports bulk upload for a directory and reports each result", async () => {
