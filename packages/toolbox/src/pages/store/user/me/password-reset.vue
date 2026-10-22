@@ -3,24 +3,11 @@ import { useRouteQuery } from "@vueuse/router";
 import { reactive } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { helpers, minLength, required, sameAs } from "@vuelidate/validators";
-import { passwordReset } from "@directus/sdk";
 import { toastError } from "~/lib/handleError";
 
 const store = useStore();
 
 const queryToken = useRouteQuery<string>("token", "");
-
-const data = computed(() => {
-  if (queryToken.value.length === 0) return undefined;
-  const [type, token] = queryToken.value.split(".");
-
-  return {
-    type: JSON.parse(atob(type)),
-    token: JSON.parse(atob(token)),
-  };
-});
-
-const email = computed(() => data.value?.token.email ?? "");
 
 const initialState = {
   password: "",
@@ -75,7 +62,8 @@ async function updatePassword() {
   loading.value = true;
 
   try {
-    await store.client?.request(passwordReset(queryToken.value, state.password));
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    await store.api.confirmPasswordReset(queryToken.value, state.password);
     store.send({ type: "LOGIN_WITH_PASSWORD", email: email.value, password: state.password });
     toast.success("Password updated");
   } catch (error) {
@@ -90,9 +78,8 @@ async function updatePassword() {
   <v-card class="ma-2">
     <v-card-title> Reset password </v-card-title>
     <v-card-text>
+      <v-alert class="mb-5" type="info" text="Choose a new password for your account." />
       <v-form @submit.prevent="updatePassword">
-        <v-text-field v-model="email" label="Email" autocomplete="username" readonly disabled />
-
         <v-text-field
           v-model="state.password"
           :counter="10"

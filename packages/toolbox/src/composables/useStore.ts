@@ -3,6 +3,7 @@ import type { UseAsyncStateOptions } from "@vueuse/core";
 import type { MaybeRef, UnwrapNestedRefs } from "vue";
 
 import { customEndpoint } from "@directus/sdk";
+import type { PublicStoreUser } from "@deconz-community/store-api-client";
 import {
   createToolboxStoreClient,
   downloadStoreBundle,
@@ -11,7 +12,7 @@ import {
 } from "~/lib/store-api";
 import type { StoreBundleSearchFilters } from "~/lib/store-api";
 import type { UseAppMachine } from "./useAppMachine";
-import type { Collections, Schema } from "~/interfaces/store";
+import type { Schema } from "~/interfaces/store";
 
 export type RequestOptions<Output extends object | unknown> = {
   initialState?: Output;
@@ -20,10 +21,7 @@ export type RequestOptions<Output extends object | unknown> = {
   maxWait?: number;
 } & Omit<UseAsyncStateOptions<true, Output | null>, "shallow" | "resetOnExecute">;
 
-export type PublicUser = Pick<
-  Collections.DirectusUser,
-  "id" | "first_name" | "last_name" | "date_created" | "public_key" | "is_contributor"
-> & { avatar_url: string };
+export type PublicUser = PublicStoreUser & { is_contributor?: boolean };
 
 export type BundleSignatureState = "alpha" | "beta" | "stable";
 
@@ -64,17 +62,18 @@ export function storeDeprecateBundle(params: BundleDeprecateParams) {
 export function useStore() {
   const store = useAppMachine("store");
   const client = computed(() => store.state?.context.directus);
+  const api = computed(() => store.state?.context.storeApi);
   const profile = computed(() => store.state?.context.profile);
-  const storeUrl = computed(() => (client.value ? store.state?.context.directusUrl : undefined));
-  const storeApi = computed(() =>
+  const storeUrl = computed(() => store.state?.context.storeApiUrl);
+  const bundleClient = computed(() =>
     storeUrl.value ? createToolboxStoreClient(storeUrl.value) : undefined,
   );
 
   const searchBundles = async (filters: StoreBundleSearchFilters) =>
-    storeApi.value ? await searchStoreBundles(storeApi.value, filters) : undefined;
+    bundleClient.value ? await searchStoreBundles(bundleClient.value, filters) : undefined;
 
   const downloadBundle = async (bundleId: string) =>
-    storeApi.value ? await downloadStoreBundle(storeApi.value, bundleId) : undefined;
+    bundleClient.value ? await downloadStoreBundle(bundleClient.value, bundleId) : undefined;
 
   const bundleDownloadUrl = (bundleId: string) =>
     storeUrl.value ? storeBundleDownloadUrl(storeUrl.value, bundleId) : undefined;
@@ -123,21 +122,17 @@ export function useStore() {
   }
 
   const getUserByKey = async (userKey: string) => {
-    // TODO find a way to cache this, maybe in the machine ?
-    return await client.value?.request<PublicUser | undefined>(() => {
-      return {
-        method: "GET",
-        path: "/bundle/userinfo",
-        params: {
-          userKey,
-        },
-      };
-    });
+    try {
+      return await api.value?.getUserByPublicKey(userKey);
+    } catch {
+      return undefined;
+    }
   };
 
   return toReactive({
     ...toRefs(store),
     client,
+    api,
     profile,
     request,
     getUserByKey,
@@ -147,6 +142,7 @@ export function useStore() {
   }) as UnwrapNestedRefs<
     UseAppMachine<"store"> & {
       client: typeof client;
+      api: typeof api;
       profile: typeof profile;
       request: typeof request;
       getUserByKey: typeof getUserByKey;

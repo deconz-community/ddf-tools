@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computedAsync } from "@vueuse/core";
-import { readUser } from "@directus/sdk";
-import type { Collections } from "~/interfaces/store";
 
 const props = defineProps<{
   user: string;
@@ -11,12 +9,13 @@ const store = useStore();
 
 const userProfile = computedAsync(
   async () => {
-    if (store.profile?.id === undefined) return undefined;
-
     // If I look my own profile, I can get it from the profile store
-    if (store.profile.id === props.user) return store.profile;
-
-    return await store.client?.request<Collections.DirectusUser>(readUser(props.user));
+    if (store.profile?.id === props.user) return store.profile;
+    try {
+      return await store.api?.getUserById(props.user);
+    } catch {
+      return undefined;
+    }
   },
   undefined, // initial state
 );
@@ -35,7 +34,7 @@ const collectionsCount = ref(0);
       <v-card
         class="ma-2 flex-grow-1"
         :title="`${userProfile?.first_name ?? ''} ${userProfile?.last_name ?? ''}`"
-        :subtitle="store.profile?.email ?? undefined"
+        :subtitle="userProfile.id === store.profile?.id ? store.profile.email : undefined"
       >
         <!--
         <v-card-text>

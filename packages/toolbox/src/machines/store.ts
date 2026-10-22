@@ -1,14 +1,12 @@
 import { assign, fromPromise, raise, sendTo, setup } from "xstate";
 import { produce } from "immer";
 import type { AuthenticationClient, DirectusClient, RestClient } from "@directus/sdk";
+import { authentication, createDirectus, readSettings, rest, serverHealth } from "@directus/sdk";
 import {
-  authentication,
-  createDirectus,
-  readMe,
-  readSettings,
-  rest,
-  serverHealth,
-} from "@directus/sdk";
+  createStoreAccountClient,
+  type StoreAccountClient,
+  type StoreProfile,
+} from "@deconz-community/store-api-client";
 import type { Collections, Schema } from "~/interfaces/store";
 import { toastError } from "~/lib/handleError";
 
@@ -20,15 +18,21 @@ export type PublicSettingsKeys = "public_key_stable" | "public_key_beta" | "publ
 
 export interface StoreContext {
   directusUrl: string;
+  storeApiUrl: string;
   directus?: Directus;
-  profile?: Collections.DirectusUser & { avatar_url?: string };
+  storeApi?: StoreAccountClient;
+  profile?: StoreProfile & {
+    avatar?: string | null;
+    is_contributor?: boolean;
+    token?: string | null;
+  };
   settings?: DirectusSettings;
 }
 
 export const storeMachine = setup({
   types: {
     context: {} as StoreContext,
-    input: {} as Partial<Pick<StoreContext, "directusUrl">>,
+    input: {} as Partial<Pick<StoreContext, "directusUrl" | "storeApiUrl">>,
     events: {} as
       | {
           type: "LOGIN_WITH_PASSWORD";
@@ -42,7 +46,7 @@ export const storeMachine = setup({
         }
       | {
           type: "UPDATE_PROFILE";
-          profile: Collections.DirectusUser;
+          profile: StoreContext["profile"];
         }
       | {
           type: "LOGOUT";
@@ -58,8 +62,8 @@ export const storeMachine = setup({
 
   actors: {
     // #region fetchProfile
-    fetchProfile: fromPromise(async ({ input }: { input: Directus }) => {
-      return (await input.request(readMe())) as Collections.DirectusUser;
+    fetchProfile: fromPromise(async ({ input }: { input: StoreAccountClient }) => {
+      return await input.getProfile();
     }),
     // #endregion
 
@@ -68,10 +72,13 @@ export const storeMachine = setup({
       {
         isAuthenticated: boolean;
         directus: Directus;
+        storeApi: StoreAccountClient;
         settings: DirectusSettings;
+        profile?: StoreProfile;
       },
       {
         directusUrl: string;
+        storeApiUrl: string;
       }
     >(async ({ input }) => {
       const makeClient = () => {
@@ -120,24 +127,20 @@ export const storeMachine = setup({
       if (health.status !== "ok") throw new Error("Could not connect to Directus");
 
       const settings = await client.request(readSettings());
-
+      const storeApi = createStoreAccountClient({ url: input.storeApiUrl });
+      let profile: StoreProfile | undefined;
       try {
-        const auth = await client.refresh();
-        if (auth.access_token !== null) {
-          return {
-            directus: client,
-            settings,
-            isAuthenticated: true,
-          };
-        }
-      } catch (error) {
-        // toastError(error)
+        profile = await storeApi.getProfile();
+      } catch {
+        profile = undefined;
       }
 
       return {
         directus: client,
+        storeApi,
         settings,
-        isAuthenticated: false,
+        isAuthenticated: profile !== undefined,
+        profile,
       };
     }),
     // #endregion
@@ -148,16 +151,16 @@ export const storeMachine = setup({
         success: boolean;
       },
       {
-        directus: Directus;
+        storeApi: StoreAccountClient;
         email: string;
         password: string;
       }
     >(async ({ input }) => {
       try {
-        await input.directus.login(input.email, input.password);
+        await input.storeApi.login({ email: input.email, password: input.password });
         toast.success("Logged in.");
       } catch (error) {
-        toastError(error);
+        await toastError(error);
         return { success: false };
       }
       return { success: true };
@@ -166,14 +169,14 @@ export const storeMachine = setup({
     logout: fromPromise<
       void,
       {
-        directus: Directus;
+        storeApi: StoreAccountClient;
       }
     >(async ({ input }) => {
       try {
-        await input.directus.logout();
+        await input.storeApi.logout();
         toast.info("Logged out.");
       } catch (error) {
-        toastError(error);
+        await toastError(error);
       }
     }),
 
@@ -188,8 +191,7 @@ export const storeMachine = setup({
         throw new Error(`Invalid event type = ${event.type}`)
       */
 
-        const profile =
-          "profile" in event ? event.profile : (undefined as Collections.DirectusUser | undefined);
+        const profile = "profile" in event ? event.profile : undefined;
 
         if (!profile) {
           draft.profile = undefined;
@@ -197,9 +199,10 @@ export const storeMachine = setup({
         }
 
         const avatar_url =
-          context.directus && profile.avatar
+          profile.avatar_url ??
+          (context.directus && profile.avatar
             ? `${context.directus.url}assets/${profile.avatar}`
-            : undefined;
+            : null);
 
         draft.profile = {
           ...profile,
@@ -213,6 +216,7 @@ export const storeMachine = setup({
 
   context: ({ input }) => ({
     directusUrl: input.directusUrl ?? "",
+    storeApiUrl: input.storeApiUrl ?? import.meta.env.VITE_STORE_API_URL ?? "http://localhost:3000",
   }),
 
   states: {
@@ -226,6 +230,7 @@ export const storeMachine = setup({
       invoke: {
         input: ({ context }) => ({
           directusUrl: context.directusUrl,
+          storeApiUrl: context.storeApiUrl,
         }),
         src: "initDirectus",
         onError: {
@@ -233,6 +238,7 @@ export const storeMachine = setup({
           actions: assign(({ context }) =>
             produce(context, (draft) => {
               draft.directus = undefined;
+              draft.storeApi = undefined;
               draft.settings = undefined;
             }),
           ),
@@ -244,7 +250,9 @@ export const storeMachine = setup({
             actions: assign(({ context, event }) =>
               produce(context, (draft) => {
                 draft.directus = event.output.directus as any;
+                draft.storeApi = event.output.storeApi;
                 draft.settings = event.output.settings;
+                draft.profile = event.output.profile;
               }),
             ),
           },
@@ -253,7 +261,9 @@ export const storeMachine = setup({
             actions: assign(({ context, event }) =>
               produce(context, (draft) => {
                 draft.directus = event.output.directus as any;
+                draft.storeApi = event.output.storeApi;
                 draft.settings = event.output.settings;
+                draft.profile = undefined;
               }),
             ),
           },
@@ -281,7 +291,7 @@ export const storeMachine = setup({
                   if (event.type !== "LOGIN_WITH_PASSWORD") throw new Error("Invalid event type");
 
                   return {
-                    directus: context.directus!,
+                    storeApi: context.storeApi!,
                     email: event.email,
                     password: event.password,
                   };
@@ -300,7 +310,7 @@ export const storeMachine = setup({
             disconnecting: {
               invoke: {
                 src: "logout",
-                input: ({ context }) => ({ directus: context.directus! }),
+                input: ({ context }) => ({ storeApi: context.storeApi! }),
                 onDone: {
                   target: "anonymous",
                   actions: "updateProfile",
@@ -322,7 +332,7 @@ export const storeMachine = setup({
               },
 
               invoke: {
-                input: ({ context }) => context.directus!,
+                input: ({ context }) => context.storeApi!,
                 src: "fetchProfile",
                 onDone: {
                   actions: raise(({ event }) => ({

@@ -9,6 +9,11 @@ services:
       HOST: 0.0.0.0
       PORT: 3000
       DATABASE_PATH: /data/store.db
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:4000}
+      TOOLBOX_URL: ${TOOLBOX_URL:-http://localhost:4000}
+      SMTP_URL: ${SMTP_URL:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SECURE_COOKIES: ${SECURE_COOKIES:-}
     volumes:
       - store-data:/data
     healthcheck:

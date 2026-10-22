@@ -82,6 +82,7 @@ export const appMachine = setup({
           systemId: "store",
           input: {
             directusUrl: import.meta.env.VITE_DIRECTUS_URL,
+            storeApiUrl: import.meta.env.VITE_STORE_API_URL ?? "http://localhost:3000",
           },
         }),
       gateways: new Map(),
