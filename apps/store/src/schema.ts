@@ -121,3 +121,20 @@ export const rateLimits = sqliteTable("rate_limits", {
   count: integer("count").notNull(),
   windowStartedAt: integer("window_started_at").notNull(),
 });
+
+export const apiTokens = sqliteTable(
+  "api_tokens",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    tokenPrefix: text("token_prefix").notNull(),
+    createdAt: integer("created_at").notNull(),
+    lastUsedAt: integer("last_used_at"),
+    revokedAt: integer("revoked_at"),
+  },
+  (table) => [index("api_tokens_user_idx").on(table.userId)],
+);

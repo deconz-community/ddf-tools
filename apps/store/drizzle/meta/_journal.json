@@ -22,6 +22,13 @@
       "when": 1792657162950,
       "tag": "0002_account_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1792657564950,
+      "tag": "0003_api_tokens",
+      "breakpoints": true
     }
   ]
 }
