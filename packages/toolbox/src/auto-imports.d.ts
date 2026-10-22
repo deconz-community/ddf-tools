@@ -345,7 +345,7 @@ declare global {
   export type { PhosconDiscoveryEntry } from './composables/useGatewayScanner'
   import('./composables/useGatewayScanner')
   // @ts-ignore
-  export type { RequestOptions, PublicUser, BundleSignatureState, BundleDeprecateParams } from './composables/useStore'
+  export type { RequestOptions, PublicUser, BundleSignatureState } from './composables/useStore'
   import('./composables/useStore')
 }
 
@@ -452,8 +452,6 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly storeDeprecateBundle: UnwrapRef<typeof import('./composables/useStore')['storeDeprecateBundle']>
-    readonly storeSignBundle: UnwrapRef<typeof import('./composables/useStore')['storeSignBundle']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly throttledRef: UnwrapRef<typeof import('@vueuse/core')['throttledRef']>

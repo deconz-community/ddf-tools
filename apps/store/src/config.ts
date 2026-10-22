@@ -33,6 +33,13 @@ const environmentSchema = z
         .regex(/^[\da-f]{64}$/i)
         .optional(),
     ),
+    DEPRECATED_PRIVATE_KEY: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z
+        .string()
+        .regex(/^[\da-f]{64}$/i)
+        .optional(),
+    ),
     NODE_ENV: z.string().optional(),
   })
   .refine(({ SMTP_URL, SMTP_FROM }) => Boolean(SMTP_URL) === Boolean(SMTP_FROM), {
@@ -50,6 +57,7 @@ const environmentSchema = z
       SECURE_COOKIES,
       BETA_PRIVATE_KEY,
       STABLE_PRIVATE_KEY,
+      DEPRECATED_PRIVATE_KEY,
       NODE_ENV,
     }) => ({
       databasePath: DATABASE_PATH,
@@ -65,6 +73,7 @@ const environmentSchema = z
         SECURE_COOKIES === "true" || (SECURE_COOKIES === undefined && NODE_ENV === "production"),
       betaPrivateKey: BETA_PRIVATE_KEY,
       stablePrivateKey: STABLE_PRIVATE_KEY,
+      deprecatedPrivateKey: DEPRECATED_PRIVATE_KEY,
     }),
   );
 

@@ -48,6 +48,7 @@ persistent `store-data` volume mounted at `/data`.
 | `SECURE_COOKIES`  | No      | Production only         | Force the session cookie Secure flag    |
 | `BETA_PRIVATE_KEY` | No      | —                       | 32-byte hex key for contributor beta signing |
 | `STABLE_PRIVATE_KEY` | No    | —                       | 32-byte hex key for contributor stable signing |
+| `DEPRECATED_PRIVATE_KEY` | No | —                       | 32-byte hex key for the system deprecated signature |
 
 ## Account API
 
@@ -79,5 +80,16 @@ server-backed session cookie.
 Contributor accounts are marked by a trusted administrator through the `users.is_contributor`
 field. Configure beta/stable signing secrets with the corresponding environment variables above;
 the service verifies each secret matches the built-in system public key before signing.
+
+## Bundle lifecycle API
+
+- `POST /v1/bundles/:id/signatures`: authenticated JSON `{ "state": "alpha" | "beta" | "stable" }`.
+  Contributors can add beta/stable system signatures or remove both system state signatures by
+  setting `alpha`. Beta and stable states require their configured private signing key.
+- `POST /v1/bundles/:id/deprecate`: authenticated JSON `{ "message": "..." }` or
+  `{ "message": null }`. Messages must contain at least 10 characters. Owners of the bundle's DDF
+  UUID and contributors can change deprecation. Setting a message adds the system deprecated
+  signature; setting `null` removes it. Configure `DEPRECATED_PRIVATE_KEY` for additions. The
+  service verifies each configured secret matches its system public key.
 
 Errors use { error: { code, message, details? } }.

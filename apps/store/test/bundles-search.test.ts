@@ -41,6 +41,7 @@ describe("GET /v1/bundles", () => {
           info: "An air purifier",
           source_last_modified: "2024-03-01T10:00:00.000Z",
           content_hash: `hash-${id}`,
+          deprecation_message: null,
           device_identifiers: [{ manufacturer: "IKEA of Sweden", model: "STARKVIND" }],
           signatures: [{ key: "abc", type: "system" }],
         },

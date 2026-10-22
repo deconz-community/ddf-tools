@@ -3,6 +3,7 @@ import { useTimeAgo } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { VTextarea } from "vuetify/components";
 import { useConfirm } from "vuetify-use-dialog";
+import { BETA_PUBLIC_KEY, STABLE_PUBLIC_KEY } from "@deconz-community/ddf-bundler";
 import type { BundleSignatureState } from "~/composables/useStore";
 import { listBundles, readBundles } from "~/interfaces/store";
 import { toastError } from "~/lib/handleError";
@@ -18,6 +19,8 @@ const createConfirm = useConfirm();
 const activeTab = useRouteQuery("activeTab", "readme");
 const activeGatewayId = useRouteQuery<string>("gatewayID", "");
 const activeGateway = useGateway(activeGatewayId);
+const lifecycleSignatures = ref<Array<{ key: string; type: "system" | "user" }> | undefined>();
+const updatedDeprecationMessage = ref<string | null | undefined>();
 
 onMounted(() => {
   watch(
@@ -89,13 +92,12 @@ const downloadURL = computed(() => {
 });
 
 const settingsProps = computed(() => {
-  if (!store.profile?.is_contributor) return undefined;
+  if (!store.profile) return undefined;
 
   if (!bundle.state.value) return undefined;
 
   const settings = store.state?.context?.settings;
-
-  if (!settings) return undefined;
+  const signatures = lifecycleSignatures.value ?? bundle.state.value.signatures ?? [];
 
   const settingsMap = {
     alpha: {
@@ -115,12 +117,16 @@ const settingsProps = computed(() => {
     },
   } as const;
 
-  if (bundle.state.value.signatures === null) return settingsMap.alpha;
-
-  if (bundle.state.value.signatures.some((s) => s.key === settings.public_key_beta))
+  if (
+    signatures.some((signature) => signature.key === (settings?.public_key_beta ?? BETA_PUBLIC_KEY))
+  )
     return settingsMap.beta;
 
-  if (bundle.state.value.signatures.some((s) => s.key === settings.public_key_stable))
+  if (
+    signatures.some(
+      (signature) => signature.key === (settings?.public_key_stable ?? STABLE_PUBLIC_KEY),
+    )
+  )
     return settingsMap.stable;
 
   return settingsMap.alpha;
@@ -131,6 +137,9 @@ watch(settingsProps, () => {
   newState.value =
     (settingsProps.value?.state.toLocaleLowerCase() as BundleSignatureState) ?? "alpha";
 });
+const lifecycleStateLabel = computed(
+  () => newState.value[0]!.toUpperCase() + newState.value.slice(1),
+);
 const updatingState = ref(false);
 async function updateState() {
   if (!["alpha", "beta", "stable"].includes(newState.value)) return;
@@ -145,12 +154,14 @@ async function updateState() {
     const bundleID = bundle.state.value?.id;
     if (!bundleID) throw new Error("No bundle ID");
 
-    const result = await store.client?.request(
-      storeSignBundle(bundleID, newState.value.toLocaleLowerCase() as BundleSignatureState),
+    const result = await store.signBundle(
+      bundleID,
+      newState.value.toLocaleLowerCase() as BundleSignatureState,
     );
 
-    if (result && result.success) {
-      await bundle.execute();
+    if (result?.success) {
+      lifecycleSignatures.value = result.signatures;
+      newState.value = result.state;
       toast.success(`Bundle state updated to ${newState.value}`);
     }
   } catch (error) {
@@ -161,10 +172,14 @@ async function updateState() {
 }
 
 const deprecation_message = computed(() => {
-  if (bundle.state.value && bundle.state.value.deprecation_message) {
+  const message =
+    updatedDeprecationMessage.value === undefined
+      ? bundle.state.value?.deprecation_message
+      : updatedDeprecationMessage.value;
+  if (message) {
     return {
       title: "This version is deprecated",
-      text: bundle.state.value.deprecation_message,
+      text: message,
     };
   } else {
     return undefined;
@@ -177,7 +192,7 @@ async function deprecate() {
 
   const rules = [
     (v: string) => !!v || "Message is required",
-    (v: string) => (v && v.length >= 10) || "Message must be more than 10 characters",
+    (v: string) => (v && v.length >= 10) || "Message must be at least 10 characters",
   ];
 
   const isConfirmed = createConfirm({
@@ -212,16 +227,11 @@ async function deprecate() {
   try {
     if (bundle.state.value === null) throw new Error("No bundle");
 
-    const result = await store.client?.request(
-      storeDeprecateBundle({
-        type: "version",
-        message: input.value,
-        bundle_id: bundle.state.value.id,
-      }),
-    );
+    const result = await store.deprecateBundle(bundle.state.value.id, input.value);
 
-    if (result && result.success) {
-      await bundle.execute();
+    if (result?.success) {
+      updatedDeprecationMessage.value = result.deprecation_message;
+      lifecycleSignatures.value = result.signatures;
       toast.success(`Deprecation message updated`);
     }
   } catch (error) {
@@ -233,16 +243,11 @@ async function reinstate() {
   try {
     if (bundle.state.value === null) throw new Error("No bundle");
 
-    const result = await store.client?.request(
-      storeDeprecateBundle({
-        type: "version",
-        message: "null",
-        bundle_id: bundle.state.value.id,
-      }),
-    );
+    const result = await store.deprecateBundle(bundle.state.value.id, null);
 
-    if (result && result.success) {
-      await bundle.execute();
+    if (result?.success) {
+      updatedDeprecationMessage.value = result.deprecation_message;
+      lifecycleSignatures.value = result.signatures;
       toast.success(`Deprecation message updated`);
     }
   } catch (error) {
@@ -285,7 +290,7 @@ async function installBundle() {
       <v-chip v-if="deprecation_message" variant="flat" color="orange"> Deprecated </v-chip>
       <chip-signatures
         v-else-if="bundle.state.value.signatures"
-        :signatures="bundle.state.value.signatures"
+        :signatures="lifecycleSignatures ?? bundle.state.value.signatures"
         only="system"
         class="ma-2"
       />
@@ -310,7 +315,7 @@ async function installBundle() {
           <v-icon icon="mdi-tag-multiple" class="mr-2" />
           {{ otherVersions.state.value?.length || 0 }} Versions
         </v-tab>
-        <v-tab v-if="settingsProps" value="settings">
+        <v-tab v-if="store.profile" value="settings">
           <v-icon icon="mdi-cog" class="mr-2" />
           Settings
         </v-tab>
@@ -394,11 +399,11 @@ async function installBundle() {
               </v-table>
             </v-window-item>
 
-            <v-window-item v-if="settingsProps" value="settings">
+            <v-window-item v-if="store.profile" value="settings">
               <v-card class="ma-2" title="Lifecycle">
-                <v-card-text> Current state : {{ settingsProps.state }} </v-card-text>
+                <v-card-text> Current state : {{ lifecycleStateLabel }} </v-card-text>
 
-                <v-card-actions>
+                <v-card-actions v-if="store.profile.is_contributor">
                   <v-btn-toggle
                     v-model="newState"
                     mandatory
@@ -430,11 +435,7 @@ async function installBundle() {
                   </v-btn-toggle>
                 </v-card-actions>
               </v-card>
-              <v-card
-                v-if="!bundle.state.value?.deprecation_message"
-                class="ma-2"
-                title="Deprecate bundle version"
-              >
+              <v-card v-if="!deprecation_message" class="ma-2" title="Deprecate bundle version">
                 <v-card-text>
                   This will mark this version of the bundle as deprecated.
                   <v-spacer />

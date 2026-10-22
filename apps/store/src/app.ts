@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { bundleUploadRoutes } from "./bundle-upload.js";
+import { bundleLifecycleRoutes } from "./bundle-lifecycle.js";
 import { bundlesRoutes } from "./bundles.js";
 import { registerAccountRoutes, type AccountOptions } from "./accounts.js";
 import type { StoreDatabase } from "./database.js";
@@ -75,6 +76,7 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
       }
     })
     .route("/v1", bundlesRoutes(database))
+    .route("/v1", bundleLifecycleRoutes(database, options))
     .route("/v1", bundleUploadRoutes(database, options));
 }
 

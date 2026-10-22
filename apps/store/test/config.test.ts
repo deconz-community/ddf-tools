@@ -44,6 +44,7 @@ describe("store service configuration", () => {
       secureCookies: false,
       betaPrivateKey: undefined,
       stablePrivateKey: undefined,
+      deprecatedPrivateKey: undefined,
     });
   });
 
@@ -53,10 +54,12 @@ describe("store service configuration", () => {
         DATABASE_PATH: "./store.db",
         BETA_PRIVATE_KEY: "a".repeat(64),
         STABLE_PRIVATE_KEY: "b".repeat(64),
+        DEPRECATED_PRIVATE_KEY: "c".repeat(64),
       }),
     ).toMatchObject({
       betaPrivateKey: "a".repeat(64),
       stablePrivateKey: "b".repeat(64),
+      deprecatedPrivateKey: "c".repeat(64),
     });
   });
 

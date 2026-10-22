@@ -26,10 +26,14 @@ const filters = computed(() => ({
   hasKey: stableOnly.value ? (store.state?.context?.settings?.public_key_stable ?? "") : "",
 }));
 
-const bundleList = useAsyncState(async () => (await store.searchBundles(filters.value)) ?? null, null, {
-  shallow: true,
-  resetOnExecute: false,
-});
+const bundleList = useAsyncState(
+  async () => (await store.searchBundles(filters.value)) ?? null,
+  null,
+  {
+    shallow: true,
+    resetOnExecute: false,
+  },
+);
 
 watchDebounced([filters, () => store.client], () => bundleList.execute(), {
   debounce: 200,
@@ -124,6 +128,14 @@ const pageCount = computed(() => {
               <chip-signatures only="system" :signatures="item.raw.signatures" />
               <chip-ddf-hash source="store" :hash="item.raw.id" />
             </v-card-subtitle>
+            <v-alert
+              v-if="item.raw.deprecation_message"
+              type="warning"
+              variant="tonal"
+              class="mx-4"
+            >
+              {{ item.raw.deprecation_message }}
+            </v-alert>
             <v-card-text>
               <v-card v-if="item.raw.info" variant="elevated" class="ma-2">
                 <v-card-title> Information </v-card-title>

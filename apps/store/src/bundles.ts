@@ -47,6 +47,7 @@ interface SearchRow {
   info: string | null;
   source_last_modified: string;
   content_hash: string;
+  deprecation_message: string | null;
 }
 
 function slugify(value: string) {
@@ -97,7 +98,7 @@ function searchBundles(database: StoreDatabase, query: z.output<typeof searchQue
 
   const total = database.get<{ count: number }>(sql`SELECT COUNT(*) AS count ${from}`);
   const rows = database.all<SearchRow>(sql`
-    SELECT b.id, b.ddf_uuid, b.vendor, b.product, b.version_deconz, b.info,
+    SELECT b.id, b.ddf_uuid, b.vendor, b.product, b.version_deconz, b.info, b.deprecation_message,
       b.source_last_modified, b.content_hash
     ${from}
     ORDER BY b.source_last_modified DESC, b.date_created DESC, b.id DESC
