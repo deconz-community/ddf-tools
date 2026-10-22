@@ -83,9 +83,9 @@ const otherVersions = store.request(
 );
 
 const downloadURL = computed(() => {
-  if (!isReady.value || !store.client) return undefined;
+  if (!isReady.value) return undefined;
 
-  return `${store.client.url}bundle/download/${props.bundle}`;
+  return store.bundleDownloadUrl(props.bundle);
 });
 
 const settingsProps = computed(() => {
@@ -254,13 +254,12 @@ async function installBundle() {
   if (!activeGatewayId.value) return;
 
   try {
-    const bundle = await store.client?.request(storeDownloadBundle(props.bundle));
+    const bundle = await store.downloadBundle(props.bundle);
 
-    if (!bundle || !bundle.success)
-      return toast.error(`Error while downloading bundle from the store`);
+    if (!bundle) return toast.error(`Error while downloading bundle from the store`);
 
     const uploadResult = await activeGateway.fetch("uploadDDFBundle", {
-      body: new File([bundle.success], "bundle.ddb", {
+      body: new File([bundle], "bundle.ddb", {
         type: "application/x-deconz-ddf-bundle",
       }),
     });

@@ -3,6 +3,13 @@ import type { UseAsyncStateOptions } from "@vueuse/core";
 import type { MaybeRef, UnwrapNestedRefs } from "vue";
 
 import { customEndpoint } from "@directus/sdk";
+import {
+  createToolboxStoreClient,
+  downloadStoreBundle,
+  searchStoreBundles,
+  storeBundleDownloadUrl,
+} from "~/lib/store-api";
+import type { StoreBundleSearchFilters } from "~/lib/store-api";
 import type { UseAppMachine } from "./useAppMachine";
 import type { Collections, Schema } from "~/interfaces/store";
 
@@ -19,22 +26,6 @@ export type PublicUser = Pick<
 > & { avatar_url: string };
 
 export type BundleSignatureState = "alpha" | "beta" | "stable";
-
-export function storeDownloadBundle(bundleId: string) {
-  return customEndpoint<{
-    success: Blob;
-  }>({
-    method: "GET",
-    path: `/bundle/download/${bundleId}`,
-    onResponse: async (response) => {
-      if (response.ok) {
-        return {
-          success: await response.blob(),
-        };
-      }
-    },
-  });
-}
 
 export function storeSignBundle(bundleId: string, state: BundleSignatureState = "alpha") {
   return customEndpoint<{
@@ -70,54 +61,23 @@ export function storeDeprecateBundle(params: BundleDeprecateParams) {
   });
 }
 
-export function bundleSearch(filters: {
-  page?: number;
-  limit?: number;
-  product?: string;
-  manufacturer?: string;
-  model?: string;
-  hasKey?: string;
-  showDeprecated?: boolean;
-}): RestCommand<
-  {
-    items: {
-      id: string;
-      ddf_uuid: string;
-      vendor: string;
-      product: string;
-      version_deconz: string;
-      info: string | null;
-      source_last_modified: string;
-      content_hash: string;
-      device_identifiers: {
-        device_identifiers_id: {
-          manufacturer: string;
-          model: string;
-        };
-      }[];
-      signatures: {
-        type: "system" | "user";
-        key: string;
-      }[];
-    }[];
-    totalCount: number;
-  },
-  Schema
-> {
-  return () => {
-    const params = Object.fromEntries(Object.entries(filters).filter(([_, value]) => value !== ""));
-    return {
-      method: "GET",
-      path: "/bundle/search",
-      params,
-    };
-  };
-}
-
 export function useStore() {
   const store = useAppMachine("store");
   const client = computed(() => store.state?.context.directus);
   const profile = computed(() => store.state?.context.profile);
+  const storeUrl = computed(() => (client.value ? store.state?.context.directusUrl : undefined));
+  const storeApi = computed(() =>
+    storeUrl.value ? createToolboxStoreClient(storeUrl.value) : undefined,
+  );
+
+  const searchBundles = async (filters: StoreBundleSearchFilters) =>
+    storeApi.value ? await searchStoreBundles(storeApi.value, filters) : undefined;
+
+  const downloadBundle = async (bundleId: string) =>
+    storeApi.value ? await downloadStoreBundle(storeApi.value, bundleId) : undefined;
+
+  const bundleDownloadUrl = (bundleId: string) =>
+    storeUrl.value ? storeBundleDownloadUrl(storeUrl.value, bundleId) : undefined;
 
   // TODO find a beter way to cache this because sometime it's called twice before the first call is finished
 
@@ -181,12 +141,18 @@ export function useStore() {
     profile,
     request,
     getUserByKey,
+    searchBundles,
+    downloadBundle,
+    bundleDownloadUrl,
   }) as UnwrapNestedRefs<
     UseAppMachine<"store"> & {
       client: typeof client;
       profile: typeof profile;
       request: typeof request;
       getUserByKey: typeof getUserByKey;
+      searchBundles: typeof searchBundles;
+      downloadBundle: typeof downloadBundle;
+      bundleDownloadUrl: typeof bundleDownloadUrl;
     }
   >;
 }

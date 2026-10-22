@@ -38,3 +38,14 @@ persistent `store-data` volume mounted at `/data`.
 | `DATABASE_PATH` | Yes      | —           | SQLite database file path |
 | `HOST`          | No       | `127.0.0.1` | Interface address to bind |
 | `PORT`          | No       | `3000`      | HTTP port (1–65535)       |
+
+## Public bundle API
+
+- `GET /v1/bundles`: latest bundle per DDF UUID, newest first (source_last_modified, then
+  date_created). Query: page, limit (max 20), vendor, product, manufacturer, model
+  (case-insensitive substring), has_key (exact signature key), show_deprecated (true to include
+  deprecated bundles). Filters apply to the latest bundle only. Returns
+  { items, total_count, page, limit } with Cache-Control: no-store.
+- `GET /v1/bundles/:id/download`: the stored DDB bytes, with immutable cache headers.
+
+Errors use { error: { code, message, details? } }.
