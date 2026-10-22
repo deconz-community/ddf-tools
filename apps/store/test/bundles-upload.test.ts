@@ -7,7 +7,7 @@ import { bytesToHex } from "@noble/hashes/utils.js";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { decode, encode, sign } from "../../../packages/bundler/index.js";
+import { createSignature, decode, encode, sign } from "../../../packages/bundler/index.js";
 import { createApp } from "../src/app.js";
 import { runMigrations } from "../src/database.js";
 import * as schema from "../src/schema.js";
@@ -351,6 +351,40 @@ describe("POST /v1/bundles", () => {
     const search = await app.request(`/v1/bundles?has_key=${systemPublicKey}`);
     expect((await search.json()).items[0].signatures).toContainEqual({
       key: systemPublicKey,
+      type: "system",
+    });
+  });
+
+  it("keeps deprecated signatures classified as system signatures on upload", async () => {
+    const deprecatedPrivateKey = new Uint8Array(32).fill(13);
+    const deprecatedPublicKey = bytesToHex(secp256k1.getPublicKey(deprecatedPrivateKey));
+    const { app, addAuthor } = setup({
+      systemSigningKeys: {
+        deprecated: {
+          privateKey: bytesToHex(deprecatedPrivateKey),
+          publicKey: deprecatedPublicKey,
+        },
+      },
+    });
+    const author = addAuthor("owner");
+    const bundle = await decode(
+      await signedBundle("f4c00c4c-2a92-489e-a930-7befe9b6484c", author.privateKey),
+    );
+    bundle.data.signatures.push({
+      key: secp256k1.getPublicKey(deprecatedPrivateKey),
+      signature: createSignature(bundle.data.hash!, deprecatedPrivateKey),
+    });
+
+    const response = await upload(
+      app,
+      author.authorization,
+      formFor(["deprecated.ddb", encode(bundle)]),
+    );
+
+    expect((await response.json()).results[0].success).toBe(true);
+    const search = await app.request(`/v1/bundles?has_key=${deprecatedPublicKey}`);
+    expect((await search.json()).items[0].signatures).toContainEqual({
+      key: deprecatedPublicKey,
       type: "system",
     });
   });

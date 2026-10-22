@@ -2,16 +2,21 @@ import type { RestCommand } from "@directus/sdk";
 import type { UseAsyncStateOptions } from "@vueuse/core";
 import type { MaybeRef, UnwrapNestedRefs } from "vue";
 
-import { customEndpoint } from "@directus/sdk";
 import type { PublicStoreUser } from "@deconz-community/store-api-client";
 import {
   createToolboxStoreClient,
+  deprecateStoreBundle,
   downloadStoreBundle,
   searchStoreBundles,
+  signStoreBundle,
   storeBundleDownloadUrl,
   uploadStoreBundles,
 } from "~/lib/store-api";
-import type { StoreBundleSearchFilters, StoreUploadState } from "~/lib/store-api";
+import type {
+  BundleSignatureState,
+  StoreBundleSearchFilters,
+  StoreUploadState,
+} from "~/lib/store-api";
 import type { UseAppMachine } from "./useAppMachine";
 import type { Schema } from "~/interfaces/store";
 
@@ -24,41 +29,7 @@ export type RequestOptions<Output extends object | unknown> = {
 
 export type PublicUser = PublicStoreUser & { is_contributor?: boolean };
 
-export type BundleSignatureState = "alpha" | "beta" | "stable";
-
-export function storeSignBundle(bundleId: string, state: BundleSignatureState = "alpha") {
-  return customEndpoint<{
-    success: boolean;
-    type: "system";
-    state: BundleSignatureState;
-  }>({
-    method: "POST",
-    path: `/bundle/sign/${bundleId}`,
-    params: {
-      type: "system",
-      state,
-    },
-  });
-}
-
-export interface BundleDeprecateParams {
-  message?: string;
-  type: "version";
-  bundle_id: string;
-}
-
-export function storeDeprecateBundle(params: BundleDeprecateParams) {
-  return customEndpoint<{
-    success: boolean;
-  }>({
-    method: "POST",
-    path: `/bundle/deprecate`,
-    params: {
-      ...params,
-      message: params.message ?? "null",
-    },
-  });
-}
+export type { BundleSignatureState };
 
 export function useStore() {
   const store = useAppMachine("store");
@@ -81,6 +52,14 @@ export function useStore() {
     state: StoreUploadState = "alpha",
   ) =>
     bundleClient.value ? await uploadStoreBundles(bundleClient.value, files, state) : undefined;
+
+  const signBundle = async (bundleId: string, state: BundleSignatureState) =>
+    bundleClient.value ? await signStoreBundle(bundleClient.value, bundleId, state) : undefined;
+
+  const deprecateBundle = async (bundleId: string, message: string | null) =>
+    bundleClient.value
+      ? await deprecateStoreBundle(bundleClient.value, bundleId, message)
+      : undefined;
 
   const bundleDownloadUrl = (bundleId: string) =>
     storeUrl.value ? storeBundleDownloadUrl(storeUrl.value, bundleId) : undefined;
@@ -146,6 +125,8 @@ export function useStore() {
     searchBundles,
     downloadBundle,
     uploadBundles,
+    signBundle,
+    deprecateBundle,
     bundleDownloadUrl,
   }) as UnwrapNestedRefs<
     UseAppMachine<"store"> & {
@@ -157,6 +138,8 @@ export function useStore() {
       searchBundles: typeof searchBundles;
       downloadBundle: typeof downloadBundle;
       uploadBundles: typeof uploadBundles;
+      signBundle: typeof signBundle;
+      deprecateBundle: typeof deprecateBundle;
       bundleDownloadUrl: typeof bundleDownloadUrl;
     }
   >;

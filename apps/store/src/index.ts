@@ -57,6 +57,9 @@ function start(): void {
           systemSigningKeys: {
             ...(config.betaPrivateKey ? { beta: { privateKey: config.betaPrivateKey } } : {}),
             ...(config.stablePrivateKey ? { stable: { privateKey: config.stablePrivateKey } } : {}),
+            ...(config.deprecatedPrivateKey
+              ? { deprecated: { privateKey: config.deprecatedPrivateKey } }
+              : {}),
           },
         }).fetch,
         hostname: config.host,

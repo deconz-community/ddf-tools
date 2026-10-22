@@ -7,6 +7,8 @@ import {
   StoreApiError,
   type BundleSummary,
   type ErrorCode,
+  deprecateBundle,
+  signBundle,
   uploadBundles,
 } from "../index.js";
 
@@ -64,6 +66,64 @@ describe("store client", () => {
     expect(Buffer.from(await blob.arrayBuffer()).equals(content)).toBe(true);
   });
 
+  it("signs and deprecates a bundle through typed lifecycle operations", async () => {
+    const { requests, fetchImpl } = recordingFetch((request) =>
+      new URL(request.url).pathname.endsWith("/signatures")
+        ? Response.json({
+            success: true,
+            state: "beta",
+            signatures: [{ key: "beta-key", type: "system" }],
+          })
+        : Response.json({
+            success: true,
+            deprecation_message: null,
+            signatures: [],
+          }),
+    );
+    const client = createStoreClient({
+      url: "https://store.test",
+      token: "store-token",
+      fetch: fetchImpl,
+    });
+
+    const signed = await signBundle(client, "bundle/one", "beta");
+    const cleared = await deprecateBundle(client, "bundle/one", null);
+
+    expect(new URL(requests[0]!.url).pathname).toBe("/v1/bundles/bundle%2Fone/signatures");
+    expect(requests[0]!.method).toBe("POST");
+    expect(await requests[0]!.json()).toEqual({ state: "beta" });
+    expect(requests[1]!.method).toBe("POST");
+    expect(await requests[1]!.json()).toEqual({ message: null });
+    expect(signed).toMatchObject({ success: true, state: "beta" });
+    expect(cleared).toMatchObject({ success: true, deprecation_message: null });
+    expectTypeOf(signed.state).toEqualTypeOf<"alpha" | "beta" | "stable">();
+  });
+
+  it("converts lifecycle endpoint failures into typed store errors", async () => {
+    const { fetchImpl } = recordingFetch(() =>
+      Response.json(
+        { error: { code: "contributor_required", message: "Only contributors can sign." } },
+        { status: 403 },
+      ),
+    );
+    const client = createStoreClient({ url: "https://store.test", fetch: fetchImpl });
+
+    const error = await signBundle(client, "bundle-one", "stable").catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(StoreApiError);
+    expect(error).toMatchObject({ status: 403, code: "contributor_required" });
+    expectTypeOf<ErrorCode>().toEqualTypeOf<
+      | "validation_error"
+      | "bundle_not_found"
+      | "bundle_forbidden"
+      | "contributor_required"
+      | "invalid_deprecation_message"
+      | "system_signing_unavailable"
+      | "system_key_invalid"
+      | "signing_failed"
+    >();
+  });
+
   it("raises typed API errors", async () => {
     const { api } = setup();
 
@@ -71,7 +131,16 @@ describe("store client", () => {
 
     expect(error).toBeInstanceOf(StoreApiError);
     expect(error).toMatchObject({ status: 404, code: "bundle_not_found" });
-    expectTypeOf<ErrorCode>().toEqualTypeOf<"validation_error" | "bundle_not_found">();
+    expectTypeOf<ErrorCode>().toEqualTypeOf<
+      | "validation_error"
+      | "bundle_not_found"
+      | "bundle_forbidden"
+      | "contributor_required"
+      | "invalid_deprecation_message"
+      | "system_signing_unavailable"
+      | "system_key_invalid"
+      | "signing_failed"
+    >();
   });
 
   it("raises validation errors for invalid queries", async () => {

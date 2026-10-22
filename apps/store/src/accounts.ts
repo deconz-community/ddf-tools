@@ -19,7 +19,7 @@ export interface AccountOptions {
   logger?: Pick<Console, "warn">;
   now?: () => number;
   systemSigningKeys?: Partial<
-    Record<"beta" | "stable", { privateKey: string; publicKey?: string }>
+    Record<"beta" | "stable" | "deprecated", { privateKey: string; publicKey?: string }>
   >;
 }
 

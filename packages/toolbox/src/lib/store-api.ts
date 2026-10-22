@@ -1,15 +1,28 @@
 import {
   createStoreClient,
+  deprecateBundle,
   downloadBundle,
   searchBundles,
+  signBundle,
   uploadBundles,
+  type BundleSignatureState,
+  type BundleSignatureResult,
+  type BundleDeprecationResult,
   type StoreBundleUploadResult,
   type StoreUploadState,
   type SearchBundlesResult,
   type StoreClient,
 } from "@deconz-community/store-api-client";
 
-export type { SearchBundlesResult, StoreBundleUploadResult, StoreClient, StoreUploadState };
+export type {
+  BundleDeprecationResult,
+  BundleSignatureResult,
+  BundleSignatureState,
+  SearchBundlesResult,
+  StoreBundleUploadResult,
+  StoreClient,
+  StoreUploadState,
+};
 
 export interface StoreBundleSearchFilters {
   page?: number;
@@ -50,6 +63,22 @@ export function uploadStoreBundles(
   state: StoreUploadState = "alpha",
 ) {
   return uploadBundles(client, files, state);
+}
+
+export function signStoreBundle(
+  client: StoreClient,
+  bundleId: string,
+  state: BundleSignatureState,
+): Promise<BundleSignatureResult> {
+  return signBundle(client, bundleId, state);
+}
+
+export function deprecateStoreBundle(
+  client: StoreClient,
+  bundleId: string,
+  message: string | null,
+): Promise<BundleDeprecationResult> {
+  return deprecateBundle(client, bundleId, message);
 }
 
 export function storeBundleDownloadUrl(storeUrl: string, bundleId: string) {

@@ -144,6 +144,25 @@ export type SearchBundlesResult = Extract<
 >;
 export type BundleSummary = SearchBundlesResult["items"][number];
 
+export type BundleSignatureState = "alpha" | "beta" | "stable";
+
+export interface BundleLifecycleSignature {
+  key: string;
+  type: "system" | "user";
+}
+
+export interface BundleSignatureResult {
+  success: true;
+  state: BundleSignatureState;
+  signatures: BundleLifecycleSignature[];
+}
+
+export interface BundleDeprecationResult {
+  success: true;
+  deprecation_message: string | null;
+  signatures: BundleLifecycleSignature[];
+}
+
 export class StoreApiError extends Error {
   constructor(
     readonly status: number,
@@ -241,6 +260,32 @@ export async function downloadBundle(client: StoreClient, id: string): Promise<B
   const response = await client.v1.bundles[":id"].download.$get({ param: { id } });
   if (!response.ok) throw await toError(response);
   return await response.blob();
+}
+
+export async function signBundle(
+  client: StoreClient,
+  id: string,
+  state: BundleSignatureState,
+): Promise<BundleSignatureResult> {
+  const response = await client.v1.bundles[":id"].signatures.$post({
+    param: { id: encodeURIComponent(id) },
+    json: { state },
+  });
+  if (!response.ok) throw await toError(response);
+  return (await response.json()) as BundleSignatureResult;
+}
+
+export async function deprecateBundle(
+  client: StoreClient,
+  id: string,
+  message: string | null,
+): Promise<BundleDeprecationResult> {
+  const response = await client.v1.bundles[":id"].deprecate.$post({
+    param: { id: encodeURIComponent(id) },
+    json: { message },
+  });
+  if (!response.ok) throw await toError(response);
+  return (await response.json()) as BundleDeprecationResult;
 }
 
 export async function uploadBundles(

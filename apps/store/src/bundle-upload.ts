@@ -10,6 +10,7 @@ import {
   verifySignature,
   createSignature,
   BETA_PUBLIC_KEY,
+  DEPRECATED_PUBLIC_KEY,
   STABLE_PUBLIC_KEY,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
@@ -162,6 +163,8 @@ async function processFile(
       beta: options.systemSigningKeys?.beta?.publicKey?.toLowerCase() ?? systemPublicKeys.beta,
       stable:
         options.systemSigningKeys?.stable?.publicKey?.toLowerCase() ?? systemPublicKeys.stable,
+      deprecated:
+        options.systemSigningKeys?.deprecated?.publicKey?.toLowerCase() ?? DEPRECATED_PUBLIC_KEY,
     };
     const removeKeys =
       state === "alpha"
