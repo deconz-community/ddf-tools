@@ -345,7 +345,7 @@ declare global {
   export type { PhosconDiscoveryEntry } from './composables/useGatewayScanner'
   import('./composables/useGatewayScanner')
   // @ts-ignore
-  export type { RequestOptions, PublicUser, BundleSignatureState } from './composables/useStore'
+  export type { PublicUser, BundleSignatureState } from './composables/useStore'
   import('./composables/useStore')
 }
 

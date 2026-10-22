@@ -53,9 +53,7 @@
       "indexes": {
         "account_tokens_token_hash_unique": {
           "name": "account_tokens_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+          "columns": ["token_hash"],
           "isUnique": true
         }
       },
@@ -64,12 +62,8 @@
           "name": "account_tokens_user_id_users_id_fk",
           "tableFrom": "account_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -141,16 +135,12 @@
       "indexes": {
         "api_tokens_token_hash_unique": {
           "name": "api_tokens_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+          "columns": ["token_hash"],
           "isUnique": true
         },
         "api_tokens_user_idx": {
           "name": "api_tokens_user_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -159,12 +149,8 @@
           "name": "api_tokens_user_id_users_id_fk",
           "tableFrom": "api_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -271,11 +257,7 @@
       "indexes": {
         "bundles_ddf_uuid_idx": {
           "name": "bundles_ddf_uuid_idx",
-          "columns": [
-            "ddf_uuid",
-            "source_last_modified",
-            "date_created"
-          ],
+          "columns": ["ddf_uuid", "source_last_modified", "date_created"],
           "isUnique": false
         }
       },
@@ -284,12 +266,8 @@
           "name": "bundles_ddf_uuid_ddf_uuids_id_fk",
           "tableFrom": "bundles",
           "tableTo": "ddf_uuids",
-          "columnsFrom": [
-            "ddf_uuid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ddf_uuid"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -326,9 +304,7 @@
       "indexes": {
         "bundles_device_identifiers_bundle_idx": {
           "name": "bundles_device_identifiers_bundle_idx",
-          "columns": [
-            "bundles_id"
-          ],
+          "columns": ["bundles_id"],
           "isUnique": false
         }
       },
@@ -337,12 +313,8 @@
           "name": "bundles_device_identifiers_bundles_id_bundles_id_fk",
           "tableFrom": "bundles_device_identifiers",
           "tableTo": "bundles",
-          "columnsFrom": [
-            "bundles_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bundles_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -350,12 +322,8 @@
           "name": "bundles_device_identifiers_device_identifiers_id_device_identifiers_id_fk",
           "tableFrom": "bundles_device_identifiers",
           "tableTo": "device_identifiers",
-          "columnsFrom": [
-            "device_identifiers_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["device_identifiers_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -430,10 +398,7 @@
       "indexes": {
         "device_identifiers_manufacturer_model_unique": {
           "name": "device_identifiers_manufacturer_model_unique",
-          "columns": [
-            "manufacturer",
-            "model"
-          ],
+          "columns": ["manufacturer", "model"],
           "isUnique": true
         }
       },
@@ -515,9 +480,7 @@
       "indexes": {
         "sessions_token_hash_unique": {
           "name": "sessions_token_hash_unique",
-          "columns": [
-            "token_hash"
-          ],
+          "columns": ["token_hash"],
           "isUnique": true
         }
       },
@@ -526,12 +489,8 @@
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -599,16 +558,12 @@
       "indexes": {
         "signatures_bundle_idx": {
           "name": "signatures_bundle_idx",
-          "columns": [
-            "bundle"
-          ],
+          "columns": ["bundle"],
           "isUnique": false
         },
         "signatures_key_idx": {
           "name": "signatures_key_idx",
-          "columns": [
-            "key"
-          ],
+          "columns": ["key"],
           "isUnique": false
         }
       },
@@ -617,12 +572,8 @@
           "name": "signatures_bundle_bundles_id_fk",
           "tableFrom": "signatures",
           "tableTo": "bundles",
-          "columnsFrom": [
-            "bundle"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bundle"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -723,16 +674,12 @@
       "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "users_public_key_unique": {
           "name": "users_public_key_unique",
-          "columns": [
-            "public_key"
-          ],
+          "columns": ["public_key"],
           "isUnique": true
         }
       },
