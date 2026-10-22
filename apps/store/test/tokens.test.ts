@@ -24,8 +24,8 @@ function setup() {
 
 async function signIn(app: ReturnType<typeof createApp>, email: string) {
   const credentials = JSON.stringify({ email, password: "a secure password" });
-  await app.request("/api/v1/auth/register", { method: "POST", headers, body: credentials });
-  const login = await app.request("/api/v1/auth/login", {
+  await app.request("/v1/auth/register", { method: "POST", headers, body: credentials });
+  const login = await app.request("/v1/auth/login", {
     method: "POST",
     headers,
     body: credentials,
@@ -34,7 +34,7 @@ async function signIn(app: ReturnType<typeof createApp>, email: string) {
 }
 
 function createToken(app: ReturnType<typeof createApp>, cookie: string, name: string) {
-  return app.request("/api/v1/me/tokens", {
+  return app.request("/v1/me/tokens", {
     method: "POST",
     headers: { ...headers, cookie },
     body: JSON.stringify({ name }),
@@ -55,7 +55,7 @@ describe("personal API tokens", () => {
     const stored = JSON.stringify(client.prepare("SELECT * FROM api_tokens").all());
     expect(stored).not.toContain(body.secret);
 
-    const list = await app.request("/api/v1/me/tokens", { headers: { cookie } });
+    const list = await app.request("/v1/me/tokens", { headers: { cookie } });
     const listed = (await list.json()) as { items: Array<Record<string, unknown>> };
     expect(listed.items).toHaveLength(1);
     expect(listed.items[0]).toMatchObject({ id: body.id, name: "CLI on laptop", revoked: false });
@@ -70,25 +70,25 @@ describe("personal API tokens", () => {
       secret: string;
     };
 
-    const profile = await app.request("/api/v1/profile", {
+    const profile = await app.request("/v1/profile", {
       headers: { authorization: `Bearer ${created.secret}` },
     });
     expect(profile.status).toBe(200);
     expect(await profile.json()).toMatchObject({ email: "owner@example.com" });
 
-    const revoked = await app.request(`/api/v1/me/tokens/${created.id}`, {
+    const revoked = await app.request(`/v1/me/tokens/${created.id}`, {
       method: "DELETE",
       headers: { ...headers, cookie },
     });
     expect(revoked.status).toBe(204);
 
-    const afterRevoke = await app.request("/api/v1/profile", {
+    const afterRevoke = await app.request("/v1/profile", {
       headers: { authorization: `Bearer ${created.secret}` },
     });
     expect(afterRevoke.status).toBe(401);
     expect(await afterRevoke.json()).toMatchObject({ error: { code: "token_revoked" } });
 
-    const invalid = await app.request("/api/v1/profile", {
+    const invalid = await app.request("/v1/profile", {
       headers: { authorization: "Bearer nope" },
     });
     expect(invalid.status).toBe(401);
@@ -104,26 +104,26 @@ describe("personal API tokens", () => {
       secret: string;
     };
 
-    expect((await app.request("/api/v1/me/tokens")).status).toBe(401);
+    expect((await app.request("/v1/me/tokens")).status).toBe(401);
     expect(
       (
-        await app.request("/api/v1/me/tokens", {
+        await app.request("/v1/me/tokens", {
           headers: { authorization: `Bearer ${created.secret}` },
         })
       ).status,
     ).toBe(401);
 
-    const otherList = await app.request("/api/v1/me/tokens", { headers: { cookie: other.cookie } });
+    const otherList = await app.request("/v1/me/tokens", { headers: { cookie: other.cookie } });
     expect(await otherList.json()).toEqual({ items: [] });
 
-    const crossRevoke = await app.request(`/api/v1/me/tokens/${created.id}`, {
+    const crossRevoke = await app.request(`/v1/me/tokens/${created.id}`, {
       method: "DELETE",
       headers: { ...headers, cookie: other.cookie },
     });
     expect(crossRevoke.status).toBe(404);
     expect(await crossRevoke.json()).toMatchObject({ error: { code: "token_not_found" } });
 
-    const stillValid = await app.request("/api/v1/profile", {
+    const stillValid = await app.request("/v1/profile", {
       headers: { authorization: `Bearer ${created.secret}` },
     });
     expect(stillValid.status).toBe(200);
