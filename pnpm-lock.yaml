@@ -203,6 +203,9 @@ importers:
       '@hono/node-server':
         specifier: ^2.1.5
         version: 2.1.5(hono@4.13.13)
+      argon2:
+        specifier: ^0.45.1
+        version: 0.45.1
       better-sqlite3:
         specifier: ^13.0.3
         version: 13.0.3
@@ -212,6 +215,9 @@ importers:
       hono:
         specifier: ^4.13.13
         version: 4.13.13
+      nodemailer:
+        specifier: ^10.1.7
+        version: 10.1.7
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -437,6 +443,12 @@ importers:
         specifier: ^3.5.44
         version: 3.5.44(typescript@7.0.2)
 
+  packages/store-client:
+    devDependencies:
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
+
   packages/store-extension:
     dependencies:
       '@deconz-community/ddf-bundler':
@@ -503,6 +515,9 @@ importers:
       '@deconz-community/rest-client':
         specifier: workspace:^
         version: link:../rest-client
+      '@deconz-community/store-client':
+        specifier: workspace:^
+        version: link:../store-client
       '@guolao/vue-monaco-editor':
         specifier: ^1.6.0
         version: 1.6.0(monaco-editor@0.57.0)(vue@3.5.44(typescript@7.0.2))
@@ -6379,6 +6394,10 @@ packages:
     resolution: {integrity: sha512-zHPGN3S55sihSQo0dBbK0A5qpi2R31z7HZDZnry3ifOyj8bZZnpZND2gpmhnRGO1V/d555RwBqIK5W4Mrmv3ig==}
     engines: {node: '>=16.17.0'}
 
+  argon2@0.45.1:
+    resolution: {integrity: sha512-skm+/WCjkGqCQxF7FG1LuZXM5yvbFjgbfiCGsud2oLgaDhh6b6dbH0b1EkghbM+xx4Bj8Ape+KKgixoIlWZicQ==}
+    engines: {node: '>=16.17.0'}
+
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
 
@@ -9764,6 +9783,10 @@ packages:
     resolution: {integrity: sha512-9MdFxmkKaOYVTV+XVRG8ArDwwQ77XIgIPyKASB1k3JPq3M8fGQQQE3YpMOrKm6g//Ktx8ivZr8xo1Qmtqub+GA==}
     engines: {node: ^18 || ^20 || >= 21}
 
+  node-addon-api@8.9.2:
+    resolution: {integrity: sha512-VijLXbi3UACN69I0JVXJsX4tjACjNoQDgv2gTF6sx2wWEi8tkSg2eX8p5gSIFi8z2+DL3oHmY6OyKce38SDolg==}
+    engines: {node: ^18 || ^20 || >= 21}
+
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
@@ -9968,6 +9991,10 @@ packages:
 
   nodemailer@10.0.15:
     resolution: {integrity: sha512-EUqp5PhtcsYXs9Fq/lS7s/8zlTrnBqmzZWzFFROrNikMiz+om/YRKMwqN907t+0A1KKyT8jd39CBUbFZmaZmcA==}
+    engines: {node: '>=20.0.0'}
+
+  nodemailer@10.1.7:
+    resolution: {integrity: sha512-OQa6FDln5fLttmqSbjDiRYvFDOFNrBqfiOwHPlEbURil3b+vPB1v8xpi+Sp46drzNDlsTnNsS502vthmz56r4w==}
     engines: {node: '>=20.0.0'}
 
   nodemailer@7.0.11:
@@ -19498,6 +19525,13 @@ snapshots:
       node-addon-api: 8.7.0
       node-gyp-build: 4.8.4
 
+  argon2@0.45.1:
+    dependencies:
+      '@phc/format': 1.0.0
+      cross-env: 10.1.0
+      node-addon-api: 8.9.2
+      node-gyp-build: 4.8.4
+
   argparse@1.0.10:
     dependencies:
       sprintf-js: 1.0.3
@@ -23429,6 +23463,8 @@ snapshots:
 
   node-addon-api@8.7.0: {}
 
+  node-addon-api@8.9.2: {}
+
   node-domexception@1.0.0: {}
 
   node-fetch-native@1.6.7: {}
@@ -23602,6 +23638,8 @@ snapshots:
     optional: true
 
   nodemailer@10.0.15: {}
+
+  nodemailer@10.1.7: {}
 
   nodemailer@7.0.11:
     optional: true

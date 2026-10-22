@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { passwordRequest } from "@directus/sdk";
 import { toastError } from "~/lib/handleError";
 
 const store = useStore();
@@ -31,9 +30,8 @@ async function passwordReset() {
   if (loginEmail.value === "") return toast.error("Please enter your email address");
 
   try {
-    await store.client?.request(
-      passwordRequest(loginEmail.value, import.meta.env.VITE_DIRECTUS_PASSWORD_RESET_URL),
-    );
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    await store.api.requestPasswordReset(loginEmail.value);
 
     toast.success("Email sent");
   } catch (error) {
@@ -117,8 +115,6 @@ async function passwordReset() {
                 color="secondary"
                 @click="passwordReset()"
               />
-              <!--
-                Hide registration for now until we have a working email sender
               <v-btn
                 text="Register"
                 variant="flat"
@@ -126,7 +122,6 @@ async function passwordReset() {
                 :to="{ path: '/store/user/me/register' }"
                 @click="isActive.value = false"
               />
-              -->
               <v-btn
                 text="Login"
                 append-icon="mdi-login"

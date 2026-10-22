@@ -14,6 +14,10 @@ Current version avaliable at https://deconz-community.github.io/ddf-tools/
 
 ## Development
 
+The toolbox uses `VITE_STORE_API_URL` for account, profile, and public-user
+requests. It defaults to `http://localhost:3000`; configure the API's
+`ALLOWED_ORIGINS` with the toolbox's browser origin.
+
 ### Know issues
 
 https://github.com/vuetifyjs/vuetify-loader/issues/312

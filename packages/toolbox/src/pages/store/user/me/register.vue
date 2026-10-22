@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { registerUser } from "@directus/sdk";
 import { useVuelidate } from "@vuelidate/core";
 import { email, helpers, minLength, required, sameAs } from "@vuelidate/validators";
 import { useRouteQuery } from "@vueuse/router";
@@ -72,15 +71,17 @@ async function register() {
   loading.value = true;
 
   try {
-    await store.client?.request(
-      registerUser(state.email, state.password, {
-        first_name: state.username,
-        verification_url: import.meta.env.VITE_DIRECTUS_REGISTER_VERIFICATION_URL,
-      }),
-    );
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    const result = await store.api.register({
+      email: state.email,
+      password: state.password,
+      first_name: state.username,
+    });
     clear();
     toast.success("Account created", {
-      description: "Please check your email to confirm your account.",
+      description: result?.verification_required
+        ? "Please check your email to confirm your account."
+        : "Your account is ready. You can now sign in.",
     });
   } catch (error) {
     toastError(error);
@@ -90,16 +91,10 @@ async function register() {
 }
 
 async function validateEmail() {
-  // Wait for release https://github.com/directus/directus/pull/22599
-  const registerUserVerify = (token: string) => () => ({
-    path: `/users/register/verify-email`,
-    params: { token },
-    method: "GET",
-  });
-
   try {
     if (!queryToken.value) return toast.error("Invalid token");
-    await store.client?.request(registerUserVerify(queryToken.value) as any);
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    await store.api.verifyEmail(queryToken.value);
     router.push("/");
     toast.success("Email verified");
   } catch (error) {

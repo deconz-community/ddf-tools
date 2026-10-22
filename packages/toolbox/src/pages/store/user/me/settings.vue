@@ -2,41 +2,26 @@
 import { useConfirm } from "vuetify-use-dialog";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { utils, getPublicKey } from "@noble/secp256k1";
-import { RestCommand, updateMe } from "@directus/sdk";
 
 const createConfirm = useConfirm();
-
-// https://github.com/directus/directus/issues/22571
-const randomString =
-  <Schema>(length?: number): RestCommand<string, Schema> =>
-  () => ({
-    method: "GET",
-    path: `/utils/random/string`,
-    params: length !== undefined ? { length } : undefined,
-  });
 
 const store = useStore();
 
 const settings = reactive({
   first_name: store.profile?.first_name ?? "",
-  email: store.profile?.email ?? "",
-  token: store.profile?.token ?? "",
-  isNewToken: false,
+  avatar_url: store.profile?.avatar_url ?? "",
   private_key: store.profile?.private_key ?? "",
   public_key: store.profile?.public_key ?? "",
 });
 
 watch(toRef(store, "profile"), () => {
   settings.first_name = store.profile?.first_name ?? "";
-  settings.email = store.profile?.email ?? "";
-  if (settings.token === "") settings.token = store.profile?.token ?? "";
-  settings.isNewToken = false;
+  settings.avatar_url = store.profile?.avatar_url ?? "";
   settings.private_key = store.profile?.private_key ?? "";
   settings.public_key = store.profile?.public_key ?? "";
 });
 
 const errorMessage = ref("");
-const avatarFile = ref<File[]>([]);
 
 async function generateKeys() {
   if (settings.private_key) {
@@ -67,35 +52,14 @@ async function save() {
   try {
     if (store.profile === undefined) throw new Error("User is not logged in.");
 
-    /*
-    let newAvatarId: string | null = store.profile.avatar as string
-
-    if (avatarFile.value.length > 0) {
-      const formData = new FormData()
-      formData.append('file', avatarFile.value[0])
-      if (!newAvatarId) {
-        const avatar = await store.client?.request(uploadFiles(formData))
-        newAvatarId = avatar?.id ?? null
-      }
-      else {
-        // TODO
-        const result = await store.client?.request(updateFile(newAvatarId, formData))
-        console.log(result)
-      }
-    }
-    */
-
-    const profile = await store.client?.request(
-      updateMe({
-        first_name: settings.first_name,
-        email: settings.email,
-        ...(settings.isNewToken ? { token: settings.token } : {}),
-        private_key: settings.private_key,
-        public_key: settings.public_key,
-      }),
-    );
-
-    store.send({ type: "UPDATE_PROFILE", profile: profile as any });
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    const profile = await store.api.updateProfile({
+      first_name: settings.first_name,
+      avatar_url: settings.avatar_url || null,
+      private_key: settings.private_key || null,
+      public_key: settings.public_key || null,
+    });
+    store.send({ type: "UPDATE_PROFILE", profile });
   } catch (e) {
     console.error(e);
     return toast.error("Error while saving user profile.");
@@ -103,18 +67,6 @@ async function save() {
 
   toast.success("User profile has been saved.");
 }
-
-const avatarPreview = computed(() => {
-  const avatar = avatarFile.value[0];
-  return avatar ? URL.createObjectURL(avatar) : null;
-});
-
-async function generateToken() {
-  settings.token = (await store.client?.request(randomString())) ?? "";
-  settings.isNewToken = true;
-}
-
-// const userProfilLink = computed(() => `https://github.com/${store.client?.authStore.model?.username}`)
 </script>
 
 <template>
@@ -141,47 +93,11 @@ async function generateToken() {
           <v-card-text> Hello </v-card-text>
         </v-card>
       </div>
+      <v-text-field :model-value="store.profile?.email" label="Email" readonly />
       <v-text-field v-model="settings.first_name" label="Username" />
-      <v-text-field v-model="settings.email" label="Email" />
-      <!--
-      <div class="d-flex">
-        <v-avatar
-          size="56"
-          variant="outlined"
-          class="mr-4"
-        >
-          <v-img
-            v-if="avatarPreview"
-            :src="avatarPreview"
-            alt="avatar"
-          />
-          <v-icon
-            v-else
-            icon="mdi-account"
-            size="46"
-            color="grey lighten-1"
-          />
-        </v-avatar>
-
-        <v-file-input
-          v-model="avatarFile"
-          label="Avatar"
-          prepend-icon="mdi-camera"
-          accept="image/*"
-          autocomplete="photo"
-        />
-      </div>
-      -->
+      <v-text-field v-model="settings.avatar_url" label="Avatar URL" type="url" />
 
       <v-divider class="mb-5" />
-      <v-text-field
-        v-model="settings.token"
-        label="Static authentication token"
-        hint="This token is used to authenticate the user in various tools."
-        readonly
-        append-icon="mdi-reload"
-        @click:append="generateToken()"
-      />
       <v-text-field
         v-model="settings.private_key"
         label="Signature private key"
