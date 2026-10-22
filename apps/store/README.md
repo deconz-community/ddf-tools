@@ -93,3 +93,46 @@ the service verifies each secret matches the built-in system public key before s
   service verifies each configured secret matches its system public key.
 
 Errors use { error: { code, message, details? } }.
+
+## Operations CLI
+
+Run from the built image with `docker exec <container> node dist/cli.js <command>`, or from
+this directory with `pnpm cli <command>`. All commands use `DATABASE_PATH`.
+
+| Command | Description |
+| --- | --- |
+| `user:create <email> [--contributor]` | Creates a verified user with a new key pair; password from `STORE_USER_PASSWORD` |
+| `user:contributor <email> [--revoke]` | Grants or revokes the contributor role |
+| `system-key:generate <beta\|stable\|deprecated>` | Prints a new `*_PRIVATE_KEY` value and its public key |
+| `migrate:directus <source.db> [--public-url <url>]` | One-shot Directus import (see below) |
+
+`scripts/docker-smoke.sh` is a manual smoke test: it builds the image, starts it, checks
+`/health` and runs `system-key:generate` inside the container. It is not part of CI.
+
+## Directus data migration
+
+`migrate:directus` imports a **copy** of the Directus SQLite database into a fresh store database.
+It opens the source read-only and refuses to run unless every table in the target is empty. All
+rows are inserted in one transaction, so any failure leaves the target empty.
+
+- Users keep their IDs and Argon2 password hashes; emails are lower-cased and `active` users are
+  marked email-verified. Avatars become `avatar_url` values of `<public url>/assets/<file id>`
+  (`--public-url` or `PUBLIC_URL`, the old Directus public URL).
+- Public system keys (`public_key_stable|beta|deprecated`) are stored in `settings`. Private keys,
+  Directus static tokens, sessions, sub-device tables and every other `directus_*` table are not
+  imported; copy the old private keys into `BETA_PRIVATE_KEY`, `STABLE_PRIVATE_KEY` and
+  `DEPRECATED_PRIVATE_KEY` yourself.
+- Legacy deflate + base64 bundle content becomes raw BLOB bytes.
+- The command prints migrated/source row counts per table and verifies every bundle: stored content
+  hash, bundle hash equal to the bundle ID, and all embedded signatures.
+
+### Manual production-copy cutover verification
+
+1. Stop writes to Directus and copy its SQLite file (never point the command at the live file).
+2. With an empty `DATABASE_PATH`, run `migrate:directus <copy.db> --public-url <old url>`.
+3. Check the printed counts against the source and confirm the "bundle(s) verified" line.
+4. Start the service with the system private keys, log in with a known account, download a bundle
+   and compare it with the Directus download.
+5. Cut over only when all checks pass; otherwise discard the target database and retry.
+
+This check is run by hand; no CI workflow is involved.

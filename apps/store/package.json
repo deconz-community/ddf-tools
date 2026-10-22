@@ -9,6 +9,7 @@
   "scripts": {
     "build": "vp build",
     "check": "vp check",
+    "cli": "node --env-file-if-exists=.env --import tsx src/cli.ts",
     "db:generate": "drizzle-kit generate",
     "dev": "node --env-file-if-exists=.env --import tsx --watch src/index.ts",
     "start": "node --env-file-if-exists=.env dist/index.js",
