@@ -16,7 +16,7 @@ Current version avaliable at https://deconz-community.github.io/ddf-tools/
 
 The toolbox uses `VITE_STORE_API_URL` for account, profile, and public-user
 requests. It defaults to `http://localhost:3000`; configure the API's
-`ALLOWED_ORIGINS` with the toolbox's browser origin.
+`CORS_ORIGINS` with the toolbox's browser origin.
 
 ### Know issues
 

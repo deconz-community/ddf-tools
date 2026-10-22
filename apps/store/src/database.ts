@@ -6,7 +6,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import * as schema from "./schema.js";
 
-export function openDatabase(path: string) {
+export function openDatabase(path: string): { client: Database.Database; database: StoreDatabase } {
   const databasePath = path === ":memory:" ? path : resolve(path);
   if (databasePath !== ":memory:") {
     mkdirSync(dirname(databasePath), { recursive: true });

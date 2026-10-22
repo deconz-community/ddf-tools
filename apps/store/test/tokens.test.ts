@@ -70,7 +70,7 @@ describe("personal API tokens", () => {
       secret: string;
     };
 
-    const profile = await app.request("/v1/profile", {
+    const profile = await app.request("/v1/me", {
       headers: { authorization: `Bearer ${created.secret}` },
     });
     expect(profile.status).toBe(200);
@@ -82,13 +82,13 @@ describe("personal API tokens", () => {
     });
     expect(revoked.status).toBe(204);
 
-    const afterRevoke = await app.request("/v1/profile", {
+    const afterRevoke = await app.request("/v1/me", {
       headers: { authorization: `Bearer ${created.secret}` },
     });
     expect(afterRevoke.status).toBe(401);
     expect(await afterRevoke.json()).toMatchObject({ error: { code: "token_revoked" } });
 
-    const invalid = await app.request("/v1/profile", {
+    const invalid = await app.request("/v1/me", {
       headers: { authorization: "Bearer nope" },
     });
     expect(invalid.status).toBe(401);
@@ -123,7 +123,7 @@ describe("personal API tokens", () => {
     expect(crossRevoke.status).toBe(404);
     expect(await crossRevoke.json()).toMatchObject({ error: { code: "token_not_found" } });
 
-    const stillValid = await app.request("/v1/profile", {
+    const stillValid = await app.request("/v1/me", {
       headers: { authorization: `Bearer ${created.secret}` },
     });
     expect(stillValid.status).toBe(200);

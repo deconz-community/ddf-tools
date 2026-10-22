@@ -5,7 +5,7 @@ const environmentSchema = z
     DATABASE_PATH: z.string().trim().min(1),
     HOST: z.string().trim().min(1).default("127.0.0.1"),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-    ALLOWED_ORIGINS: z.string().default("http://localhost:4000"),
+    CORS_ORIGINS: z.string().default("http://localhost:4000"),
     SMTP_URL: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.string().trim().min(1).optional(),
@@ -50,7 +50,7 @@ const environmentSchema = z
       DATABASE_PATH,
       HOST,
       PORT,
-      ALLOWED_ORIGINS,
+      CORS_ORIGINS,
       SMTP_URL,
       SMTP_FROM,
       TOOLBOX_URL,
@@ -63,7 +63,7 @@ const environmentSchema = z
       databasePath: DATABASE_PATH,
       host: HOST,
       port: PORT,
-      allowedOrigins: ALLOWED_ORIGINS.split(",")
+      allowedOrigins: CORS_ORIGINS.split(",")
         .map((origin) => origin.trim())
         .filter(Boolean),
       smtpUrl: SMTP_URL,

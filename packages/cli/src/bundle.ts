@@ -575,7 +575,7 @@ export function bundleCommand() {
               if (result.success) {
                 spinner.info(
                   chalk.green(
-                    `[${name}] uploaded successfully at ${storeUrl}/v1/bundles/${encodeURIComponent(result.bundle_id)}/download`,
+                    `[${name}] uploaded successfully at ${storeUrl}/v1/bundles/${encodeURIComponent(result.id)}/download`,
                   ),
                 );
               } else {

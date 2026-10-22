@@ -64,7 +64,7 @@ describe("toolbox store API helpers", () => {
   it("uploads multiple bundles through the store client", async () => {
     const { requests, fetchImpl } = recordingFetch(() =>
       Response.json({
-        results: [{ file: "device.ddb", success: true, bundle_id: "hash" }],
+        results: [{ file: "device.ddb", success: true, id: "hash" }],
       }),
     );
     const client = createToolboxStoreClient("https://store.test/", fetchImpl);
@@ -78,7 +78,8 @@ describe("toolbox store API helpers", () => {
     expect(new URL(requests[0]!.url).pathname).toBe("/v1/bundles");
     expect(requests[0]!.headers.get("x-store-request")).toBe("1");
     expect(requests[0]!.credentials).toBe("include");
-    expect((await requests[0]!.formData()).get("state")).toBe("beta");
-    expect(result.results).toEqual([{ file: "device.ddb", success: true, bundle_id: "hash" }]);
+    expect(new URL(requests[0]!.url).searchParams.get("state")).toBe("beta");
+    expect((await requests[0]!.formData()).get("state")).toBeNull();
+    expect(result.results).toEqual([{ file: "device.ddb", success: true, id: "hash" }]);
   });
 });

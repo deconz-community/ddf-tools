@@ -96,7 +96,7 @@ export async function uploadBundlePaths(
         if (file.success) {
           uploaded++;
           const downloadUrl = new URL(
-            `v1/bundles/${encodeURIComponent(file.bundle_id)}/download`,
+            `v1/bundles/${encodeURIComponent(file.id)}/download`,
             options.storeUrl,
           );
           out(`${file.file} uploaded successfully (${options.state}): ${downloadUrl.toString()}`);

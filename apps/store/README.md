@@ -15,7 +15,7 @@ pnpm dev
 The service listens on `HOST` and `PORT`. `DATABASE_PATH` is required; its
 parent directory is created when needed. `PORT` defaults to `3000` and `HOST`
 defaults to `127.0.0.1`.
-Configure `ALLOWED_ORIGINS` with a comma-separated list of toolbox origins. Set
+Configure `CORS_ORIGINS` with a comma-separated list of toolbox origins. Set
 both `SMTP_URL` and `SMTP_FROM` to enable verification and password-reset email;
 without SMTP, account registration skips verification and logs a warning.
 
@@ -41,7 +41,7 @@ persistent `store-data` volume mounted at `/data`.
 | `DATABASE_PATH`          | Yes      | —                       | SQLite database file path                           |
 | `HOST`                   | No       | `127.0.0.1`             | Interface address to bind                           |
 | `PORT`                   | No       | `3000`                  | HTTP port (1–65535)                                 |
-| `ALLOWED_ORIGINS`        | No       | `http://localhost:4000` | Comma-separated browser origins                     |
+| `CORS_ORIGINS`           | No       | `http://localhost:4000` | Comma-separated browser origins                     |
 | `SMTP_URL`               | No       | —                       | Nodemailer SMTP connection URL                      |
 | `SMTP_FROM`              | No       | —                       | Sender address (required with SMTP_URL)             |
 | `TOOLBOX_URL`            | No       | `http://localhost:4000` | Base URL used in account emails                     |
@@ -55,8 +55,9 @@ persistent `store-data` volume mounted at `/data`.
 The versioned API, including account routes, is rooted at `/v1`: registration and verification
 use `/auth/register` and `/auth/verify-email`; login/logout use `/auth/login`
 and `/auth/logout`; password recovery uses `/auth/password-reset/request` and
-`/auth/password-reset/confirm`. The authenticated profile is at `/profile`, and
-public user lookups are at `/users/:id` and `/users/key/:key`. Mutating requests
+`/auth/password-reset/confirm`. The authenticated profile is at `/me`, and
+public user lookups are at `/users/:id` and `/users?public_key=<key>`. Public user
+responses are cacheable for one hour. Mutating requests
 require an allowed `Origin` and `X-Store-Request: 1`. Login sets an HttpOnly
 server-backed session cookie.
 
@@ -69,10 +70,10 @@ server-backed session cookie.
   { items, total_count, page, limit } with Cache-Control: no-store.
 - `GET /v1/bundles/:id/download`: the stored DDB bytes, with immutable cache headers.
 - `POST /v1/ddf-uuids`: authenticated JSON `{ "count": 1 }` through `{ "count": 100 }`.
-  Returns the reserved UUIDs and their expiry, 21 days after creation.
+  Returns `{ uuids, expire_at }`, with the reserved UUIDs expiring 21 days after creation.
 - `POST /v1/bundles`: authenticated multipart form with one or more `files` fields and an
-  optional `state` field (`alpha` by default), up to 100 files per request. Returns a typed
-  success or error for each file.
+  optional `state` query parameter (`alpha` by default), up to 100 files per request. Returns a
+  typed success `{ file, success: true, id }` or error for each file.
   Uploads validate regenerated DESC, hashes, signatures, and the uploader keypair. Unknown UUIDs
   become owned by the uploader; existing UUIDs can only be updated by their owner or a contributor.
   Beta and stable uploads require a contributor and the corresponding server signing key.

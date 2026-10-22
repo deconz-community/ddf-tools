@@ -115,7 +115,7 @@ export function bulkUUIDCommand(command: Command) {
             0,
             filePart[schemaLineIndex]
               .replace("schema", "uuid")
-              .replace("devcap1.schema.json", newUUIDs.uuid[index]),
+              .replace("devcap1.schema.json", newUUIDs.uuids[index]),
           );
           // Write the file back
           await fs.writeFile(inputFile, filePart.join(newLineCharacter));

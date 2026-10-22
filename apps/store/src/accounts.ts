@@ -23,6 +23,8 @@ export interface AccountOptions {
   >;
 }
 
+export type SigningKey = { publicKey: string; privateKey: Uint8Array };
+
 const registrationSchema = z.object({
   email: z.string().trim().email().max(254),
   password: z.string().min(8).max(128),
@@ -84,6 +86,24 @@ function profile(user: typeof users.$inferSelect) {
     email_verified: user.emailVerifiedAt !== null,
     date_created: new Date(user.createdAt).toISOString(),
   };
+}
+
+function publicUser(user: typeof users.$inferSelect) {
+  return {
+    id: user.id,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    avatar_url: user.avatarUrl,
+    public_key: user.publicKey,
+    is_contributor: user.isContributor,
+    email_verified: user.emailVerifiedAt !== null,
+    date_created: new Date(user.createdAt).toISOString(),
+  };
+}
+
+function publicUserResponse(context: Context, user: typeof users.$inferSelect) {
+  context.header("Cache-Control", "public, max-age=3600");
+  return context.json(publicUser(user));
 }
 
 function setSessionCookie(context: Context, token: string, secure: boolean) {
@@ -173,7 +193,10 @@ export async function authenticateStoreRequest(
   return authenticate(database, context, timestamp);
 }
 
-function unauthorized(context: Context, error: keyof typeof authenticationMessages) {
+export function authenticationErrorResponse(
+  context: Context,
+  error: keyof typeof authenticationMessages,
+) {
   return failure(context, 401, error, authenticationMessages[error]);
 }
 
@@ -262,7 +285,8 @@ export function registerAccountRoutes(
 
   app.post("/ddf-uuids", async (context) => {
     const authentication = await authenticate(database, context, now());
-    if ("error" in authentication) return unauthorized(context, authentication.error);
+    if ("error" in authentication)
+      return authenticationErrorResponse(context, authentication.error);
 
     const request = z
       .object({ count: z.number().int().min(1).max(100) })
@@ -292,7 +316,7 @@ export function registerAccountRoutes(
         owner_id: authentication.user.id,
       })),
     );
-    return context.json({ uuid: uuids, expire_at: expireAt }, 201);
+    return context.json({ uuids, expire_at: expireAt }, 201);
   });
 
   app.post("/auth/register", async (context) => {
@@ -520,16 +544,18 @@ export function registerAccountRoutes(
     return context.json({ reset: true });
   });
 
-  app.get("/profile", async (context) => {
+  app.get("/me", async (context) => {
     const authentication = await authenticate(database, context, now());
-    if ("error" in authentication) return unauthorized(context, authentication.error);
+    if ("error" in authentication)
+      return authenticationErrorResponse(context, authentication.error);
     const { user } = authentication;
     return context.json(profile(user));
   });
 
-  app.patch("/profile", async (context) => {
+  app.patch("/me", async (context) => {
     const authentication = await authenticate(database, context, now());
-    if ("error" in authentication) return unauthorized(context, authentication.error);
+    if ("error" in authentication)
+      return authenticationErrorResponse(context, authentication.error);
     const { user } = authentication;
     const parsed = profileSchema.safeParse(await context.req.json().catch(() => null));
     if (!parsed.success)
@@ -567,7 +593,7 @@ export function registerAccountRoutes(
 
   app.get("/me/tokens", async (context) => {
     const user = await sessionOwner(context);
-    if (!user) return unauthorized(context, "unauthenticated");
+    if (!user) return authenticationErrorResponse(context, "unauthenticated");
     const records = await database
       .select()
       .from(apiTokens)
@@ -578,7 +604,7 @@ export function registerAccountRoutes(
 
   app.post("/me/tokens", async (context) => {
     const user = await sessionOwner(context);
-    if (!user) return unauthorized(context, "unauthenticated");
+    if (!user) return authenticationErrorResponse(context, "unauthenticated");
     const parsed = tokenNameSchema.safeParse(await context.req.json().catch(() => null));
     if (!parsed.success)
       return failure(
@@ -607,7 +633,7 @@ export function registerAccountRoutes(
 
   app.delete("/me/tokens/:id", async (context) => {
     const user = await sessionOwner(context);
-    if (!user) return unauthorized(context, "unauthenticated");
+    if (!user) return authenticationErrorResponse(context, "unauthenticated");
     const [record] = await database
       .select()
       .from(apiTokens)
@@ -628,34 +654,14 @@ export function registerAccountRoutes(
       .where(eq(users.id, context.req.param("id")))
       .limit(1);
     if (!user) return failure(context, 404, "user_not_found", "The user does not exist.");
-    return context.json({
-      id: user.id,
-      first_name: user.firstName,
-      last_name: user.lastName,
-      avatar_url: user.avatarUrl,
-      public_key: user.publicKey,
-      is_contributor: user.isContributor,
-      email_verified: user.emailVerifiedAt !== null,
-      date_created: new Date(user.createdAt).toISOString(),
-    });
+    return publicUserResponse(context, user);
   });
 
-  app.get("/users/key/:key", async (context) => {
-    const [user] = await database
-      .select()
-      .from(users)
-      .where(eq(users.publicKey, context.req.param("key")))
-      .limit(1);
+  app.get("/users", async (context) => {
+    const key = context.req.query("public_key");
+    if (!key) return failure(context, 404, "user_not_found", "The user does not exist.");
+    const [user] = await database.select().from(users).where(eq(users.publicKey, key)).limit(1);
     if (!user) return failure(context, 404, "user_not_found", "The user does not exist.");
-    return context.json({
-      id: user.id,
-      first_name: user.firstName,
-      last_name: user.lastName,
-      avatar_url: user.avatarUrl,
-      public_key: user.publicKey,
-      is_contributor: user.isContributor,
-      email_verified: user.emailVerifiedAt !== null,
-      date_created: new Date(user.createdAt).toISOString(),
-    });
+    return publicUserResponse(context, user);
   });
 }

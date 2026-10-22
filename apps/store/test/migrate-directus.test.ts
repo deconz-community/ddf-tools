@@ -44,7 +44,7 @@ async function legacy(options?: { tamperSignature?: boolean }): Promise<LegacyFi
 describe("migrateDirectus", () => {
   it("copies users, settings and bundles into the fresh store and reports row counts", async () => {
     const source = await legacy();
-    const { database } = freshTarget();
+    const { client, database } = freshTarget();
 
     const report = await migrateDirectus({
       sourcePath: source.path,
@@ -63,6 +63,9 @@ describe("migrateDirectus", () => {
       { table: "signatures", source: 1, migrated: 1 },
     ]);
     expect(report.bundlesVerified).toBe(1);
+    expect(client.prepare("SELECT created_at FROM users WHERE id = ?").get(source.userId)).toEqual({
+      created_at: Date.parse("2019-05-06T07:08:09.000Z"),
+    });
 
     const app = createApp(database, { allowedOrigins: [origin] });
     const login = await app.request("/v1/auth/login", {
@@ -71,7 +74,7 @@ describe("migrateDirectus", () => {
       body: JSON.stringify({ email: "ada@example.com", password: legacyPassword }),
     });
     expect(login.status).toBe(200);
-    const profile = await app.request("/v1/profile", {
+    const profile = await app.request("/v1/me", {
       headers: { cookie: login.headers.get("set-cookie")?.split(";")[0] ?? "" },
     });
     expect(await profile.json()).toMatchObject({
@@ -80,6 +83,7 @@ describe("migrateDirectus", () => {
       avatar_url: "https://store.example/assets/22222222-2222-4222-8222-222222222222",
       public_key: contributorPublicKey,
       is_contributor: true,
+      date_created: "2019-05-06T07:08:09.000Z",
     });
 
     const download = await app.request(`/v1/bundles/${source.bundleId}/download`);
@@ -94,9 +98,12 @@ describe("migrateDirectus", () => {
     await migrateDirectus({ sourcePath: source.path, database, publicUrl: "https://s.example" });
 
     const settings = Object.fromEntries(
-      (client.prepare("SELECT key, value FROM settings").all() as Array<{ key: string; value: string }>).map(
-        ({ key, value }) => [key, value],
-      ),
+      (
+        client.prepare("SELECT key, value FROM settings").all() as Array<{
+          key: string;
+          value: string;
+        }>
+      ).map(({ key, value }) => [key, value]),
     );
     expect(settings).toEqual({
       public_key_stable: source.systemKeys.stable.publicKey,
