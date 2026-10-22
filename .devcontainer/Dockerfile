@@ -11,7 +11,14 @@ RUN echo 'source ~/.devcontainer-bashrc.sh' >> /home/vp/.bashrc \
 # sqlite3 prebuilt binaries need GLIBC 2.38+, so it is rebuilt from source (see devcontainer.json)
 USER root
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-     && apt-get -y install --no-install-recommends python-is-python3 python3 g++ build-essential
+     && apt-get -y install --no-install-recommends ca-certificates curl gnupg \
+     && install -d -m 0755 /etc/apt/keyrings \
+     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+     && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
+     && apt-get update \
+     && apt-get -y install --no-install-recommends gh python-is-python3 python3 g++ build-essential \
+     && rm -rf /var/lib/apt/lists/*
 
 USER vp
 
