@@ -9,8 +9,10 @@ WORKDIR /workspace
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/store/package.json apps/store/package.json
+COPY packages/bundler/package.json packages/bundler/package.json
 RUN pnpm install --frozen-lockfile --filter @deconz-community/store-api...
 
+COPY packages/bundler packages/bundler
 COPY apps/store apps/store
 RUN pnpm --filter @deconz-community/store-api build \
   && pnpm --filter @deconz-community/store-api deploy --prod /production

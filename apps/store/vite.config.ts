@@ -8,9 +8,11 @@ export default defineConfig({
     },
   },
   build: {
-    ssr: "./src/index.ts",
+    ssr: true,
     outDir: "dist",
     rollupOptions: {
+      output: { chunkFileNames: "[name]-[hash].js" },
+      input: { index: "./src/index.ts", cli: "./src/cli.ts" },
       external: [
         "@hono/node-server",
         "@hono/zod-validator",

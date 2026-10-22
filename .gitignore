@@ -29,3 +29,4 @@ coverage
 
 *.typegen.ts
 uploads
+apps/store/test/.tmp-*
