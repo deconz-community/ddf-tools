@@ -94,7 +94,7 @@ export async function sign(bundled: Blob, privKeys: PrivateKeyData[] = []): Prom
 }
 
 export function createSignature(hash: Uint8Array, privateKey: Uint8Array): Uint8Array {
-  return secp256k1.sign(hash, privateKey, { format: "compact" });
+  return secp256k1.sign(hash, privateKey, { format: "compact", prehash: false });
 }
 
 export async function verifySignature(
@@ -103,7 +103,7 @@ export async function verifySignature(
   signature: Uint8Array,
 ): Promise<boolean> {
   try {
-    return secp256k1.verify(signature, hash, publicKey);
+    return secp256k1.verify(signature, hash, publicKey, { prehash: false });
   } catch (e) {
     console.error(e);
     return false;
