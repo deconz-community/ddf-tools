@@ -49,7 +49,7 @@ persistent `store-data` volume mounted at `/data`.
 
 ## Account API
 
-The versioned account API is rooted at `/api/v1`: registration and verification
+The versioned API, including account routes, is rooted at `/v1`: registration and verification
 use `/auth/register` and `/auth/verify-email`; login/logout use `/auth/login`
 and `/auth/logout`; password recovery uses `/auth/password-reset/request` and
 `/auth/password-reset/confirm`. The authenticated profile is at `/profile`, and

@@ -108,7 +108,7 @@ export function createStoreClient(options: StoreClientOptions): StoreClient {
 
 export function createStoreAccountClient(options: StoreAccountClientOptions): StoreAccountClient {
   const fetcher = options.fetch ?? fetch;
-  const baseUrl = `${options.url.replace(/\/+$/, "")}/api/v1`;
+  const baseUrl = `${options.url.replace(/\/+$/, "")}/v1`;
 
   async function request<T>(
     path: string,

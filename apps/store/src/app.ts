@@ -19,7 +19,7 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
   registerAccountRoutes(api, database, options);
 
   return new Hono()
-    .use("/api/v1/*", async (context, next) => {
+    .use("/v1/*", async (context, next) => {
       const origin = context.req.header("origin");
       const allowed = origin !== undefined && (options.allowedOrigins ?? []).includes(origin);
       if (origin && !allowed) {
@@ -45,8 +45,10 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
         context.header("Access-Control-Max-Age", "600");
         return context.body(null, 204);
       }
+      const hasBearerToken = /^Bearer\s+\S+$/i.test(context.req.header("authorization") ?? "");
       if (
         !["GET", "HEAD"].includes(context.req.method) &&
+        !hasBearerToken &&
         (!allowed || context.req.header("x-store-request") !== "1")
       ) {
         return context.json(
@@ -56,7 +58,7 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
       }
       await next();
     })
-    .route("/api/v1", api)
+    .route("/v1", api)
     .get("/health", (context) => {
       try {
         database.run(sql`SELECT 1`);
