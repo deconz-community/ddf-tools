@@ -32,7 +32,7 @@
     "release": "vp test && vp run -r build && changeset publish",
     "taze": "taze",
     "build:toolbox": "pnpm --dir packages/toolbox run build",
-    "dev:store": "pnpm --dir packages/store run dev",
+    "dev:store": "pnpm --dir apps/store run dev",
     "dev:toolbox": "pnpm --dir packages/toolbox run dev",
     "dev:extension": "pnpm --dir packages/vscode-extension run dev",
     "prepare": "vp config"
@@ -52,12 +52,12 @@
     "socks": "^2.8.10",
     "vue": "^3.5.44"
   },
-  "packageManager": "pnpm@12.14.0",
   "devEngines": {
     "runtime": {
       "name": "node",
       "version": "22.23.3",
       "onFail": "download"
     }
-  }
+  },
+  "packageManager": "pnpm@12.14.0"
 }

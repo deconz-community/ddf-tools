@@ -1,23 +1,32 @@
 {
   "name": "@deconz-community/store-api-client",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "description": "Typed client for the DDF store API",
   "license": "MIT",
+  "files": [
+    "./dist/store-api-client.mjs",
+    "./dist/index.d.ts"
+  ],
   "type": "module",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./dist/store-api-client.mjs",
+  "module": "./dist/store-api-client.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/store-api-client.mjs"
+    }
   },
   "scripts": {
+    "build": "vp build && vp pack --dts --tsconfig ./tsconfig.pack.json",
     "test": "vp test run"
   },
   "dependencies": {
-    "@deconz-community/store-api": "workspace:^",
     "hono": "^4.13.13"
   },
   "devDependencies": {
+    "@deconz-community/store-api": "workspace:^",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.5",
     "better-sqlite3": "^13.0.3",

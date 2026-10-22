@@ -136,6 +136,39 @@ function searchBundles(database: StoreDatabase, query: z.output<typeof searchQue
   };
 }
 
+function relatedBundleData(database: StoreDatabase, bundleIds: string[]) {
+  const ids = inList(bundleIds);
+  const devices = database.all<{ bundle: string; manufacturer: string; model: string }>(sql`
+    SELECT bundles_id AS bundle, manufacturer, model
+    FROM bundles_device_identifiers
+    JOIN device_identifiers ON device_identifiers.id = device_identifiers_id
+    WHERE bundles_id IN (${ids})
+    ORDER BY bundles_device_identifiers.id`);
+  const signatures = database.all<{ bundle: string; key: string; type: "system" | "user" }>(sql`
+    SELECT bundle, "key", type FROM signatures
+    WHERE bundle IN (${ids})
+    ORDER BY rowid`);
+
+  return {
+    devices: new Map(
+      bundleIds.map((id) => [
+        id,
+        devices
+          .filter((device) => device.bundle === id)
+          .map(({ manufacturer, model }) => ({ manufacturer, model })),
+      ]),
+    ),
+    signatures: new Map(
+      bundleIds.map((id) => [
+        id,
+        signatures
+          .filter((signature) => signature.bundle === id)
+          .map(({ key, type }) => ({ key, type })),
+      ]),
+    ),
+  };
+}
+
 export function bundlesRoutes(database: StoreDatabase) {
   return new Hono()
     .get(
@@ -157,6 +190,63 @@ export function bundlesRoutes(database: StoreDatabase) {
         return context.json(result);
       },
     )
+    .get("/bundles/:id/versions", (context) => {
+      const id = context.req.param("id");
+      const target = database.get<{ ddf_uuid: string }>(
+        sql`SELECT ddf_uuid FROM bundles WHERE id = ${id}`,
+      );
+      if (!target) {
+        return errorResponse(context, 404, "bundle_not_found", `Bundle ${id} was not found`);
+      }
+
+      const rows = database.all<Omit<SearchRow, "id"> & { id: string }>(sql`
+        SELECT id, ddf_uuid, vendor, product, version_deconz, info, deprecation_message,
+          source_last_modified, content_hash
+        FROM bundles WHERE ddf_uuid = ${target.ddf_uuid}
+        ORDER BY source_last_modified DESC, date_created DESC, id DESC`);
+      const related = relatedBundleData(
+        database,
+        rows.map((row) => row.id),
+      );
+      return context.json({
+        items: rows.map((row) => ({
+          ...row,
+          device_identifiers: related.devices.get(row.id) ?? [],
+          signatures: related.signatures.get(row.id) ?? [],
+        })),
+        total_count: rows.length,
+      });
+    })
+    .get("/bundles/:id", (context) => {
+      const id = context.req.param("id");
+      const bundle = database.get<{
+        id: string;
+        ddf_uuid: string;
+        vendor: string;
+        product: string;
+        version_deconz: string;
+        info: string | null;
+        source_last_modified: string;
+        content_size: number;
+        file_count: number;
+        content_hash: string;
+        deprecation_message: string | null;
+      }>(sql`
+        SELECT id, ddf_uuid, vendor, product, version_deconz, info, source_last_modified,
+          content_size, file_count, content_hash, deprecation_message
+        FROM bundles WHERE id = ${id}`);
+
+      if (!bundle) {
+        return errorResponse(context, 404, "bundle_not_found", `Bundle ${id} was not found`);
+      }
+
+      const related = relatedBundleData(database, [id]);
+      return context.json({
+        ...bundle,
+        device_identifiers: related.devices.get(id) ?? [],
+        signatures: related.signatures.get(id) ?? [],
+      });
+    })
     .get("/bundles/:id/download", (context) => {
       const id = context.req.param("id");
       const bundle = database.get<{

@@ -46,9 +46,8 @@
   "dependencies": {
     "@commander-js/extra-typings": "^15.0.0",
     "@deconz-community/ddf-bundler": "workspace:^",
-    "@deconz-community/store-api-client": "workspace:^",
     "@deconz-community/ddf-validator": "workspace:^",
-    "@directus/sdk": "^21.3.0",
+    "@deconz-community/store-api-client": "workspace:^",
     "@noble/hashes": "^2.4.0",
     "base64-js": "^1.5.1",
     "chalk": "^6.0.1",
@@ -61,7 +60,6 @@
     "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
-    "@directus/types": "^15.0.1",
     "@types/node": "^24.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^7.0.2",

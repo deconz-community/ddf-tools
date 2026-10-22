@@ -1,7 +1,7 @@
 import type { Command } from "@commander-js/extra-typings";
 import fs from "node:fs/promises";
 import { program } from "@commander-js/extra-typings";
-import { createDirectus, rest, staticToken } from "@directus/sdk";
+import { createStoreClient, generateDdfUuids } from "@deconz-community/store-api-client";
 import glob from "fast-glob";
 import { z } from "zod";
 
@@ -57,7 +57,7 @@ export function bulkUUIDCommand(command: Command) {
             const data = (() => {
               try {
                 return minimumSchema.parse(JSON.parse(content));
-              } catch (error) {
+              } catch {
                 console.error(`Invalid DDF file at ${inputFile}`);
                 return undefined;
               }
@@ -92,17 +92,8 @@ export function bulkUUIDCommand(command: Command) {
         return;
       }
 
-      const client = createDirectus(storeUrl).with(staticToken(storeToken)).with(rest());
-
-      const newUUIDs = await client.request<{ expire_at: string; uuid: string[] }>(() => {
-        return {
-          method: "GET",
-          path: "bundle/generateUUID",
-          params: {
-            count: filesToEdit.length,
-          },
-        };
-      });
+      const client = createStoreClient({ url: storeUrl, token: storeToken });
+      const newUUIDs = await generateDdfUuids(client, filesToEdit.length);
 
       await Promise.all(
         filesToEdit.map(async ([inputFile, content], index) => {

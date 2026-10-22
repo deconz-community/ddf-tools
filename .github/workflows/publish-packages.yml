@@ -26,7 +26,7 @@ jobs:
           run-install: false
 
       - name: Install dependencies
-        run: vp install --filter="!@deconz-community/store" --filter="!@deconz-community/ddf-tools-vscode-extension"
+        run: vp install --filter="!@deconz-community/ddf-tools-vscode-extension"
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets

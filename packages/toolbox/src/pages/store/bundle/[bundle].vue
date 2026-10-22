@@ -5,7 +5,6 @@ import { VTextarea } from "vuetify/components";
 import { useConfirm } from "vuetify-use-dialog";
 import { BETA_PUBLIC_KEY, STABLE_PUBLIC_KEY } from "@deconz-community/ddf-bundler";
 import type { BundleSignatureState } from "~/composables/useStore";
-import { listBundles, readBundles } from "~/interfaces/store";
 import { toastError } from "~/lib/handleError";
 
 const props = defineProps<{
@@ -34,56 +33,19 @@ onMounted(() => {
 
 const isReady = store.select((state) => state.matches("online") === true);
 
-const bundle = store.request(
-  computed(() =>
-    readBundles(props.bundle, {
-      fields: [
-        "id",
-        "ddf_uuid",
-        "product",
-        "version_deconz",
-        "source_last_modified",
-        "content_size",
-        "file_count",
-        "deprecation_message",
-        {
-          device_identifiers: [
-            {
-              device_identifiers_id: ["manufacturer", "model"],
-            },
-          ],
-        },
-        {
-          signatures: ["key", "type"],
-        },
-      ],
-    }),
-  ),
+const bundle = useAsyncState(() => store.getBundle(props.bundle), undefined, {
+  immediate: false,
+  resetOnExecute: false,
+  shallow: true,
+});
+const otherVersions = useAsyncState(
+  async () => (bundle.state.value ? store.getBundleVersions(bundle.state.value.id) : undefined),
+  undefined,
+  { immediate: false, resetOnExecute: false, shallow: true },
 );
 
-const otherVersions = store.request(
-  computed(() => {
-    if (!bundle.state.value || typeof bundle.state.value.ddf_uuid !== "string") return undefined;
-
-    return listBundles({
-      fields: [
-        "id",
-        "version_deconz",
-        "source_last_modified",
-        "deprecation_message",
-        {
-          signatures: ["key", "type"],
-        },
-      ],
-      filter: {
-        ddf_uuid: {
-          _eq: bundle.state.value.ddf_uuid,
-        },
-      },
-      sort: ["-source_last_modified", "-date_created"],
-    });
-  }),
-);
+watch([() => props.bundle, () => store.client], () => bundle.execute(), { immediate: true });
+watch(bundle.state, () => otherVersions.execute());
 
 const downloadURL = computed(() => {
   if (!isReady.value) return undefined;
@@ -96,7 +58,6 @@ const settingsProps = computed(() => {
 
   if (!bundle.state.value) return undefined;
 
-  const settings = store.state?.context?.settings;
   const signatures = lifecycleSignatures.value ?? bundle.state.value.signatures ?? [];
 
   const settingsMap = {
@@ -117,16 +78,9 @@ const settingsProps = computed(() => {
     },
   } as const;
 
-  if (
-    signatures.some((signature) => signature.key === (settings?.public_key_beta ?? BETA_PUBLIC_KEY))
-  )
-    return settingsMap.beta;
+  if (signatures.some((signature) => signature.key === BETA_PUBLIC_KEY)) return settingsMap.beta;
 
-  if (
-    signatures.some(
-      (signature) => signature.key === (settings?.public_key_stable ?? STABLE_PUBLIC_KEY),
-    )
-  )
+  if (signatures.some((signature) => signature.key === STABLE_PUBLIC_KEY))
     return settingsMap.stable;
 
   return settingsMap.alpha;
@@ -313,7 +267,7 @@ async function installBundle() {
         </v-tab>
         <v-tab value="versions">
           <v-icon icon="mdi-tag-multiple" class="mr-2" />
-          {{ otherVersions.state.value?.length || 0 }} Versions
+          {{ otherVersions.state.value?.items.length || 0 }} Versions
         </v-tab>
         <v-tab v-if="store.profile" value="settings">
           <v-icon icon="mdi-cog" class="mr-2" />
@@ -349,10 +303,10 @@ async function installBundle() {
                     <tbody>
                       <tr
                         v-for="item in bundle.state.value.device_identifiers"
-                        :key="item.device_identifiers_id.id"
+                        :key="`${item.manufacturer}-${item.model}`"
                       >
-                        <td>{{ item.device_identifiers_id.manufacturer }}</td>
-                        <td>{{ item.device_identifiers_id.model }}</td>
+                        <td>{{ item.manufacturer }}</td>
+                        <td>{{ item.model }}</td>
                       </tr>
                     </tbody>
                   </v-table>
@@ -372,7 +326,7 @@ async function installBundle() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="version in otherVersions.state.value" :key="version.id">
+                  <tr v-for="version in otherVersions.state.value?.items" :key="version.id">
                     <td>
                       <v-chip class="ml-2" color="grey">
                         {{ version.id.substring(version.id.length - 10) }}
