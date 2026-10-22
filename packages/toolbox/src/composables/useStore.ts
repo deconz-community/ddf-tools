@@ -9,8 +9,9 @@ import {
   downloadStoreBundle,
   searchStoreBundles,
   storeBundleDownloadUrl,
+  uploadStoreBundles,
 } from "~/lib/store-api";
-import type { StoreBundleSearchFilters } from "~/lib/store-api";
+import type { StoreBundleSearchFilters, StoreUploadState } from "~/lib/store-api";
 import type { UseAppMachine } from "./useAppMachine";
 import type { Schema } from "~/interfaces/store";
 
@@ -75,6 +76,12 @@ export function useStore() {
   const downloadBundle = async (bundleId: string) =>
     bundleClient.value ? await downloadStoreBundle(bundleClient.value, bundleId) : undefined;
 
+  const uploadBundles = async (
+    files: Array<{ name: string; content: Blob }>,
+    state: StoreUploadState = "alpha",
+  ) =>
+    bundleClient.value ? await uploadStoreBundles(bundleClient.value, files, state) : undefined;
+
   const bundleDownloadUrl = (bundleId: string) =>
     storeUrl.value ? storeBundleDownloadUrl(storeUrl.value, bundleId) : undefined;
 
@@ -138,6 +145,7 @@ export function useStore() {
     getUserByKey,
     searchBundles,
     downloadBundle,
+    uploadBundles,
     bundleDownloadUrl,
   }) as UnwrapNestedRefs<
     UseAppMachine<"store"> & {
@@ -148,6 +156,7 @@ export function useStore() {
       getUserByKey: typeof getUserByKey;
       searchBundles: typeof searchBundles;
       downloadBundle: typeof downloadBundle;
+      uploadBundles: typeof uploadBundles;
       bundleDownloadUrl: typeof bundleDownloadUrl;
     }
   >;

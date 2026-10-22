@@ -5,6 +5,9 @@
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@deconz-community/ddf-bundler": ["../../packages/bundler/index.ts"]
+    },
     "resolveJsonModule": true,
     "allowJs": true,
     "strict": true,

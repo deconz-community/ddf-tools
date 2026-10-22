@@ -2,11 +2,14 @@ import {
   createStoreClient,
   downloadBundle,
   searchBundles,
+  uploadBundles,
+  type StoreBundleUploadResult,
+  type StoreUploadState,
   type SearchBundlesResult,
   type StoreClient,
 } from "@deconz-community/store-api-client";
 
-export type { SearchBundlesResult, StoreClient };
+export type { SearchBundlesResult, StoreBundleUploadResult, StoreClient, StoreUploadState };
 
 export interface StoreBundleSearchFilters {
   page?: number;
@@ -39,6 +42,14 @@ export function searchStoreBundles(client: StoreClient, filters: StoreBundleSear
 
 export function downloadStoreBundle(client: StoreClient, bundleId: string) {
   return downloadBundle(client, bundleId);
+}
+
+export function uploadStoreBundles(
+  client: StoreClient,
+  files: Array<{ name: string; content: Blob }>,
+  state: StoreUploadState = "alpha",
+) {
+  return uploadBundles(client, files, state);
 }
 
 export function storeBundleDownloadUrl(storeUrl: string, bundleId: string) {

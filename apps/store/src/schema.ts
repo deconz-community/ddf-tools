@@ -9,6 +9,7 @@ export const ddfUuids = sqliteTable("ddf_uuids", {
   id: text("id").primaryKey(),
   date_created: text("date_created").notNull(),
   expire_at: text("expire_at"),
+  owner_id: text("owner_id"),
 });
 
 export const bundles = sqliteTable(
@@ -90,6 +91,7 @@ export const users = sqliteTable("users", {
   avatarUrl: text("avatar_url"),
   publicKey: text("public_key").unique(),
   privateKey: text("private_key"),
+  isContributor: integer("is_contributor", { mode: "boolean" }).notNull().default(false),
   emailVerifiedAt: integer("email_verified_at"),
   createdAt: integer("created_at").notNull(),
   updatedAt: integer("updated_at").notNull(),

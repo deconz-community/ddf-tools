@@ -29,6 +29,13 @@
       "when": 1792657564950,
       "tag": "0003_api_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1792657969945,
+      "tag": "0004_freezing_leper_queen",
+      "breakpoints": true
     }
   ]
 }

@@ -88,6 +88,7 @@ describe("account registration and verification", () => {
     expect(profile.status).toBe(200);
     const profileData = await profile.json();
     expect(profileData).toMatchObject({ email: "person@example.com" });
+    expect(profileData.is_contributor).toBe(false);
     const reloadedApp = createApp(database, { allowedOrigins: [origin] });
     const persistedProfile = await reloadedApp.request("/v1/profile", {
       headers: { cookie: cookie ?? "" },

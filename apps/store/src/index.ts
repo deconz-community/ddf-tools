@@ -54,6 +54,10 @@ function start(): void {
           allowedOrigins: config.allowedOrigins,
           mailer,
           secureCookies: config.secureCookies,
+          systemSigningKeys: {
+            ...(config.betaPrivateKey ? { beta: { privateKey: config.betaPrivateKey } } : {}),
+            ...(config.stablePrivateKey ? { stable: { privateKey: config.stablePrivateKey } } : {}),
+          },
         }).fetch,
         hostname: config.host,
         port: config.port,

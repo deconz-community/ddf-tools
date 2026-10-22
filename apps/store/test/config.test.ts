@@ -38,6 +38,34 @@ describe("store service configuration", () => {
         SMTP_FROM: "",
         SECURE_COOKIES: "",
       }),
-    ).toMatchObject({ smtpUrl: undefined, smtpFrom: undefined, secureCookies: false });
+    ).toMatchObject({
+      smtpUrl: undefined,
+      smtpFrom: undefined,
+      secureCookies: false,
+      betaPrivateKey: undefined,
+      stablePrivateKey: undefined,
+    });
+  });
+
+  it("loads valid optional system signing keys", () => {
+    expect(
+      loadConfig({
+        DATABASE_PATH: "./store.db",
+        BETA_PRIVATE_KEY: "a".repeat(64),
+        STABLE_PRIVATE_KEY: "b".repeat(64),
+      }),
+    ).toMatchObject({
+      betaPrivateKey: "a".repeat(64),
+      stablePrivateKey: "b".repeat(64),
+    });
+  });
+
+  it("rejects malformed system signing keys", () => {
+    expect(() =>
+      loadConfig({
+        DATABASE_PATH: "./store.db",
+        BETA_PRIVATE_KEY: "not-hex",
+      }),
+    ).toThrow("Invalid store service configuration");
   });
 });

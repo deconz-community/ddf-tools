@@ -46,6 +46,8 @@ persistent `store-data` volume mounted at `/data`.
 | `SMTP_FROM`       | No      | —                       | Sender address (required with SMTP_URL) |
 | `TOOLBOX_URL`     | No      | `http://localhost:4000` | Base URL used in account emails         |
 | `SECURE_COOKIES`  | No      | Production only         | Force the session cookie Secure flag    |
+| `BETA_PRIVATE_KEY` | No      | —                       | 32-byte hex key for contributor beta signing |
+| `STABLE_PRIVATE_KEY` | No    | —                       | 32-byte hex key for contributor stable signing |
 
 ## Account API
 
@@ -65,5 +67,17 @@ server-backed session cookie.
   deprecated bundles). Filters apply to the latest bundle only. Returns
   { items, total_count, page, limit } with Cache-Control: no-store.
 - `GET /v1/bundles/:id/download`: the stored DDB bytes, with immutable cache headers.
+- `POST /v1/ddf-uuids`: authenticated JSON `{ "count": 1 }` through `{ "count": 100 }`.
+  Returns the reserved UUIDs and their expiry, 21 days after creation.
+- `POST /v1/bundles`: authenticated multipart form with one or more `files` fields and an
+  optional `state` field (`alpha` by default), up to 100 files per request. Returns a typed
+  success or error for each file.
+  Uploads validate regenerated DESC, hashes, signatures, and the uploader keypair. Unknown UUIDs
+  become owned by the uploader; existing UUIDs can only be updated by their owner or a contributor.
+  Beta and stable uploads require a contributor and the corresponding server signing key.
+
+Contributor accounts are marked by a trusted administrator through the `users.is_contributor`
+field. Configure beta/stable signing secrets with the corresponding environment variables above;
+the service verifies each secret matches the built-in system public key before signing.
 
 Errors use { error: { code, message, details? } }.

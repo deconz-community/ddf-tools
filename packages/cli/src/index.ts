@@ -6,6 +6,7 @@ import { program } from "@commander-js/extra-typings";
 import { bulkCommand } from "./bulk";
 import { bundleCommand } from "./bundle";
 import { validateCommand } from "./validate";
+import { registerUploadCommands } from "./upload";
 
 const packageDefinition = createRequire(import.meta.url)("../package.json");
 
@@ -17,5 +18,6 @@ program
 validateCommand();
 bundleCommand();
 bulkCommand();
+registerUploadCommands();
 
 program.parse(process.argv);
