@@ -19,6 +19,20 @@ const environmentSchema = z
       (value) => (value === "" ? undefined : value),
       z.enum(["true", "false"]).optional(),
     ),
+    BETA_PRIVATE_KEY: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z
+        .string()
+        .regex(/^[\da-f]{64}$/i)
+        .optional(),
+    ),
+    STABLE_PRIVATE_KEY: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z
+        .string()
+        .regex(/^[\da-f]{64}$/i)
+        .optional(),
+    ),
     NODE_ENV: z.string().optional(),
   })
   .refine(({ SMTP_URL, SMTP_FROM }) => Boolean(SMTP_URL) === Boolean(SMTP_FROM), {
@@ -34,6 +48,8 @@ const environmentSchema = z
       SMTP_FROM,
       TOOLBOX_URL,
       SECURE_COOKIES,
+      BETA_PRIVATE_KEY,
+      STABLE_PRIVATE_KEY,
       NODE_ENV,
     }) => ({
       databasePath: DATABASE_PATH,
@@ -47,6 +63,8 @@ const environmentSchema = z
       toolboxUrl: TOOLBOX_URL.replace(/\/+$/, ""),
       secureCookies:
         SECURE_COOKIES === "true" || (SECURE_COOKIES === undefined && NODE_ENV === "production"),
+      betaPrivateKey: BETA_PRIVATE_KEY,
+      stablePrivateKey: STABLE_PRIVATE_KEY,
     }),
   );
 

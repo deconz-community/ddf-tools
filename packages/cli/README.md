@@ -108,6 +108,19 @@ Method to use to get the last modified date of the files (gitlog, mtime, ctime) 
 
 Enable debug mode.
 
+#### Store uploads
+
+Upload an existing DDB bundle or upload every `.ddb` file in a directory. Both commands
+report success or failure for each file; uploads default to the `alpha` state.
+
+```bash
+ddf-tools upload ./output/device.ddb --store-url https://store.example --store-token <token>
+ddf-tools bulk upload ./output/ --store-url https://store.example --store-token <token> --state beta
+```
+
+`--state` accepts `alpha`, `beta`, or `stable`. Beta and stable publishing requires a
+contributor account.
+
 #### Bulk operations
 
 The bulk command will run various operation on DDF files.

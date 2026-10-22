@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
+import { bundleUploadRoutes } from "./bundle-upload.js";
 import { bundlesRoutes } from "./bundles.js";
 import { registerAccountRoutes, type AccountOptions } from "./accounts.js";
 import type { StoreDatabase } from "./database.js";
@@ -73,7 +74,8 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
         return context.json({ status: "unhealthy" }, 503);
       }
     })
-    .route("/v1", bundlesRoutes(database));
+    .route("/v1", bundlesRoutes(database))
+    .route("/v1", bundleUploadRoutes(database, options));
 }
 
 export type AppType = ReturnType<typeof createApp>;

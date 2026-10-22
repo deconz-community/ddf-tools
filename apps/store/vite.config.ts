@@ -1,6 +1,12 @@
+import { resolve } from "node:path";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@deconz-community/ddf-bundler": resolve(__dirname, "../../packages/bundler/index.ts"),
+    },
+  },
   build: {
     ssr: "./src/index.ts",
     outDir: "dist",

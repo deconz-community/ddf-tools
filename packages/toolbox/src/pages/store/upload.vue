@@ -1,25 +1,13 @@
 <script setup lang="ts">
-import { v4 as uuidv4 } from "uuid";
 import { type Bundle, decode } from "@deconz-community/ddf-bundler";
-
-import type { PrimaryKey } from "@directus/types";
-
-// TODO migrate to @deconz-community/types
-type UploadResponse = Record<
-  string,
-  {
-    success: boolean;
-    createdId?: PrimaryKey;
-    message?: string;
-  }
->;
+import type { StoreUploadState } from "@deconz-community/store-api-client";
 
 const error = ref("");
 const sha = ref("");
 const bundles = ref<ReturnType<typeof Bundle>[]>([]);
 const store = useStore();
 const files = ref<File[]>([]);
-const defaultState = ref("alpha");
+const defaultState = ref<StoreUploadState>("alpha");
 
 watch(files, async () => {
   bundles.value = [];
@@ -29,54 +17,27 @@ watch(files, async () => {
 });
 
 async function upload() {
-  // Check if logged in
-  if (store.state?.matches({ online: { auth: "connected" } }) !== true)
-    throw new Error("You must be logged in to upload a bundle");
+  try {
+    if (store.state?.matches({ online: { auth: "connected" } }) !== true)
+      throw new Error("You must be logged in to upload a bundle");
 
-  // TODO Check if bundle already exists
+    const result = await store.uploadBundles(
+      files.value.map((file) => ({ name: file.name, content: file })),
+      defaultState.value,
+    );
+    if (!result) throw new Error("The store API is unavailable.");
 
-  // TODO Check if bundle is part of a tree
-
-  const chunks: File[][] = [];
-
-  for (let i = 0; i < files.value.length; i += 10) chunks.push(files.value.slice(i, i + 10));
-
-  for (const chunk of chunks) {
-    const formData = new FormData();
-    chunk.forEach((file) => {
-      formData.append(uuidv4(), file);
-    });
-
-    // const result = await store.client?.request(uploadFiles(formData))
-    const result = await store.client?.request<{ result: UploadResponse }>(() => {
-      return {
-        method: "POST",
-        path: `/bundle/upload/${defaultState.value}`,
-        body: formData,
-        headers: { "Content-Type": "multipart/form-data" },
-      };
-    });
-
-    if (result) {
-      const results = Object.entries(result.result);
-
-      const goodResults = results.filter(([_, value]) => value.success);
-      const badResults = results.filter(([_, value]) => !value.success);
-
-      if (goodResults.length > 0)
-        toast.success(`${goodResults.length} bundles uploaded successfully`);
-
-      if (badResults.length > 0) {
-        badResults.forEach(([key, value]) => {
-          toast.error(formData.get(key)?.name ?? "Bundle", {
-            description: value.message,
-          });
-        });
-      }
+    const successes = result.results.filter((item) => item.success);
+    const failures = result.results.filter((item) => !item.success);
+    if (successes.length > 0) toast.success(`${successes.length} bundles uploaded successfully`);
+    for (const failure of failures) {
+      toast.error(failure.file, { description: failure.error.message });
     }
+  } catch (caught) {
+    toast.error("Bundle upload failed", {
+      description: caught instanceof Error ? caught.message : String(caught),
+    });
   }
-
-  // files.value = []
 }
 </script>
 

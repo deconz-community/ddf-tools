@@ -4,6 +4,7 @@ import {
   downloadStoreBundle,
   searchStoreBundles,
   storeBundleDownloadUrl,
+  uploadStoreBundles,
 } from "./store-api";
 
 function recordingFetch(respond: (request: Request) => Response) {
@@ -58,5 +59,26 @@ describe("toolbox store API helpers", () => {
     expect(storeBundleDownloadUrl("https://store.test/", "abc")).toBe(
       "https://store.test/v1/bundles/abc/download",
     );
+  });
+
+  it("uploads multiple bundles through the store client", async () => {
+    const { requests, fetchImpl } = recordingFetch(() =>
+      Response.json({
+        results: [{ file: "device.ddb", success: true, bundle_id: "hash" }],
+      }),
+    );
+    const client = createToolboxStoreClient("https://store.test/", fetchImpl);
+
+    const result = await uploadStoreBundles(
+      client,
+      [{ name: "device.ddb", content: new Blob(["bundle"]) }],
+      "beta",
+    );
+
+    expect(new URL(requests[0]!.url).pathname).toBe("/v1/bundles");
+    expect(requests[0]!.headers.get("x-store-request")).toBe("1");
+    expect(requests[0]!.credentials).toBe("include");
+    expect((await requests[0]!.formData()).get("state")).toBe("beta");
+    expect(result.results).toEqual([{ file: "device.ddb", success: true, bundle_id: "hash" }]);
   });
 });

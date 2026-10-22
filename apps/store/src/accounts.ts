@@ -5,7 +5,7 @@ import { getCookie } from "hono/cookie";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
 import type { StoreDatabase } from "./database.js";
-import { accountTokens, apiTokens, rateLimits, sessions, users } from "./schema.js";
+import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "./schema.js";
 
 export interface AccountMailer {
   sendVerification(email: string, token: string): Promise<void>;
@@ -18,6 +18,9 @@ export interface AccountOptions {
   secureCookies?: boolean;
   logger?: Pick<Console, "warn">;
   now?: () => number;
+  systemSigningKeys?: Partial<
+    Record<"beta" | "stable", { privateKey: string; publicKey?: string }>
+  >;
 }
 
 const registrationSchema = z.object({
@@ -77,6 +80,7 @@ function profile(user: typeof users.$inferSelect) {
     avatar_url: user.avatarUrl,
     public_key: user.publicKey,
     private_key: user.privateKey,
+    is_contributor: user.isContributor,
     email_verified: user.emailVerifiedAt !== null,
     date_created: new Date(user.createdAt).toISOString(),
   };
@@ -123,6 +127,8 @@ type Authentication =
   | { user: typeof users.$inferSelect }
   | { error: "unauthenticated" | "invalid_api_token" | "token_revoked" };
 
+export type StoreAuthentication = Authentication;
+
 const authenticationMessages = {
   unauthenticated: "Sign in to continue.",
   invalid_api_token: "The API token is invalid.",
@@ -154,8 +160,17 @@ async function authenticate(
       .where(eq(apiTokens.id, record.id));
     return { user };
   }
+
   const user = await sessionUser(database, context, timestamp);
   return user ? { user } : { error: "unauthenticated" };
+}
+
+export async function authenticateStoreRequest(
+  database: StoreDatabase,
+  context: Context,
+  timestamp: number,
+): Promise<StoreAuthentication> {
+  return authenticate(database, context, timestamp);
 }
 
 function unauthorized(context: Context, error: keyof typeof authenticationMessages) {
@@ -244,6 +259,41 @@ export function registerAccountRoutes(
 ): void {
   const now = options.now ?? Date.now;
   const logger = options.logger ?? console;
+
+  app.post("/ddf-uuids", async (context) => {
+    const authentication = await authenticate(database, context, now());
+    if ("error" in authentication) return unauthorized(context, authentication.error);
+
+    const request = z
+      .object({ count: z.number().int().min(1).max(100) })
+      .strict()
+      .safeParse(await context.req.json().catch(() => null));
+    if (!request.success) {
+      return context.json(
+        {
+          error: {
+            code: "validation_error",
+            message: "count must be an integer from 1 to 100",
+            details: request.error.issues,
+          },
+        },
+        422,
+      );
+    }
+
+    const timestamp = now();
+    const expireAt = new Date(timestamp + 21 * 24 * 60 * 60 * 1000).toISOString();
+    const uuids = Array.from({ length: request.data.count }, () => randomUUID());
+    await database.insert(ddfUuids).values(
+      uuids.map((id) => ({
+        id,
+        date_created: new Date(timestamp).toISOString(),
+        expire_at: expireAt,
+        owner_id: authentication.user.id,
+      })),
+    );
+    return context.json({ uuid: uuids, expire_at: expireAt }, 201);
+  });
 
   app.post("/auth/register", async (context) => {
     const parsed = registrationSchema.safeParse(await context.req.json().catch(() => null));
@@ -584,6 +634,7 @@ export function registerAccountRoutes(
       last_name: user.lastName,
       avatar_url: user.avatarUrl,
       public_key: user.publicKey,
+      is_contributor: user.isContributor,
       email_verified: user.emailVerifiedAt !== null,
       date_created: new Date(user.createdAt).toISOString(),
     });
@@ -602,6 +653,7 @@ export function registerAccountRoutes(
       last_name: user.lastName,
       avatar_url: user.avatarUrl,
       public_key: user.publicKey,
+      is_contributor: user.isContributor,
       email_verified: user.emailVerifiedAt !== null,
       date_created: new Date(user.createdAt).toISOString(),
     });

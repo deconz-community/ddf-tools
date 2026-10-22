@@ -200,12 +200,21 @@ importers:
 
   apps/store:
     dependencies:
+      '@deconz-community/ddf-bundler':
+        specifier: workspace:^
+        version: link:../../packages/bundler
       '@hono/node-server':
         specifier: ^2.1.5
         version: 2.1.5(hono@4.13.13)
       '@hono/zod-validator':
         specifier: ^0.9.1
         version: 0.9.1(hono@4.13.13)(zod@4.6.7)
+      '@noble/curves':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@noble/hashes':
+        specifier: ^2.4.0
+        version: 2.4.0
       argon2:
         specifier: ^0.45.1
         version: 0.45.1
@@ -289,6 +298,9 @@ importers:
       '@deconz-community/ddf-validator':
         specifier: workspace:^
         version: link:../validator
+      '@deconz-community/store-api-client':
+        specifier: workspace:^
+        version: link:../store-api-client
       '@directus/sdk':
         specifier: ^21.3.0
         version: 21.3.0

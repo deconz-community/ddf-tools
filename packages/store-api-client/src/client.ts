@@ -7,6 +7,7 @@ export type { AppType, ErrorCode };
 export interface StoreClientOptions {
   url: string;
   token?: string;
+  origin?: string;
   fetch?: typeof fetch;
 }
 
@@ -29,6 +30,38 @@ export type StoreAccountErrorCode =
   | "not_found"
   | "internal_error";
 
+export type StoreUploadState = "alpha" | "beta" | "stable";
+
+export type StoreUploadErrorCode =
+  | "validation_error"
+  | "invalid_state"
+  | "contributor_required"
+  | "system_signing_unavailable"
+  | "system_key_invalid"
+  | "uploader_keypair_missing"
+  | "uploader_keypair_invalid"
+  | "uploader_keypair_mismatch"
+  | "invalid_bundle"
+  | "invalid_desc"
+  | "missing_uuid"
+  | "missing_version_deconz"
+  | "invalid_signature"
+  | "duplicate_signature"
+  | "uuid_forbidden"
+  | "bundle_hash_already_exists";
+
+export type StoreBundleUploadFileResult =
+  | { file: string; success: true; bundle_id: string }
+  | {
+      file: string;
+      success: false;
+      error: { code: StoreUploadErrorCode; message: string };
+    };
+
+export interface StoreBundleUploadResult {
+  results: StoreBundleUploadFileResult[];
+}
+
 export interface StoreAccountClientOptions {
   url: string;
   origin?: string;
@@ -45,6 +78,7 @@ export interface StoreProfile {
   avatar_url: string | null;
   public_key: string | null;
   private_key: string | null;
+  is_contributor: boolean;
   email_verified: boolean;
   date_created: string;
 }
@@ -55,6 +89,7 @@ export interface PublicStoreUser {
   last_name: string | null;
   avatar_url: string | null;
   public_key: string | null;
+  is_contributor: boolean;
   email_verified: boolean;
   date_created: string;
 }
@@ -112,7 +147,7 @@ export type BundleSummary = SearchBundlesResult["items"][number];
 export class StoreApiError extends Error {
   constructor(
     readonly status: number,
-    readonly code: ErrorCode | StoreAccountErrorCode | "unknown_error",
+    readonly code: ErrorCode | StoreAccountErrorCode | StoreUploadErrorCode | "unknown_error",
     message: string,
     readonly details?: unknown,
   ) {
@@ -122,9 +157,19 @@ export class StoreApiError extends Error {
 }
 
 export function createStoreClient(options: StoreClientOptions): StoreClient {
+  const fetcher = options.fetch ?? fetch;
   return hc<AppType>(options.url, {
-    fetch: options.fetch,
-    headers: options.token ? { Authorization: "Bearer " + options.token } : undefined,
+    fetch: (async (input, init) => {
+      const headers = new Headers(init?.headers);
+      headers.set("X-Store-Request", "1");
+      if (options.origin) headers.set("Origin", options.origin);
+      if (options.token) headers.set("Authorization", `Bearer ${options.token}`);
+      return fetcher(input, {
+        ...init,
+        headers,
+        credentials: options.token ? "omit" : "include",
+      });
+    }) as typeof fetch,
   });
 }
 
@@ -196,4 +241,24 @@ export async function downloadBundle(client: StoreClient, id: string): Promise<B
   const response = await client.v1.bundles[":id"].download.$get({ param: { id } });
   if (!response.ok) throw await toError(response);
   return await response.blob();
+}
+
+export async function uploadBundles(
+  client: StoreClient,
+  files: Array<{ name: string; content: Blob }>,
+  state: StoreUploadState = "alpha",
+): Promise<StoreBundleUploadResult> {
+  const results: StoreBundleUploadResult["results"] = [];
+  for (let offset = 0; offset < files.length; offset += 100) {
+    const form = new FormData();
+    for (const file of files.slice(offset, offset + 100)) {
+      form.append("files", file.content, file.name);
+    }
+    form.set("state", state);
+    const response = await client.v1.bundles.$post({}, { init: { body: form } });
+    if (!response.ok) throw await toError(response);
+    const result = (await response.json()) as StoreBundleUploadResult;
+    results.push(...result.results);
+  }
+  return { results };
 }

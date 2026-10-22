@@ -7,9 +7,20 @@ import {
   StoreApiError,
   type BundleSummary,
   type ErrorCode,
+  uploadBundles,
 } from "../index.js";
 
 const stores: Array<ReturnType<typeof createTestStore>> = [];
+
+function recordingFetch(respond: (request: Request) => Response | Promise<Response>) {
+  const requests: Request[] = [];
+  const fetchImpl = (async (input, init) => {
+    const request = new Request(input, init);
+    requests.push(request);
+    return await respond(request);
+  }) as typeof fetch;
+  return { requests, fetchImpl };
+}
 
 function setup() {
   const store = createTestStore();
@@ -69,5 +80,86 @@ describe("store client", () => {
     const error = await searchBundles(api, { page: "0" }).catch((caught) => caught);
 
     expect(error).toMatchObject({ status: 422, code: "validation_error" });
+  });
+
+  it("uploads multiple files and returns the typed per-file outcomes", async () => {
+    const { requests, fetchImpl } = recordingFetch(() =>
+      Response.json({
+        results: [
+          { file: "one.ddb", success: true, bundle_id: "bundle-one" },
+          {
+            file: "two.ddb",
+            success: false,
+            error: { code: "invalid_bundle", message: "Not a DDB file." },
+          },
+        ],
+      }),
+    );
+    const client = createStoreClient({
+      url: "https://store.test",
+      token: "store-token",
+      fetch: fetchImpl,
+    });
+
+    const result = await uploadBundles(client, [
+      { name: "one.ddb", content: new Blob(["first"]) },
+      { name: "two.ddb", content: new Blob(["second"]) },
+    ]);
+
+    expect(new URL(requests[0]!.url).pathname).toBe("/v1/bundles");
+    expect(requests[0]!.method).toBe("POST");
+    expect(requests[0]!.headers.get("authorization")).toBe("Bearer store-token");
+    const body = await requests[0]!.formData();
+    expect(body.get("state")).toBe("alpha");
+    expect(body.getAll("files").map((file) => (file as File).name)).toEqual(["one.ddb", "two.ddb"]);
+    expect(result.results).toMatchObject([
+      { file: "one.ddb", success: true, bundle_id: "bundle-one" },
+      { file: "two.ddb", success: false, error: { code: "invalid_bundle" } },
+    ]);
+  });
+
+  it("converts upload request errors into typed StoreApiErrors", async () => {
+    const { fetchImpl } = recordingFetch(() =>
+      Response.json(
+        { error: { code: "validation_error", message: "A multipart form is required." } },
+        { status: 422 },
+      ),
+    );
+    const client = createStoreClient({ url: "https://store.test", fetch: fetchImpl });
+
+    const error = await uploadBundles(
+      client,
+      [{ name: "one.ddb", content: new Blob(["bundle"]) }],
+      "beta",
+    ).catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(StoreApiError);
+    expect(error).toMatchObject({ status: 422, code: "validation_error" });
+  });
+
+  it("batches uploads above the service's per-request file limit", async () => {
+    const { requests, fetchImpl } = recordingFetch(async (request) => {
+      const form = await request.formData();
+      return Response.json({
+        results: form.getAll("files").map((file) => ({
+          file: (file as File).name,
+          success: true,
+          bundle_id: "bundle",
+        })),
+      });
+    });
+    const client = createStoreClient({ url: "https://store.test", fetch: fetchImpl });
+
+    const result = await uploadBundles(
+      client,
+      Array.from({ length: 101 }, (_, index) => ({
+        name: `bundle-${index}.ddb`,
+        content: new Blob(["bundle"]),
+      })),
+    );
+
+    expect(requests).toHaveLength(2);
+    expect(result.results).toHaveLength(101);
+    expect(result.results[100]?.file).toBe("bundle-100.ddb");
   });
 });
