@@ -19,7 +19,6 @@ declare global {
   const appMachineSymbol: typeof import('./composables/useAppMachine').appMachineSymbol
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
-  const bundleSearch: typeof import('./composables/useStore').bundleSearch
   const computed: typeof import('vue').computed
   const computedAsync: typeof import('@vueuse/core').computedAsync
   const computedEager: typeof import('@vueuse/core').computedEager
@@ -110,7 +109,6 @@ declare global {
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
   const storeDeprecateBundle: typeof import('./composables/useStore').storeDeprecateBundle
-  const storeDownloadBundle: typeof import('./composables/useStore').storeDownloadBundle
   const storeSignBundle: typeof import('./composables/useStore').storeSignBundle
   const syncRef: typeof import('@vueuse/core').syncRef
   const syncRefs: typeof import('@vueuse/core').syncRefs
@@ -367,7 +365,6 @@ declare module 'vue' {
     readonly appMachineSymbol: UnwrapRef<typeof import('./composables/useAppMachine')['appMachineSymbol']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
-    readonly bundleSearch: UnwrapRef<typeof import('./composables/useStore')['bundleSearch']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -456,7 +453,6 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly storeDeprecateBundle: UnwrapRef<typeof import('./composables/useStore')['storeDeprecateBundle']>
-    readonly storeDownloadBundle: UnwrapRef<typeof import('./composables/useStore')['storeDownloadBundle']>
     readonly storeSignBundle: UnwrapRef<typeof import('./composables/useStore')['storeSignBundle']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>

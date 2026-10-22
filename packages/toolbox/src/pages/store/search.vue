@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { RestCommand } from "@directus/sdk";
-import type { Schema } from "~/interfaces/store";
 import Snarkdown from "@swayable/vue-snarkdown";
 import { useRouteQuery } from "@vueuse/router";
 
@@ -18,25 +16,29 @@ const showDeprecated = useRouteQuery("showDeprecated", "false", {
 });
 const itemsPerPage = ref(5);
 
-const bundleList = store.request(
-  computed(() => {
-    const keyStable = store.state?.context?.settings?.public_key_stable ?? "";
+const filters = computed(() => ({
+  page: page.value,
+  limit: itemsPerPage.value,
+  product: product.value,
+  manufacturer: manufacturer.value,
+  model: model.value,
+  showDeprecated: showDeprecated.value,
+  hasKey: stableOnly.value ? (store.state?.context?.settings?.public_key_stable ?? "") : "",
+}));
 
-    return bundleSearch({
-      page: page.value,
-      limit: itemsPerPage.value,
-      product: product.value,
-      manufacturer: manufacturer.value,
-      model: model.value,
-      showDeprecated: showDeprecated.value,
-      hasKey: stableOnly.value ? keyStable : "",
-    });
-  }),
-);
+const bundleList = useAsyncState(async () => (await store.searchBundles(filters.value)) ?? null, null, {
+  shallow: true,
+  resetOnExecute: false,
+});
+
+watchDebounced([filters, () => store.client], () => bundleList.execute(), {
+  debounce: 200,
+  maxWait: 2000,
+});
 
 const pageCount = computed(() => {
   if (!bundleList.state.value) return 0;
-  return Math.ceil(bundleList.state.value.totalCount / itemsPerPage.value);
+  return Math.ceil(bundleList.state.value.total_count / itemsPerPage.value);
 });
 </script>
 
@@ -47,7 +49,7 @@ const pageCount = computed(() => {
         <template #header>
           <h1 class="text-headline-medium d-flex justify-space-between mb-4 align-center">
             <div class="text-truncate">
-              DDF Store list of bundles ({{ bundleList.state.value.totalCount }})
+              DDF Store list of bundles ({{ bundleList.state.value.total_count }})
             </div>
 
             <div class="d-flex align-center">
@@ -102,8 +104,8 @@ const pageCount = computed(() => {
               </v-chip>
 
               <v-btn
-                v-if="store.client"
-                :href="`${store.client.url}bundle/download/${item.raw.id}`"
+                v-if="store.bundleDownloadUrl(item.raw.id)"
+                :href="store.bundleDownloadUrl(item.raw.id)"
                 variant="outlined"
                 append-icon="mdi-download"
                 color="secondary"
@@ -145,7 +147,7 @@ const pageCount = computed(() => {
       </v-data-iterator>
     </template>
     <v-alert
-      v-if="bundleList.state.value?.totalCount === 0 && stableOnly"
+      v-if="bundleList.state.value?.total_count === 0 && stableOnly"
       type="info"
       title="Info"
       class="ma-2"
