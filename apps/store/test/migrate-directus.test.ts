@@ -55,7 +55,7 @@ describe("migrateDirectus", () => {
 
     expect(report.tables).toEqual([
       { table: "users", source: 2, migrated: 2 },
-      { table: "settings", source: 3, migrated: 3 },
+      { table: "settings", source: 6, migrated: 6 },
       { table: "ddf_uuids", source: 1, migrated: 1 },
       { table: "bundles", source: 1, migrated: 1 },
       { table: "device_identifiers", source: 1, migrated: 1 },
@@ -87,18 +87,25 @@ describe("migrateDirectus", () => {
     expect(new Uint8Array(await download.arrayBuffer())).toEqual(source.bundleBytes);
   });
 
-  it("does not import static tokens, private system keys or Directus-only tables", async () => {
+  it("preserves all system keypairs but not static tokens or Directus-only tables", async () => {
     const source = await legacy();
     const { client, database } = freshTarget();
 
     await migrateDirectus({ sourcePath: source.path, database, publicUrl: "https://s.example" });
 
-    const settings = client.prepare("SELECT key FROM settings ORDER BY key").all();
-    expect(settings).toEqual([
-      { key: "public_key_beta" },
-      { key: "public_key_deprecated" },
-      { key: "public_key_stable" },
-    ]);
+    const settings = Object.fromEntries(
+      (client.prepare("SELECT key, value FROM settings").all() as Array<{ key: string; value: string }>).map(
+        ({ key, value }) => [key, value],
+      ),
+    );
+    expect(settings).toEqual({
+      public_key_stable: source.systemKeys.stable.publicKey,
+      private_key_stable: source.systemKeys.stable.privateKey,
+      public_key_beta: source.systemKeys.beta.publicKey,
+      private_key_beta: source.systemKeys.beta.privateKey,
+      public_key_deprecated: source.systemKeys.deprecated.publicKey,
+      private_key_deprecated: source.systemKeys.deprecated.privateKey,
+    });
     expect(JSON.stringify(client.prepare("SELECT * FROM users").all())).not.toContain(
       "static-token",
     );

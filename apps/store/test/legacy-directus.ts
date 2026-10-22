@@ -32,6 +32,7 @@ export interface LegacyFixture {
   bundleBytes: Uint8Array;
   userId: string;
   uuid: string;
+  systemKeys: Record<"stable" | "beta" | "deprecated", { publicKey: string; privateKey: string }>;
 }
 
 // Builds an anonymized database shaped like the Directus-managed SQLite store.
@@ -73,11 +74,18 @@ export async function createLegacyDatabase(
     CREATE TABLE sub_devices (id char(36) PRIMARY KEY, name varchar(255));
     CREATE TABLE bundles_sub_devices (id integer PRIMARY KEY, bundles_id char(64), sub_devices_id char(36));
   `);
-  const keys = {
-    stable: bytesToHex(secp256k1.getPublicKey(new Uint8Array(32).fill(31))),
-    beta: bytesToHex(secp256k1.getPublicKey(new Uint8Array(32).fill(32))),
-    deprecated: bytesToHex(secp256k1.getPublicKey(new Uint8Array(32).fill(33))),
-  };
+  const systemKeys = Object.fromEntries(
+    (["stable", "beta", "deprecated"] as const).map((name, index) => {
+      const privateKey = new Uint8Array(32).fill(31 + index);
+      return [
+        name,
+        {
+          publicKey: bytesToHex(secp256k1.getPublicKey(privateKey)),
+          privateKey: bytesToHex(privateKey),
+        },
+      ];
+    }),
+  ) as LegacyFixture["systemKeys"];
   db.prepare("INSERT INTO directus_users VALUES (?,?,?,?,?,?,?,?,?,?,?)").run(
     userId,
     "Ada",
@@ -110,12 +118,12 @@ export async function createLegacyDatabase(
   );
   db.prepare("INSERT INTO directus_settings VALUES (1,?,?,?,?,?,?,?)").run(
     "Anonymous store",
-    keys.stable,
-    "a".repeat(64),
-    keys.beta,
-    "b".repeat(64),
-    keys.deprecated,
-    "c".repeat(64),
+    systemKeys.stable.publicKey,
+    systemKeys.stable.privateKey,
+    systemKeys.beta.publicKey,
+    systemKeys.beta.privateKey,
+    systemKeys.deprecated.publicKey,
+    systemKeys.deprecated.privateKey,
   );
   db.prepare("INSERT INTO directus_sessions VALUES ('session-token')").run();
   db.prepare("INSERT INTO ddf_uuids VALUES (?,?,?,?)").run(
@@ -159,5 +167,5 @@ export async function createLegacyDatabase(
   db.prepare("INSERT INTO bundles_sub_devices VALUES (1,?, 's1')").run(bundleId);
   db.close();
 
-  return { path, bundleId, bundleBytes: stored, userId, uuid };
+  return { path, bundleId, bundleBytes: stored, userId, uuid, systemKeys };
 }

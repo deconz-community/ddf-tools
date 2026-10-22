@@ -22,7 +22,10 @@ export interface MigrationReport {
 
 type Row = Record<string, unknown>;
 
-const SYSTEM_KEY_SETTINGS = ["public_key_stable", "public_key_beta", "public_key_deprecated"];
+const SYSTEM_KEY_SETTINGS = ["stable", "beta", "deprecated"].flatMap((name) => [
+  `public_key_${name}`,
+  `private_key_${name}`,
+]);
 const IMPORTED_TABLES = new Set([
   "directus_users",
   "directus_files",

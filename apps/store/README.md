@@ -118,10 +118,11 @@ rows are inserted in one transaction, so any failure leaves the target empty.
 - Users keep their IDs and Argon2 password hashes; emails are lower-cased and `active` users are
   marked email-verified. Avatars become `avatar_url` values of `<public url>/assets/<file id>`
   (`--public-url` or `PUBLIC_URL`, the old Directus public URL).
-- Public system keys (`public_key_stable|beta|deprecated`) are stored in `settings`. Private keys,
+- System keypairs (`public_key_*` and `private_key_*` for stable, beta and deprecated) are copied
+  into `settings`. That table is never exposed by the public API; treat the database as secret.
   Directus static tokens, sessions, sub-device tables and every other `directus_*` table are not
-  imported; copy the old private keys into `BETA_PRIVATE_KEY`, `STABLE_PRIVATE_KEY` and
-  `DEPRECATED_PRIVATE_KEY` yourself.
+  imported. Signing still reads `BETA_PRIVATE_KEY`, `STABLE_PRIVATE_KEY` and
+  `DEPRECATED_PRIVATE_KEY`, so set them from the migrated values.
 - Legacy deflate + base64 bundle content becomes raw BLOB bytes.
 - The command prints migrated/source row counts per table and verifies every bundle: stored content
   hash, bundle hash equal to the bundle ID, and all embedded signatures.
