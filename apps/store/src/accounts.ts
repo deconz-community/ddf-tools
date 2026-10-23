@@ -4,6 +4,7 @@ import { Hono, type Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
+import { avatarHash } from "./avatar.js";
 import type { StoreDatabase } from "./database.js";
 import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "./schema.js";
 
@@ -41,13 +42,6 @@ const loginSchema = registrationSchema;
 const profileSchema = z
   .object({
     username: z.string().trim().max(100).nullable().optional(),
-    avatar_url: z
-      .string()
-      .url()
-      .max(2048)
-      .refine((value) => /^https?:\/\//i.test(value))
-      .nullable()
-      .optional(),
     public_key: z.string().trim().min(1).max(2048).nullable().optional(),
     private_key: z.string().trim().min(1).max(2048).nullable().optional(),
   })
@@ -77,7 +71,7 @@ function profile(user: typeof users.$inferSelect) {
     id: user.id,
     email: user.email,
     username: user.username,
-    avatar_url: user.avatarUrl,
+    avatar_hash: user.avatarHash,
     public_key: user.publicKey,
     private_key: user.privateKey,
     is_contributor: user.isContributor,
@@ -91,7 +85,7 @@ function publicUser(user: typeof users.$inferSelect) {
   return {
     id: user.id,
     username: user.username,
-    avatar_url: user.avatarUrl,
+    avatar_hash: user.avatarHash,
     public_key: user.publicKey,
     is_contributor: user.isContributor,
     email_verified: user.emailVerifiedAt !== null,
@@ -336,6 +330,7 @@ export function registerAccountRoutes(
         email,
         passwordHash,
         username: parsed.data.username ?? null,
+        avatarHash: avatarHash(email),
         emailVerifiedAt: verificationToken ? null : timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -565,7 +560,6 @@ export function registerAccountRoutes(
         .update(users)
         .set({
           ...(updates.username !== undefined ? { username: updates.username } : {}),
-          ...(updates.avatar_url !== undefined ? { avatarUrl: updates.avatar_url } : {}),
           ...(updates.public_key !== undefined ? { publicKey: updates.public_key } : {}),
           ...(updates.private_key !== undefined ? { privateKey: updates.private_key } : {}),
           updatedAt: now(),

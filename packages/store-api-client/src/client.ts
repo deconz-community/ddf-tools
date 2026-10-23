@@ -90,7 +90,7 @@ export interface StoreProfile {
   id: string;
   email: string;
   username: string | null;
-  avatar_url: string | null;
+  avatar_hash: string;
   public_key: string | null;
   private_key: string | null;
   is_contributor: boolean;
@@ -102,7 +102,7 @@ export interface StoreProfile {
 export interface PublicStoreUser {
   id: string;
   username: string | null;
-  avatar_url: string | null;
+  avatar_hash: string;
   public_key: string | null;
   is_contributor: boolean;
   email_verified: boolean;
@@ -111,7 +111,6 @@ export interface PublicStoreUser {
 
 export interface StoreProfileUpdate {
   username?: string | null;
-  avatar_url?: string | null;
   public_key?: string | null;
   private_key?: string | null;
 }

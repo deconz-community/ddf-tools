@@ -1,3 +1,4 @@
+import { avatarHash } from "../src/avatar.js";
 import Database from "better-sqlite3";
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -57,6 +58,7 @@ function setup(
       .values({
         id,
         email: `${id}@example.com`,
+        avatarHash: avatarHash(`${id}@example.com`),
         passwordHash: "unused",
         isContributor,
         createdAt: timestamp,

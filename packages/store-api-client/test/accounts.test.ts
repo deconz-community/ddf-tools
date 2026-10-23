@@ -56,14 +56,13 @@ describe("store account client", () => {
     });
     expect(login.user.id).toBe(registration.user.id);
     await api.updateProfile({
-      avatar_url: "https://example.com/avatar.png",
       public_key: "toolbox-public-key",
       private_key: "toolbox-private-key",
     });
     expect((await api.getProfile()).private_key).toBe("toolbox-private-key");
     expect((await api.getUserById(registration.user.id)).public_key).toBe("toolbox-public-key");
-    expect((await api.getUserByPublicKey("toolbox-public-key")).avatar_url).toBe(
-      "https://example.com/avatar.png",
+    expect((await api.getUserByPublicKey("toolbox-public-key")).avatar_hash).toMatch(
+      /^[0-9a-f]{64}$/,
     );
 
     await api.requestPasswordReset(registration.user.email);

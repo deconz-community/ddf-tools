@@ -97,7 +97,7 @@ CREATE TABLE `users` (
 	`email` text NOT NULL,
 	`password_hash` text NOT NULL,
 	`username` text,
-	`avatar_url` text,
+	`avatar_hash` text NOT NULL,
 	`is_contributor` integer DEFAULT false NOT NULL,
 	`public_key` text,
 	`private_key` text,

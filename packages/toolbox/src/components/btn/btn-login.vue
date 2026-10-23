@@ -4,7 +4,9 @@ import { toastError } from "~/lib/handleError";
 const store = useStore();
 
 const avatarSize = 50;
-const avatarUrl = computed(() => store.profile?.avatar_url ?? "");
+const avatarUrl = computed(() => store.profile?.avatar_hash
+    ? `https://www.gravatar.com/avatar/${store.profile.avatar_hash}?d=retro`
+    : "");
 const userName = computed(() => {
   if (!store.profile) return undefined;
   return store.profile.username ?? "";

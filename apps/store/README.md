@@ -118,8 +118,8 @@ It opens the source read-only and refuses to run unless every table in the targe
 rows are inserted in one transaction, so any failure leaves the target empty.
 
 - Users keep their IDs and Argon2 password hashes; emails are lower-cased and `active` users are
-  marked email-verified. Avatars become `avatar_url` values of `<public url>/assets/<file id>`
-  (`PUBLIC_URL`, the old Directus public URL).
+  marked email-verified. Avatars are not imported; each user gets `avatar_hash`, the SHA-256 of
+  the lower-cased email.
 - System keypairs (`public_key_*` and `private_key_*` for stable, beta and deprecated) are only
   read to verify the signatures of imported bundles; they are not stored. Directus static tokens,
   sessions, sub-device tables and every other `directus_*` table are not imported. Signing still

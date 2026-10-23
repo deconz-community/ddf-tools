@@ -1,3 +1,4 @@
+import { avatarHash } from "../src/avatar.js";
 import Database from "better-sqlite3";
 import { createHash } from "node:crypto";
 import { drizzle } from "drizzle-orm/better-sqlite3";
@@ -28,6 +29,7 @@ function setup() {
     .values({
       id: userId,
       email: "author@example.com",
+      avatarHash: avatarHash("author@example.com"),
       passwordHash: "unused",
       createdAt: timestamp,
       updatedAt: timestamp,

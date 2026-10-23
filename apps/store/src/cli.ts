@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { loadConfig } from "./config.js";
 import { openDatabase, runMigrations } from "./database.js";
+import { avatarHash } from "./avatar.js";
 import { migrateDirectus } from "./migrate-directus.js";
 import { users } from "./schema.js";
 
@@ -80,6 +81,7 @@ export async function runCli(
             .values({
               id,
               email,
+              avatarHash: avatarHash(email),
               passwordHash,
               publicKey: bytesToHex(secp256k1.getPublicKey(privateKey)),
               privateKey: bytesToHex(privateKey),

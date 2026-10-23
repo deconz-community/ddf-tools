@@ -28,8 +28,8 @@ const user = computedAsync<any | undefined>(async () => {
 });
 
 const userAvatar = computed(() => {
-  if (typeof user.value?.avatar_url === "string") {
-    return user.value.avatar_url;
+  if (typeof user.value?.avatar_hash === "string") {
+    return `https://www.gravatar.com/avatar/${user.value.avatar_hash}?d=retro`;
   } else {
     const hash = userKey.value ? MD5(userKey.value) : "00000000000000000000000000000000";
     const url = new URL(`https://www.gravatar.com/avatar/${hash}`);
