@@ -5,7 +5,7 @@ import { Command } from "@commander-js/extra-typings";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { decode, encode, sign } from "../../bundler/index.js";
 import { createTestStore } from "../../../apps/store/test/support.js";
-import * as schema from "../../../apps/store/src/schema.js";
+import * as schema from "../../../apps/store/src/db/schema.js";
 import { registerUploadCommands } from "../src/upload.js";
 
 const stores: Array<ReturnType<typeof createTestStore>> = [];

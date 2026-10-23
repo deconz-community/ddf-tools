@@ -1,8 +1,8 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { createApp } from "../src/app.js";
-import * as schema from "../src/schema.js";
+import { createApp } from "../src/http/app.js";
+import * as schema from "../src/db/schema.js";
 
 describe("GET /health", () => {
   const databases: Array<{ open: boolean; close(): void }> = [];

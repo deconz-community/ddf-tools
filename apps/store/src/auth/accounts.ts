@@ -5,8 +5,8 @@ import { getCookie } from "hono/cookie";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
 import { avatarHash } from "./avatar.js";
-import type { StoreDatabase } from "./database.js";
-import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "./schema.js";
+import type { StoreDatabase } from "../db/database.js";
+import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "../db/schema.js";
 
 export interface AccountMailer {
   sendVerification(email: string, token: string): Promise<void>;

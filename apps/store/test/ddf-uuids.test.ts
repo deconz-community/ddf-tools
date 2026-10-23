@@ -1,11 +1,11 @@
-import { avatarHash } from "../src/avatar.js";
+import { avatarHash } from "../src/auth/avatar.js";
 import Database from "better-sqlite3";
 import { createHash } from "node:crypto";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { createApp } from "../src/app.js";
-import { runMigrations } from "../src/database.js";
-import * as schema from "../src/schema.js";
+import { createApp } from "../src/http/app.js";
+import { runMigrations } from "../src/db/database.js";
+import * as schema from "../src/db/schema.js";
 
 const timestamp = Date.parse("2026-01-01T00:00:00.000Z");
 const origin = "https://toolbox.example";
@@ -68,9 +68,11 @@ describe("POST /v1/ddf-uuids", () => {
       .prepare("SELECT id, owner_id, expire_at FROM ddf_uuids ORDER BY id")
       .all() as Array<{ id: string; owner_id: string; expire_at: number }>;
     expect(rows.map((row) => row.id).sort()).toEqual([...result.uuids].sort());
-    expect(rows.every((row) => row.owner_id === userId && row.expire_at === Date.parse(result.expire_at))).toBe(
-      true,
-    );
+    expect(
+      rows.every(
+        (row) => row.owner_id === userId && row.expire_at === Date.parse(result.expire_at),
+      ),
+    ).toBe(true);
   });
 
   it.each([1, 100])("accepts the inclusive UUID count boundary %s", async (count) => {

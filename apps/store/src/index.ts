@@ -1,8 +1,8 @@
 import { serve } from "@hono/node-server";
 import nodemailer from "nodemailer";
 import { loadConfig } from "./config.js";
-import { openDatabase, runMigrations } from "./database.js";
-import { createApp } from "./app.js";
+import { openDatabase, runMigrations } from "./db/database.js";
+import { createApp } from "./http/app.js";
 
 function closeServer(server: ReturnType<typeof serve>, closeDatabase: () => void): void {
   server.close((error) => {

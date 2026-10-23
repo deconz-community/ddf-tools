@@ -15,11 +15,11 @@ import {
   verifySignature,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
-import type { AccountOptions, SigningKey } from "./accounts.js";
-import { authenticateStoreRequest, authenticationErrorResponse } from "./accounts.js";
-import type { StoreDatabase } from "./database.js";
-import { errorResponse } from "./errors.js";
-import { bundles, ddfUuids, signatures } from "./schema.js";
+import type { AccountOptions, SigningKey } from "../auth/accounts.js";
+import { authenticateStoreRequest, authenticationErrorResponse } from "../auth/accounts.js";
+import type { StoreDatabase } from "../db/database.js";
+import { errorResponse } from "../http/errors.js";
+import { bundles, ddfUuids, signatures } from "../db/schema.js";
 
 const signatureRequestSchema = z.object({ state: z.enum(["alpha", "beta", "stable"]) }).strict();
 const deprecationRequestSchema = z

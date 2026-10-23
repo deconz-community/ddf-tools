@@ -4,11 +4,11 @@ import argon2 from "argon2";
 import { eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { loadConfig } from "./config.js";
-import { openDatabase, runMigrations } from "./database.js";
-import { avatarHash } from "./avatar.js";
+import { loadConfig } from "../config.js";
+import { openDatabase, runMigrations } from "../db/database.js";
+import { avatarHash } from "../auth/avatar.js";
 import { migrateDirectus } from "./migrate-directus.js";
-import { users } from "./schema.js";
+import { users } from "../db/schema.js";
 
 const usage = `Usage:
   migrate:directus <source.db>                       one-shot import of a Directus SQLite copy

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { createApp } from "../../../apps/store/src/app.js";
+import { createApp } from "../../../apps/store/src/http/app.js";
 import { createTestStore } from "../../../apps/store/test/support.js";
 import { createStoreAccountClient } from "../index.js";
 

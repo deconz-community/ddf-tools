@@ -1,4 +1,4 @@
-import { avatarHash } from "../src/avatar.js";
+import { avatarHash } from "../src/auth/avatar.js";
 import Database from "better-sqlite3";
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -7,16 +7,16 @@ import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import type { AccountOptions } from "../src/accounts.js";
+import type { AccountOptions } from "../src/auth/accounts.js";
 import {
   createSignature,
   decode,
   encode,
   verifySignature,
 } from "../../../packages/bundler/index.js";
-import { createApp } from "../src/app.js";
-import { runMigrations } from "../src/database.js";
-import * as schema from "../src/schema.js";
+import { createApp } from "../src/http/app.js";
+import { runMigrations } from "../src/db/database.js";
+import * as schema from "../src/db/schema.js";
 
 const fixture = readFileSync(
   resolve(import.meta.dirname, "../../../packages/bundler/test/ddb/starkvind_air_purifier.ddb"),

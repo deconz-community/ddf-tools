@@ -20,7 +20,7 @@ both `SMTP_URL` and `SMTP_FROM` to enable verification and password-reset email;
 without SMTP, account registration skips verification and logs a warning.
 
 Use `pnpm db:generate --name <migration>` to generate a migration from
-`src/schema.ts`. Migrations are applied automatically when the service starts.
+`src/db/schema.ts`. Migrations are applied automatically when the service starts.
 Run `pnpm check`, `pnpm test`, and `pnpm build` to validate the service.
 
 ## Docker
@@ -100,13 +100,13 @@ Errors use { error: { code, message, details? } }.
 Run from the built image with `docker exec <container> node dist/cli.js <command>`, or from
 this directory with `pnpm cli <command>`. All commands use `DATABASE_PATH`.
 
-| Command                                             | Description                                                                      |
-| --------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `user:create <email> [--contributor]`               | Creates a verified user with a new key pair; password from `STORE_USER_PASSWORD` |
-| `user:contributor <email> [--revoke]`               | Grants or revokes the contributor role                                           |
-| `system-key:generate <beta\|stable\|deprecated>`    | Prints a new `*_PRIVATE_KEY` value and its public key                            |
-| `migrate:directus <source.db>`                      | One-shot Directus import (see below)                                             |
-| `db:reset --yes`                                    | Deletes all rows from every table (schema is kept). Irreversible                 |
+| Command                                          | Description                                                                      |
+| ------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `user:create <email> [--contributor]`            | Creates a verified user with a new key pair; password from `STORE_USER_PASSWORD` |
+| `user:contributor <email> [--revoke]`            | Grants or revokes the contributor role                                           |
+| `system-key:generate <beta\|stable\|deprecated>` | Prints a new `*_PRIVATE_KEY` value and its public key                            |
+| `migrate:directus <source.db>`                   | One-shot Directus import (see below)                                             |
+| `db:reset --yes`                                 | Deletes all rows from every table (schema is kept). Irreversible                 |
 
 `scripts/docker-smoke.sh` is a manual smoke test: it builds the image, starts it, checks
 `/health` and runs `system-key:generate` inside the container. It is not part of CI.

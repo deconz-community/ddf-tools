@@ -5,9 +5,9 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
-import { createApp } from "../src/app.js";
-import { runCli } from "../src/cli.js";
-import * as schema from "../src/schema.js";
+import { createApp } from "../src/http/app.js";
+import { runCli } from "../src/cli/index.js";
+import * as schema from "../src/db/schema.js";
 import { createLegacyDatabase } from "./legacy-directus.js";
 
 const origin = "https://toolbox.example";

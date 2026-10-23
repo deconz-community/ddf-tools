@@ -2,8 +2,8 @@ import { zValidator } from "@hono/zod-validator";
 import { sql, type SQL } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import type { StoreDatabase } from "./database.js";
-import { errorResponse } from "./errors.js";
+import type { StoreDatabase } from "../db/database.js";
+import { errorResponse } from "../http/errors.js";
 
 export const SEARCH_PAGE_SIZE_LIMIT = 20;
 

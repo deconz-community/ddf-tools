@@ -11,9 +11,9 @@ import {
 } from "@deconz-community/ddf-bundler";
 import { inflateSync } from "node:zlib";
 import { randomUUID } from "node:crypto";
-import { avatarHash } from "./avatar.js";
-import type { StoreDatabase } from "./database.js";
-import * as schema from "./schema.js";
+import { avatarHash } from "../auth/avatar.js";
+import type { StoreDatabase } from "../db/database.js";
+import * as schema from "../db/schema.js";
 
 export interface MigrationOptions {
   sourcePath: string;

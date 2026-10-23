@@ -16,16 +16,16 @@ import {
   STABLE_PUBLIC_KEY,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
-import type { AccountOptions, SigningKey, StoreAuthentication } from "./accounts.js";
-import { authenticateStoreRequest, authenticationErrorResponse } from "./accounts.js";
-import type { StoreDatabase } from "./database.js";
+import type { AccountOptions, SigningKey, StoreAuthentication } from "../auth/accounts.js";
+import { authenticateStoreRequest, authenticationErrorResponse } from "../auth/accounts.js";
+import type { StoreDatabase } from "../db/database.js";
 import {
   bundles,
   bundlesDeviceIdentifiers,
   ddfUuids,
   deviceIdentifiers,
   signatures,
-} from "./schema.js";
+} from "../db/schema.js";
 
 const stateSchema = z.enum(["alpha", "beta", "stable"]).default("alpha");
 type UploadState = z.infer<typeof stateSchema>;

@@ -6,10 +6,10 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { decode, generateHash, verifySignature } from "@deconz-community/ddf-bundler";
-import { createApp } from "../src/app.js";
-import { runMigrations } from "../src/database.js";
-import { migrateDirectus } from "../src/migrate-directus.js";
-import * as schema from "../src/schema.js";
+import { createApp } from "../src/http/app.js";
+import { runMigrations } from "../src/db/database.js";
+import { migrateDirectus } from "../src/cli/migrate-directus.js";
+import * as schema from "../src/db/schema.js";
 import {
   contributorPublicKey,
   createLegacyDatabase,

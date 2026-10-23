@@ -1,9 +1,9 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "node:crypto";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { runMigrations } from "../src/database.js";
-import { createApp } from "../src/app.js";
-import * as schema from "../src/schema.js";
+import { runMigrations } from "../src/db/database.js";
+import { createApp } from "../src/http/app.js";
+import * as schema from "../src/db/schema.js";
 
 export interface SeedBundle {
   id?: string;

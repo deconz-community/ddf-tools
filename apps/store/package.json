@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./app": "./src/app.ts"
+    "./app": "./src/http/app.ts"
   },
   "scripts": {
     "build": "vp build",
     "check": "vp check",
-    "cli": "node --env-file-if-exists=.env.local --import tsx src/cli.ts",
+    "cli": "node --env-file-if-exists=.env.local --import tsx src/cli/index.ts",
     "db:generate": "drizzle-kit generate",
     "dev": "node --env-file-if-exists=.env.local --import tsx --watch src/index.ts",
     "start": "node --env-file-if-exists=.env.local dist/index.js",

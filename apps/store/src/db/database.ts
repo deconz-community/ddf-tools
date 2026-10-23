@@ -28,6 +28,6 @@ export type StoreDatabase = ReturnType<typeof drizzle<typeof schema>>;
 
 export function runMigrations(database: StoreDatabase): void {
   migrate(database, {
-    migrationsFolder: resolve(dirname(fileURLToPath(import.meta.url)), "../drizzle"),
+    migrationsFolder: resolve(dirname(fileURLToPath(import.meta.url)), "../../drizzle"),
   });
 }
