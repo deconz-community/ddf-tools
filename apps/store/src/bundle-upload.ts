@@ -206,7 +206,7 @@ async function processFile(
         .where(eq(bundles.ddf_uuid, existing.id))
         .limit(1)
         .get();
-      const expired = existing.expire_at !== null && Date.parse(existing.expire_at) <= timestamp;
+      const expired = existing.expire_at !== null && existing.expire_at.getTime() <= timestamp;
       if (expired && !hasPublishedBundle) {
         database
           .update(ddfUuids)
@@ -221,7 +221,7 @@ async function processFile(
         .insert(ddfUuids)
         .values({
           id: bundle.data.desc.uuid,
-          date_created: new Date(timestamp).toISOString(),
+          date_created: new Date(timestamp),
           expire_at: null,
           owner_id: user.id,
         })
@@ -241,8 +241,9 @@ async function processFile(
         .values({
           id: bundleId,
           ddf_uuid: bundle.data.desc.uuid,
-          date_created: new Date(timestamp).toISOString(),
-          source_last_modified: bundle.data.desc.last_modified.toISOString(),
+          user_created: user.id,
+          date_created: new Date(timestamp),
+          source_last_modified: bundle.data.desc.last_modified,
           vendor: bundle.data.desc.vendor || "Unknown vendor",
           product: bundle.data.desc.product || "Unknown product",
           version_deconz: bundle.data.desc.version_deconz,

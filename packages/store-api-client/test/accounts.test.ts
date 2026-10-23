@@ -44,7 +44,7 @@ describe("store account client", () => {
     const registration = await api.register({
       email: "toolbox@example.com",
       password: "a secure password",
-      first_name: "Toolbox",
+      username: "Toolbox",
     });
     expect(registration.verification_required).toBe(true);
     expect(verificationMessages).toHaveLength(1);

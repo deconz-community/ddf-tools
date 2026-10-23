@@ -91,15 +91,15 @@ function setup(
     const content = Buffer.from(await encode(bundle).arrayBuffer());
     database
       .insert(schema.ddfUuids)
-      .values({ id: ddfUuid, date_created: new Date(timestamp).toISOString(), owner_id: ownerId })
+      .values({ id: ddfUuid, date_created: new Date(timestamp), owner_id: ownerId })
       .run();
     database
       .insert(schema.bundles)
       .values({
         id,
         ddf_uuid: ddfUuid,
-        date_created: new Date(timestamp).toISOString(),
-        source_last_modified: bundle.data.desc.last_modified.toISOString(),
+        date_created: new Date(timestamp),
+        source_last_modified: bundle.data.desc.last_modified,
         vendor: bundle.data.desc.vendor || "Unknown vendor",
         product: bundle.data.desc.product || "Unknown product",
         version_deconz: bundle.data.desc.version_deconz,

@@ -1,9 +1,16 @@
 import Database from "better-sqlite3";
 import { sql } from "drizzle-orm";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { bytesToHex } from "@noble/hashes/utils.js";
-import { decode, generateHash, verifySignature } from "@deconz-community/ddf-bundler";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
+import {
+  createSignature,
+  decode,
+  encode,
+  generateHash,
+  verifySignature,
+} from "@deconz-community/ddf-bundler";
 import { inflateSync } from "node:zlib";
+import { randomUUID } from "node:crypto";
 import type { StoreDatabase } from "./database.js";
 import * as schema from "./schema.js";
 
@@ -11,7 +18,6 @@ export interface MigrationOptions {
   sourcePath: string;
   database: StoreDatabase;
   publicUrl?: string;
-  now?: () => number;
 }
 
 export interface MigrationReport {
@@ -22,10 +28,6 @@ export interface MigrationReport {
 
 type Row = Record<string, unknown>;
 
-const SYSTEM_KEY_SETTINGS = ["stable", "beta", "deprecated"].flatMap((name) => [
-  `public_key_${name}`,
-  `private_key_${name}`,
-]);
 const IMPORTED_TABLES = new Set([
   "directus_users",
   "directus_files",
@@ -48,7 +50,7 @@ function required(value: unknown, label: string): string {
 }
 
 // Directus stores datetimes as ISO strings, "YYYY-MM-DD HH:MM:SS" strings or epoch milliseconds.
-function isoDate(value: unknown, label: string): string {
+function parseDate(value: unknown, label: string): Date {
   let date: Date;
   if (typeof value === "number") date = new Date(value);
   else {
@@ -58,11 +60,11 @@ function isoDate(value: unknown, label: string): string {
     );
   }
   if (Number.isNaN(date.getTime())) throw new Error(`Invalid date in ${label}: ${String(value)}`);
-  return date.toISOString();
+  return date;
 }
 
-function optionalDate(value: unknown, label: string): string | null {
-  return value === null || value === undefined || value === "" ? null : isoDate(value, label);
+function optionalDate(value: unknown, label: string): Date | null {
+  return value === null || value === undefined || value === "" ? null : parseDate(value, label);
 }
 
 function tableNames(source: Database.Database): Set<string> {
@@ -79,7 +81,16 @@ function readAll(source: Database.Database, table: string): Row[] {
   return source.prepare(`SELECT * FROM "${table}"`).all() as Row[];
 }
 
-async function verifyBundle(bundle: Row, content: Buffer, signatureKeys: string[]): Promise<void> {
+async function verifyBundle(
+  bundle: Row,
+  content: Buffer,
+  knownKeys: Record<string, { privateKey: string; type: "user" | "system" }>,
+): Promise<{
+  id: string;
+  content: Buffer;
+  contentHash: string;
+  signatures: Array<{ key: string; type: "user" | "system" }>;
+}> {
   const id = required(bundle.id, "bundle id");
   const fail = (reason: string): never => {
     throw new Error(`Bundle ${id} failed verification: ${reason}`);
@@ -90,18 +101,29 @@ async function verifyBundle(bundle: Row, content: Buffer, signatureKeys: string[
   }
   const decoded = await decode(new Blob([new Uint8Array(content)]));
   const hash = await generateHash(decoded.data);
-  if (bytesToHex(hash) !== id) fail("bundle hash does not match the bundle id");
+  const migratedId = bytesToHex(hash);
 
-  const bundleKeys: string[] = [];
+  const signatures: Array<{ key: string; type: "user" | "system" }> = [];
+
   for (const signature of decoded.data.signatures) {
+    const keyHex = bytesToHex(signature.key);
+    const keyInfo = knownKeys[keyHex];
+    if (!keyInfo) fail(`unknown key ${keyHex}`);
+
+    signature.signature = createSignature(hash, hexToBytes(keyInfo.privateKey));
     if (!(await verifySignature(hash, signature.key, signature.signature))) {
-      fail(`invalid signature from ${bytesToHex(signature.key)}`);
+      fail(`private key does not match public key ${keyHex}`);
     }
-    bundleKeys.push(bytesToHex(signature.key));
+    signatures.push({ key: keyHex, type: keyInfo.type });
   }
-  for (const key of signatureKeys) {
-    if (!bundleKeys.includes(key)) fail(`signature row ${key} is not present in the bundle`);
-  }
+
+  const migratedContent = Buffer.from(await encode(decoded).arrayBuffer());
+  return {
+    id: migratedId,
+    content: migratedContent,
+    contentHash: bytesToHex(sha256(new Uint8Array(migratedContent))),
+    signatures,
+  };
 }
 
 function assertTargetEmpty(database: StoreDatabase): void {
@@ -117,65 +139,68 @@ function assertTargetEmpty(database: StoreDatabase): void {
 }
 
 export async function migrateDirectus(options: MigrationOptions): Promise<MigrationReport> {
-  const now = options.now ?? Date.now;
   const source = new Database(options.sourcePath, { readonly: true, fileMustExist: true });
   try {
     const available = tableNames(source);
-    for (const required of ["directus_users", "bundles", "ddf_uuids", "signatures"]) {
+    for (const required of ["directus_users", "directus_settings", "bundles", "ddf_uuids"]) {
       if (!available.has(required)) throw new Error(`Source database has no ${required} table.`);
     }
     const rows = (table: string): Row[] => (available.has(table) ? readAll(source, table) : []);
-    const timestamp = now();
+    const timestamp = Date.now();
 
-    const files = new Set(rows("directus_files").map((file) => String(file.id)));
+    const knownKeys: Record<string, { privateKey: string; type: "user" | "system" }> = {};
     const users = rows("directus_users").map((user) => {
-      let avatarUrl: string | null = null;
-      const avatar = text(user.avatar);
-      if (avatar) {
-        if (!options.publicUrl) {
-          throw new Error("A public URL is required to convert user avatars to avatar_url values.");
-        }
-        if (files.has(avatar)) {
-          avatarUrl = `${options.publicUrl.replace(/\/+$/, "")}/assets/${avatar}`;
-        }
+      const public_key = text(user.public_key);
+      const private_key = text(user.private_key);
+      if (
+        typeof public_key === "string" &&
+        public_key.length > 0 &&
+        typeof private_key === "string" &&
+        private_key.length > 0
+      ) {
+        knownKeys[public_key] = { privateKey: private_key, type: "user" };
       }
       return {
         id: required(user.id, "user id"),
         email: required(user.email, "user email").toLowerCase(),
         passwordHash: text(user.password) ?? "",
-        firstName: text(user.first_name),
-        lastName: text(user.last_name),
-        avatarUrl,
-        publicKey: text(user.public_key),
-        privateKey: text(user.private_key),
+        username:
+          [text(user.first_name), text(user.last_name)].filter((part) => part).join(" ") || null,
+        avatarUrl: text(user.avatar),
+        publicKey: public_key,
+        privateKey: private_key,
         isContributor: Number(user.is_contributor) === 1,
         emailVerifiedAt: user.status === "active" ? timestamp : null,
-        createdAt: Date.parse(isoDate(user.date_created, "directus_users.date_created")),
+        createdAt: parseDate(user.date_created, "directus_users.date_created").getTime(),
         updatedAt: timestamp,
       };
     });
 
     const settingsRow = rows("directus_settings")[0] ?? {};
-    const settings = SYSTEM_KEY_SETTINGS.flatMap((key) => {
-      const value = text(settingsRow[key]);
-      return value ? [{ key, value }] : [];
-    });
+
+    for (const name of ["stable", "beta", "deprecated"] as const) {
+      const publicKey = settingsRow[`public_key_${name}`];
+      const privateKey = settingsRow[`private_key_${name}`];
+      if (
+        typeof publicKey === "string" &&
+        publicKey.length > 0 &&
+        typeof privateKey === "string" &&
+        privateKey.length > 0
+      ) {
+        knownKeys[publicKey] = { privateKey, type: "system" };
+      }
+    }
 
     const ddfUuids = rows("ddf_uuids").map((row) => ({
       id: required(row.id, "ddf uuid"),
-      date_created: isoDate(row.date_created, "ddf_uuids.date_created"),
+      date_created: parseDate(row.date_created, "ddf_uuids.date_created"),
       expire_at: optionalDate(row.expire_at, "ddf_uuids.expire_at"),
       owner_id: text(row.user_created),
     }));
 
-    const signatureRows = rows("signatures");
-    const keysByBundle = new Map<string, string[]>();
-    for (const row of signatureRows) {
-      const bundle = String(row.bundle);
-      keysByBundle.set(bundle, [...(keysByBundle.get(bundle) ?? []), String(row.key)]);
-    }
-
     const bundles: Array<typeof schema.bundles.$inferInsert> = [];
+    const signatures: Array<typeof schema.signatures.$inferInsert> = [];
+    const bundleIds = new Map<string, string>();
     for (const row of rows("bundles")) {
       const id = required(row.id, "bundle id");
       let content: Buffer;
@@ -184,20 +209,31 @@ export async function migrateDirectus(options: MigrationOptions): Promise<Migrat
       } catch (error) {
         throw new Error(`Bundle ${id} content could not be decompressed: ${String(error)}`);
       }
-      await verifyBundle(row, content, keysByBundle.get(id) ?? []);
+
+      const migrated = await verifyBundle(row, content, knownKeys);
+      bundleIds.set(id, migrated.id);
+      for (const signature of migrated.signatures) {
+        signatures.push({
+          id: randomUUID(),
+          key: signature.key,
+          bundle: migrated.id,
+          type: signature.type,
+        });
+      }
       bundles.push({
-        id,
+        id: migrated.id,
         ddf_uuid: required(row.ddf_uuid, "bundle ddf_uuid"),
-        date_created: isoDate(row.date_created, "bundles.date_created"),
-        source_last_modified: isoDate(row.source_last_modified, "bundles.source_last_modified"),
+        user_created: text(row.user_created),
+        date_created: parseDate(row.date_created, "bundles.date_created"),
+        source_last_modified: parseDate(row.source_last_modified, "bundles.source_last_modified"),
         vendor: required(row.vendor, "bundle vendor"),
         product: required(row.product, "bundle product"),
         version_deconz: required(row.version_deconz, "bundle version_deconz"),
         info: text(row.info),
-        content,
-        content_size: content.length,
+        content: migrated.content,
+        content_size: migrated.content.length,
         file_count: Number(row.file_count),
-        content_hash: String(row.content_hash),
+        content_hash: migrated.contentHash,
         deprecation_message: text(row.deprecation_message),
       });
     }
@@ -207,21 +243,16 @@ export async function migrateDirectus(options: MigrationOptions): Promise<Migrat
       manufacturer: required(row.manufacturer, "device manufacturer"),
       model: required(row.model, "device model"),
     }));
-    const links = rows("bundles_device_identifiers").map((row) => ({
-      id: Number(row.id),
-      bundles_id: required(row.bundles_id, "bundles_id"),
-      device_identifiers_id: required(row.device_identifiers_id, "device_identifiers_id"),
-    }));
-    const signatures = signatureRows.map((row) => ({
-      id: required(row.id, "signature id"),
-      key: required(row.key, "signature key"),
-      bundle: required(row.bundle, "signature bundle"),
-      type: row.type === "system" ? ("system" as const) : ("user" as const),
-    }));
-
+    const links = rows("bundles_device_identifiers").map((row) => {
+      const sourceBundleId = required(row.bundles_id, "bundles_id");
+      return {
+        id: Number(row.id),
+        bundles_id: bundleIds.get(sourceBundleId) ?? sourceBundleId,
+        device_identifiers_id: required(row.device_identifiers_id, "device_identifiers_id"),
+      };
+    });
     const plan = [
       ["users", schema.users, users, rows("directus_users").length],
-      ["settings", schema.settings, settings, settings.length],
       ["ddf_uuids", schema.ddfUuids, ddfUuids, ddfUuids.length],
       ["bundles", schema.bundles, bundles, bundles.length],
       ["device_identifiers", schema.deviceIdentifiers, deviceIdentifiers, deviceIdentifiers.length],

@@ -45,7 +45,8 @@ interface SearchRow {
   product: string;
   version_deconz: string;
   info: string | null;
-  source_last_modified: string;
+  user_created: string | null;
+  source_last_modified: number;
   content_hash: string;
   deprecation_message: string | null;
 }
@@ -99,7 +100,7 @@ function searchBundles(database: StoreDatabase, query: z.output<typeof searchQue
   const total = database.get<{ count: number }>(sql`SELECT COUNT(*) AS count ${from}`);
   const rows = database.all<SearchRow>(sql`
     SELECT b.id, b.ddf_uuid, b.vendor, b.product, b.version_deconz, b.info, b.deprecation_message,
-      b.source_last_modified, b.content_hash
+      b.user_created, b.source_last_modified, b.content_hash
     ${from}
     ORDER BY b.source_last_modified DESC, b.date_created DESC, b.id DESC
     LIMIT ${query.limit} OFFSET ${offset}`);
@@ -123,6 +124,7 @@ function searchBundles(database: StoreDatabase, query: z.output<typeof searchQue
   return {
     items: rows.map((row) => ({
       ...row,
+      source_last_modified: new Date(row.source_last_modified).toISOString(),
       device_identifiers: devices
         .filter((device) => device.bundle === row.id)
         .map(({ manufacturer, model }) => ({ manufacturer, model })),
@@ -201,7 +203,7 @@ export function bundlesRoutes(database: StoreDatabase) {
 
       const rows = database.all<Omit<SearchRow, "id"> & { id: string }>(sql`
         SELECT id, ddf_uuid, vendor, product, version_deconz, info, deprecation_message,
-          source_last_modified, content_hash
+          user_created, source_last_modified, content_hash
         FROM bundles WHERE ddf_uuid = ${target.ddf_uuid}
         ORDER BY source_last_modified DESC, date_created DESC, id DESC`);
       const related = relatedBundleData(
@@ -211,6 +213,7 @@ export function bundlesRoutes(database: StoreDatabase) {
       return context.json({
         items: rows.map((row) => ({
           ...row,
+          source_last_modified: new Date(row.source_last_modified).toISOString(),
           device_identifiers: related.devices.get(row.id) ?? [],
           signatures: related.signatures.get(row.id) ?? [],
         })),
@@ -226,14 +229,15 @@ export function bundlesRoutes(database: StoreDatabase) {
         product: string;
         version_deconz: string;
         info: string | null;
-        source_last_modified: string;
+        user_created: string | null;
+        source_last_modified: number;
         content_size: number;
         file_count: number;
         content_hash: string;
         deprecation_message: string | null;
       }>(sql`
-        SELECT id, ddf_uuid, vendor, product, version_deconz, info, source_last_modified,
-          content_size, file_count, content_hash, deprecation_message
+        SELECT id, ddf_uuid, vendor, product, version_deconz, info, user_created,
+          source_last_modified, content_size, file_count, content_hash, deprecation_message
         FROM bundles WHERE id = ${id}`);
 
       if (!bundle) {
@@ -243,6 +247,7 @@ export function bundlesRoutes(database: StoreDatabase) {
       const related = relatedBundleData(database, [id]);
       return context.json({
         ...bundle,
+        source_last_modified: new Date(bundle.source_last_modified).toISOString(),
         device_identifiers: related.devices.get(id) ?? [],
         signatures: related.signatures.get(id) ?? [],
       });

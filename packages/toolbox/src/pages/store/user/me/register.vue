@@ -75,7 +75,7 @@ async function register() {
     const result = await store.api.register({
       email: state.email,
       password: state.password,
-      first_name: state.username,
+      username: state.username,
     });
     clear();
     toast.success("Account created", {

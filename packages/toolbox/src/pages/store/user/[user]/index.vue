@@ -33,7 +33,7 @@ const collectionsCount = ref(0);
       <v-avatar class="ma-2" :image="userProfile.avatar_url" size="125" />
       <v-card
         class="ma-2 flex-grow-1"
-        :title="`${userProfile?.first_name ?? ''} ${userProfile?.last_name ?? ''}`"
+        :title="userProfile?.username ?? ''"
         :subtitle="userProfile.id === store.profile?.id ? store.profile.email : undefined"
       >
         <!--

@@ -1,8 +1,11 @@
 import Database from "better-sqlite3";
+import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { bytesToHex } from "@noble/hashes/utils.js";
+import { decode, generateHash, verifySignature } from "@deconz-community/ddf-bundler";
 import { createApp } from "../src/app.js";
 import { runMigrations } from "../src/database.js";
 import { migrateDirectus } from "../src/migrate-directus.js";
@@ -37,12 +40,15 @@ function freshTarget() {
   return { client, database };
 }
 
-async function legacy(options?: { tamperSignature?: boolean }): Promise<LegacyFixture> {
+async function legacy(options?: {
+  tamperSignature?: boolean;
+  tamperBundleId?: boolean;
+}): Promise<LegacyFixture> {
   return createLegacyDatabase(resolve(directory, "directus.db"), options);
 }
 
 describe("migrateDirectus", () => {
-  it("copies users, settings and bundles into the fresh store and reports row counts", async () => {
+  it("copies users and bundles into the fresh store and reports row counts", async () => {
     const source = await legacy();
     const { client, database } = freshTarget();
 
@@ -50,12 +56,10 @@ describe("migrateDirectus", () => {
       sourcePath: source.path,
       database,
       publicUrl: "https://store.example/",
-      now: () => Date.parse("2026-01-01T00:00:00.000Z"),
     });
 
     expect(report.tables).toEqual([
       { table: "users", source: 2, migrated: 2 },
-      { table: "settings", source: 6, migrated: 6 },
       { table: "ddf_uuids", source: 1, migrated: 1 },
       { table: "bundles", source: 1, migrated: 1 },
       { table: "device_identifiers", source: 1, migrated: 1 },
@@ -79,7 +83,7 @@ describe("migrateDirectus", () => {
     });
     expect(await profile.json()).toMatchObject({
       id: source.userId,
-      first_name: "Ada",
+      username: "Ada Lovelace",
       avatar_url: "https://store.example/assets/22222222-2222-4222-8222-222222222222",
       public_key: contributorPublicKey,
       is_contributor: true,
@@ -91,28 +95,15 @@ describe("migrateDirectus", () => {
     expect(new Uint8Array(await download.arrayBuffer())).toEqual(source.bundleBytes);
   });
 
-  it("preserves all system keypairs but not static tokens or Directus-only tables", async () => {
+  it("does not import system keypairs, static tokens or Directus-only tables", async () => {
     const source = await legacy();
     const { client, database } = freshTarget();
 
     await migrateDirectus({ sourcePath: source.path, database, publicUrl: "https://s.example" });
 
-    const settings = Object.fromEntries(
-      (
-        client.prepare("SELECT key, value FROM settings").all() as Array<{
-          key: string;
-          value: string;
-        }>
-      ).map(({ key, value }) => [key, value]),
+    expect(client.prepare("SELECT name FROM sqlite_master WHERE name = 'settings'").get()).toBe(
+      undefined,
     );
-    expect(settings).toEqual({
-      public_key_stable: source.systemKeys.stable.publicKey,
-      private_key_stable: source.systemKeys.stable.privateKey,
-      public_key_beta: source.systemKeys.beta.publicKey,
-      private_key_beta: source.systemKeys.beta.privateKey,
-      public_key_deprecated: source.systemKeys.deprecated.publicKey,
-      private_key_deprecated: source.systemKeys.deprecated.privateKey,
-    });
     expect(JSON.stringify(client.prepare("SELECT * FROM users").all())).not.toContain(
       "static-token",
     );
@@ -134,14 +125,44 @@ describe("migrateDirectus", () => {
     expect(client.prepare("SELECT count(*) AS n FROM bundles").get()).toEqual({ n: 0 });
   });
 
-  it("rolls everything back when a bundle signature does not verify", async () => {
+  it("regenerates bundle signatures from their known public keys", async () => {
     const source = await legacy({ tamperSignature: true });
     const { client, database } = freshTarget();
 
-    await expect(
-      migrateDirectus({ sourcePath: source.path, database, publicUrl: "https://s.example" }),
-    ).rejects.toThrow(/bundle/i);
-    expect(client.prepare("SELECT count(*) AS n FROM users").get()).toEqual({ n: 0 });
+    await migrateDirectus({ sourcePath: source.path, database, publicUrl: "https://s.example" });
+
+    const migrated = client.prepare("SELECT content, content_hash FROM bundles").get() as {
+      content: Buffer;
+      content_hash: string;
+    };
+    expect(createHash("sha256").update(migrated.content).digest("hex")).toBe(migrated.content_hash);
+    const decoded = await decode(new Blob([new Uint8Array(migrated.content)]));
+    expect(decoded.data.signatures).toHaveLength(1);
+    expect(
+      await verifySignature(
+        decoded.data.hash!,
+        decoded.data.signatures[0]!.key,
+        decoded.data.signatures[0]!.signature,
+      ),
+    ).toBe(true);
+  });
+
+  it("replaces an incorrect bundle id with its content hash and updates references", async () => {
+    const source = await legacy({ tamperBundleId: true });
+    const { client, database } = freshTarget();
+
+    await migrateDirectus({ sourcePath: source.path, database, publicUrl: "https://s.example" });
+
+    const migratedId = client.prepare("SELECT id FROM bundles").get() as { id: string };
+    const decoded = await decode(new Blob([new Uint8Array(source.bundleBytes)]));
+    expect(migratedId.id).toBe(bytesToHex(await generateHash(decoded.data)));
+    expect(migratedId.id).not.toBe(source.bundleId);
+    expect(client.prepare("SELECT bundle FROM signatures").get()).toEqual({
+      bundle: migratedId.id,
+    });
+    expect(client.prepare("SELECT bundles_id FROM bundles_device_identifiers").get()).toEqual({
+      bundles_id: migratedId.id,
+    });
   });
 
   it("never modifies the source database", async () => {

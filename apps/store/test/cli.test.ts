@@ -41,6 +41,18 @@ function query<T>(sql: string, ...params: unknown[]): T[] {
 }
 
 describe("store operations CLI", () => {
+  it("empties the database only when confirmed", async () => {
+    await cli(["user:create", "a@example.com"], { STORE_USER_PASSWORD: "a secure password" });
+
+    const refused = await cli(["db:reset"]);
+    expect(refused.code).toBe(1);
+    expect(query("SELECT id FROM users")).toHaveLength(1);
+
+    const result = await cli(["db:reset", "--yes"]);
+    expect(result.code).toBe(0);
+    expect(query("SELECT id FROM users")).toHaveLength(0);
+  });
+
   it("creates a user who can log in, with a consistent key pair", async () => {
     const result = await cli(["user:create", "Admin@Example.com"], {
       STORE_USER_PASSWORD: "a secure password",

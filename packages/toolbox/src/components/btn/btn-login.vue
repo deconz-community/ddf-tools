@@ -7,7 +7,7 @@ const avatarSize = 50;
 const avatarUrl = computed(() => store.profile?.avatar_url ?? "");
 const userName = computed(() => {
   if (!store.profile) return undefined;
-  return `${store.profile.first_name ?? ""} ${store.profile.last_name ?? ""}`.trim();
+  return store.profile.username ?? "";
 });
 
 async function logout() {

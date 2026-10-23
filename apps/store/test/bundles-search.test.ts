@@ -39,6 +39,7 @@ describe("GET /v1/bundles", () => {
           product: "Starkvind",
           version_deconz: "2.28.0",
           info: "An air purifier",
+          user_created: null,
           source_last_modified: "2024-03-01T10:00:00.000Z",
           content_hash: `hash-${id}`,
           deprecation_message: null,

@@ -107,7 +107,7 @@ describe("account registration and verification", () => {
       method: "PATCH",
       headers: { ...headers, cookie: cookie ?? "" },
       body: JSON.stringify({
-        first_name: "Person",
+        username: "Person",
         avatar_url: "https://example.com/avatar.png",
         public_key: "public-key-1",
         private_key: "private-key-1",
@@ -115,7 +115,7 @@ describe("account registration and verification", () => {
     });
     expect(profileUpdate.status).toBe(200);
     expect(await profileUpdate.json()).toMatchObject({
-      first_name: "Person",
+      username: "Person",
       avatar_url: "https://example.com/avatar.png",
       public_key: "public-key-1",
       private_key: "private-key-1",

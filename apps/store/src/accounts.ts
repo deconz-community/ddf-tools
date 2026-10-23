@@ -28,7 +28,7 @@ export type SigningKey = { publicKey: string; privateKey: Uint8Array };
 const registrationSchema = z.object({
   email: z.string().trim().email().max(254),
   password: z.string().min(8).max(128),
-  first_name: z.string().trim().max(100).optional(),
+  username: z.string().trim().max(100).optional(),
 });
 
 const verificationSchema = z.object({ token: z.string().min(1).max(200) });
@@ -40,8 +40,7 @@ const resetConfirmationSchema = z.object({
 const loginSchema = registrationSchema;
 const profileSchema = z
   .object({
-    first_name: z.string().trim().max(100).nullable().optional(),
-    last_name: z.string().trim().max(100).nullable().optional(),
+    username: z.string().trim().max(100).nullable().optional(),
     avatar_url: z
       .string()
       .url()
@@ -77,22 +76,21 @@ function profile(user: typeof users.$inferSelect) {
   return {
     id: user.id,
     email: user.email,
-    first_name: user.firstName,
-    last_name: user.lastName,
+    username: user.username,
     avatar_url: user.avatarUrl,
     public_key: user.publicKey,
     private_key: user.privateKey,
     is_contributor: user.isContributor,
     email_verified: user.emailVerifiedAt !== null,
     date_created: new Date(user.createdAt).toISOString(),
+    last_login: user.lastLoginAt === null ? null : new Date(user.lastLoginAt).toISOString(),
   };
 }
 
 function publicUser(user: typeof users.$inferSelect) {
   return {
     id: user.id,
-    first_name: user.firstName,
-    last_name: user.lastName,
+    username: user.username,
     avatar_url: user.avatarUrl,
     public_key: user.publicKey,
     is_contributor: user.isContributor,
@@ -306,17 +304,17 @@ export function registerAccountRoutes(
     }
 
     const timestamp = now();
-    const expireAt = new Date(timestamp + 21 * 24 * 60 * 60 * 1000).toISOString();
+    const expireAt = new Date(timestamp + 21 * 24 * 60 * 60 * 1000);
     const uuids = Array.from({ length: request.data.count }, () => randomUUID());
     await database.insert(ddfUuids).values(
       uuids.map((id) => ({
         id,
-        date_created: new Date(timestamp).toISOString(),
+        date_created: new Date(timestamp),
         expire_at: expireAt,
         owner_id: authentication.user.id,
       })),
     );
-    return context.json({ uuids, expire_at: expireAt }, 201);
+    return context.json({ uuids, expire_at: expireAt.toISOString() }, 201);
   });
 
   app.post("/auth/register", async (context) => {
@@ -337,7 +335,7 @@ export function registerAccountRoutes(
         id,
         email,
         passwordHash,
-        firstName: parsed.data.first_name ?? null,
+        username: parsed.data.username ?? null,
         emailVerifiedAt: verificationToken ? null : timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -452,8 +450,9 @@ export function registerAccountRoutes(
       expiresAt: timestamp + sessionLifetime,
       createdAt: timestamp,
     });
+    await database.update(users).set({ lastLoginAt: timestamp }).where(eq(users.id, user.id));
     setSessionCookie(context, token, options.secureCookies ?? false);
-    return context.json({ user: profile(user) });
+    return context.json({ user: profile({ ...user, lastLoginAt: timestamp }) });
   });
 
   app.post("/auth/logout", async (context) => {
@@ -565,8 +564,7 @@ export function registerAccountRoutes(
       await database
         .update(users)
         .set({
-          ...(updates.first_name !== undefined ? { firstName: updates.first_name } : {}),
-          ...(updates.last_name !== undefined ? { lastName: updates.last_name } : {}),
+          ...(updates.username !== undefined ? { username: updates.username } : {}),
           ...(updates.avatar_url !== undefined ? { avatarUrl: updates.avatar_url } : {}),
           ...(updates.public_key !== undefined ? { publicKey: updates.public_key } : {}),
           ...(updates.private_key !== undefined ? { privateKey: updates.private_key } : {}),

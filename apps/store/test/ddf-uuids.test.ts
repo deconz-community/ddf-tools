@@ -64,9 +64,9 @@ describe("POST /v1/ddf-uuids", () => {
     expect(result.expire_at).toBe("2026-01-22T00:00:00.000Z");
     const rows = client
       .prepare("SELECT id, owner_id, expire_at FROM ddf_uuids ORDER BY id")
-      .all() as Array<{ id: string; owner_id: string; expire_at: string }>;
+      .all() as Array<{ id: string; owner_id: string; expire_at: number }>;
     expect(rows.map((row) => row.id).sort()).toEqual([...result.uuids].sort());
-    expect(rows.every((row) => row.owner_id === userId && row.expire_at === result.expire_at)).toBe(
+    expect(rows.every((row) => row.owner_id === userId && row.expire_at === Date.parse(result.expire_at))).toBe(
       true,
     );
   });

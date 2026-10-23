@@ -164,7 +164,7 @@ if (import.meta.env.VITE_DEBUG === "true") {
     <template #top>
       <v-toolbar>
         <v-toolbar-title v-if="canUseStore">
-          Using {{ store.profile?.first_name }}'s key
+          Using {{ store.profile?.username }}'s key
         </v-toolbar-title>
         <v-toolbar-title v-else> Using custom key </v-toolbar-title>
         <v-spacer />

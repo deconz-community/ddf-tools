@@ -1,7 +1,7 @@
 import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import argon2 from "argon2";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { loadConfig } from "./config.js";
@@ -10,10 +10,11 @@ import { migrateDirectus } from "./migrate-directus.js";
 import { users } from "./schema.js";
 
 const usage = `Usage:
-  migrate:directus <source.db> [--public-url <url>]   one-shot import of a Directus SQLite copy
+  migrate:directus <source.db>                       one-shot import of a Directus SQLite copy
   user:create <email> [--contributor]                 password is read from STORE_USER_PASSWORD
   user:contributor <email> [--revoke]                 grant or revoke the contributor role
-  system-key:generate <beta|stable|deprecated>        print a new system signing key pair`;
+  system-key:generate <beta|stable|deprecated>        print a new system signing key pair
+  db:reset --yes                                      delete ALL data from the database (irreversible)`;
 
 const SYSTEM_KEYS = ["beta", "stable", "deprecated"];
 
@@ -34,20 +35,13 @@ function withDatabase<T>(
   })();
 }
 
-function flagValue(args: string[], flag: string): string | undefined {
-  const index = args.indexOf(flag);
-  return index === -1 ? undefined : args[index + 1];
-}
-
 export async function runCli(
   args: string[],
   env: NodeJS.ProcessEnv,
   print: (line: string) => void = console.log,
 ): Promise<number> {
   const [command, ...rest] = args;
-  const positional = rest.filter(
-    (arg, index) => !arg.startsWith("--") && rest[index - 1] !== "--public-url",
-  );
+  const positional = rest.filter((arg) => !arg.startsWith("--"));
   try {
     switch (command) {
       case "migrate:directus": {
@@ -57,7 +51,6 @@ export async function runCli(
           migrateDirectus({
             sourcePath,
             database,
-            publicUrl: flagValue(rest, "--public-url") ?? env.PUBLIC_URL,
           }),
         );
         for (const row of report.tables) print(`${row.table}: ${row.migrated} of ${row.source}`);
@@ -124,6 +117,32 @@ export async function runCli(
         const privateKey = secp256k1.utils.randomSecretKey();
         print(`${name.toUpperCase()}_PRIVATE_KEY=${bytesToHex(privateKey)}`);
         print(`public key: ${bytesToHex(secp256k1.getPublicKey(privateKey))}`);
+        return 0;
+      }
+      case "db:reset": {
+        if (!rest.includes("--yes")) {
+          throw new CliError("This deletes ALL data. Re-run with --yes to confirm.");
+        }
+        const tables = await withDatabase(env, (database) => {
+          const names = database
+            .all<{ name: string }>(
+              sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name != '__drizzle_migrations'`,
+            )
+            .map((row) => row.name);
+          // Foreign keys are disabled so tables can be emptied in any order.
+          database.$client.pragma("foreign_keys = OFF");
+          try {
+            database.$client.transaction(() => {
+              for (const name of names) {
+                database.$client.prepare(`DELETE FROM "${name.replaceAll('"', '""')}"`).run();
+              }
+            })();
+          } finally {
+            database.$client.pragma("foreign_keys = ON");
+          }
+          return names;
+        });
+        print(`Database emptied (${tables.length} table(s) cleared)`);
         return 0;
       }
       default:

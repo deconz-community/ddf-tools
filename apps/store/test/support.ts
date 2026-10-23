@@ -35,7 +35,7 @@ export function createTestStore() {
 
     database
       .insert(schema.ddfUuids)
-      .values({ id: ddfUuid, date_created: created })
+      .values({ id: ddfUuid, date_created: new Date(created) })
       .onConflictDoNothing()
       .run();
     database
@@ -43,8 +43,8 @@ export function createTestStore() {
       .values({
         id,
         ddf_uuid: ddfUuid,
-        date_created: created,
-        source_last_modified: input.source_last_modified ?? created,
+        date_created: new Date(created),
+        source_last_modified: new Date(input.source_last_modified ?? created),
         vendor: input.vendor ?? "Vendor",
         product: input.product ?? "Product",
         version_deconz: input.version_deconz ?? "2.28.0",

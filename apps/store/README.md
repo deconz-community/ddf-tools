@@ -105,7 +105,8 @@ this directory with `pnpm cli <command>`. All commands use `DATABASE_PATH`.
 | `user:create <email> [--contributor]`               | Creates a verified user with a new key pair; password from `STORE_USER_PASSWORD` |
 | `user:contributor <email> [--revoke]`               | Grants or revokes the contributor role                                           |
 | `system-key:generate <beta\|stable\|deprecated>`    | Prints a new `*_PRIVATE_KEY` value and its public key                            |
-| `migrate:directus <source.db> [--public-url <url>]` | One-shot Directus import (see below)                                             |
+| `migrate:directus <source.db>`                      | One-shot Directus import (see below)                                             |
+| `db:reset --yes`                                    | Deletes all rows from every table (schema is kept). Irreversible                 |
 
 `scripts/docker-smoke.sh` is a manual smoke test: it builds the image, starts it, checks
 `/health` and runs `system-key:generate` inside the container. It is not part of CI.
@@ -118,12 +119,12 @@ rows are inserted in one transaction, so any failure leaves the target empty.
 
 - Users keep their IDs and Argon2 password hashes; emails are lower-cased and `active` users are
   marked email-verified. Avatars become `avatar_url` values of `<public url>/assets/<file id>`
-  (`--public-url` or `PUBLIC_URL`, the old Directus public URL).
-- System keypairs (`public_key_*` and `private_key_*` for stable, beta and deprecated) are copied
-  into `settings`. That table is never exposed by the public API; treat the database as secret.
-  Directus static tokens, sessions, sub-device tables and every other `directus_*` table are not
-  imported. Signing still reads `BETA_PRIVATE_KEY`, `STABLE_PRIVATE_KEY` and
-  `DEPRECATED_PRIVATE_KEY`, so set them from the migrated values.
+  (`PUBLIC_URL`, the old Directus public URL).
+- System keypairs (`public_key_*` and `private_key_*` for stable, beta and deprecated) are only
+  read to verify the signatures of imported bundles; they are not stored. Directus static tokens,
+  sessions, sub-device tables and every other `directus_*` table are not imported. Signing still
+  reads `BETA_PRIVATE_KEY`, `STABLE_PRIVATE_KEY` and `DEPRECATED_PRIVATE_KEY`, so set them from
+  the old Directus settings.
 - Legacy deflate + base64 bundle content becomes raw BLOB bytes.
 - The command prints migrated/source row counts per table and verifies every bundle: stored content
   hash, bundle hash equal to the bundle ID, and all embedded signatures.
@@ -134,8 +135,9 @@ rows are inserted in one transaction, so any failure leaves the target empty.
    row counts, verify every bundle hash and signature, and compare bundle downloads with Directus.
 2. Once the test copy passes, stop writes to Directus and make a fresh copy of its SQLite file.
    Never point the migration command at the live database.
-3. Run the one-shot `migrate:directus <copy.db> --public-url <old url>` migration into a fresh
-   production store database and verify its counts and bundle checks.
+3. Set `PUBLIC_URL` to the old Directus public URL, then run the one-shot
+   `migrate:directus <copy.db>` migration into a fresh production store database and verify its
+   counts and bundle checks.
 4. Deploy the new store service with the migrated database and system signing keys.
 5. Ship the updated toolbox and CLI that use the new store API.
 6. Retire the old Directus store only after the new service and updated consumers are live.

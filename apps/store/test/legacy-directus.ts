@@ -38,13 +38,14 @@ export interface LegacyFixture {
 // Builds an anonymized database shaped like the Directus-managed SQLite store.
 export async function createLegacyDatabase(
   path: string,
-  options: { tamperSignature?: boolean } = {},
+  options: { tamperSignature?: boolean; tamperBundleId?: boolean } = {},
 ): Promise<LegacyFixture> {
   const uuid = "f4c00c4c-2a92-489e-a930-7befe9b6484c";
   const userId = "11111111-1111-4111-8111-111111111111";
   const bundleBytes = await signedBundle(uuid);
   const decoded = await decode(new Blob([bundleBytes as Uint8Array<ArrayBuffer>]));
   const bundleId = bytesToHex(await generateHash(decoded.data));
+  const storedBundleId = options.tamperBundleId ? `${bundleId.slice(1)}${bundleId[0]}` : bundleId;
   const stored = options.tamperSignature
     ? Uint8Array.from(bundleBytes, (byte, index) =>
         index === bundleBytes.length - 3 ? byte ^ 1 : byte,
@@ -136,7 +137,7 @@ export async function createLegacyDatabase(
     null,
   );
   db.prepare("INSERT INTO bundles VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)").run(
-    bundleId,
+    storedBundleId,
     userId,
     "2024-01-02 03:04:05",
     uuid,
@@ -157,18 +158,18 @@ export async function createLegacyDatabase(
     "Model",
   );
   db.prepare("INSERT INTO bundles_device_identifiers VALUES (1,?,?)").run(
-    bundleId,
+    storedBundleId,
     "33333333-3333-4333-8333-333333333333",
   );
   db.prepare("INSERT INTO signatures VALUES (?,?,?,?)").run(
     randomUUID(),
     contributorPublicKey,
-    bundleId,
+    storedBundleId,
     "user",
   );
   db.prepare("INSERT INTO sub_devices VALUES ('s1','ignored')").run();
-  db.prepare("INSERT INTO bundles_sub_devices VALUES (1,?, 's1')").run(bundleId);
+  db.prepare("INSERT INTO bundles_sub_devices VALUES (1,?, 's1')").run(storedBundleId);
   db.close();
 
-  return { path, bundleId, bundleBytes: stored, userId, uuid, systemKeys };
+  return { path, bundleId: storedBundleId, bundleBytes: stored, userId, uuid, systemKeys };
 }

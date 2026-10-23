@@ -89,20 +89,19 @@ export interface StoreAccountClientOptions {
 export interface StoreProfile {
   id: string;
   email: string;
-  first_name: string | null;
-  last_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   public_key: string | null;
   private_key: string | null;
   is_contributor: boolean;
   email_verified: boolean;
   date_created: string;
+  last_login: string | null;
 }
 
 export interface PublicStoreUser {
   id: string;
-  first_name: string | null;
-  last_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   public_key: string | null;
   is_contributor: boolean;
@@ -111,8 +110,7 @@ export interface PublicStoreUser {
 }
 
 export interface StoreProfileUpdate {
-  first_name?: string | null;
-  last_name?: string | null;
+  username?: string | null;
   avatar_url?: string | null;
   public_key?: string | null;
   private_key?: string | null;
@@ -136,7 +134,7 @@ export interface StoreAccountClient {
   listTokens(): Promise<StoreApiToken[]>;
   createToken(name: string): Promise<CreatedStoreApiToken>;
   revokeToken(id: string): Promise<void>;
-  register(input: { email: string; password: string; first_name?: string }): Promise<{
+  register(input: { email: string; password: string; username?: string }): Promise<{
     user: { id: string; email: string };
     verification_required: boolean;
   }>;
@@ -176,6 +174,7 @@ export interface BundleSummary {
   product: string;
   version_deconz: string;
   info: string | null;
+  user_created: string | null;
   source_last_modified: string;
   content_hash: string;
   deprecation_message: string | null;

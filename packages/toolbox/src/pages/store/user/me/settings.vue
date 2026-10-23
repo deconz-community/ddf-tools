@@ -9,14 +9,14 @@ const createConfirm = useConfirm();
 const store = useStore();
 
 const settings = reactive({
-  first_name: store.profile?.first_name ?? "",
+  username: store.profile?.username ?? "",
   avatar_url: store.profile?.avatar_url ?? "",
   private_key: store.profile?.private_key ?? "",
   public_key: store.profile?.public_key ?? "",
 });
 
 watch(toRef(store, "profile"), () => {
-  settings.first_name = store.profile?.first_name ?? "";
+  settings.username = store.profile?.username ?? "";
   settings.avatar_url = store.profile?.avatar_url ?? "";
   settings.private_key = store.profile?.private_key ?? "";
   settings.public_key = store.profile?.public_key ?? "";
@@ -76,7 +76,7 @@ async function save() {
 
     if (!store.api) throw new Error("Store account service is unavailable.");
     const profile = await store.api.updateProfile({
-      first_name: settings.first_name,
+      username: settings.username,
       avatar_url: settings.avatar_url || null,
       private_key: settings.private_key || null,
       public_key: settings.public_key || null,
@@ -106,7 +106,7 @@ async function save() {
         </v-avatar>
         <v-card class="ma-2 flex-grow-1">
           <v-card-title>
-            {{ store.profile?.first_name }}
+            {{ store.profile?.username }}
             <v-chip v-if="store.profile?.is_contributor" class="mx-2">Contributor</v-chip>
           </v-card-title>
           <v-card-subtitle v-if="store.profile?.email">
@@ -116,7 +116,7 @@ async function save() {
         </v-card>
       </div>
       <v-text-field :model-value="store.profile?.email" label="Email" readonly />
-      <v-text-field v-model="settings.first_name" label="Username" />
+      <v-text-field v-model="settings.username" label="Username" />
       <v-text-field v-model="settings.avatar_url" label="Avatar URL" type="url" />
 
       <v-divider class="mb-5" />

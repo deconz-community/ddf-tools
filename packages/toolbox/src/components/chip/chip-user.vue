@@ -40,7 +40,7 @@ const userAvatar = computed(() => {
 
 const userName = computed(() =>
   user.value
-    ? `${user.value.first_name ?? ""} ${user.value.last_name ?? ""}`.trim()
+    ? (user.value.username ?? "Unknown user")
     : "Unknown user",
 );
 
@@ -67,7 +67,7 @@ function copyUserKeyToClipboard() {
         <v-avatar start>
           <v-img :src="userAvatar" />
         </v-avatar>
-        {{ user?.first_name ?? "Unknown user" }}
+        {{ user?.username ?? "Unknown user" }}
       </v-chip>
     </template>
 

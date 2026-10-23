@@ -1,15 +1,10 @@
 import { blob, index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
-export const settings = sqliteTable("settings", {
-  key: text("key").primaryKey(),
-  value: text("value").notNull(),
-});
-
 export const ddfUuids = sqliteTable("ddf_uuids", {
   id: text("id").primaryKey(),
-  date_created: text("date_created").notNull(),
-  expire_at: text("expire_at"),
   owner_id: text("owner_id"),
+  date_created: integer("date_created", { mode: "timestamp_ms" }).notNull(),
+  expire_at: integer("expire_at", { mode: "timestamp_ms" }),
 });
 
 export const bundles = sqliteTable(
@@ -19,17 +14,18 @@ export const bundles = sqliteTable(
     ddf_uuid: text("ddf_uuid")
       .notNull()
       .references(() => ddfUuids.id),
-    date_created: text("date_created").notNull(),
-    source_last_modified: text("source_last_modified").notNull(),
     vendor: text("vendor").notNull(),
     product: text("product").notNull(),
     version_deconz: text("version_deconz").notNull(),
+    user_created: text("user_created").references(() => users.id, { onDelete: "set null" }),
+    date_created: integer("date_created", { mode: "timestamp_ms" }).notNull(),
     info: text("info"),
+    deprecation_message: text("deprecation_message"),
     content: blob("content", { mode: "buffer" }).notNull(),
     content_size: integer("content_size").notNull(),
     file_count: integer("file_count").notNull(),
     content_hash: text("content_hash").notNull(),
-    deprecation_message: text("deprecation_message"),
+    source_last_modified: integer("source_last_modified", { mode: "timestamp_ms" }).notNull(),
   },
   (table) => [
     index("bundles_ddf_uuid_idx").on(
@@ -70,10 +66,10 @@ export const signatures = sqliteTable(
   "signatures",
   {
     id: text("id").primaryKey(),
-    key: text("key").notNull(),
     bundle: text("bundle")
       .notNull()
       .references(() => bundles.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
     type: text("type", { enum: ["system", "user"] }).notNull(),
   },
   (table) => [
@@ -86,23 +82,23 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
+  username: text("username"),
   avatarUrl: text("avatar_url"),
+  isContributor: integer("is_contributor", { mode: "boolean" }).notNull().default(false),
   publicKey: text("public_key").unique(),
   privateKey: text("private_key"),
-  isContributor: integer("is_contributor", { mode: "boolean" }).notNull().default(false),
   emailVerifiedAt: integer("email_verified_at"),
+  lastLoginAt: integer("last_login_at"),
   createdAt: integer("created_at").notNull(),
   updatedAt: integer("updated_at").notNull(),
 });
 
 export const accountTokens = sqliteTable("account_tokens", {
   id: text("id").primaryKey(),
-  tokenHash: text("token_hash").notNull().unique(),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
   purpose: text("purpose", { enum: ["verify_email", "reset_password"] }).notNull(),
   expiresAt: integer("expires_at").notNull(),
   createdAt: integer("created_at").notNull(),
@@ -110,10 +106,10 @@ export const accountTokens = sqliteTable("account_tokens", {
 
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(),
-  tokenHash: text("token_hash").notNull().unique(),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
   expiresAt: integer("expires_at").notNull(),
   createdAt: integer("created_at").notNull(),
 });
@@ -132,8 +128,8 @@ export const apiTokens = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    tokenHash: text("token_hash").notNull().unique(),
     tokenPrefix: text("token_prefix").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
     createdAt: integer("created_at").notNull(),
     lastUsedAt: integer("last_used_at"),
     revokedAt: integer("revoked_at"),
