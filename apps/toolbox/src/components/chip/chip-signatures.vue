@@ -59,13 +59,6 @@ const systemFlag = computed(() => {
 
   const settings = store.state?.context?.settings;
 
-  if (!settings) {
-    return {
-      text: "Unknown",
-      color: "gray",
-    };
-  }
-
   if (processedSignatures.value.some((s) => deprecatedKeys.value.includes(s.key))) {
     return {
       text: "Deprecated",
@@ -86,6 +79,8 @@ const systemFlag = computed(() => {
       color: "orange",
     };
   }
+
+  if (!settings) return;
 
   if (props.noAlphaTag) return;
 

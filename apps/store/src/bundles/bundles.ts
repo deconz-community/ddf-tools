@@ -262,21 +262,21 @@ export function bundlesRoutes(database: StoreDatabase) {
       }
 
       const slug = slugify(bundle.product + "-" + id.slice(-10)) || "bundle";
-      return new Response(
+      // Use context.body so headers set by the CORS middleware are kept.
+      return context.body(
         new ReadableStream({
           start(controller) {
             controller.enqueue(new Uint8Array(bundle.content));
             controller.close();
           },
         }),
+        200,
         {
-          headers: {
-            "Content-Type": "application/x-deconz-ddf-bundle",
-            "Content-Length": String(bundle.content.length),
-            "Content-Disposition": "attachment; filename=" + slug + ".ddb",
-            "Cache-Control": "public, max-age=31536000, immutable",
-            ETag: '"' + bundle.content_hash + '"',
-          },
+          "Content-Type": "application/x-deconz-ddf-bundle",
+          "Content-Length": String(bundle.content.length),
+          "Content-Disposition": "attachment; filename=" + slug + ".ddb",
+          "Cache-Control": "public, max-age=31536000, immutable",
+          ETag: '"' + bundle.content_hash + '"',
         },
       );
     });
