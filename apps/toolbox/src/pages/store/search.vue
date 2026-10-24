@@ -10,10 +10,10 @@ const product = useRouteQuery("product", "");
 const manufacturer = useRouteQuery("manufacturer", "");
 const model = useRouteQuery("model", "");
 const stableOnly = useRouteQuery("showStableOnly", "false", {
-  transform: (v: string) => v === "true",
+  transform: { get: (v: string) => v === "true", set: (v: boolean) => String(v) },
 });
 const showDeprecated = useRouteQuery("showDeprecated", "false", {
-  transform: (v: string) => v === "true",
+  transform: { get: (v: string) => v === "true", set: (v: boolean) => String(v) },
 });
 const itemsPerPage = ref(5);
 
@@ -33,12 +33,18 @@ const bundleList = useAsyncState(
   {
     shallow: true,
     resetOnExecute: false,
+    immediate: false,
   },
 );
+
+watch([product, manufacturer, model, stableOnly, showDeprecated], () => {
+  page.value = 1;
+});
 
 watchDebounced([filters, () => store.client], () => bundleList.execute(), {
   debounce: 200,
   maxWait: 2000,
+  immediate: true,
 });
 
 const pageCount = computed(() => {
@@ -49,6 +55,10 @@ const pageCount = computed(() => {
 
 <template>
   <v-card class="ma-2">
+    <v-progress-linear :active="bundleList.isLoading.value" indeterminate />
+    <v-alert v-if="bundleList.error.value" type="error" class="ma-2">
+      Failed to load bundles: {{ bundleList.error.value }}
+    </v-alert>
     <template v-if="bundleList.state.value" #text>
       <v-data-iterator :items="bundleList.state.value.items">
         <template #header>
@@ -59,33 +69,13 @@ const pageCount = computed(() => {
 
             <div class="d-flex align-center">
               <div class="d-inline-flex">
-                <v-btn
-                  append-icon="mdi-upload"
-                  variant="tonal"
-                  class="me-2"
-                  to="/store/upload"
-                  text="Upload"
-                />
+                <v-btn append-icon="mdi-upload" variant="tonal" class="me-2" to="/store/upload" text="Upload" />
               </div>
             </div>
           </h1>
           <div>
-            <v-text-field
-              v-model="product"
-              label="Product"
-              outlined
-              dense
-              hide-details
-              class="ma-2"
-            />
-            <v-text-field
-              v-model="manufacturer"
-              label="Manufacturer"
-              outlined
-              dense
-              hide-details
-              class="ma-2"
-            />
+            <v-text-field v-model="product" label="Product" outlined dense hide-details class="ma-2" />
+            <v-text-field v-model="manufacturer" label="Manufacturer" outlined dense hide-details class="ma-2" />
             <v-text-field v-model="model" label="Model" outlined dense hide-details class="ma-2" />
             <v-switch v-model="stableOnly" label="Stable only" hide-details />
             <v-switch v-model="showDeprecated" label="Show deprecated" hide-details />
@@ -95,27 +85,14 @@ const pageCount = computed(() => {
         <template #default="{ items }">
           <v-card v-for="(item, i) in items" :key="i" variant="outlined" class="ma-2">
             <v-card-title class="d-flex align-center">
-              <v-chip
-                variant="outlined"
-                color="primary"
-                class="result-title-chip flex-grow-1 text-wrap text-break"
-                size="large"
-                prepend-icon="mdi-open-in-new"
-                label
-                :to="`/store/bundle/${item.raw.id}`"
-              >
+              <v-chip variant="outlined" color="primary" class="result-title-chip flex-grow-1 text-wrap text-break"
+                size="large" prepend-icon="mdi-open-in-new" label :to="`/store/bundle/${item.raw.id}`">
                 {{ item.raw.vendor }}
                 {{ item.raw.product }}
               </v-chip>
 
-              <v-btn
-                v-if="store.bundleDownloadUrl(item.raw.id)"
-                :href="store.bundleDownloadUrl(item.raw.id)"
-                variant="outlined"
-                append-icon="mdi-download"
-                color="secondary"
-                class="ml-2 flex-shrink-0"
-              >
+              <v-btn v-if="store.bundleDownloadUrl(item.raw.id)" :href="store.bundleDownloadUrl(item.raw.id)"
+                variant="outlined" append-icon="mdi-download" color="secondary" class="ml-2 flex-shrink-0">
                 Download
               </v-btn>
             </v-card-title>
@@ -129,12 +106,7 @@ const pageCount = computed(() => {
               <chip-signatures only="system" :signatures="item.raw.signatures" />
               <chip-ddf-hash source="store" :hash="item.raw.id" />
             </v-card-subtitle>
-            <v-alert
-              v-if="item.raw.deprecation_message"
-              type="warning"
-              variant="tonal"
-              class="mx-4"
-            >
+            <v-alert v-if="item.raw.deprecation_message" type="warning" variant="tonal" class="mx-4">
               {{ item.raw.deprecation_message }}
             </v-alert>
             <v-card-text>
@@ -159,12 +131,7 @@ const pageCount = computed(() => {
         </template>
       </v-data-iterator>
     </template>
-    <v-alert
-      v-if="bundleList.state.value?.total_count === 0 && stableOnly"
-      type="info"
-      title="Info"
-      class="ma-2"
-    >
+    <v-alert v-if="bundleList.state.value?.total_count === 0 && stableOnly" type="info" title="Info" class="ma-2">
       No result ? try to disable the stable only option
     </v-alert>
   </v-card>
@@ -179,11 +146,9 @@ const pageCount = computed(() => {
 }
 </style>
 
-<route lang="json">
-{
+<route lang="json">{
   "meta": {
     "breadcrumbs": "none",
     "hideLevelTwoSidebar": true
   }
-}
-</route>
+}</route>
