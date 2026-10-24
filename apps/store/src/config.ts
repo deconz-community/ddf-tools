@@ -3,6 +3,7 @@ import { z } from "zod";
 const environmentSchema = z
   .object({
     DATABASE_PATH: z.string().trim().min(1),
+    AVATAR_PATH: z.string().trim().min(1).default("./avatars"),
     HOST: z.string().trim().min(1).default("127.0.0.1"),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
     CORS_ORIGINS: z.string().default("http://localhost:4000"),
@@ -45,6 +46,7 @@ const environmentSchema = z
   .transform(
     ({
       DATABASE_PATH,
+      AVATAR_PATH,
       HOST,
       PORT,
       CORS_ORIGINS,
@@ -58,6 +60,7 @@ const environmentSchema = z
       NODE_ENV,
     }) => ({
       databasePath: DATABASE_PATH,
+      avatarPath: AVATAR_PATH,
       host: HOST,
       port: PORT,
       allowedOrigins: CORS_ORIGINS.split(",")

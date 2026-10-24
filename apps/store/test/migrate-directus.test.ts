@@ -84,7 +84,6 @@ describe("migrateDirectus", () => {
     expect(await profile.json()).toMatchObject({
       id: source.userId,
       username: "Ada Lovelace",
-      avatar_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       public_key: contributorPublicKey,
       is_contributor: true,
       date_created: "2019-05-06T07:08:09.000Z",
@@ -115,7 +114,7 @@ describe("migrateDirectus", () => {
     const { client, database } = freshTarget();
     client
       .prepare(
-        "INSERT INTO users (id, email, avatar_hash, password_hash, created_at, updated_at) VALUES ('x','x@example.com','a','h',1,1)",
+        "INSERT INTO users (id, email, password_hash, created_at, updated_at) VALUES ('x','x@example.com','h',1,1)",
       )
       .run();
 

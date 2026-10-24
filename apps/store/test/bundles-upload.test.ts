@@ -1,4 +1,3 @@
-import { avatarHash } from "../src/auth/avatar.js";
 import Database from "better-sqlite3";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -41,7 +40,6 @@ function setup(options: Parameters<typeof createApp>[1] = {}) {
       .values({
         id,
         email: `${id}@example.com`,
-        avatarHash: avatarHash(`${id}@example.com`),
         passwordHash: "unused",
         publicKey,
         privateKey: bytesToHex(privateKey),

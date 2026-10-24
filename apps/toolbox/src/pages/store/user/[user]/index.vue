@@ -30,7 +30,7 @@ const collectionsCount = ref(0);
 <template>
   <v-card v-if="userProfile" class="ma-2">
     <div class="d-flex">
-      <v-avatar class="ma-2" :image="`https://www.gravatar.com/avatar/${userProfile.avatar_hash}?d=retro`" size="125" />
+      <user-avatar class="ma-2" :user-id="userProfile.id" :size="125" />
       <v-card
         class="ma-2 flex-grow-1"
         :title="userProfile?.username ?? ''"

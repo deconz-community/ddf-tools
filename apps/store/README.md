@@ -39,6 +39,7 @@ persistent `store-data` volume mounted at `/data`.
 | Variable                 | Required | Default                 | Description                                         |
 | ------------------------ | -------- | ----------------------- | --------------------------------------------------- |
 | `DATABASE_PATH`          | Yes      | —                       | SQLite database file path                           |
+| `AVATAR_PATH`            | No       | `./avatars`             | Directory for avatar images (`<user id>.png/jpg`)   |
 | `HOST`                   | No       | `127.0.0.1`             | Interface address to bind                           |
 | `PORT`                   | No       | `3000`                  | HTTP port (1–65535)                                 |
 | `CORS_ORIGINS`           | No       | `http://localhost:4000` | Comma-separated browser origins                     |
@@ -118,8 +119,7 @@ It opens the source read-only and refuses to run unless every table in the targe
 rows are inserted in one transaction, so any failure leaves the target empty.
 
 - Users keep their IDs and Argon2 password hashes; emails are lower-cased and `active` users are
-  marked email-verified. Avatars are not imported; each user gets `avatar_hash`, the SHA-256 of
-  the lower-cased email.
+  marked email-verified. Avatars are not imported.
 - System keypairs (`public_key_*` and `private_key_*` for stable, beta and deprecated) are only
   read to verify the signatures of imported bundles; they are not stored. Directus static tokens,
   sessions, sub-device tables and every other `directus_*` table are not imported. Signing still

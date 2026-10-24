@@ -4,9 +4,6 @@ import { toastError } from "~/lib/handleError";
 const store = useStore();
 
 const avatarSize = 50;
-const avatarUrl = computed(() => store.profile?.avatar_hash
-    ? `https://www.gravatar.com/avatar/${store.profile.avatar_hash}?d=retro`
-    : "");
 const userName = computed(() => {
   if (!store.profile) return undefined;
   return store.profile.username ?? "";
@@ -47,10 +44,7 @@ async function passwordReset() {
     <v-menu width="200">
       <template #activator="{ props }">
         <btn-rounded-circle v-bind="props" :height="avatarSize" :width="avatarSize">
-          <v-avatar :size="avatarSize - 2">
-            <v-img v-if="avatarUrl" :src="avatarUrl" alt="User avatar" />
-            <v-icon v-else icon="mdi-account" size="40" color="grey lighten-1" />
-          </v-avatar>
+          <user-avatar :user-id="store.profile?.id" :size="avatarSize - 2" />
         </btn-rounded-circle>
       </template>
       <v-list>

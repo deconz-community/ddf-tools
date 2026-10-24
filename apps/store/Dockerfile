@@ -23,6 +23,7 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV DATABASE_PATH=/data/store.db
+ENV AVATAR_PATH=/data/avatars
 
 WORKDIR /app
 COPY --from=build --chown=node:node /production ./

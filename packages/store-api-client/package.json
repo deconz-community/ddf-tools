@@ -20,6 +20,7 @@
   },
   "scripts": {
     "build": "vp build && vp pack --dts --tsconfig ./tsconfig.pack.json",
+    "dev": "vp build --watch",
     "test": "vp test run"
   },
   "dependencies": {

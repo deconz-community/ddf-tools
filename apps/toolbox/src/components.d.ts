@@ -48,6 +48,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SelectGateway: typeof import('./components/select/select-gateway.vue')['default']
     TableCollection: typeof import('./components/table-collection.vue')['default']
+    UserAvatar: typeof import('./components/user-avatar.vue')['default']
     UseTimeAgo: typeof import('@vueuse/components')['UseTimeAgo']
     VueMonacoEditor: typeof import('@guolao/vue-monaco-editor')['VueMonacoEditor']
   }

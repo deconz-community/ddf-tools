@@ -61,9 +61,7 @@ describe("store account client", () => {
     });
     expect((await api.getProfile()).private_key).toBe("toolbox-private-key");
     expect((await api.getUserById(registration.user.id)).public_key).toBe("toolbox-public-key");
-    expect((await api.getUserByPublicKey("toolbox-public-key")).avatar_hash).toMatch(
-      /^[0-9a-f]{64}$/,
-    );
+    expect((await api.getUserByPublicKey("toolbox-public-key")).id).toBe(registration.user.id);
 
     await api.requestPasswordReset(registration.user.email);
     await api.confirmPasswordReset(resetMessages[0]!.token, "a newer password");

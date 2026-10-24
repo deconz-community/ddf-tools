@@ -4,6 +4,7 @@ import { bundleUploadRoutes } from "../bundles/bundle-upload.js";
 import { bundleLifecycleRoutes } from "../bundles/bundle-lifecycle.js";
 import { bundlesRoutes } from "../bundles/bundles.js";
 import { registerAccountRoutes, type AccountOptions } from "../auth/accounts.js";
+import { avatarRoutes } from "../auth/avatars.js";
 import type { StoreDatabase } from "../db/database.js";
 
 export function createApp(database: StoreDatabase, options: AccountOptions = {}) {
@@ -75,6 +76,7 @@ export function createApp(database: StoreDatabase, options: AccountOptions = {})
         return context.json({ status: "unhealthy" }, 503);
       }
     })
+    .route("/v1", avatarRoutes(database, options))
     .route("/v1", bundlesRoutes(database))
     .route("/v1", bundleLifecycleRoutes(database, options))
     .route("/v1", bundleUploadRoutes(database, options));

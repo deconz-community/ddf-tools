@@ -4,7 +4,6 @@ import { Hono, type Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
-import { avatarHash } from "./avatar.js";
 import type { StoreDatabase } from "../db/database.js";
 import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "../db/schema.js";
 
@@ -15,6 +14,7 @@ export interface AccountMailer {
 
 export interface AccountOptions {
   allowedOrigins?: string[];
+  avatarPath?: string;
   mailer?: AccountMailer;
   secureCookies?: boolean;
   logger?: Pick<Console, "warn">;
@@ -71,7 +71,6 @@ function profile(user: typeof users.$inferSelect) {
     id: user.id,
     email: user.email,
     username: user.username,
-    avatar_hash: user.avatarHash,
     public_key: user.publicKey,
     private_key: user.privateKey,
     is_contributor: user.isContributor,
@@ -85,7 +84,6 @@ function publicUser(user: typeof users.$inferSelect) {
   return {
     id: user.id,
     username: user.username,
-    avatar_hash: user.avatarHash,
     public_key: user.publicKey,
     is_contributor: user.isContributor,
     date_created: new Date(user.createdAt).toISOString(),
@@ -327,7 +325,6 @@ export function registerAccountRoutes(
         email,
         passwordHash,
         username: parsed.data.username ?? null,
-        avatarHash: avatarHash(email),
         emailVerifiedAt: verificationToken ? null : timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,

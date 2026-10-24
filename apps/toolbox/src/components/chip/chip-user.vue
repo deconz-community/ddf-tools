@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { bytesToHex } from "@noble/hashes/utils.js";
-import { MD5 } from "crypto-js";
 
 const props = defineProps<{
   publicKey?: string | Uint8Array;
@@ -25,17 +24,6 @@ const user = computedAsync<any | undefined>(async () => {
   // TODO cache this too
   if (userKey.value && store.state?.matches("online"))
     return await store.getUserByKey(userKey.value);
-});
-
-const userAvatar = computed(() => {
-  if (typeof user.value?.avatar_hash === "string") {
-    return `https://www.gravatar.com/avatar/${user.value.avatar_hash}?d=retro`;
-  } else {
-    const hash = userKey.value ? MD5(userKey.value) : "00000000000000000000000000000000";
-    const url = new URL(`https://www.gravatar.com/avatar/${hash}`);
-    url.searchParams.append("d", "retro");
-    return url.href;
-  }
 });
 
 const userName = computed(() =>
@@ -64,9 +52,7 @@ function copyUserKeyToClipboard() {
         link
         :color="user?.is_contributor ? 'primary' : 'secondary'"
       >
-        <v-avatar start>
-          <v-img :src="userAvatar" />
-        </v-avatar>
+        <user-avatar :user-id="user?.id" :size="24" class="mr-2" />
         {{ user?.username ?? "Unknown user" }}
       </v-chip>
     </template>
@@ -75,7 +61,7 @@ function copyUserKeyToClipboard() {
       <v-list bg-color="black">
         <v-list-item>
           <template #prepend>
-            <v-avatar :image="userAvatar" size="50" />
+            <user-avatar :user-id="user?.id" :size="50" />
           </template>
           <v-list-item-title>
             {{ userName }}

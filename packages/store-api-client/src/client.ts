@@ -40,6 +40,11 @@ export type StoreAccountErrorCode =
   | "email_delivery_failed"
   | "rate_limited"
   | "profile_conflict"
+  | "avatars_unavailable"
+  | "invalid_user"
+  | "avatar_too_large"
+  | "invalid_image"
+  | "invalid_image_size"
   | "user_not_found"
   | "origin_not_allowed"
   | "csrf_rejected"
@@ -90,7 +95,6 @@ export interface StoreProfile {
   id: string;
   email: string;
   username: string | null;
-  avatar_hash: string;
   public_key: string | null;
   private_key: string | null;
   is_contributor: boolean;
@@ -102,7 +106,6 @@ export interface StoreProfile {
 export interface PublicStoreUser {
   id: string;
   username: string | null;
-  avatar_hash: string;
   public_key: string | null;
   is_contributor: boolean;
   date_created: string;
@@ -145,6 +148,9 @@ export interface StoreAccountClient {
   updateProfile(input: StoreProfileUpdate): Promise<StoreProfile>;
   getUserById(id: string): Promise<PublicStoreUser>;
   getUserByPublicKey(key: string): Promise<PublicStoreUser>;
+  uploadAvatar(file: Blob): Promise<void>;
+  deleteAvatar(): Promise<void>;
+  avatarUrl(userId: string): string;
 }
 
 export type StoreClient = ServerTypedStoreClient;
@@ -260,14 +266,16 @@ export function createStoreAccountClient(options: StoreAccountClientOptions): St
     body?: unknown,
   ): Promise<T> {
     const headers = new Headers();
-    if (body !== undefined) headers.set("Content-Type", "application/json");
+    if (body !== undefined && !(body instanceof FormData))
+      headers.set("Content-Type", "application/json");
     if (method !== "GET") headers.set("X-Store-Request", "1");
     if (options.origin) headers.set("Origin", options.origin);
     if (options.token) headers.set("Authorization", `Bearer ${options.token}`);
     const response = await fetcher(`${baseUrl}${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
       credentials: options.token ? "omit" : "include",
     });
     if (!response.ok) throw await toError(response);
@@ -290,6 +298,13 @@ export function createStoreAccountClient(options: StoreAccountClientOptions): St
     updateProfile: (input) => request("/me", "PATCH", input),
     getUserById: (id) => request(`/users/${encodeURIComponent(id)}`, "GET"),
     getUserByPublicKey: (key) => request(`/users?public_key=${encodeURIComponent(key)}`, "GET"),
+    uploadAvatar: async (file) => {
+      const form = new FormData();
+      form.set("file", file);
+      await request("/me/avatar", "POST", form);
+    },
+    deleteAvatar: () => request("/me/avatar", "DELETE"),
+    avatarUrl: (userId) => `${baseUrl}/avatars/${encodeURIComponent(userId)}`,
   };
 }
 

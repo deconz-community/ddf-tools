@@ -53,6 +53,7 @@ function start(): void {
         fetch: createApp(database, {
           allowedOrigins: config.allowedOrigins,
           mailer,
+          avatarPath: config.avatarPath,
           secureCookies: config.secureCookies,
           systemSigningKeys: {
             ...(config.betaPrivateKey ? { beta: { privateKey: config.betaPrivateKey } } : {}),

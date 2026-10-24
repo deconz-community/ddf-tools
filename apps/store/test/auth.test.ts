@@ -115,7 +115,6 @@ describe("account registration and verification", () => {
     expect(profileUpdate.status).toBe(200);
     expect(await profileUpdate.json()).toMatchObject({
       username: "Person",
-      avatar_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       public_key: "public-key-1",
       private_key: "private-key-1",
     });
@@ -131,7 +130,6 @@ describe("account registration and verification", () => {
     const publicProfileData = await publicProfile.json();
     expect(publicProfileData).toMatchObject({
       id: profileData.id,
-      avatar_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       public_key: "public-key-1",
     });
     expect(publicProfileData).not.toHaveProperty("private_key");

@@ -68,6 +68,56 @@ async function copySecret(secret: string) {
   toast.success("Token copied.");
 }
 
+const avatarInput = ref<HTMLInputElement>();
+const avatarVersion = ref(Date.now());
+
+function imageSize(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: image.naturalWidth, height: image.naturalHeight });
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Invalid image"));
+    };
+    image.src = url;
+  });
+}
+
+async function uploadAvatar(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || !store.api) return;
+  if (!["image/png", "image/jpeg"].includes(file.type))
+    return toast.error("The avatar must be a PNG or JPEG image.");
+  try {
+    const { width, height } = await imageSize(file);
+    if (width !== height || width < 40 || width > 200)
+      return toast.error("The avatar must be square, between 40 and 200 pixels.");
+    await store.api.uploadAvatar(file);
+    avatarVersion.value = Date.now();
+    toast.success("Avatar has been updated.");
+  } catch (e) {
+    console.error(e);
+    toast.error(e instanceof Error && e.message ? e.message : "Error while uploading avatar.");
+  }
+}
+
+async function removeAvatar() {
+  try {
+    await store.api?.deleteAvatar();
+    avatarVersion.value = Date.now();
+    toast.success("Avatar has been removed.");
+  } catch (e) {
+    console.error(e);
+    toast.error("Error while removing avatar.");
+  }
+}
+
 async function save() {
   try {
     if (store.profile === undefined) throw new Error("User is not logged in.");
@@ -92,15 +142,35 @@ async function save() {
   <v-card class="ma-2" title="Account Details">
     <v-card-text>
       <div class="d-flex mb-5">
-        <v-avatar size="125" variant="outlined" class="mr-4">
-          <v-img
-            v-if="store.profile?.avatar_hash"
-            :src="`https://www.gravatar.com/avatar/${store.profile.avatar_hash}?d=retro`"
-            alt="avatar"
-            size="125"
+        <div class="mr-4 d-flex flex-column align-center">
+          <user-avatar
+            :user-id="store.profile?.id"
+            :version="avatarVersion"
+            :size="125"
           />
-          <v-icon v-else icon="mdi-account" size="100" color="grey lighten-1" />
-        </v-avatar>
+          <input
+            ref="avatarInput"
+            type="file"
+            accept="image/png,image/jpeg"
+            hidden
+            @change="uploadAvatar"
+          />
+          <v-btn
+            size="small"
+            variant="outlined"
+            class="mt-2"
+            @click="avatarInput?.click()"
+          >
+            Change
+          </v-btn>
+          <v-btn
+            size="small"
+            variant="text"
+            @click="removeAvatar"
+          >
+            Remove
+          </v-btn>
+        </div>
         <v-card class="ma-2 flex-grow-1">
           <v-card-title>
             {{ store.profile?.username }}

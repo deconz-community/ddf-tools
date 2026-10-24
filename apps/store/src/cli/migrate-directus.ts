@@ -11,7 +11,6 @@ import {
 } from "@deconz-community/ddf-bundler";
 import { inflateSync } from "node:zlib";
 import { randomUUID } from "node:crypto";
-import { avatarHash } from "../auth/avatar.js";
 import type { StoreDatabase } from "../db/database.js";
 import * as schema from "../db/schema.js";
 
@@ -164,7 +163,6 @@ export async function migrateDirectus(options: MigrationOptions): Promise<Migrat
       return {
         id: required(user.id, "user id"),
         email: required(user.email, "user email").toLowerCase(),
-        avatarHash: avatarHash(required(user.email, "user email")),
         passwordHash: text(user.password) ?? "",
         username:
           [text(user.first_name), text(user.last_name)].filter((part) => part).join(" ") || null,
