@@ -7,7 +7,7 @@ Research date: 2026-10-22
 Which Node-based framework is the most stable and future-proof choice for a
 type-safe REST API backing `apps/store` (SQLite via Drizzle, multipart upload
 of binary bundle files, binary file download, session-cookie + Bearer-token
-auth), consumed by the Vue 3 `packages/toolbox` app and the `packages/cli`
+auth), consumed by the Vue 3 `apps/toolbox` app and the `packages/cli`
 tool — and how does each option export types so clients can make fully typed
 requests (`.d.ts` bundle, OpenAPI-generated client, etc.)?
 
@@ -19,7 +19,7 @@ Scope, per the issue: compare only **Hono** (`hc` RPC client), **Fastify**
 **Hono + `hono/client` (`hc<AppType>()`)** is the clear recommendation. It
 needs zero codegen — the client imports the server's inferred TypeScript
 type directly, which fits this pnpm monorepo (`apps/store` → `packages/rest-client`
-→ `packages/toolbox`/`packages/cli`) with no extra build step or spec/
+→ `apps/toolbox`/`packages/cli`) with no extra build step or spec/
 implementation drift risk. It has first-class multipart (`c.req.parseBody()`)
 and native `Response`/stream support for binary downloads, flexible
 middleware for both cookie and Bearer auth, and the healthiest maintenance
@@ -66,7 +66,7 @@ Rationale:
    types `File`/`File[]` fields for bundle uploads, and handlers can return
    any `Response` (including streams) for binary downloads, with the RPC
    client exposing a Fetch-compatible `Response` on the client side.
-3. **Both consumers fit naturally** — `packages/toolbox` (Vue 3) and
+3. **Both consumers fit naturally** — `apps/toolbox` (Vue 3) and
    `packages/cli` can both import `hc<AppType>` from `packages/rest-client`,
    re-exporting a pre-configured client; no codegen artifacts need to be
    checked in or regenerated per route change.

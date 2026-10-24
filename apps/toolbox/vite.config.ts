@@ -21,10 +21,10 @@ export default defineConfig({
   base: "/ddf-tools/",
   resolve: {
     alias: {
-      "@deconz-community/ddf-bundler": path.resolve(__dirname, "../bundler/index.ts"),
-      "@deconz-community/ddf-validator": path.resolve(__dirname, "../validator/index.ts"),
-      "@deconz-community/rest-client": path.resolve(__dirname, "../rest-client/index.ts"),
-      "@deconz-community/store-api-client": path.resolve(__dirname, "../store-api-client/index.ts"),
+      "@deconz-community/ddf-bundler": path.resolve(__dirname, "../../packages/bundler/index.ts"),
+      "@deconz-community/ddf-validator": path.resolve(__dirname, "../../packages/validator/index.ts"),
+      "@deconz-community/rest-client": path.resolve(__dirname, "../../packages/rest-client/index.ts"),
+      "@deconz-community/store-api-client": path.resolve(__dirname, "../../packages/store-api-client/index.ts"),
       "~/": `${path.resolve(__dirname, "src")}/`,
     },
   },

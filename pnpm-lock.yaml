@@ -202,7 +202,7 @@ importers:
     dependencies:
       '@deconz-community/ddf-bundler':
         specifier: workspace:^
-        version: link:../../packages/bundler
+        version: link:../bundler
       '@hono/node-server':
         specifier: ^2.1.5
         version: 2.1.5(hono@4.13.13)
@@ -253,210 +253,20 @@ importers:
         specifier: 'catalog:'
         version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
 
-  packages/bundler:
+  apps/toolbox:
     dependencies:
-      '@noble/curves':
-        specifier: ^2.4.0
-        version: 2.4.0
-      '@noble/hashes':
-        specifier: ^2.4.0
-        version: 2.4.0
-    devDependencies:
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.12.2
-      lint-staged:
-        specifier: ^17.6.0
-        version: 17.6.0
-      stylelint:
-        specifier: ^17.16.0
-        version: 17.16.0(supports-color@10.2.2)(typescript@7.0.2)
-      stylelint-config-recommended:
-        specifier: ^18.0.0
-        version: 18.0.0(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
-      stylelint-config-sass-guidelines:
-        specifier: ^13.0.0
-        version: 13.0.0(postcss@8.5.31)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
-      taze:
-        specifier: ^21.3.0
-        version: 21.3.0
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)'
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
-
-  packages/cli:
-    dependencies:
-      '@commander-js/extra-typings':
-        specifier: ^15.0.0
-        version: 15.0.0(commander@15.0.0)
       '@deconz-community/ddf-bundler':
         specifier: workspace:^
-        version: link:../bundler
+        version: link:../../packages/bundler
       '@deconz-community/ddf-validator':
         specifier: workspace:^
-        version: link:../validator
-      '@deconz-community/store-api-client':
-        specifier: workspace:^
-        version: link:../store-api-client
-      '@noble/hashes':
-        specifier: ^2.4.0
-        version: 2.4.0
-      base64-js:
-        specifier: ^1.5.1
-        version: 1.5.1
-      chalk:
-        specifier: ^6.0.1
-        version: 6.0.1
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
-      fast-glob:
-        specifier: ^3.3.3
-        version: 3.3.3
-      ora:
-        specifier: ^9.4.1
-        version: 9.4.1
-      simple-git:
-        specifier: ^4.0.2
-        version: 4.0.2(supports-color@10.2.2)
-      uuid:
-        specifier: ^14.0.3
-        version: 14.0.3
-      zod:
-        specifier: ^4.6.7
-        version: 4.6.7
-      zod-validation-error:
-        specifier: ^5.0.0
-        version: 5.0.0(zod@4.6.7)
-    devDependencies:
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.12.2
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@24.12.2)(typescript@7.0.2)
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)'
-      vite-node:
-        specifier: ^6.0.0
-        version: 6.0.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
-      vite-plugin-node:
-        specifier: ^8.0.0
-        version: 8.0.0(@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1))(supports-color@10.2.2)
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
-
-  packages/rest-client:
-    dependencies:
-      '@deconz-community/ddf-bundler':
-        specifier: workspace:^
-        version: link:../bundler
-      axios:
-        specifier: ^1.20.0
-        version: 1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
-      ts-results-es:
-        specifier: ^7.1.0
-        version: 7.1.0
-      zod:
-        specifier: ^4.6.7
-        version: 4.6.7
-    devDependencies:
-      '@types/jsdom':
-        specifier: ^30.0.0
-        version: 30.0.0
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.12.2
-      degit:
-        specifier: ^3.10.0
-        version: 3.10.1
-      lint-staged:
-        specifier: ^17.6.0
-        version: 17.6.0
-      rimraf:
-        specifier: ^6.1.3
-        version: 6.1.3
-      stylelint:
-        specifier: ^17.16.0
-        version: 17.16.0(supports-color@10.2.2)(typescript@7.0.2)
-      stylelint-config-recommended:
-        specifier: ^18.0.0
-        version: 18.0.0(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
-      stylelint-config-sass-guidelines:
-        specifier: ^13.0.0
-        version: 13.0.0(postcss@8.5.31)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
-      taze:
-        specifier: ^21.3.0
-        version: 21.3.0
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)'
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
-      zod-to-ts:
-        specifier: ^2.1.0
-        version: 2.1.0(typescript@7.0.2)(zod@4.6.7)
-      zod-validation-error:
-        specifier: ^5.0.0
-        version: 5.0.0(zod@4.6.7)
-
-  packages/store-api-client:
-    dependencies:
-      hono:
-        specifier: ^4.13.13
-        version: 4.13.13
-    devDependencies:
-      '@deconz-community/store-api':
-        specifier: workspace:^
-        version: link:../../apps/store
-      '@types/better-sqlite3':
-        specifier: ^9.6.0
-        version: 9.6.0
-      '@types/node':
-        specifier: ^26.6.5
-        version: 26.6.5
-      better-sqlite3:
-        specifier: ^13.0.3
-        version: 13.0.3
-      drizzle-orm:
-        specifier: ^0.45.4
-        version: 0.45.4(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(knex@3.1.0(better-sqlite3@13.0.3)(mysql2@3.24.4(@types/node@26.6.5))(pg@8.16.3)(sqlite3@6.0.1)(supports-color@10.2.2)(tedious@18.6.1(@azure/core-client@1.10.1(supports-color@10.2.2))(supports-color@10.2.2)))(mysql2@3.24.4(@types/node@26.6.5))(pg@8.16.3)(sqlite3@6.0.1)
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
-
-  packages/toolbox:
-    dependencies:
-      '@deconz-community/ddf-bundler':
-        specifier: workspace:^
-        version: link:../bundler
-      '@deconz-community/ddf-validator':
-        specifier: workspace:^
-        version: link:../validator
+        version: link:../../packages/validator
       '@deconz-community/rest-client':
         specifier: workspace:^
-        version: link:../rest-client
+        version: link:../../packages/rest-client
       '@deconz-community/store-api-client':
         specifier: workspace:^
-        version: link:../store-api-client
+        version: link:../../packages/store-api-client
       '@guolao/vue-monaco-editor':
         specifier: ^1.6.0
         version: 1.6.0(monaco-editor@0.57.0)(vue@3.5.44(typescript@7.0.2))
@@ -671,6 +481,196 @@ importers:
       workbox-window:
         specifier: ^7.4.1
         version: 7.4.1
+
+  packages/bundler:
+    dependencies:
+      '@noble/curves':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@noble/hashes':
+        specifier: ^2.4.0
+        version: 2.4.0
+    devDependencies:
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.12.2
+      lint-staged:
+        specifier: ^17.6.0
+        version: 17.6.0
+      stylelint:
+        specifier: ^17.16.0
+        version: 17.16.0(supports-color@10.2.2)(typescript@7.0.2)
+      stylelint-config-recommended:
+        specifier: ^18.0.0
+        version: 18.0.0(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
+      stylelint-config-sass-guidelines:
+        specifier: ^13.0.0
+        version: 13.0.0(postcss@8.5.31)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
+      taze:
+        specifier: ^21.3.0
+        version: 21.3.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
+
+  packages/cli:
+    dependencies:
+      '@commander-js/extra-typings':
+        specifier: ^15.0.0
+        version: 15.0.0(commander@15.0.0)
+      '@deconz-community/ddf-bundler':
+        specifier: workspace:^
+        version: link:../bundler
+      '@deconz-community/ddf-validator':
+        specifier: workspace:^
+        version: link:../validator
+      '@deconz-community/store-api-client':
+        specifier: workspace:^
+        version: link:../store-api-client
+      '@noble/hashes':
+        specifier: ^2.4.0
+        version: 2.4.0
+      base64-js:
+        specifier: ^1.5.1
+        version: 1.5.1
+      chalk:
+        specifier: ^6.0.1
+        version: 6.0.1
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
+      fast-glob:
+        specifier: ^3.3.3
+        version: 3.3.3
+      ora:
+        specifier: ^9.4.1
+        version: 9.4.1
+      simple-git:
+        specifier: ^4.0.2
+        version: 4.0.2(supports-color@10.2.2)
+      uuid:
+        specifier: ^14.0.3
+        version: 14.0.3
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+      zod-validation-error:
+        specifier: ^5.0.0
+        version: 5.0.0(zod@4.6.7)
+    devDependencies:
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.12.2
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@24.12.2)(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)'
+      vite-node:
+        specifier: ^6.0.0
+        version: 6.0.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
+      vite-plugin-node:
+        specifier: ^8.0.0
+        version: 8.0.0(@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1))(supports-color@10.2.2)
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
+
+  packages/rest-client:
+    dependencies:
+      '@deconz-community/ddf-bundler':
+        specifier: workspace:^
+        version: link:../bundler
+      axios:
+        specifier: ^1.20.0
+        version: 1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
+      ts-results-es:
+        specifier: ^7.1.0
+        version: 7.1.0
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@types/jsdom':
+        specifier: ^30.0.0
+        version: 30.0.0
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.12.2
+      degit:
+        specifier: ^3.10.0
+        version: 3.10.1
+      lint-staged:
+        specifier: ^17.6.0
+        version: 17.6.0
+      rimraf:
+        specifier: ^6.1.3
+        version: 6.1.3
+      stylelint:
+        specifier: ^17.16.0
+        version: 17.16.0(supports-color@10.2.2)(typescript@7.0.2)
+      stylelint-config-recommended:
+        specifier: ^18.0.0
+        version: 18.0.0(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
+      stylelint-config-sass-guidelines:
+        specifier: ^13.0.0
+        version: 13.0.0(postcss@8.5.31)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
+      taze:
+        specifier: ^21.3.0
+        version: 21.3.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.3.0(@types/node@24.12.2)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.6.1)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
+      zod-to-ts:
+        specifier: ^2.1.0
+        version: 2.1.0(typescript@7.0.2)(zod@4.6.7)
+      zod-validation-error:
+        specifier: ^5.0.0
+        version: 5.0.0(zod@4.6.7)
+
+  packages/store-api-client:
+    dependencies:
+      hono:
+        specifier: ^4.13.13
+        version: 4.13.13
+    devDependencies:
+      '@deconz-community/store-api':
+        specifier: workspace:^
+        version: link:../../apps/store
+      '@types/better-sqlite3':
+        specifier: ^9.6.0
+        version: 9.6.0
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      better-sqlite3:
+        specifier: ^13.0.3
+        version: 13.0.3
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(knex@3.1.0(better-sqlite3@13.0.3)(mysql2@3.24.4(@types/node@26.6.5))(pg@8.16.3)(sqlite3@6.0.1)(supports-color@10.2.2)(tedious@18.6.1(@azure/core-client@1.10.1(supports-color@10.2.2))(supports-color@10.2.2)))(mysql2@3.24.4(@types/node@26.6.5))(pg@8.16.3)(sqlite3@6.0.1)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.3.0(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/ui@5.0.5)(@volar/typescript@2.4.28(typescript@7.0.2))(esbuild@0.28.2)(jiti@2.7.0)(playwright@1.64.1)(terser@5.51.2)(tsx@4.23.15)(typescript@7.0.2)(unrun@0.2.34(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(synckit@0.11.12))(yaml@2.9.1)
 
   packages/validator:
     dependencies:

@@ -1,7 +1,7 @@
 {
   "name": "@deconz-community/toolbox",
   "private": true,
-  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/packages/toolbox",
+  "homepage": "https://github.com/deconz-community/ddf-tools/tree/main/apps/toolbox",
   "bugs": {
     "url": "https://github.com/deconz-community/ddf-tools/issues/"
   },
