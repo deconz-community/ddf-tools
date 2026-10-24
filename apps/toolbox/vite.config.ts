@@ -94,7 +94,6 @@ export default defineConfig({
             const components = {
               VueToggles: "vue-toggles",
               VueMonacoEditor: "@guolao/vue-monaco-editor",
-              VueMarkdown: ["markdown-vue", "default"],
             };
             if (name in components) {
               const data = components[name as keyof typeof components];

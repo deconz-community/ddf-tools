@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { Bundle } from "@deconz-community/ddf-bundler";
 
+import MarkdownIt from "markdown-it";
 import { v4 as uuidv4 } from "uuid";
+
+const markdown = new MarkdownIt({ html: false });
 
 const props = defineProps<{
   bundle: ReturnType<typeof Bundle>;
@@ -63,7 +66,7 @@ function generateUUID() {
         {{ markdownFilesTypes[file.type as keyof typeof markdownFilesTypes] }}
       </v-card-title>
       <v-card-text>
-        <vue-markdown :source="file.data as string" />
+        <div v-html="markdown.render(file.data as string)" />
       </v-card-text>
     </v-card>
   </template>

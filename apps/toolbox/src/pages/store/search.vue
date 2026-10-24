@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import Snarkdown from "@swayable/vue-snarkdown";
+import MarkdownIt from "markdown-it";
 import { useRouteQuery } from "@vueuse/router";
 import { STABLE_PUBLIC_KEY } from "@deconz-community/ddf-bundler";
 
+const markdown = new MarkdownIt({ html: false });
 const store = useStore();
 
 const page = useRouteQuery("page", "1", { transform: Number });
@@ -113,7 +114,7 @@ const pageCount = computed(() => {
               <v-card v-if="item.raw.info" variant="elevated" class="ma-2">
                 <v-card-title> Information </v-card-title>
                 <v-card-text>
-                  <Snarkdown :markdown="item.raw.info" />
+                  <div v-html="markdown.render(item.raw.info)" />
                 </v-card-text>
               </v-card>
               <v-card variant="elevated" class="ma-2">

@@ -7,10 +7,13 @@ import { Bundle, decode, encode } from "@deconz-community/ddf-bundler";
 import { createValidator } from "@deconz-community/ddf-validator";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { useVModel } from "@vueuse/core";
+import MarkdownIt from "markdown-it";
 import { saveAs } from "file-saver";
 import { toJSONSchema } from "zod";
 import { filePathsToTree } from "~/lib/filePathsToTree";
 import { duktapeJS } from "./duktapeJS";
+
+const markdown = new MarkdownIt({ html: false });
 
 type Editor = Parameters<VueMonacoEditorEmitsOptions["mount"]>[0];
 type Monaco = Parameters<VueMonacoEditorEmitsOptions["mount"]>[1];
@@ -821,7 +824,7 @@ const handleMonacoEditorMount: VueMonacoEditorEmitsOptions["mount"] = (editor, m
               {{ markdownFilesTypes[file.type as keyof typeof markdownFilesTypes] }}
             </v-card-title>
             <v-card-text>
-              <vue-markdown :source="file.data as string" />
+              <div v-html="markdown.render(file.data as string)" />
             </v-card-text>
           </v-card>
         </template>
