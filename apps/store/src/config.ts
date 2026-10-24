@@ -10,11 +10,8 @@ const environmentSchema = z
       (value) => (value === "" ? undefined : value),
       z.string().trim().min(1).optional(),
     ),
-    SMTP_FROM: z.preprocess(
-      (value) => (value === "" ? undefined : value),
-      z.string().trim().email().optional(),
-    ),
-    TOOLBOX_URL: z.string().url().default("http://localhost:4000"),
+    SMTP_FROM: z.preprocess((value) => (value === "" ? undefined : value), z.email().optional()),
+    TOOLBOX_URL: z.url().default("http://localhost:4000"),
     SECURE_COOKIES: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.enum(["true", "false"]).optional(),

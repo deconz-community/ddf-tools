@@ -27,13 +27,13 @@ export interface AccountOptions {
 export type SigningKey = { publicKey: string; privateKey: Uint8Array };
 
 const registrationSchema = z.object({
-  email: z.string().trim().email().max(254),
+  email: z.email(),
   password: z.string().min(8).max(128),
   username: z.string().trim().max(100).optional(),
 });
 
 const verificationSchema = z.object({ token: z.string().min(1).max(200) });
-const resetRequestSchema = z.object({ email: z.string().trim().email().max(254) });
+const resetRequestSchema = z.object({ email: z.email() });
 const resetConfirmationSchema = z.object({
   token: z.string().min(1).max(200),
   password: z.string().min(8).max(128),
@@ -88,7 +88,6 @@ function publicUser(user: typeof users.$inferSelect) {
     avatar_hash: user.avatarHash,
     public_key: user.publicKey,
     is_contributor: user.isContributor,
-    email_verified: user.emailVerifiedAt !== null,
     date_created: new Date(user.createdAt).toISOString(),
   };
 }

@@ -105,7 +105,6 @@ export interface PublicStoreUser {
   avatar_hash: string;
   public_key: string | null;
   is_contributor: boolean;
-  email_verified: boolean;
   date_created: string;
 }
 
