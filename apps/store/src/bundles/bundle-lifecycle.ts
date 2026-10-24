@@ -20,6 +20,7 @@ import { authenticateStoreRequest, authenticationErrorResponse } from "../auth/a
 import type { StoreDatabase } from "../db/database.js";
 import { errorResponse } from "../http/errors.js";
 import { bundles, ddfUuids, signatures } from "../db/schema.js";
+import { systemPublicKeys } from "./system-keys.js";
 
 const signatureRequestSchema = z.object({ state: z.enum(["alpha", "beta", "stable"]) }).strict();
 const deprecationRequestSchema = z
@@ -52,15 +53,6 @@ function configuredSigningKey(
     throw new Error(`The configured ${kind} signing key is invalid.`);
   }
   return { publicKey, privateKey };
-}
-
-function systemPublicKeys(options: AccountOptions) {
-  return {
-    beta: options.systemSigningKeys?.beta?.publicKey?.toLowerCase() ?? BETA_PUBLIC_KEY,
-    stable: options.systemSigningKeys?.stable?.publicKey?.toLowerCase() ?? STABLE_PUBLIC_KEY,
-    deprecated:
-      options.systemSigningKeys?.deprecated?.publicKey?.toLowerCase() ?? DEPRECATED_PUBLIC_KEY,
-  };
 }
 
 function signatureType(key: string, options: AccountOptions): "system" | "user" {

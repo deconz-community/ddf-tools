@@ -134,11 +134,9 @@ async function sessionUser(database: StoreDatabase, context: Context, timestamp:
   return user ?? null;
 }
 
-type Authentication =
+export type StoreAuthentication =
   | { user: typeof users.$inferSelect }
   | { error: "unauthenticated" | "invalid_api_token" | "token_revoked" };
-
-export type StoreAuthentication = Authentication;
 
 const authenticationMessages = {
   unauthenticated: "Sign in to continue.",
@@ -151,7 +149,7 @@ async function authenticate(
   database: StoreDatabase,
   context: Context,
   timestamp: number,
-): Promise<Authentication> {
+): Promise<StoreAuthentication> {
   const header = context.req.header("authorization");
   if (header !== undefined) {
     const match = /^Bearer\s+(\S+)$/i.exec(header.trim());

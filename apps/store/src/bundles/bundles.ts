@@ -51,6 +51,11 @@ interface SearchRow {
   deprecation_message: string | null;
 }
 
+interface RelatedBundleData {
+  devices: Map<string, { manufacturer: string; model: string }[]>;
+  signatures: Map<string, { key: string; type: "system" | "user" }[]>;
+}
+
 function slugify(value: string) {
   return value
     .normalize("NFKD")
@@ -105,32 +110,17 @@ function searchBundles(database: StoreDatabase, query: z.output<typeof searchQue
     ORDER BY b.source_last_modified DESC, b.date_created DESC, b.id DESC
     LIMIT ${query.limit} OFFSET ${offset}`);
 
-  const ids = inList(rows.map((row) => row.id));
-  const devices = rows.length
-    ? database.all<{ bundle: string; manufacturer: string; model: string }>(sql`
-        SELECT bdi.bundles_id AS bundle, di.manufacturer, di.model
-        FROM bundles_device_identifiers bdi
-        JOIN device_identifiers di ON di.id = bdi.device_identifiers_id
-        WHERE bdi.bundles_id IN (${ids})
-        ORDER BY bdi.id`)
-    : [];
-  const signatures = rows.length
-    ? database.all<{ bundle: string; key: string; type: "system" | "user" }>(sql`
-        SELECT bundle, "key", type FROM signatures
-        WHERE bundle IN (${ids})
-        ORDER BY rowid`)
-    : [];
+  const related = relatedBundleData(
+    database,
+    rows.map((row) => row.id),
+  );
 
   return {
     items: rows.map((row) => ({
       ...row,
       source_last_modified: new Date(row.source_last_modified).toISOString(),
-      device_identifiers: devices
-        .filter((device) => device.bundle === row.id)
-        .map(({ manufacturer, model }) => ({ manufacturer, model })),
-      signatures: signatures
-        .filter((signature) => signature.bundle === row.id)
-        .map(({ key, type }) => ({ key, type })),
+      device_identifiers: related.devices.get(row.id) ?? [],
+      signatures: related.signatures.get(row.id) ?? [],
     })),
     total_count: total?.count ?? 0,
     page: query.page,
@@ -138,7 +128,14 @@ function searchBundles(database: StoreDatabase, query: z.output<typeof searchQue
   };
 }
 
-function relatedBundleData(database: StoreDatabase, bundleIds: string[]) {
+function relatedBundleData(database: StoreDatabase, bundleIds: string[]): RelatedBundleData {
+  if (bundleIds.length === 0) {
+    return {
+      devices: new Map<string, { manufacturer: string; model: string }[]>(),
+      signatures: new Map<string, { key: string; type: "system" | "user" }[]>(),
+    };
+  }
+
   const ids = inList(bundleIds);
   const devices = database.all<{ bundle: string; manufacturer: string; model: string }>(sql`
     SELECT bundles_id AS bundle, manufacturer, model

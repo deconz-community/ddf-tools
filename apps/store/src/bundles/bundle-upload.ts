@@ -11,9 +11,6 @@ import {
   generateHash,
   verifySignature,
   createSignature,
-  BETA_PUBLIC_KEY,
-  DEPRECATED_PUBLIC_KEY,
-  STABLE_PUBLIC_KEY,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
 import type { AccountOptions, SigningKey, StoreAuthentication } from "../auth/accounts.js";
@@ -26,6 +23,7 @@ import {
   deviceIdentifiers,
   signatures,
 } from "../db/schema.js";
+import { systemPublicKeys } from "./system-keys.js";
 
 const stateSchema = z.enum(["alpha", "beta", "stable"]).default("alpha");
 type UploadState = z.infer<typeof stateSchema>;
@@ -42,15 +40,13 @@ class UploadError extends Error {
   }
 }
 
-const systemPublicKeys = { beta: BETA_PUBLIC_KEY, stable: STABLE_PUBLIC_KEY };
-
 function stateKey(
   options: AccountOptions,
   state: Exclude<UploadState, "alpha">,
 ): SigningKey | undefined {
   const configured = options.systemSigningKeys?.[state];
   if (!configured) return undefined;
-  const publicKey = configured.publicKey ?? systemPublicKeys[state];
+  const publicKey = configured.publicKey ?? systemPublicKeys(options)[state];
   const privateKey = hexToBytes(configured.privateKey);
   if (bytesToHex(secp256k1.getPublicKey(privateKey)) !== publicKey.toLowerCase()) {
     throw new UploadError("system_key_invalid", `The configured ${state} signing key is invalid.`);
@@ -89,6 +85,10 @@ function fileFailure(file: string, code: string, message: string): FileResult {
   return { file, success: false, error: { code, message } };
 }
 
+function normalizeLastModified(value: Date | string) {
+  return value instanceof Date ? value.toISOString() : value;
+}
+
 async function processFile(
   database: StoreDatabase,
   options: AccountOptions,
@@ -107,10 +107,7 @@ async function processFile(
     const originalHash = bytesToHex(bundle.data.hash);
     const originalDesc = JSON.stringify({
       ...bundle.data.desc,
-      last_modified:
-        bundle.data.desc.last_modified instanceof Date
-          ? bundle.data.desc.last_modified.toISOString()
-          : bundle.data.desc.last_modified,
+      last_modified: normalizeLastModified(bundle.data.desc.last_modified),
     });
     bundle.generateDESC();
     bundle.data.hash = await generateHash(bundle.data);
@@ -122,10 +119,7 @@ async function processFile(
     }
     const regeneratedDesc = JSON.stringify({
       ...bundle.data.desc,
-      last_modified:
-        bundle.data.desc.last_modified instanceof Date
-          ? bundle.data.desc.last_modified.toISOString()
-          : bundle.data.desc.last_modified,
+      last_modified: normalizeLastModified(bundle.data.desc.last_modified),
     });
     if (originalDesc !== regeneratedDesc) {
       throw new UploadError("invalid_desc", "The DESC does not match the bundle files.");
@@ -140,13 +134,7 @@ async function processFile(
       );
     }
 
-    const systemKeys = {
-      beta: options.systemSigningKeys?.beta?.publicKey?.toLowerCase() ?? systemPublicKeys.beta,
-      stable:
-        options.systemSigningKeys?.stable?.publicKey?.toLowerCase() ?? systemPublicKeys.stable,
-      deprecated:
-        options.systemSigningKeys?.deprecated?.publicKey?.toLowerCase() ?? DEPRECATED_PUBLIC_KEY,
-    };
+    const systemKeys = systemPublicKeys(options);
     const removeKeys =
       state === "alpha"
         ? [systemKeys.beta, systemKeys.stable]
