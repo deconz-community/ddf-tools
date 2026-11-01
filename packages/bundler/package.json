@@ -42,7 +42,8 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "vp build"
+    "build": "vp build",
+    "dev": "vp build --watch"
   },
   "main": "./dist/ddf-bundler.cjs",
   "module": "./dist/ddf-bundler.mjs",

@@ -38,7 +38,7 @@ CREATE TABLE `bundles` (
 	`file_count` integer NOT NULL,
 	`content_hash` text NOT NULL,
 	`source_last_modified` integer NOT NULL,
-	FOREIGN KEY (`ddf_uuid`) REFERENCES `ddf_uuids`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`ddf_uuid`) REFERENCES `ddf_uuids`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`user_created`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint

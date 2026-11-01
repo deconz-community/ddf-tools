@@ -57,6 +57,14 @@ async function download() {
 
 const timeAgo = useTimeAgo(() => bundle.value.data.desc.last_modified);
 
+function updateUUID(uuid: string) {
+  // Commit the pending file edits first so they are kept when the clone is resynced
+  bundle.value.data.files = files.value;
+  bundle.value.setUUID(uuid);
+  syncFiles();
+  setDirty();
+}
+
 function setDirty() {
   dirty.value = true;
 }
@@ -110,7 +118,7 @@ function setDirty() {
     <v-card-text>
       <v-window v-model="tab">
         <v-window-item value="info">
-          <bundle-editor-info :bundle="bundle" />
+          <bundle-editor-info :bundle="bundle" @uuid="updateUUID" />
         </v-window-item>
 
         <v-window-item value="files">

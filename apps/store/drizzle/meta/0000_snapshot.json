@@ -275,7 +275,7 @@
           "tableTo": "ddf_uuids",
           "columnsFrom": ["ddf_uuid"],
           "columnsTo": ["id"],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "bundles_user_created_users_id_fk": {

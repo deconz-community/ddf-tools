@@ -10,6 +10,8 @@ const props = defineProps<{
   bundle: ReturnType<typeof Bundle>;
 }>();
 
+const emit = defineEmits<{ uuid: [uuid: string] }>();
+
 const bundle = useVModel(props, "bundle");
 
 const supportedDevices = computed(() => {
@@ -38,15 +40,26 @@ const markdownFiles = computed(() => {
   );
 });
 
+// The bundle is marked raw (not reactive), so the displayed UUID is mirrored in a ref
+const uuid = ref(bundle.value.data.desc.uuid);
+
+watch(
+  () => props.bundle,
+  (newBundle) => {
+    uuid.value = newBundle.data.desc.uuid;
+  },
+);
+
 function generateUUID() {
   // TODO: Use the store endpoint if the store is online
-  bundle.value.data.desc.uuid = uuidv4();
+  uuid.value = uuidv4();
+  emit("uuid", uuid.value);
 }
 </script>
 
 <template>
   <v-text-field
-    v-model="bundle.data.desc.uuid"
+    v-model="uuid"
     readonly
     label="UUID"
     append-icon="mdi-refresh"

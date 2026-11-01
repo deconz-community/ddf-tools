@@ -13,7 +13,7 @@ export const bundles = sqliteTable(
     id: text("id").primaryKey(),
     ddf_uuid: text("ddf_uuid")
       .notNull()
-      .references(() => ddfUuids.id),
+      .references(() => ddfUuids.id, { onDelete: "cascade" }),
     vendor: text("vendor").notNull(),
     product: text("product").notNull(),
     version_deconz: text("version_deconz").notNull(),

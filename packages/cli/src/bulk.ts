@@ -1,6 +1,7 @@
 import type { Command } from "@commander-js/extra-typings";
 import fs from "node:fs/promises";
 import { program } from "@commander-js/extra-typings";
+import { setJSONUuid } from "@deconz-community/ddf-bundler";
 import { createStoreClient, generateDdfUuids } from "@deconz-community/store-api-client";
 import glob from "fast-glob";
 import { z } from "zod";
@@ -97,28 +98,9 @@ export function bulkUUIDCommand(command: Command) {
 
       await Promise.all(
         filesToEdit.map(async ([inputFile, content], index) => {
-          const newLineCharacter = content.includes("\r\n") ? "\r\n" : "\n";
-          const filePart = content.split(newLineCharacter);
-
-          if (filePart.length < 10) {
-            console.error(`File ${inputFile} seems invalid, less that 10 lines in the file.`);
-            return;
-          }
-          // Find the first line that contains "schema"
-          const schemaLineIndex = filePart.findIndex((line) =>
-            line.includes("devcap1.schema.json"),
-          );
-
-          // Insert the UUID line after the schema line
-          filePart.splice(
-            schemaLineIndex + 1,
-            0,
-            filePart[schemaLineIndex]
-              .replace("schema", "uuid")
-              .replace("devcap1.schema.json", newUUIDs.uuids[index]),
-          );
+          const updated = setJSONUuid(content, newUUIDs.uuids[index]);
           // Write the file back
-          await fs.writeFile(inputFile, filePart.join(newLineCharacter));
+          await fs.writeFile(inputFile, updated);
         }),
       );
 

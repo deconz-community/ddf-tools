@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { describe, expect, it } from "vite-plus/test";
-import { Bundle, decode, encode, getHash, sign, verifySignature } from "../index";
+import { Bundle, decode, encode, getHash, setJSONUuid, sign, verifySignature } from "../index";
 
 describe("tests", () => {
   it("should verify both existing signatures", async () => {
@@ -146,5 +146,35 @@ describe("tests", () => {
     const decoded = await decode(encoded);
 
     expect(decoded.data.desc.last_modified).toEqual(fixedDate);
+  });
+});
+
+describe("setJSONUuid", () => {
+  it("replaces the uuid and keeps the formatting", () => {
+    const source = '{\n    "schema": "devcap1.schema.json",\n    "uuid": "old", "sub": {"uuid": "x"}\n}';
+    expect(setJSONUuid(source, "new")).toBe(source.replace('"old"', '"new"'));
+  });
+
+  it("adds the uuid after the schema line, keeping CRLF", () => {
+    const source = '{\r\n  "schema": "devcap1.schema.json",\r\n  "vendor": "a"\r\n}';
+    expect(setJSONUuid(source, "new")).toBe(
+      '{\r\n  "schema": "devcap1.schema.json",\r\n  "uuid": "new",\r\n  "vendor": "a"\r\n}',
+    );
+  });
+
+  it("throws when there is no schema line to anchor on", () => {
+    expect(() => setJSONUuid('{"a": 1}', "n")).toThrow();
+  });
+});
+
+describe("Bundle.setUUID", () => {
+  it("works on frozen files", () => {
+    const bundle = Bundle();
+    bundle.data.files = [
+      Object.freeze({ type: "DDFC", path: "a.json", data: '{\n  "schema": "x",\n  "uuid": "old"\n}' }),
+    ] as any;
+    bundle.setUUID("new");
+    expect(bundle.data.files[0].data).toContain('"uuid": "new"');
+    expect(bundle.data.desc.uuid).toBe("new");
   });
 });
