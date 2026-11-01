@@ -20,6 +20,7 @@
   },
   "scripts": {
     "build": "vp build",
+    "pack": "vp pack",
     "dev": "vp build --watch",
     "test": "vp test run"
   },
