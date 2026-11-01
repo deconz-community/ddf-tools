@@ -4,7 +4,7 @@ import { defineConfig } from "vite-plus";
 export default defineConfig({
   pack: {
     entry: ["index.ts"],
-    tsconfig: "tsconfig.build.json",
+    tsconfig: "tsconfig.pack.json",
     format: "esm",
     clean: false,
     dts: { emitDtsOnly: true },
