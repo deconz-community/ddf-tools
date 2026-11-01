@@ -1,5 +1,5 @@
 {
-  "name": "@deconz-community/store-api",
+  "name": "@deconz-community/ddf-store",
   "version": "0.0.1",
   "private": true,
   "type": "module",

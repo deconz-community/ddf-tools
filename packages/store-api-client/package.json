@@ -24,14 +24,14 @@
     "test": "vp test run"
   },
   "dependencies": {
-    "hono": "^4.13.13"
+    "hono": "^4.13.13",
+    "drizzle-orm": "^0.45.4",
+    "better-sqlite3": "^13.0.3"
   },
   "devDependencies": {
-    "@deconz-community/store-api": "workspace:^",
+    "@deconz-community/ddf-store": "workspace:^",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.5",
-    "better-sqlite3": "^13.0.3",
-    "drizzle-orm": "^0.45.4",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:"
   }

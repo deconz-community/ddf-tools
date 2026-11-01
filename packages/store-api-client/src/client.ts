@@ -1,4 +1,4 @@
-import type { AppType } from "@deconz-community/store-api/app";
+import type { AppType } from "@deconz-community/ddf-store/app";
 import { hc } from "hono/client";
 
 export type ServerTypedStoreClient = ReturnType<typeof hc<AppType>>;

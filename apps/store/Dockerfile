@@ -10,12 +10,12 @@ WORKDIR /workspace
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/store/package.json apps/store/package.json
 COPY packages/bundler/package.json packages/bundler/package.json
-RUN pnpm install --frozen-lockfile --filter @deconz-community/store-api...
+RUN pnpm install --frozen-lockfile --filter @deconz-community/ddf-store...
 
 COPY packages/bundler packages/bundler
 COPY apps/store apps/store
-RUN pnpm --filter @deconz-community/store-api build \
-  && pnpm --filter @deconz-community/store-api deploy --prod /production
+RUN pnpm --filter @deconz-community/ddf-store build \
+  && pnpm --filter @deconz-community/ddf-store deploy --prod /production
 
 FROM node:24-bookworm-slim AS runtime
 
