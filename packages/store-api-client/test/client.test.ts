@@ -9,7 +9,7 @@ import {
   StoreApiError,
   type BundleSummary,
   type ErrorCode,
-  type StoreClient,
+  type SearchBundlesQuery,
   deprecateBundle,
   generateDdfUuids,
   signBundle,
@@ -44,14 +44,7 @@ afterEach(() => {
 
 describe("store client", () => {
   it("searches bundles with typed snake_case filters", async () => {
-    type BundleSearchInput = Parameters<StoreClient["v1"]["bundles"]["$get"]>[0];
-    const validInput: BundleSearchInput = { query: { vendor: "IKEA" } };
-    expectTypeOf(validInput.query?.vendor).toEqualTypeOf<string | undefined>();
-    const invalidInput: BundleSearchInput = {
-      // @ts-expect-error The client only exposes filters defined by the server route.
-      query: { unknown_filter: "value" },
-    };
-    expect(invalidInput).toBeDefined();
+    expectTypeOf<SearchBundlesQuery["vendor"]>().toEqualTypeOf<string | undefined>();
 
     const { api, seedBundle } = setup();
     const { id } = seedBundle({ vendor: "IKEA", devices: [{ manufacturer: "IKEA", model: "X" }] });

@@ -13,10 +13,6 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@deconz-community/ddf-store/app": path.resolve(
-        __dirname,
-        "../../packages/store/src/http/app.ts",
-      ),
       "~/": `${path.resolve(__dirname, "src")}/`,
     },
   },

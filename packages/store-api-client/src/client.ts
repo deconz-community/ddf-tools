@@ -1,15 +1,3 @@
-import type { AppType } from "@deconz-community/ddf-store/app";
-import { hc } from "hono/client";
-
-export type ServerTypedStoreClient = ReturnType<typeof hc<AppType>>;
-type DdfUuidGenerationClient = {
-  v1: {
-    "ddf-uuids": {
-      $post(input: { json: { count: number } }): Promise<Response>;
-    };
-  };
-};
-
 export type ErrorCode =
   | "validation_error"
   | "bundle_not_found"
@@ -153,7 +141,16 @@ export interface StoreAccountClient {
   avatarUrl(userId: string): string;
 }
 
-export type StoreClient = ServerTypedStoreClient;
+export interface StoreRequestInit {
+  method?: "GET" | "POST";
+  query?: Record<string, string | string[] | undefined>;
+  json?: unknown;
+  body?: FormData;
+}
+
+export interface StoreClient {
+  request(path: string, init?: StoreRequestInit): Promise<Response>;
+}
 
 export interface SearchBundlesQuery {
   page?: string | string[];
@@ -241,19 +238,29 @@ export class StoreApiError extends Error {
 
 export function createStoreClient(options: StoreClientOptions): StoreClient {
   const fetcher = options.fetch ?? fetch;
-  return hc<AppType>(options.url, {
-    fetch: (async (input, init) => {
-      const headers = new Headers(init?.headers);
-      headers.set("X-Store-Request", "1");
+  const baseUrl = `${options.url.replace(/\/+$/, "")}/v1`;
+  return {
+    request(path, init = {}) {
+      const url = new URL(`${baseUrl}${path}`);
+      for (const [key, value] of Object.entries(init.query ?? {})) {
+        for (const item of Array.isArray(value) ? value : [value]) {
+          if (item !== undefined) url.searchParams.append(key, item);
+        }
+      }
+      const method = init.method ?? "GET";
+      const headers = new Headers();
+      if (init.json !== undefined) headers.set("Content-Type", "application/json");
+      if (method !== "GET") headers.set("X-Store-Request", "1");
       if (options.origin) headers.set("Origin", options.origin);
       if (options.token) headers.set("Authorization", `Bearer ${options.token}`);
-      return fetcher(input, {
-        ...init,
+      return fetcher(url, {
+        method,
         headers,
+        body: init.json !== undefined ? JSON.stringify(init.json) : init.body,
         credentials: options.token ? "omit" : "include",
       });
-    }) as typeof fetch,
-  }) as unknown as StoreClient;
+    },
+  };
 }
 
 export function createStoreAccountClient(options: StoreAccountClientOptions): StoreAccountClient {
@@ -324,15 +331,13 @@ export async function searchBundles(
   client: StoreClient,
   query: SearchBundlesQuery = {},
 ): Promise<SearchBundlesResult> {
-  const response = await client.v1.bundles.$get({ query });
+  const response = await client.request("/bundles", { query: { ...query } });
   if (!response.ok) throw await toError(response);
   return (await response.json()) as SearchBundlesResult;
 }
 
 export async function getBundle(client: StoreClient, id: string): Promise<BundleDetail> {
-  const response = await client.v1.bundles[":id"].$get({
-    param: { id },
-  });
+  const response = await client.request(`/bundles/${encodeURIComponent(id)}`);
   if (!response.ok) throw await toError(response);
   return (await response.json()) as BundleDetail;
 }
@@ -341,17 +346,13 @@ export async function getBundleVersions(
   client: StoreClient,
   id: string,
 ): Promise<BundleVersionsResult> {
-  const response = await client.v1.bundles[":id"].versions.$get({
-    param: { id },
-  });
+  const response = await client.request(`/bundles/${encodeURIComponent(id)}/versions`);
   if (!response.ok) throw await toError(response);
   return (await response.json()) as BundleVersionsResult;
 }
 
 export async function downloadBundle(client: StoreClient, id: string): Promise<Blob> {
-  const response = await client.v1.bundles[":id"].download.$get({
-    param: { id },
-  });
+  const response = await client.request(`/bundles/${encodeURIComponent(id)}/download`);
   if (!response.ok) throw await toError(response);
   return await response.blob();
 }
@@ -360,9 +361,7 @@ export async function generateDdfUuids(
   client: StoreClient,
   count: number,
 ): Promise<GenerateDdfUuidsResult> {
-  const response = await (client as unknown as DdfUuidGenerationClient).v1["ddf-uuids"].$post({
-    json: { count },
-  });
+  const response = await client.request("/ddf-uuids", { method: "POST", json: { count } });
   if (!response.ok) throw await toError(response);
   return (await response.json()) as GenerateDdfUuidsResult;
 }
@@ -372,8 +371,8 @@ export async function signBundle(
   id: string,
   state: BundleSignatureState,
 ): Promise<BundleSignatureResult> {
-  const response = await client.v1.bundles[":id"].signatures.$post({
-    param: { id: encodeURIComponent(id) },
+  const response = await client.request(`/bundles/${encodeURIComponent(id)}/signatures`, {
+    method: "POST",
     json: { state },
   });
   if (!response.ok) throw await toError(response);
@@ -385,8 +384,8 @@ export async function deprecateBundle(
   id: string,
   message: string | null,
 ): Promise<BundleDeprecationResult> {
-  const response = await client.v1.bundles[":id"].deprecate.$post({
-    param: { id: encodeURIComponent(id) },
+  const response = await client.request(`/bundles/${encodeURIComponent(id)}/deprecate`, {
+    method: "POST",
     json: { message },
   });
   if (!response.ok) throw await toError(response);
@@ -404,7 +403,11 @@ export async function uploadBundles(
     for (const file of files.slice(offset, offset + 100)) {
       form.append("files", file.content, file.name);
     }
-    const response = await client.v1.bundles.$post({ query: { state } }, { init: { body: form } });
+    const response = await client.request("/bundles", {
+      method: "POST",
+      query: { state },
+      body: form,
+    });
     if (!response.ok) throw await toError(response);
     const result = (await response.json()) as StoreBundleUploadResult;
     results.push(...result.results);

@@ -24,11 +24,6 @@
     "test": "vp test run"
   },
   "devDependencies": {
-    "hono": "^4.13.13",
-    "drizzle-orm": "^0.45.4",
-    "better-sqlite3": "^13.0.3",
-    "@deconz-community/ddf-store": "workspace:^",
-    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.5",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:"
