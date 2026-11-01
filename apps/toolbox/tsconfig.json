@@ -6,8 +6,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
+      "@deconz-community/ddf-bundler": ["../../packages/bundler/index.ts"],
+      "@deconz-community/ddf-validator": ["../../packages/validator/index.ts"],
+      "@deconz-community/rest-client": ["../../packages/rest-client/index.ts"],
+      "@deconz-community/store-api-client": ["../../packages/store-api-client/index.ts"],
       "~/*": ["./src/*"],
-      "@deconz-community/ddf-bundler": ["../../packages/bundler/index.ts"]
     },
     "resolveJsonModule": true,
     "types": [

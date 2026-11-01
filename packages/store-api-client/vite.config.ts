@@ -6,6 +6,7 @@ export default defineConfig({
     entry: ["index.ts"],
     format: "esm",
     clean: false,
+    watch: ["index.ts", "src"],
     dts: { emitDtsOnly: true },
     outExtensions: () => ({ dts: ".d.ts" }),
     outputOptions: { codeSplitting: false },

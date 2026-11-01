@@ -54,7 +54,7 @@ function computeValidation(): ValidationResult {
   if (ddfc?.ddfvalidate === false) return { result: "skipped", version: validator.version };
 
   const validationResult = validator.bulkValidate(genericFiles, [
-    { path: props.bundle.data.name, data: ddfc },
+    { path: ddfcFile.path, data: ddfc },
   ]);
 
   if (validationResult.length === 0) return { result: "success", version: validator.version };
