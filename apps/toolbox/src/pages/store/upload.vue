@@ -7,13 +7,28 @@ const sha = ref("");
 const bundles = ref<ReturnType<typeof Bundle>[]>([]);
 const store = useStore();
 const files = ref<File[]>([]);
+const statuses = ref<
+  Record<number, { dirty: boolean; hasUuid: boolean; invalidSignatures: boolean }>
+>({});
 const defaultState = ref<StoreUploadState>("alpha");
 
 watch(files, async () => {
   bundles.value = [];
+  statuses.value = {};
   files.value.forEach(async (file) => {
     bundles.value.push(markRaw(await decode(file)));
   });
+});
+
+const disabledReason = computed(() => {
+  if (files.value.length === 0) return "Select at least one .ddb bundle to upload";
+  const list = Object.values(statuses.value);
+  if (list.length < files.value.length) return "Bundles are still loading";
+  if (list.some((status) => !status.hasUuid)) return "A bundle has no UUID";
+  if (list.some((status) => status.invalidSignatures)) return "A bundle has an invalid signature";
+  if (list.some((status) => status.dirty))
+    return "A bundle has unsaved changes, save the changes first";
+  return undefined;
 });
 
 async function upload() {
@@ -49,7 +64,13 @@ async function upload() {
       <v-file-input v-model="files" multiple label="Open .ddb bundle from disk" accept=".ddb" />
     </template>
     <template #actions>
-      <v-btn variant="tonal" @click="upload()"> Upload </v-btn>
+      <v-tooltip :disabled="!disabledReason" :text="disabledReason" location="top">
+        <template #activator="{ props: tooltipProps }">
+          <span v-bind="tooltipProps" class="d-inline-block">
+            <v-btn variant="tonal" :disabled="!!disabledReason" @click="upload()"> Upload </v-btn>
+          </span>
+        </template>
+      </v-tooltip>
       <v-btn-toggle
         v-if="store.profile?.is_contributor === true"
         v-model="defaultState"
@@ -77,7 +98,11 @@ async function upload() {
   </v-card>
 
   <template v-for="(_, index) in bundles" :key="index">
-    <bundle-editor v-model="bundles[index]" class="ma-2" />
+    <bundle-editor
+      v-model="bundles[index]"
+      class="ma-2"
+      @status="(status) => (statuses[index] = status)"
+    />
   </template>
 </template>
 

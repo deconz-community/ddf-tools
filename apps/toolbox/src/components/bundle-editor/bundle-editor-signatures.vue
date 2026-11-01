@@ -3,6 +3,7 @@ import type { ChunkSignature } from "@deconz-community/ddf-bundler";
 import { createSignature, verifySignature } from "@deconz-community/ddf-bundler";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { getPublicKey, utils } from "@noble/secp256k1";
+import ChipUser from "../chip/chip-user.vue";
 import { useConfirm } from "vuetify-use-dialog";
 
 import { VDataTable } from "vuetify/components";
@@ -59,9 +60,10 @@ const tableHeaders: VDataTable["headers"] = [
 
 const tableItems = computedAsync(async () => {
   return await Promise.all(
-    signatures.value.map(async (signature: { key: Uint8Array; signature: Uint8Array }) => {
+    signatures.value.map(async (signature: { key: Uint8Array; signature: Uint8Array }, index) => {
       if (hash.value) {
         return {
+          index,
           key: bytesToHex(signature.key),
           signature: bytesToHex(signature.signature),
           valid: await verifySignature(hash.value, signature.key, signature.signature),
@@ -123,10 +125,26 @@ async function signBundle() {
   toast.success(`Signature ${existingSignature ? "updated" : "added"}`);
 }
 
+function shorten(value: string) {
+  return value.length > 20 ? `${value.slice(0, 10)}...${value.slice(-10)}` : value;
+}
+
 async function deleteSignature(index: number) {
-  const signature = tableItems.value[index]?.signature;
+  const item = tableItems.value.find((item) => item?.index === index);
+  const publicKey = item?.key;
   const isConfirmed = await createConfirm({
-    content: `Delete signature '${signature}'`,
+    dialogProps: { maxWidth: 500 },
+    confirmationText: "Delete",
+    confirmationButtonProps: { color: "red", variant: "flat" },
+    cancellationText: "Cancel",
+    cancellationButtonProps: { color: "grey", variant: "flat" },
+    contentComponent: {
+      render: () =>
+        h("div", [
+          `Delete signature '${shorten(item?.signature ?? "")}' from `,
+          h(ChipUser, { publicKey }),
+        ]),
+    },
   });
 
   if (!isConfirmed) return;
@@ -144,11 +162,8 @@ if (import.meta.env.VITE_DEBUG === "true") {
 </script>
 
 <template>
-  <v-text-field
-    v-if="canUseStore === false || storeKey === undefined"
-    v-model="privateKeyHex"
-    label="Custom private key"
-  >
+  <v-text-field v-if="canUseStore === false || storeKey === undefined" v-model="privateKeyHex"
+    label="Custom private key">
     <template #prepend>
       <v-tooltip location="bottom">
         <template #activator="{ props: localProps }">
@@ -172,12 +187,8 @@ if (import.meta.env.VITE_DEBUG === "true") {
         <v-fade-transition>
           <span v-show="disabled" class="ma-3"> Save changes before signing </span>
         </v-fade-transition>
-        <v-btn
-          variant="tonal"
-          prepend-icon="mdi-file-sign"
-          :disabled="hash === undefined || disabled"
-          @click="signBundle()"
-        >
+        <v-btn variant="tonal" prepend-icon="mdi-file-sign" :disabled="hash === undefined || disabled"
+          @click="signBundle()">
           Sign
         </v-btn>
       </v-toolbar>
@@ -186,13 +197,7 @@ if (import.meta.env.VITE_DEBUG === "true") {
       <chip-signatures v-if="item" :no-alpha-tag="true" :signatures="[{ key: item.key }]" />
     </template>
     <template #item.signature="{ item }">
-      <v-text-field
-        v-model="item.signature"
-        readonly
-        class="ma-2"
-        variant="solo"
-        hide-details="auto"
-      />
+      <v-text-field v-model="item.signature" readonly class="ma-2" variant="solo" hide-details="auto" />
     </template>
     <template #item.valid="{ item }">
       <v-chip v-if="item.valid" color="green"> Yes </v-chip>

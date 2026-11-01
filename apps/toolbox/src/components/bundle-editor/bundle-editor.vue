@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Bundle } from "@deconz-community/ddf-bundler";
-import { encode, generateHash } from "@deconz-community/ddf-bundler";
+import { encode, generateHash, verifySignature } from "@deconz-community/ddf-bundler";
 import { bytesToHex } from "@noble/hashes/utils.js";
 import { useVModel } from "@vueuse/core";
 import { saveAs } from "file-saver";
@@ -14,12 +14,19 @@ const props = defineProps<{
   modelValue: ReturnType<typeof Bundle>;
 }>();
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits<{
+  "update:modelValue": [bundle: ReturnType<typeof Bundle>];
+  status: [status: { dirty: boolean; hasUuid: boolean; invalidSignatures: boolean }];
+}>();
 
 const bundle = useVModel(props, "modelValue", emit);
 
+// The bundle is marked raw (not reactive), so the signatures are wrapped to track add/remove
+const signatureList = ref(bundle.value.data.signatures);
+watch(bundle, (newBundle) => (signatureList.value = newBundle.data.signatures));
+
 const signatures = computed(() =>
-  bundle.value.data.signatures.map((signature) => {
+  signatureList.value.map((signature) => {
     return {
       key: bytesToHex(signature.key),
     };
@@ -68,6 +75,22 @@ function updateUUID(uuid: string) {
 function setDirty() {
   dirty.value = true;
 }
+
+async function emitStatus() {
+  const { hash, signatures, desc } = bundle.value.data;
+  const results = await Promise.all(
+    signatures.map((item) =>
+      hash ? verifySignature(hash, item.key, item.signature) : Promise.resolve(false),
+    ),
+  );
+  emit("status", {
+    dirty: dirty.value,
+    hasUuid: !!desc.uuid,
+    invalidSignatures: results.some((valid) => !valid),
+  });
+}
+
+watch([bundle, dirty, signatureList], emitStatus, { immediate: true, deep: true });
 </script>
 
 <template>
@@ -99,7 +122,7 @@ function setDirty() {
       <v-tab value="signatures">
         <v-icon size="x-large" icon="mdi-file" start />
         {{
-          `${bundle.data.signatures.length} ${bundle.data.signatures.length > 1 ? "Signatures" : "Signature"}`
+          `${signatureList.length} ${signatureList.length > 1 ? "Signatures" : "Signature"}`
         }}
       </v-tab>
 
@@ -131,9 +154,10 @@ function setDirty() {
 
         <v-window-item value="signatures">
           <bundle-editor-signatures
-            v-model="bundle.data.signatures"
+            v-model="signatureList"
             :hash="bundle.data.hash"
             :disabled="dirty"
+            @change="emitStatus()"
           />
         </v-window-item>
       </v-window>
