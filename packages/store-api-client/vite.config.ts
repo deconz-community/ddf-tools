@@ -4,21 +4,28 @@ import { defineConfig } from "vite-plus";
 export default defineConfig({
   pack: {
     entry: ["index.ts"],
+    tsconfig: "tsconfig.build.json",
     format: "esm",
     clean: false,
-    watch: ["index.ts", "src"],
     dts: { emitDtsOnly: true },
     outExtensions: () => ({ dts: ".d.ts" }),
     outputOptions: { codeSplitting: false },
   },
+  resolve: {
+    alias: {
+      "@deconz-community/ddf-store/app": path.resolve(
+        __dirname,
+        "../../packages/store/src/http/app.ts",
+      ),
+      "~/": `${path.resolve(__dirname, "src")}/`,
+    },
+  },
+
   build: {
     lib: {
       entry: path.resolve(__dirname, "index.ts"),
       formats: ["es"],
       fileName: () => "store-api-client.mjs",
-    },
-    rollupOptions: {
-      external: ["hono"],
     },
   },
 });

@@ -4,6 +4,9 @@
     "lib": ["DOM", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@deconz-community/ddf-store/app": ["../../apps/store/src/http/app.ts"],
+    },
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
