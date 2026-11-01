@@ -42,6 +42,13 @@ const { cloned: files, sync: syncFiles } = useCloned(() => bundle.value.data.fil
   },
 });
 
+const validation = ref(bundle.value.data.validation);
+watch(bundle, (newBundle) => (validation.value = newBundle.data.validation));
+
+const validationErrorCount = computed(() =>
+  validation.value?.result === "error" ? validation.value.errors.length : 0,
+);
+
 async function save() {
   bundle.value.data.files = files.value;
   bundle.value.generateDESC();
@@ -118,6 +125,12 @@ watch([bundle, dirty, signatureList], emitStatus, { immediate: true, deep: true 
       <v-tab value="validation">
         <v-icon size="x-large" icon="mdi-file-code" start />
         Validation
+        <v-badge
+          v-if="validationErrorCount > 0"
+          :content="validationErrorCount"
+          color="error"
+          inline
+        />
       </v-tab>
       <v-tab value="signatures">
         <v-icon size="x-large" icon="mdi-file" start />
@@ -149,7 +162,12 @@ watch([bundle, dirty, signatureList], emitStatus, { immediate: true, deep: true 
         </v-window-item>
 
         <v-window-item value="validation">
-          <bundle-editor-validation :bundle="bundle" @change="setDirty()" />
+          <bundle-editor-validation
+            v-model="validation"
+            :bundle="bundle"
+            :files="files"
+            @change="setDirty()"
+          />
         </v-window-item>
 
         <v-window-item value="signatures">

@@ -6,7 +6,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "@deconz-community/ddf-bundler": ["../../packages/bundler/index.ts"]
     },
     "resolveJsonModule": true,
     "types": [

@@ -1,80 +1,63 @@
 <script setup lang="ts">
-import type { Bundle, ValidationError } from "@deconz-community/ddf-bundler";
+import type { Bundle, ValidationError, ValidationResult } from "@deconz-community/ddf-bundler";
 import { createValidator } from "@deconz-community/ddf-validator";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 
 const props = defineProps<{
   bundle: ReturnType<typeof Bundle>;
+  files: ReturnType<typeof Bundle>["data"]["files"];
+  modelValue?: ValidationResult;
 }>();
 
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits<{
+  "update:modelValue": [result: ValidationResult];
+  change: [];
+}>();
 
-const bundle = useVModel(props, "bundle", emit);
+// The bundle is marked raw (not reactive), so the result is also exposed through v-model
+const validation = useVModel(props, "modelValue", emit);
 
-function validate() {
+function computeValidation(): ValidationResult {
   const validator = createValidator();
+  const ddfcFile = props.files.find((file) => file.type === "DDFC");
 
-  const ddfcSource = bundle.value.data.files.find((file) => file.type === "DDFC")?.data;
-
-  if (!ddfcSource) {
-    bundle.value.data.validation = {
+  if (!ddfcFile) {
+    return {
       result: "error",
       version: validator.version,
-      errors: [
-        {
-          type: "simple",
-          message: "No DDFC file found.",
-        },
-      ],
+      errors: [{ type: "simple", message: "No DDFC file found." }],
     };
-
-    emit("change");
-    return;
-  }
-
-  const ddfc = JSON.parse(ddfcSource);
-
-  if (ddfc.ddfvalidate === false) {
-    bundle.value.data.validation = {
-      result: "skipped",
-      version: validator.version,
-    };
-
-    emit("change");
-    return;
-  }
-
-  const validationResult = validator.bulkValidate(
-    // Generic files
-    bundle.value.data.files
-      .filter((file) => file.type === "JSON")
-      .map((file) => {
-        return {
-          path: file.path,
-          data: JSON.parse(file.data as string),
-        };
-      }),
-    // DDF file
-    [
-      {
-        path: bundle.value.data.name,
-        data: ddfc,
-      },
-    ],
-  );
-
-  if (validationResult.length === 0) {
-    bundle.value.data.validation = {
-      result: "success",
-      version: validator.version,
-    };
-
-    emit("change");
-    return;
   }
 
   const errors: ValidationError[] = [];
+  const parseJSON = (file: { path: string; data: string }) => {
+    try {
+      return JSON.parse(file.data);
+    } catch (caught) {
+      errors.push({
+        type: "simple",
+        message: caught instanceof Error ? caught.message : String(caught),
+        file: file.path,
+      });
+      return undefined;
+    }
+  };
+
+  const ddfc = parseJSON(ddfcFile);
+  const genericFiles = props.files
+    .filter((file) => file.type === "JSON")
+    .map((file) => ({ path: file.path, data: parseJSON(file) }));
+
+  if (errors.length > 0) return { result: "error", version: validator.version, errors };
+
+  if (ddfc?.ddfvalidate === false) return { result: "skipped", version: validator.version };
+
+  const validationResult = validator.bulkValidate(genericFiles, [
+    { path: props.bundle.data.name, data: ddfc },
+  ]);
+
+  if (validationResult.length === 0) return { result: "success", version: validator.version };
 
   validationResult.forEach(({ path, error }) => {
     if (error instanceof ZodError) {
@@ -83,24 +66,21 @@ function validate() {
           type: "code",
           message: detail.message,
           file: path,
-          path: detail.path,
+          path: detail.path.map((part) => (typeof part === "symbol" ? String(part) : part)),
         });
       });
     } else {
-      errors.push({
-        type: "simple",
-        message: error.toString(),
-        file: path,
-      });
+      errors.push({ type: "simple", message: error.toString(), file: path });
     }
   });
 
-  bundle.value.data.validation = {
-    result: "error",
-    version: validator.version,
-    errors,
-  };
+  return { result: "error", version: validator.version, errors };
+}
 
+function validate() {
+  const result = computeValidation();
+  props.bundle.data.validation = result;
+  validation.value = result;
   emit("change");
 }
 </script>
@@ -109,26 +89,27 @@ function validate() {
   <v-btn class="ma-2" variant="tonal" @click="validate()"> Validate </v-btn>
 
   <v-alert
-    v-if="bundle.data.validation?.result === 'success'"
+    v-if="validation?.result === 'success'"
     class="ma-2"
     type="success"
     title="Validation result"
     text="This bundle passed the validation."
   />
 
-  <template v-else-if="bundle.data.validation?.result === 'error'">
+  <template v-else-if="validation?.result === 'error'">
     <v-alert
       class="ma-2"
       type="error"
       title="Validation result"
-      :text="`${bundle.data.validation?.errors.length} errors found.`"
+      :text="`${validation?.errors.length} errors found.`"
     />
 
-    <template v-for="(error, index) in bundle.data.validation?.errors" :key="index">
+    <template v-for="(error, index) in validation?.errors" :key="index">
       <v-card
         v-if="error.type === 'simple'"
         class="ma-2"
         variant="outlined"
+        :title="error.file ? `File : ${error.file}` : undefined"
         :text="error.message"
       />
       <v-card
@@ -142,7 +123,7 @@ function validate() {
   </template>
 
   <v-alert
-    v-else-if="bundle.data.validation?.result === 'skipped'"
+    v-else-if="validation?.result === 'skipped'"
     class="ma-2"
     type="warning"
     title="Validation result"
