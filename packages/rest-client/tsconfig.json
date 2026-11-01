@@ -3,7 +3,9 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM"],
     "useDefineForClassFields": true,
-    "rootDir": "./",
+    "paths": {
+      "@deconz-community/ddf-bundler": ["../bundler/index.ts"]
+    },
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
