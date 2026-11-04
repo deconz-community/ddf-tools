@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Bundle, decode } from "@deconz-community/ddf-bundler";
+import { type Bundle, decode, encode } from "@deconz-community/ddf-bundler";
 import type { StoreUploadState } from "@deconz-community/store-api-client";
 
 const error = ref("");
@@ -13,11 +13,15 @@ const statuses = ref<
 const defaultState = ref<StoreUploadState>("alpha");
 
 watch(files, async () => {
+  const selected = [...files.value];
   bundles.value = [];
   statuses.value = {};
-  files.value.forEach(async (file) => {
-    bundles.value.push(markRaw(await decode(file)));
-  });
+  // Decode in parallel but keep the selection order, so bundles[i] always matches files[i].
+  const decoded = await Promise.all(selected.map(async (file) => markRaw(await decode(file))));
+  // Ignore the result if the selection changed while decoding.
+  if (files.value.length !== selected.length || files.value.some((f, i) => f !== selected[i]))
+    return;
+  bundles.value = decoded;
 });
 
 const disabledReason = computed(() => {
@@ -37,7 +41,8 @@ async function upload() {
       throw new Error("You must be logged in to upload a bundle");
 
     const result = await store.uploadBundles(
-      files.value.map((file) => ({ name: file.name, content: file })),
+      // Upload the (possibly edited) bundles, not the original files.
+      files.value.map((file, index) => ({ name: file.name, content: encode(bundles.value[index]!) })),
       defaultState.value,
     );
     if (!result) throw new Error("The store API is unavailable.");

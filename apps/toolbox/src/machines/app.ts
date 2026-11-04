@@ -80,9 +80,7 @@ export const appMachine = setup({
         spawn("storeMachine", {
           id: "store",
           systemId: "store",
-          input: {
-            storeApiUrl: import.meta.env.VITE_STORE_API_URL ?? "http://localhost:3000",
-          },
+          input: {},
         }),
       gateways: new Map(),
     }),

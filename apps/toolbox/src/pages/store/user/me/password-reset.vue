@@ -64,8 +64,8 @@ async function updatePassword() {
   try {
     if (!store.api) throw new Error("Store account service is unavailable.");
     await store.api.confirmPasswordReset(queryToken.value, state.password);
-    store.send({ type: "LOGIN_WITH_PASSWORD", email: email.value, password: state.password });
-    toast.success("Password updated");
+    toast.success("Password updated, you can now log in with your new password.");
+    clear();
   } catch (error) {
     toastError(error);
   } finally {

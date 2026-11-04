@@ -83,7 +83,7 @@ describe("migrateDirectus", () => {
     });
     expect(await profile.json()).toMatchObject({
       id: source.userId,
-      username: "Ada Lovelace",
+      username: "Ada Example",
       public_key: contributorPublicKey,
       is_contributor: true,
       date_created: "2019-05-06T07:08:09.000Z",

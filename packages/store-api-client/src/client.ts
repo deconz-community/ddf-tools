@@ -236,9 +236,16 @@ export class StoreApiError extends Error {
   }
 }
 
+// Linear-time replacement for `/\/+$/`, which CodeQL flags as polynomial ReDoS.
+function trimTrailingSlashes(url: string): string {
+  let end = url.length;
+  while (end > 0 && url[end - 1] === "/") end--;
+  return url.slice(0, end);
+}
+
 export function createStoreClient(options: StoreClientOptions): StoreClient {
   const fetcher = options.fetch ?? fetch;
-  const baseUrl = `${options.url.replace(/\/+$/, "")}/v1`;
+  const baseUrl = `${trimTrailingSlashes(options.url)}/v1`;
   return {
     request(path, init = {}) {
       const url = new URL(`${baseUrl}${path}`);
@@ -265,7 +272,7 @@ export function createStoreClient(options: StoreClientOptions): StoreClient {
 
 export function createStoreAccountClient(options: StoreAccountClientOptions): StoreAccountClient {
   const fetcher = options.fetch ?? fetch;
-  const baseUrl = `${options.url.replace(/\/+$/, "")}/v1`;
+  const baseUrl = `${trimTrailingSlashes(options.url)}/v1`;
 
   async function request<T>(
     path: string,

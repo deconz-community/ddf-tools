@@ -9,6 +9,14 @@ import {
 } from "@deconz-community/store-api-client";
 import { toastError } from "~/lib/handleError";
 
+/**
+ * Store API used when nothing is configured. Only development builds fall back to a local
+ * server; production builds must be given `VITE_STORE_API_URL` (or a URL in the settings),
+ * otherwise the store stays offline instead of pointing users at `localhost`.
+ */
+export const defaultStoreApiUrl: string =
+  import.meta.env.VITE_STORE_API_URL || (import.meta.env.DEV ? "http://localhost:3000" : "");
+
 export interface StoreContext {
   storeApiUrl: string;
   storeClient?: StoreClient;
@@ -55,6 +63,7 @@ export const storeMachine = setup({
         storeApiUrl: string;
       }
     >(async ({ input }) => {
+      if (!input.storeApiUrl) throw new Error("No store API URL is configured.");
       const storeClient = createStoreClient({ url: input.storeApiUrl });
       await searchBundles(storeClient);
       const storeApi = createStoreAccountClient({ url: input.storeApiUrl });
@@ -117,7 +126,7 @@ export const storeMachine = setup({
   id: "store",
 
   context: ({ input }) => ({
-    storeApiUrl: input.storeApiUrl ?? import.meta.env.VITE_STORE_API_URL ?? "http://localhost:3000",
+    storeApiUrl: input.storeApiUrl ?? defaultStoreApiUrl,
   }),
 
   states: {
@@ -227,6 +236,13 @@ export const storeMachine = setup({
                     type: "UPDATE_PROFILE",
                     profile: event.output,
                   })),
+                },
+                // A failed refresh (network error, blocked cookies) must not crash the machine:
+                // stay connected so the user can still log out or retry.
+                onError: {
+                  actions: ({ event }) => {
+                    void toastError(event.error);
+                  },
                 },
               },
             },

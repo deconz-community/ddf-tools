@@ -69,7 +69,7 @@ server-backed session cookie.
   (case-insensitive substring), has_key (exact signature key), show_deprecated (true to include
   deprecated bundles). Filters apply to the latest bundle only. Returns
   { items, total_count, page, limit } with Cache-Control: no-store.
-- `GET /v1/bundles/:id/download`: the stored DDB bytes, with immutable cache headers.
+- `GET /v1/bundles/:id/download`: the stored DDB bytes, with `Cache-Control: public, no-cache` and an `ETag` (conditional requests get a `304`), because signature changes rewrite the stored bytes.
 - `POST /v1/ddf-uuids`: authenticated JSON `{ "count": 1 }` through `{ "count": 100 }`.
   Returns `{ uuids, expire_at }`, with the reserved UUIDs expiring 21 days after creation.
 - `POST /v1/bundles`: authenticated multipart form with one or more `files` fields and an

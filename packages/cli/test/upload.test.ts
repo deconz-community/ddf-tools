@@ -1,6 +1,7 @@
 import { createHash, createECDH } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { copyFile, mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { Command } from "@commander-js/extra-typings";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { decode, encode, sign } from "../../bundler/index.js";
@@ -97,6 +98,10 @@ describe("CLI bundle upload", () => {
 
   it("supports bulk upload for a directory and reports each result", async () => {
     const { store, secret, privateKey } = setup();
+    // The shared fixture directory also holds an invalid-signature bundle, and the stubbed
+    // readFile returns the same content for every file, so upload from a directory of our own.
+    const directory = await mkdtemp(join(tmpdir(), "ddf-cli-bulk-"));
+    await copyFile(fixture, join(directory, "starkvind_air_purifier.ddb"));
     const lines: string[] = [];
     const command = new Command();
     const signed = await signedFixture(privateKey);
@@ -113,7 +118,7 @@ describe("CLI bundle upload", () => {
         "test",
         "bulk",
         "upload",
-        resolve(fixture, ".."),
+        directory,
         "--store-url",
         "http://store.test",
         "--store-token",
@@ -123,6 +128,8 @@ describe("CLI bundle upload", () => {
       ],
       { from: "node" },
     );
+
+    await rm(directory, { recursive: true, force: true });
 
     expect(lines.join("\n")).toContain("starkvind_air_purifier.ddb uploaded successfully");
     expect(store.client.prepare("SELECT id FROM bundles").all()).toHaveLength(1);

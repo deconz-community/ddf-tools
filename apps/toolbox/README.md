@@ -15,7 +15,9 @@ Current version avaliable at https://deconz-community.github.io/ddf-tools/
 ## Development
 
 The toolbox uses `VITE_STORE_API_URL` for account, profile, and public-user
-requests. It defaults to `http://localhost:3000`; configure the API's
+requests. In development it defaults to `http://localhost:3000`; production
+builds have no default and stay offline unless it is set (the Pages workflow
+reads it from the `STORE_API_URL` repository variable). Configure the API's
 `CORS_ORIGINS` with the toolbox's browser origin.
 
 ### Know issues

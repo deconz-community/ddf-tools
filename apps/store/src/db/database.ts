@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { drizzle } from "drizzle-orm/better-sqlite3";
@@ -27,7 +27,11 @@ export function openDatabase(path: string): { client: Database.Database; databas
 export type StoreDatabase = ReturnType<typeof drizzle<typeof schema>>;
 
 export function runMigrations(database: StoreDatabase): void {
-  migrate(database, {
-    migrationsFolder: resolve(dirname(fileURLToPath(import.meta.url)), "../../drizzle"),
-  });
+  const here = dirname(fileURLToPath(import.meta.url));
+  // Source layout is src/db/, the bundled layout is dist/ (one level below the package root).
+  const migrationsFolder = [resolve(here, "../../drizzle"), resolve(here, "../drizzle")].find(
+    (candidate) => existsSync(resolve(candidate, "meta/_journal.json")),
+  );
+  if (!migrationsFolder) throw new Error("Could not locate the drizzle migrations folder.");
+  migrate(database, { migrationsFolder });
 }

@@ -40,18 +40,32 @@ describe("GET /v1/bundles/:id/download", () => {
     expect(Buffer.from(await response.arrayBuffer()).equals(content)).toBe(true);
   });
 
-  it("sets immutable cache and download headers", async () => {
+  it("sets revalidating cache and download headers", async () => {
     const { app, seedBundle } = setup();
     const { id } = seedBundle({ product: "Starkvind Air", content: realBundle });
 
     const response = await app.request("/v1/bundles/" + id + "/download");
 
-    expect(response.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+    expect(response.headers.get("cache-control")).toBe("public, no-cache");
     expect(response.headers.get("content-type")).toBe("application/x-deconz-ddf-bundle");
     expect(response.headers.get("content-length")).toBe(String(realBundle.length));
     expect(response.headers.get("content-disposition")).toMatch(
       /^attachment; filename=starkvind-air-[\w-]+\.ddb$/,
     );
+  });
+
+  it("answers 304 when the ETag still matches", async () => {
+    const { app, seedBundle } = setup();
+    const { id } = seedBundle({ content: realBundle });
+
+    const first = await app.request("/v1/bundles/" + id + "/download");
+    const etag = first.headers.get("etag")!;
+    const second = await app.request("/v1/bundles/" + id + "/download", {
+      headers: { "If-None-Match": etag },
+    });
+
+    expect(second.status).toBe(304);
+    expect(second.headers.get("etag")).toBe(etag);
   });
 
   it("allows downloading deprecated bundles", async () => {

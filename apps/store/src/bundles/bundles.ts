@@ -262,6 +262,16 @@ export function bundlesRoutes(database: StoreDatabase) {
       }
 
       const slug = slugify(bundle.product + "-" + id.slice(-10)) || "bundle";
+      const etag = '"' + bundle.content_hash + '"';
+      // The stored bytes embed the signatures, which /signatures and /deprecate rewrite, so the
+      // response must be revalidated instead of cached as immutable.
+      const ifNoneMatch = context.req.header("If-None-Match");
+      if (
+        ifNoneMatch &&
+        ifNoneMatch.split(",").some((tag) => tag.trim().replace(/^W\//, "") === etag)
+      ) {
+        return context.body(null, 304, { "Cache-Control": "public, no-cache", ETag: etag });
+      }
       // Use context.body so headers set by the CORS middleware are kept.
       return context.body(
         new ReadableStream({
@@ -275,8 +285,8 @@ export function bundlesRoutes(database: StoreDatabase) {
           "Content-Type": "application/x-deconz-ddf-bundle",
           "Content-Length": String(bundle.content.length),
           "Content-Disposition": "attachment; filename=" + slug + ".ddb",
-          "Cache-Control": "public, max-age=31536000, immutable",
-          ETag: '"' + bundle.content_hash + '"',
+          "Cache-Control": "public, no-cache",
+          ETag: etag,
         },
       );
     });
