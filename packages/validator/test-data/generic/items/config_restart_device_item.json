@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "config/restart_device",
-  "datatype": "Bool",
-  "access": "RW",
-  "public": true,
-  "description": "Restart the device.",
-  "default": false
-}

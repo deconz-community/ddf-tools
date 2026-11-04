@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "config/configured",
-  "datatype": "Bool",
-  "access": "R",
-  "public": true,
-  "default": false,
-  "description": "Determines that a resource is configured."
-}

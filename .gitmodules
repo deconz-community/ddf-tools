@@ -1,0 +1,3 @@
+[submodule "lib/deconz-rest-plugin"]
+	path = lib/deconz-rest-plugin
+	url = https://github.com/dresden-elektronik/deconz-rest-plugin.git

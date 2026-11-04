@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "config/reversed",
-  "datatype": "Bool",
-  "access": "RW",
-  "public": true,
-  "description": "Direction is reversed for window covering devices.",
-  "default": false
-}

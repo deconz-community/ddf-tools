@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "cap/color/ct/computes_xy",
-  "datatype": "Bool",
-  "access": "R",
-  "public": true,
-  "description": "Light computes and updates `xy` value when setting `ct`.",
-  "static": true
-}

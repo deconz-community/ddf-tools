@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "state/mountingmodeactive",
-  "datatype": "Bool",
-  "access": "R",
-  "public": true,
-  "default": false,
-  "description": "The current mounting mode state."
-}

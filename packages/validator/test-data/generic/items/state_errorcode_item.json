@@ -1,8 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "state/errorcode",
-  "datatype": "String",
-  "access": "R",
-  "public": true,
-  "description": "The error code given by the device."
-}
