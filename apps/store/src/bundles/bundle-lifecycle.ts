@@ -38,17 +38,10 @@ function configuredSigningKey(
 ): SigningKey | undefined {
   const configured = options.systemSigningKeys?.[kind];
   if (!configured) return undefined;
-  const defaultPublicKey =
-    kind === "beta"
-      ? BETA_PUBLIC_KEY
-      : kind === "stable"
-        ? STABLE_PUBLIC_KEY
-        : DEPRECATED_PUBLIC_KEY;
-  const publicKey = (configured.publicKey ?? defaultPublicKey).toLowerCase();
-  let privateKey: Uint8Array;
+  const publicKey = configured.publicKey.toLowerCase();
+  const privateKey = configured.privateKey;
   try {
-    privateKey = hexToBytes(configured.privateKey);
-    if (bytesToHex(secp256k1.getPublicKey(privateKey)) !== publicKey) throw new Error();
+    if (bytesToHex(secp256k1.getPublicKey(hexToBytes(privateKey))) !== publicKey) throw new Error();
   } catch {
     throw new Error(`The configured ${kind} signing key is invalid.`);
   }
@@ -163,7 +156,7 @@ function signState(
     if (!key) throw new Error(`The server is missing the ${state} signing key.`);
     decoded.data.signatures.push({
       key: hexToBytes(key.publicKey),
-      signature: createSignature(decoded.data.hash!, key.privateKey),
+      signature: createSignature(decoded.data.hash!, hexToBytes(key.privateKey)),
     });
   }
 }
@@ -183,7 +176,7 @@ function setDeprecationSignature(
     if (!key) throw new Error("The server is missing the deprecated signing key.");
     decoded.data.signatures.push({
       key: hexToBytes(key.publicKey),
-      signature: createSignature(decoded.data.hash!, key.privateKey),
+      signature: createSignature(decoded.data.hash!, hexToBytes(key.privateKey)),
     });
   }
 }

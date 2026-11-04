@@ -1,3 +1,8 @@
+import {
+  BETA_PUBLIC_KEY,
+  DEPRECATED_PUBLIC_KEY,
+  STABLE_PUBLIC_KEY,
+} from "@deconz-community/ddf-bundler";
 import { serve } from "@hono/node-server";
 import nodemailer from "nodemailer";
 import { loadConfig } from "./config.js";
@@ -56,10 +61,19 @@ function start(): void {
           avatarPath: config.avatarPath,
           secureCookies: config.secureCookies,
           systemSigningKeys: {
-            ...(config.betaPrivateKey ? { beta: { privateKey: config.betaPrivateKey } } : {}),
-            ...(config.stablePrivateKey ? { stable: { privateKey: config.stablePrivateKey } } : {}),
+            ...(config.betaPrivateKey
+              ? { beta: { publicKey: BETA_PUBLIC_KEY, privateKey: config.betaPrivateKey } }
+              : {}),
+            ...(config.stablePrivateKey
+              ? { stable: { publicKey: STABLE_PUBLIC_KEY, privateKey: config.stablePrivateKey } }
+              : {}),
             ...(config.deprecatedPrivateKey
-              ? { deprecated: { privateKey: config.deprecatedPrivateKey } }
+              ? {
+                  deprecated: {
+                    publicKey: DEPRECATED_PUBLIC_KEY,
+                    privateKey: config.deprecatedPrivateKey,
+                  },
+                }
               : {}),
           },
         }).fetch,

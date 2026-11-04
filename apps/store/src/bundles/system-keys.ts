@@ -7,9 +7,9 @@ import type { AccountOptions } from "../auth/accounts.js";
 
 export function systemPublicKeys(options: AccountOptions) {
   return {
-    beta: options.systemSigningKeys?.beta?.publicKey?.toLowerCase() ?? BETA_PUBLIC_KEY,
-    stable: options.systemSigningKeys?.stable?.publicKey?.toLowerCase() ?? STABLE_PUBLIC_KEY,
+    beta: options.systemSigningKeys?.beta?.publicKey.toLowerCase() ?? BETA_PUBLIC_KEY,
+    stable: options.systemSigningKeys?.stable?.publicKey.toLowerCase() ?? STABLE_PUBLIC_KEY,
     deprecated:
-      options.systemSigningKeys?.deprecated?.publicKey?.toLowerCase() ?? DEPRECATED_PUBLIC_KEY,
+      options.systemSigningKeys?.deprecated?.publicKey.toLowerCase() ?? DEPRECATED_PUBLIC_KEY,
   };
 }

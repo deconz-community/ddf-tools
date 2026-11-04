@@ -46,9 +46,9 @@ function stateKey(
 ): SigningKey | undefined {
   const configured = options.systemSigningKeys?.[state];
   if (!configured) return undefined;
-  const publicKey = configured.publicKey ?? systemPublicKeys(options)[state];
-  const privateKey = hexToBytes(configured.privateKey);
-  if (bytesToHex(secp256k1.getPublicKey(privateKey)) !== publicKey.toLowerCase()) {
+  const publicKey = configured.publicKey;
+  const privateKey = configured.privateKey;
+  if (bytesToHex(secp256k1.getPublicKey(hexToBytes(privateKey))) !== publicKey.toLowerCase()) {
     throw new UploadError("system_key_invalid", `The configured ${state} signing key is invalid.`);
   }
   return { publicKey: publicKey.toLowerCase(), privateKey };
@@ -65,10 +65,8 @@ function publicKeyForUser(
     );
   }
   let derivedKey: string;
-  let privateKeyBytes: Uint8Array;
   try {
-    privateKeyBytes = hexToBytes(privateKey);
-    derivedKey = bytesToHex(secp256k1.getPublicKey(privateKeyBytes));
+    derivedKey = bytesToHex(secp256k1.getPublicKey(hexToBytes(privateKey)));
   } catch {
     throw new UploadError("uploader_keypair_invalid", "The uploader signing key is invalid.");
   }
@@ -78,7 +76,7 @@ function publicKeyForUser(
       "The public key does not match the private key in the uploader profile.",
     );
   }
-  return { publicKey: derivedKey, privateKey: privateKeyBytes };
+  return { publicKey: derivedKey, privateKey };
 }
 
 function fileFailure(file: string, code: string, message: string): FileResult {
@@ -159,7 +157,7 @@ async function processFile(
       ) {
         bundle.data.signatures.push({
           key: hexToBytes(expected.publicKey),
-          signature: createSignature(bundle.data.hash, expected.privateKey),
+          signature: createSignature(bundle.data.hash, hexToBytes(expected.privateKey)),
         });
         dirty = true;
       }

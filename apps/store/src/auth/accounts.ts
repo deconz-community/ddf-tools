@@ -19,12 +19,10 @@ export interface AccountOptions {
   secureCookies?: boolean;
   logger?: Pick<Console, "warn">;
   now?: () => number;
-  systemSigningKeys?: Partial<
-    Record<"beta" | "stable" | "deprecated", { privateKey: string; publicKey?: string }>
-  >;
+  systemSigningKeys?: Partial<Record<"beta" | "stable" | "deprecated", SigningKey>>;
 }
 
-export type SigningKey = { publicKey: string; privateKey: Uint8Array };
+export type SigningKey = { publicKey: string; privateKey: string };
 
 const registrationSchema = z.object({
   email: z.email(),
