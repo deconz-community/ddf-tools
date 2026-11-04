@@ -4,6 +4,7 @@ import argon2 from "argon2";
 import { eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { availableUsername } from "../auth/username.js";
 import { loadConfig } from "../config.js";
 import { openDatabase, runMigrations } from "../db/database.js";
 import { migrateDirectus } from "./migrate-directus.js";
@@ -81,6 +82,9 @@ export async function runCli(
               id,
               email,
               passwordHash,
+              username: availableUsername(
+                (name) => !!database.select().from(users).where(eq(users.username, name)).get(),
+              ),
               publicKey: bytesToHex(secp256k1.getPublicKey(privateKey)),
               privateKey: bytesToHex(privateKey),
               isContributor: rest.includes("--contributor"),

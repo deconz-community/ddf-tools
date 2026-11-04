@@ -97,7 +97,7 @@ describe("store account client API tokens", () => {
       },
     });
     const credentials = { email: "cli@example.com", password: "a secure password" };
-    await sessionApi.register(credentials);
+    await sessionApi.register({ ...credentials, username: "Cli" });
     await sessionApi.login(credentials);
 
     const created = await sessionApi.createToken("laptop");

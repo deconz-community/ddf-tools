@@ -34,10 +34,27 @@ describe("account registration and verification", () => {
     });
     const headers = { origin, "x-store-request": "1", "content-type": "application/json" };
 
+    for (const username of [undefined, "", "   "]) {
+      const rejected = await app.request("/v1/auth/register", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          email: "nameless@example.com",
+          password: "a secure password",
+          username,
+        }),
+      });
+      expect(rejected.status).toBe(400);
+    }
+
     const registration = await app.request("/v1/auth/register", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email: "Person@Example.com", password: "a secure password" }),
+      body: JSON.stringify({
+        email: "Person@Example.com",
+        password: "a secure password",
+        username: "Person",
+      }),
     });
 
     expect(registration.status).toBe(201);
@@ -47,8 +64,24 @@ describe("account registration and verification", () => {
       user: { email: "person@example.com" },
       verification_required: true,
     });
+    expect(
+      client.prepare("SELECT username FROM users WHERE email = ?").get("person@example.com"),
+    ).toEqual({ username: "Person" });
     expect(messages).toHaveLength(1);
     expect(messages[0]?.email).toBe("person@example.com");
+
+    const duplicateUsername = await app.request("/v1/auth/register", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        email: "other@example.com",
+        password: "a secure password",
+        username: "Person",
+      }),
+    });
+    expect(duplicateUsername.status).toBe(409);
+    expect(await duplicateUsername.json()).toMatchObject({ error: { code: "username_exists" } });
+    expect(messages).toHaveLength(1);
 
     const unverifiedLogin = await app.request("/v1/auth/login", {
       method: "POST",
@@ -118,6 +151,14 @@ describe("account registration and verification", () => {
       public_key: "public-key-1",
       private_key: "private-key-1",
     });
+    for (const username of [null, "", "   "]) {
+      const rejected = await app.request("/v1/me", {
+        method: "PATCH",
+        headers: { ...headers, cookie: cookie ?? "" },
+        body: JSON.stringify({ username }),
+      });
+      expect(rejected.status).toBe(400);
+    }
     const attemptToChangeOwner = await app.request("/v1/me", {
       method: "PATCH",
       headers: { ...headers, cookie: cookie ?? "" },
@@ -198,7 +239,11 @@ describe("account registration and verification", () => {
       allowedOrigins: [origin],
       logger: { warn: (warning) => warnings.push(warning) },
     });
-    const body = JSON.stringify({ email: "person@example.com", password: "a secure password" });
+    const body = JSON.stringify({
+      email: "person@example.com",
+      password: "a secure password",
+      username: "Person",
+    });
 
     const noOrigin = await app.request("/v1/auth/register", {
       method: "POST",

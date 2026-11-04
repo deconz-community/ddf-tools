@@ -6,6 +6,7 @@ import { randomBytes, randomUUID, createHash } from "node:crypto";
 import { z } from "zod";
 import type { StoreDatabase } from "../db/database.js";
 import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "../db/schema.js";
+import { isUniqueViolation } from "./username.js";
 
 export interface AccountMailer {
   sendVerification(email: string, token: string): Promise<void>;
@@ -24,10 +25,12 @@ export interface AccountOptions {
 
 export type SigningKey = { publicKey: string; privateKey: string };
 
-const registrationSchema = z.object({
+const loginSchema = z.object({
   email: z.email(),
   password: z.string().min(8).max(128),
-  username: z.string().trim().max(100).optional(),
+});
+const registrationSchema = loginSchema.extend({
+  username: z.string().trim().min(1).max(100),
 });
 
 const verificationSchema = z.object({ token: z.string().min(1).max(200) });
@@ -36,10 +39,9 @@ const resetConfirmationSchema = z.object({
   token: z.string().min(1).max(200),
   password: z.string().min(8).max(128),
 });
-const loginSchema = registrationSchema;
 const profileSchema = z
   .object({
-    username: z.string().trim().max(100).nullable().optional(),
+    username: z.string().trim().min(1).max(100).optional(),
     public_key: z.string().trim().min(1).max(2048).nullable().optional(),
     private_key: z.string().trim().min(1).max(2048).nullable().optional(),
   })
@@ -307,7 +309,12 @@ export function registerAccountRoutes(
   app.post("/auth/register", async (context) => {
     const parsed = registrationSchema.safeParse(await context.req.json().catch(() => null));
     if (!parsed.success)
-      return failure(context, 400, "invalid_request", "Email and a valid password are required.");
+      return failure(
+        context,
+        400,
+        "invalid_request",
+        "Email, username and a valid password are required.",
+      );
 
     const email = parsed.data.email.toLowerCase();
     const timestamp = now();
@@ -322,12 +329,14 @@ export function registerAccountRoutes(
         id,
         email,
         passwordHash,
-        username: parsed.data.username ?? null,
+        username: parsed.data.username,
         emailVerifiedAt: verificationToken ? null : timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
       });
-    } catch {
+    } catch (error) {
+      if (isUniqueViolation(error, "users.username"))
+        return failure(context, 409, "username_exists", "This username is already taken.");
       return failure(context, 409, "email_exists", "An account with this email already exists.");
     }
 
@@ -557,7 +566,9 @@ export function registerAccountRoutes(
           updatedAt: now(),
         })
         .where(eq(users.id, user.id));
-    } catch {
+    } catch (error) {
+      if (isUniqueViolation(error, "users.username"))
+        return failure(context, 409, "username_exists", "This username is already taken.");
       return failure(
         context,
         409,

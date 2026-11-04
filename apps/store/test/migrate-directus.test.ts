@@ -71,6 +71,10 @@ describe("migrateDirectus", () => {
       created_at: Date.parse("2019-05-06T07:08:09.000Z"),
     });
 
+    expect(
+      client.prepare("SELECT username FROM users WHERE email = ?").get("plain@example.com"),
+    ).toEqual({ username: expect.stringMatching(/^User #[0-9A-F]{4}$/) });
+
     const app = createApp(database, { allowedOrigins: [origin] });
     const login = await app.request("/v1/auth/login", {
       method: "POST",
@@ -114,7 +118,7 @@ describe("migrateDirectus", () => {
     const { client, database } = freshTarget();
     client
       .prepare(
-        "INSERT INTO users (id, email, password_hash, created_at, updated_at) VALUES ('x','x@example.com','h',1,1)",
+        "INSERT INTO users (id, email, password_hash, username, created_at, updated_at) VALUES ('x','x@example.com','h','x',1,1)",
       )
       .run();
 

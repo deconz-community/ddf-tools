@@ -29,6 +29,7 @@ function setup() {
       id: userId,
       email: "author@example.com",
       passwordHash: "unused",
+      username: userId,
       createdAt: timestamp,
       updatedAt: timestamp,
     })

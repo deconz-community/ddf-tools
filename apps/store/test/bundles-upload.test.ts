@@ -41,6 +41,7 @@ function setup(options: Parameters<typeof createApp>[1] = {}) {
         id,
         email: `${id}@example.com`,
         passwordHash: "unused",
+        username: id,
         publicKey,
         privateKey: bytesToHex(privateKey),
         isContributor,

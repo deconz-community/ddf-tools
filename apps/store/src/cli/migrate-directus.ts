@@ -11,6 +11,7 @@ import {
 } from "@deconz-community/ddf-bundler";
 import { inflateSync } from "node:zlib";
 import { randomUUID } from "node:crypto";
+import { availableUsername } from "../auth/username.js";
 import type { StoreDatabase } from "../db/database.js";
 import * as schema from "../db/schema.js";
 
@@ -149,6 +150,7 @@ export async function migrateDirectus(options: MigrationOptions): Promise<Migrat
     const timestamp = Date.now();
 
     const knownKeys: Record<string, { privateKey: string; type: "user" | "system" }> = {};
+    const usernames = new Set<string>();
     const users = rows("directus_users").map((user) => {
       const public_key = text(user.public_key);
       const private_key = text(user.private_key);
@@ -160,12 +162,17 @@ export async function migrateDirectus(options: MigrationOptions): Promise<Migrat
       ) {
         knownKeys[public_key] = { privateKey: private_key, type: "user" };
       }
+      // Directus names are not unique (or may be empty), so duplicates get a generated name.
+      const username = availableUsername(
+        (name) => usernames.has(name),
+        [text(user.first_name), text(user.last_name)].filter((part) => part).join(" "),
+      );
+      usernames.add(username);
       return {
         id: required(user.id, "user id"),
         email: required(user.email, "user email").toLowerCase(),
         passwordHash: text(user.password) ?? "",
-        username:
-          [text(user.first_name), text(user.last_name)].filter((part) => part).join(" ") || null,
+        username,
         publicKey: public_key,
         privateKey: private_key,
         isContributor: Number(user.is_contributor) === 1,

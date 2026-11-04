@@ -96,7 +96,7 @@ CREATE TABLE `users` (
 	`id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,
 	`password_hash` text NOT NULL,
-	`username` text,
+	`username` text NOT NULL,
 	`is_contributor` integer DEFAULT false NOT NULL,
 	`public_key` text,
 	`private_key` text,
@@ -107,4 +107,5 @@ CREATE TABLE `users` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint
+CREATE UNIQUE INDEX `users_username_unique` ON `users` (`username`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_public_key_unique` ON `users` (`public_key`);

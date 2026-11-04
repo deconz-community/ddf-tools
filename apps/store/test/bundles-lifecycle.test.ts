@@ -58,6 +58,7 @@ function setup(
         id,
         email: `${id}@example.com`,
         passwordHash: "unused",
+        username: id,
         isContributor,
         createdAt: timestamp,
         updatedAt: timestamp,

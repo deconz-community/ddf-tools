@@ -82,7 +82,7 @@ export interface StoreAccountClientOptions {
 export interface StoreProfile {
   id: string;
   email: string;
-  username: string | null;
+  username: string;
   public_key: string | null;
   private_key: string | null;
   is_contributor: boolean;
@@ -93,14 +93,14 @@ export interface StoreProfile {
 
 export interface PublicStoreUser {
   id: string;
-  username: string | null;
+  username: string;
   public_key: string | null;
   is_contributor: boolean;
   date_created: string;
 }
 
 export interface StoreProfileUpdate {
-  username?: string | null;
+  username?: string;
   public_key?: string | null;
   private_key?: string | null;
 }
@@ -123,7 +123,7 @@ export interface StoreAccountClient {
   listTokens(): Promise<StoreApiToken[]>;
   createToken(name: string): Promise<CreatedStoreApiToken>;
   revokeToken(id: string): Promise<void>;
-  register(input: { email: string; password: string; username?: string }): Promise<{
+  register(input: { email: string; password: string; username: string }): Promise<{
     user: { id: string; email: string };
     verification_required: boolean;
   }>;
@@ -288,8 +288,7 @@ export function createStoreAccountClient(options: StoreAccountClientOptions): St
     const response = await fetcher(`${baseUrl}${path}`, {
       method,
       headers,
-      body:
-        body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
+      body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
       credentials: options.token ? "omit" : "include",
     });
     if (!response.ok) throw await toError(response);

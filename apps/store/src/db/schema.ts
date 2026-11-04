@@ -82,7 +82,7 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  username: text("username"),
+  username: text("username").notNull().unique(),
   isContributor: integer("is_contributor", { mode: "boolean" }).notNull().default(false),
   publicKey: text("public_key").unique(),
   privateKey: text("private_key"),
