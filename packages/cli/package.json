@@ -40,7 +40,6 @@
   "type": "module",
   "scripts": {
     "build": "vp build",
-    "download:test-data": "rm -rf ./test-data && mkdir ./test-data && git clone https://github.com/dresden-elektronik/deconz-rest-plugin.git ./test-data",
     "preview": "vite-node ./src/index.ts"
   },
   "dependencies": {

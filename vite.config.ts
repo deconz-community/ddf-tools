@@ -91,7 +91,7 @@ export default defineConfig({
       ".coverage",
       "dist",
       "node_modules",
-      "test-data",
+      "lib",
     ],
   },
 });

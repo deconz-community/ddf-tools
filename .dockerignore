@@ -7,5 +7,4 @@
 **/dist
 **/*.db
 **/*.db-*
-**/test-data
-**/sample-data
+lib

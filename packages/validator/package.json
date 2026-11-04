@@ -53,8 +53,7 @@
     }
   },
   "scripts": {
-    "build": "vp build",
-    "download-sample": "rimraf ./test-data && degit manup/deconz-rest-plugin /tmp/test-data && mv /tmp/test-data/devices ./test-data && rimraf /tmp/test-data"
+    "build": "vp build"
   },
   "dependencies": {
     "zod": "^4.6.7"
