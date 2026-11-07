@@ -26,6 +26,9 @@ coverage
 
 # Database files
 *.db
+*.db-shm
+*.db-wal
 
 *.typegen.ts
 uploads
+apps/store/test/.tmp-*

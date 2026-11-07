@@ -32,6 +32,7 @@
     "release": "vp test && vp run -r build && changeset publish",
     "taze": "taze",
     "build:toolbox": "pnpm --dir packages/toolbox run build",
+    "dev:store": "pnpm --dir apps/store run dev",
     "dev:toolbox": "pnpm --dir packages/toolbox run dev",
     "dev:extension": "pnpm --dir packages/vscode-extension run dev",
     "prepare": "vp config"
