@@ -110,11 +110,6 @@ export function validateCommand() {
           );
 
           errorFiles.forEach(({ path, error }) => {
-            /*
-            if (path === './test-data/tuya/_TZ3000_4fjiwweb_smart_knob.json')
-              console.log(error.errors)
-            */
-
             let message = "";
 
             try {
