@@ -29,6 +29,11 @@ export default defineConfig({
     // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
     clearMocks: false,
   },
+  resolve: {
+    alias: {
+      "@deconz-community/ddf-bundler": path.resolve(__dirname, "../bundler/index.ts"),
+    },
+  },
   build: {
     lib: {
       entry: path.resolve(__dirname, "index.ts"),
