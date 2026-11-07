@@ -1,10 +1,10 @@
-
 packages:
+  - apps/*
   - packages/*
-  - packages/store/packages/*
   - "!**/.vscode-text-web/**"
 allowBuilds:
-  '@playwright/browser-chromium': true
+  '@anthropic-ai/claude-code': true
+  "@playwright/browser-chromium": true
   argon2: true
   braintrust: true
   esbuild: true
@@ -44,7 +44,6 @@ shellEmulator: true
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
-  - "@directus/license@0.6.1"
   - "@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1"
   - chokidar@4.0.3
   - jose@4.15.9

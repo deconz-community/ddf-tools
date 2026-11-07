@@ -1,0 +1,213 @@
+<script setup lang="ts">
+import { useVuelidate } from "@vuelidate/core";
+import { email, helpers, maxLength, minLength, required, sameAs } from "@vuelidate/validators";
+import { useRouteQuery } from "@vueuse/router";
+import { toastError } from "~/lib/handleError";
+
+const store = useStore();
+const router = useRouter();
+
+const queryToken = useRouteQuery<string>("token", "");
+
+const initialState = {
+  username: "",
+  email: "",
+  password: "",
+  password_confirm: "",
+};
+
+const state = reactive({
+  ...initialState,
+});
+
+// Keep in sync with the store password policy (apps/store/src/auth/accounts.ts).
+const baseMessage = "Password must contain at least one";
+
+const rules = {
+  username: {
+    required,
+  },
+  email: {
+    required,
+    email,
+  },
+  password: {
+    required,
+    minLength: minLength(10),
+    maxLength: maxLength(128),
+    includeNumbers: helpers.withMessage(`${baseMessage} number`, helpers.regex(/\d/)),
+    includeLowercase: helpers.withMessage(
+      `${baseMessage} lowercase letter`,
+      helpers.regex(/[a-z]/),
+    ),
+    includeUppercase: helpers.withMessage(
+      `${baseMessage} uppercase letter`,
+      helpers.regex(/[A-Z]/),
+    ),
+    includeSpecial: helpers.withMessage(
+      `${baseMessage} special character (anything that is not a letter or a number)`,
+      helpers.regex(/[^A-Za-z0-9]/),
+    ),
+  },
+  password_confirm: {
+    sameAs: sameAs(toRef(state, "password")),
+  },
+};
+
+const vuelidate = useVuelidate(rules, state);
+
+function clear() {
+  vuelidate.value.$reset();
+
+  for (const [key, value] of Object.entries(initialState)) state[key] = value;
+}
+
+const loading = ref(false);
+const showPassword = ref(false);
+
+async function register() {
+  if (showPassword.value) state.password_confirm = state.password;
+
+  if (!(await vuelidate.value.$validate())) return;
+
+  loading.value = true;
+
+  try {
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    const result = await store.api.register({
+      email: state.email,
+      password: state.password,
+      username: state.username,
+    });
+    clear();
+    toast.success("Account created", {
+      description: result?.verification_required
+        ? "Please check your email to confirm your account."
+        : "Your account is ready. You can now sign in.",
+    });
+  } catch (error) {
+    toastError(error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function validateEmail() {
+  try {
+    if (!queryToken.value) return toast.error("Invalid token");
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    await store.api.verifyEmail(queryToken.value);
+    router.push("/");
+    toast.success("Email verified");
+  } catch (error) {
+    console.error(error);
+    toastError(error);
+  }
+}
+</script>
+
+<template>
+  <v-card v-if="queryToken" class="ma-2">
+    <v-card-title>Email Verification</v-card-title>
+    <v-card-text>
+      <v-alert class="mb-5" type="info" text="Click on the button below to verify your email." />
+    </v-card-text>
+    <v-card-actions>
+      <v-btn
+        variant="tonal"
+        color="primary"
+        append-icon="mdi-account-plus"
+        text="Verify my email"
+        @click="validateEmail"
+      />
+    </v-card-actions>
+  </v-card>
+
+  <v-card v-else class="ma-2">
+    <v-form @submit.prevent="register">
+      <v-card-title>Create an account</v-card-title>
+
+      <v-card-text>
+        <v-alert
+          class="mb-5"
+          type="info"
+          text="An account is only required to upload DDF Bundle on the store. You can download and use DDF Bundle without an account."
+        />
+
+        <v-text-field
+          v-model="state.username"
+          :error-messages="vuelidate.username.$errors.map((e) => e.$message)"
+          label="Username"
+          required
+          autocomplete="username"
+          @blur="vuelidate.username.$touch"
+          @input="vuelidate.username.$touch"
+        />
+
+        <v-text-field
+          v-model="state.email"
+          :error-messages="vuelidate.email.$errors.map((e) => e.$message)"
+          label="Email"
+          required
+          autocomplete="email"
+          @blur="vuelidate.email.$touch"
+          @input="vuelidate.email.$touch"
+        />
+
+        <v-text-field
+          v-model="state.password"
+          :counter="10"
+          :error-messages="vuelidate.password.$errors.map((e) => e.$message)"
+          label="Password"
+          required
+          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showPassword ? 'text' : 'password'"
+          autocomplete="new-password"
+          @click:append="
+            showPassword = !showPassword;
+            state.password_confirm = state.password;
+          "
+          @blur="vuelidate.password.$touch"
+          @input="vuelidate.password.$touch"
+        />
+
+        <v-expand-transition>
+          <v-text-field
+            v-show="!showPassword"
+            v-model="state.password_confirm"
+            :counter="10"
+            :error-messages="vuelidate.password_confirm.$errors.map((e) => e.$message)"
+            label="Password confirmation"
+            required
+            type="password"
+            autocomplete="new-password"
+            @blur="vuelidate.password_confirm.$touch"
+            @input="vuelidate.password_confirm.$touch"
+          />
+        </v-expand-transition>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="secondary" variant="tonal" append-icon="mdi-trash-can" @click="clear">
+          clear
+        </v-btn>
+        <v-btn
+          :loading="loading"
+          variant="tonal"
+          color="primary"
+          append-icon="mdi-account-plus"
+          text="Register"
+          type="submit"
+        />
+      </v-card-actions>
+    </v-form>
+  </v-card>
+</template>
+
+<route lang="json">
+{
+  "meta": {
+    "requiresAuth": false,
+    "hideLevelTwoSidebar": true
+  }
+}
+</route>

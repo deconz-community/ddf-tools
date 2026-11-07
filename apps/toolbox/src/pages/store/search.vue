@@ -1,0 +1,155 @@
+<script setup lang="ts">
+import MarkdownIt from "markdown-it";
+import { useRouteQuery } from "@vueuse/router";
+import { STABLE_PUBLIC_KEY } from "@deconz-community/ddf-bundler";
+
+const markdown = new MarkdownIt({ html: false });
+const store = useStore();
+
+const page = useRouteQuery("page", "1", { transform: Number });
+const product = useRouteQuery("product", "");
+const manufacturer = useRouteQuery("manufacturer", "");
+const model = useRouteQuery("model", "");
+const stableOnly = useRouteQuery("showStableOnly", "false", {
+  transform: { get: (v: string) => v === "true", set: (v: boolean) => String(v) },
+});
+const showDeprecated = useRouteQuery("showDeprecated", "false", {
+  transform: { get: (v: string) => v === "true", set: (v: boolean) => String(v) },
+});
+const itemsPerPage = ref(5);
+
+const filters = computed(() => ({
+  page: page.value,
+  limit: itemsPerPage.value,
+  product: product.value,
+  manufacturer: manufacturer.value,
+  model: model.value,
+  showDeprecated: showDeprecated.value,
+  hasKey: stableOnly.value ? STABLE_PUBLIC_KEY : "",
+}));
+
+const bundleList = useAsyncState(
+  async () => (await store.searchBundles(filters.value)) ?? null,
+  null,
+  {
+    shallow: true,
+    resetOnExecute: false,
+    immediate: false,
+  },
+);
+
+watch([product, manufacturer, model, stableOnly, showDeprecated], () => {
+  page.value = 1;
+});
+
+watchDebounced([filters, () => store.client], () => bundleList.execute(), {
+  debounce: 200,
+  maxWait: 2000,
+  immediate: true,
+});
+
+const pageCount = computed(() => {
+  if (!bundleList.state.value) return 0;
+  return Math.ceil(bundleList.state.value.total_count / itemsPerPage.value);
+});
+</script>
+
+<template>
+  <v-card class="ma-2">
+    <v-progress-linear :active="bundleList.isLoading.value" indeterminate />
+    <v-alert v-if="bundleList.error.value" type="error" class="ma-2">
+      Failed to load bundles: {{ bundleList.error.value }}
+    </v-alert>
+    <template v-if="bundleList.state.value" #text>
+      <v-data-iterator :items="bundleList.state.value.items">
+        <template #header>
+          <h1 class="text-headline-medium d-flex justify-space-between mb-4 align-center">
+            <div class="text-truncate">
+              DDF Store list of bundles ({{ bundleList.state.value.total_count }})
+            </div>
+
+            <div class="d-flex align-center">
+              <div class="d-inline-flex">
+                <v-btn append-icon="mdi-upload" variant="tonal" class="me-2" to="/store/upload" text="Upload" />
+              </div>
+            </div>
+          </h1>
+          <div>
+            <v-text-field v-model="product" label="Product" outlined dense hide-details class="ma-2" />
+            <v-text-field v-model="manufacturer" label="Manufacturer" outlined dense hide-details class="ma-2" />
+            <v-text-field v-model="model" label="Model" outlined dense hide-details class="ma-2" />
+            <v-switch v-model="stableOnly" label="Stable only" hide-details />
+            <v-switch v-model="showDeprecated" label="Show deprecated" hide-details />
+          </div>
+        </template>
+
+        <template #default="{ items }">
+          <v-card v-for="(item, i) in items" :key="i" variant="outlined" class="ma-2">
+            <v-card-title class="d-flex align-center">
+              <v-chip variant="outlined" color="primary" class="result-title-chip flex-grow-1 text-wrap text-break"
+                size="large" prepend-icon="mdi-open-in-new" label :to="`/store/bundle/${item.raw.id}`">
+                {{ item.raw.vendor }}
+                {{ item.raw.product }}
+              </v-chip>
+
+              <v-btn v-if="store.bundleDownloadUrl(item.raw.id)" :href="store.bundleDownloadUrl(item.raw.id)"
+                variant="outlined" append-icon="mdi-download" color="secondary" class="ml-2 flex-shrink-0">
+                Download
+              </v-btn>
+            </v-card-title>
+            <v-card-subtitle class="d-flex flex-wrap align-center">
+              <chip-signatures only="user" :signatures="item.raw.signatures" class="ma-2" />
+              <UseTimeAgo v-slot="{ timeAgo }" :time="item.raw.source_last_modified">
+                published {{ timeAgo }} ({{
+                  new Date(item.raw.source_last_modified).toLocaleDateString()
+                }})
+              </UseTimeAgo>
+              <chip-signatures only="system" :signatures="item.raw.signatures" />
+              <chip-ddf-hash source="store" :hash="item.raw.id" />
+            </v-card-subtitle>
+            <v-alert v-if="item.raw.deprecation_message" type="warning" variant="tonal" class="mx-4">
+              {{ item.raw.deprecation_message }}
+            </v-alert>
+            <v-card-text>
+              <v-card v-if="item.raw.info" variant="elevated" class="ma-2">
+                <v-card-title> Information </v-card-title>
+                <v-card-text>
+                  <div v-html="markdown.render(item.raw.info)" />
+                </v-card-text>
+              </v-card>
+              <v-card variant="elevated" class="ma-2">
+                <v-card-title> Supported devices </v-card-title>
+                <v-card-text>
+                  <list-supported-devices :device-identifiers="item.raw.device_identifiers" />
+                </v-card-text>
+              </v-card>
+            </v-card-text>
+          </v-card>
+        </template>
+
+        <template #footer>
+          <v-pagination v-model="page" :length="pageCount" />
+        </template>
+      </v-data-iterator>
+    </template>
+    <v-alert v-if="bundleList.state.value?.total_count === 0 && stableOnly" type="info" title="Info" class="ma-2">
+      No result ? try to disable the stable only option
+    </v-alert>
+  </v-card>
+</template>
+
+<style scoped>
+.result-title-chip {
+  max-width: 100%;
+  height: auto;
+  min-height: 36px;
+  white-space: pre-wrap;
+}
+</style>
+
+<route lang="json">{
+  "meta": {
+    "breadcrumbs": "none",
+    "hideLevelTwoSidebar": true
+  }
+}</route>

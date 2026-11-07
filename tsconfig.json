@@ -6,7 +6,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "~/*": ["src/*"]
+      "@deconz-community/ddf-bundler": ["./packages/bundler/index.ts"],
+      "~/*": ["./src/*"]
     },
     "resolveJsonModule": true,
     "types": ["vitest", "vitest/globals"],
@@ -19,13 +20,13 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": ["packages", "vitest.config.ts"],
+  "include": ["apps", "packages", "vitest.config.ts"],
   "exclude": [
     "**/dist",
     "**/*.test.ts",
     "**/test",
     "node_modules",
-    "test-data",
+    "lib",
     "sample-data",
     "pb_hooks"
   ]

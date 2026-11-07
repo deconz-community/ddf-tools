@@ -7,7 +7,7 @@ See [here](https://dresden-elektronik.github.io/deconz-rest-doc/endpoints/ddf/) 
 
 ## Toolbox
 
-To start the toolbox page open the folder `packages/toolbox` and run the command `pnpm dev`.
+To start the toolbox page open the folder `apps/toolbox` and run the command `pnpm dev`.
 
 Current version of the toolbox can be found [here](https://deconz-community.github.io/ddf-tools/).
 

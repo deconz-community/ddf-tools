@@ -5,6 +5,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
+      "@deconz-community/ddf-bundler": ["../bundler/index.ts"],
+      "@deconz-community/ddf-validator": ["../validator/index.ts"],
+      "@deconz-community/store-api-client": ["../store-api-client/index.ts"],
       "~/*": ["./src/*"]
     },
     "resolveJsonModule": true,

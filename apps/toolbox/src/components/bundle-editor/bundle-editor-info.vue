@@ -1,0 +1,86 @@
+<script setup lang="ts">
+import type { Bundle } from "@deconz-community/ddf-bundler";
+
+import MarkdownIt from "markdown-it";
+import { v4 as uuidv4 } from "uuid";
+
+const markdown = new MarkdownIt({ html: false });
+
+const props = defineProps<{
+  bundle: ReturnType<typeof Bundle>;
+}>();
+
+const emit = defineEmits<{ uuid: [uuid: string] }>();
+
+const bundle = useVModel(props, "bundle");
+
+const supportedDevices = computed(() => {
+  if (!bundle.value) return [];
+  return bundle.value.data.desc.device_identifiers.reduce(
+    (acc: Record<string, string[]>, item: [string, string]) => {
+      if (!acc[item[0]]) acc[item[0]] = [];
+      acc[item[0]].push(item[1]);
+      return acc;
+    },
+    {},
+  );
+});
+
+const markdownFilesTypes = {
+  CHLG: "Changelog",
+  INFO: "Information",
+  WARN: "Warning",
+  KWIS: "Known issue",
+};
+
+const markdownFiles = computed(() => {
+  if (!bundle.value) return [];
+  return bundle.value.data.files.filter((file) =>
+    objectKeys(markdownFilesTypes).includes(file.type as any),
+  );
+});
+
+// The bundle is marked raw (not reactive), so the displayed UUID is mirrored in a ref
+const uuid = ref(bundle.value.data.desc.uuid);
+
+watch(
+  () => props.bundle,
+  (newBundle) => {
+    uuid.value = newBundle.data.desc.uuid;
+  },
+);
+
+function generateUUID() {
+  // TODO: Use the store endpoint if the store is online
+  uuid.value = uuidv4();
+  emit("uuid", uuid.value);
+}
+</script>
+
+<template>
+  <v-text-field
+    v-model="uuid"
+    readonly
+    label="UUID"
+    append-icon="mdi-refresh"
+    @click:append="generateUUID()"
+  />
+
+  <v-card>
+    <v-card-title> Supported devices </v-card-title>
+    <v-card-text>
+      <list-supported-devices :device-identifiers="bundle.data.desc.device_identifiers" />
+    </v-card-text>
+  </v-card>
+
+  <template v-for="file in markdownFiles" :key="file.path">
+    <v-card>
+      <v-card-title>
+        {{ markdownFilesTypes[file.type as keyof typeof markdownFilesTypes] }}
+      </v-card-title>
+      <v-card-text>
+        <div v-html="markdown.render(file.data as string)" />
+      </v-card-text>
+    </v-card>
+  </template>
+</template>

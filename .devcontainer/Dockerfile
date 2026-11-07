@@ -1,5 +1,3 @@
-# See https://github.com/directus/directus/issues/26299 before updating node version
-
 FROM ghcr.io/voidzero-dev/vite-plus:latest
 
 # Shell customization (prompt, aliases) sourced from the vp user's .bashrc
@@ -7,8 +5,7 @@ COPY --chown=vp:vp bashrc.sh /home/vp/.devcontainer-bashrc.sh
 RUN echo 'source ~/.devcontainer-bashrc.sh' >> /home/vp/.bashrc \
      && chown vp:vp /home/vp/.bashrc
 
-# Toolchain required to compile native modules (isolated-vm, sqlite3 for Directus)
-# sqlite3 prebuilt binaries need GLIBC 2.38+, so it is rebuilt from source (see devcontainer.json)
+# Toolchain required to compile native modules (including the SQLite driver).
 USER root
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
      && apt-get -y install --no-install-recommends ca-certificates curl gnupg \

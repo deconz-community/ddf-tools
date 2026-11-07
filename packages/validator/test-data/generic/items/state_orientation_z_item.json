@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "state/orientation_z",
-  "datatype": "Int16",
-  "access": "R",
-  "public": true,
-  "default": 0,
-  "description": "The Z orientation of a gyro."
-}

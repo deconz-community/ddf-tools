@@ -41,10 +41,14 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Install dependencies
-        run: pnpm install --filter="!@deconz-community/store" --filter="!@deconz-community/ddf-tools-vscode-extension"
+        run: pnpm install --filter="!@deconz-community/ddf-tools-vscode-extension"
 
       - name: Build project
         run: pnpm run build:toolbox
+        env:
+          # Repository variable (Settings > Variables). When empty, the toolbox ships without a
+          # default store and stays offline until a URL is configured in its settings.
+          VITE_STORE_API_URL: ${{ vars.STORE_API_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -53,7 +57,7 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           # Upload dist repository
-          path: ./packages/toolbox/dist
+          path: ./apps/toolbox/dist
 
       - name: Deploy to GitHub Pages
         id: deployment

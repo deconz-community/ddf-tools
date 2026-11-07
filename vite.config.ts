@@ -1,6 +1,11 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@deconz-community/ddf-bundler": `${import.meta.dirname}/packages/bundler/index.ts`,
+    },
+  },
   staged: {
     "*": "vp check --fix",
   },
@@ -86,7 +91,7 @@ export default defineConfig({
       ".coverage",
       "dist",
       "node_modules",
-      "test-data",
+      "lib",
     ],
   },
 });

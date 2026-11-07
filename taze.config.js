@@ -13,11 +13,6 @@ export default defineConfig({
   // override with different bumping mode for each package
   packageMode: {
     "@types/node": "minor",
-    "@directus/sdk": "minor",
-    "@directus/types": "minor",
-    "@directus/extensions-sdk": "minor",
-    "@directus/errors": "minor",
-    "directus": "minor"
   },
   // include locked and dev dependencies in the result
   includeLocked: true,

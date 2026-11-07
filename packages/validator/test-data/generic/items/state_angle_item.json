@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "state/angle",
-  "datatype": "Int16",
-  "access": "R",
-  "public": true,
-  "default": 0,
-  "description": "The angle of an action in degrees."
-}

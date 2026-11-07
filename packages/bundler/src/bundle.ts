@@ -1,5 +1,5 @@
 import type { BundleData } from "./types";
-import { asArray } from "./utils";
+import { asArray, setJSONUuid } from "./utils";
 
 export function Bundle() {
   const data: BundleData = {
@@ -91,5 +91,14 @@ export function Bundle() {
     });
   };
 
-  return { data, generateDESC, sortFiles };
+  const setUUID = (uuid: string) => {
+    const index = data.files.findIndex((file) => file.type === "DDFC");
+    if (index === -1) throw new Error("DDFC file not found");
+    // Replace the file instead of mutating it, files can be frozen
+    const ddfc = data.files[index];
+    data.files[index] = { ...ddfc, data: setJSONUuid(ddfc.data as string, uuid) } as typeof ddfc;
+    data.desc.uuid = uuid;
+  };
+
+  return { data, generateDESC, setUUID, sortFiles };
 }

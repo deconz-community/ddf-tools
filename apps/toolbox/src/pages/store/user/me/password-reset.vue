@@ -1,0 +1,130 @@
+<script setup lang="ts">
+import { useRouteQuery } from "@vueuse/router";
+import { reactive } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { helpers, maxLength, minLength, required, sameAs } from "@vuelidate/validators";
+import { toastError } from "~/lib/handleError";
+
+const store = useStore();
+
+const queryToken = useRouteQuery<string>("token", "");
+
+const initialState = {
+  password: "",
+  password_confirm: "",
+};
+
+const state = reactive({
+  ...initialState,
+});
+
+// Keep in sync with the store password policy (apps/store/src/auth/accounts.ts).
+const baseMessage = "Password must contain at least one";
+
+const rules = {
+  password: {
+    required,
+    minLength: minLength(10),
+    maxLength: maxLength(128),
+    includeNumbers: helpers.withMessage(`${baseMessage} number`, helpers.regex(/\d/)),
+    includeLowercase: helpers.withMessage(
+      `${baseMessage} lowercase letter`,
+      helpers.regex(/[a-z]/),
+    ),
+    includeUppercase: helpers.withMessage(
+      `${baseMessage} uppercase letter`,
+      helpers.regex(/[A-Z]/),
+    ),
+    includeSpecial: helpers.withMessage(
+      `${baseMessage} special character (anything that is not a letter or a number)`,
+      helpers.regex(/[^A-Za-z0-9]/),
+    ),
+  },
+  password_confirm: {
+    sameAs: sameAs(toRef(state, "password")),
+  },
+};
+
+const vuelidate = useVuelidate(rules, state);
+
+function clear() {
+  vuelidate.value.$reset();
+
+  for (const [key, value] of Object.entries(initialState)) state[key] = value;
+}
+
+const loading = ref(false);
+const showPassword = ref(false);
+
+async function updatePassword() {
+  if (showPassword.value) state.password_confirm = state.password;
+
+  if (!(await vuelidate.value.$validate())) return;
+
+  loading.value = true;
+
+  try {
+    if (!store.api) throw new Error("Store account service is unavailable.");
+    await store.api.confirmPasswordReset(queryToken.value, state.password);
+    toast.success("Password updated, you can now log in with your new password.");
+    clear();
+  } catch (error) {
+    toastError(error);
+  } finally {
+    loading.value = false;
+  }
+}
+</script>
+
+<template>
+  <v-card class="ma-2">
+    <v-card-title> Reset password </v-card-title>
+    <v-card-text>
+      <v-alert class="mb-5" type="info" text="Choose a new password for your account." />
+      <v-form @submit.prevent="updatePassword">
+        <v-text-field
+          v-model="state.password"
+          :counter="10"
+          :error-messages="vuelidate.password.$errors.map((e) => e.$message)"
+          label="Password"
+          required
+          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showPassword ? 'text' : 'password'"
+          autocomplete="new-password"
+          @click:append="
+            showPassword = !showPassword;
+            state.password_confirm = state.password;
+          "
+          @blur="vuelidate.password.$touch"
+          @input="vuelidate.password.$touch"
+        />
+
+        <v-expand-transition>
+          <v-text-field
+            v-show="!showPassword"
+            v-model="state.password_confirm"
+            :counter="10"
+            :error-messages="vuelidate.password_confirm.$errors.map((e) => e.$message)"
+            label="Password confirmation"
+            required
+            type="password"
+            autocomplete="new-password"
+            @blur="vuelidate.password_confirm.$touch"
+            @input="vuelidate.password_confirm.$touch"
+          />
+        </v-expand-transition>
+
+        <v-btn @click="clear"> clear </v-btn>
+        <v-btn :loading="loading" text="Submit" type="submit" />
+      </v-form>
+    </v-card-text>
+  </v-card>
+</template>
+
+<route lang="json">
+{
+  "meta": {
+    "hideLevelTwoSidebar": true
+  }
+}
+</route>

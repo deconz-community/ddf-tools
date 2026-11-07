@@ -1,0 +1,36 @@
+services:
+  store:
+    build:
+      context: ../..
+      dockerfile: apps/store/Dockerfile
+    ports:
+      - "${STORE_PORT:-3000}:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_PATH: /data/store.db
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4000}
+      TOOLBOX_URL: ${TOOLBOX_URL:-http://localhost:4000}
+      SMTP_URL: ${SMTP_URL:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SECURE_COOKIES: ${SECURE_COOKIES:-}
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    volumes:
+      - store-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  store-data:
