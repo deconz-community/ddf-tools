@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { Hono, type Context } from "hono";
 import type { StoreDatabase } from "../db/database.js";
-import { authenticateStoreRequest, authenticationErrorResponse } from "./accounts.js";
+import { authenticateStoreRequest, authenticationErrorResponse } from "./authorizations.js";
 import type { AccountOptions } from "./accounts.js";
 
 export const avatarMinSize = 40;

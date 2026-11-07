@@ -2,7 +2,7 @@ import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils.js";
 import { eq } from "drizzle-orm";
-import { Hono, type Context, type MiddlewareHandler } from "hono";
+import { Hono, type Context } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import {
@@ -16,7 +16,11 @@ import {
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
 import type { AccountOptions, SigningKey } from "../auth/accounts.js";
-import { authenticateStoreRequest, authenticationErrorResponse } from "../auth/accounts.js";
+import {
+  requireAuthentication,
+  requireContributor,
+  type AuthorizationEnvironment,
+} from "../auth/authorizations.js";
 import type { StoreDatabase } from "../db/database.js";
 import { errorResponse } from "../http/errors.js";
 import { bundles, ddfUuids, signatures } from "../db/schema.js";
@@ -28,9 +32,6 @@ const deprecationRequestSchema = z
   .strict();
 
 type LifecycleSignatureState = z.infer<typeof signatureRequestSchema>["state"];
-type LifecycleEnvironment = {
-  Variables: { lifecycleUser: { id: string; isContributor: boolean } };
-};
 
 function configuredSigningKey(
   options: AccountOptions,
@@ -52,47 +53,9 @@ function signatureType(key: string, options: AccountOptions): "system" | "user" 
   return Object.values(systemPublicKeys(options)).includes(key.toLowerCase()) ? "system" : "user";
 }
 
-async function authenticate(context: Context, database: StoreDatabase, options: AccountOptions) {
-  const authentication = await authenticateStoreRequest(
-    database,
-    context,
-    options.now?.() ?? Date.now(),
-  );
-  return "error" in authentication
-    ? authenticationErrorResponse(context, authentication.error)
-    : authentication;
-}
-
 function invalidBundle(context: Context) {
   return errorResponse(context, 422, "signing_failed", "The stored bundle could not be updated.");
 }
-
-function requireAuthentication(
-  database: StoreDatabase,
-  options: AccountOptions,
-): MiddlewareHandler<LifecycleEnvironment> {
-  return async (context, next) => {
-    const authentication = await authenticate(context, database, options);
-    if (authentication instanceof Response) return authentication;
-    context.set("lifecycleUser", {
-      id: authentication.user.id,
-      isContributor: authentication.user.isContributor,
-    });
-    await next();
-  };
-}
-
-const requireContributor: MiddlewareHandler<LifecycleEnvironment> = async (context, next) => {
-  if (!context.get("lifecycleUser").isContributor) {
-    return errorResponse(
-      context,
-      403,
-      "contributor_required",
-      "Only contributors can change system bundle signatures.",
-    );
-  }
-  await next();
-};
 
 function persistBundle(
   database: StoreDatabase,
@@ -183,7 +146,7 @@ function setDeprecationSignature(
 
 export function bundleLifecycleRoutes(database: StoreDatabase, options: AccountOptions) {
   const authentication = requireAuthentication(database, options);
-  return new Hono<LifecycleEnvironment>()
+  return new Hono<AuthorizationEnvironment>()
     .post(
       "/bundles/:id/signatures",
       authentication,
@@ -263,7 +226,7 @@ export function bundleLifecycleRoutes(database: StoreDatabase, options: AccountO
       }),
       async (context) => {
         const parsed = context.req.valid("json");
-        const user = context.get("lifecycleUser");
+        const user = context.get("authenticatedUser");
 
         const bundleId = context.req.param("id");
         const [record] = await database

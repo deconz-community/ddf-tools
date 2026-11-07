@@ -13,8 +13,12 @@ import {
   createSignature,
 } from "@deconz-community/ddf-bundler";
 import { randomUUID } from "node:crypto";
-import type { AccountOptions, SigningKey, StoreAuthentication } from "../auth/accounts.js";
-import { authenticateStoreRequest, authenticationErrorResponse } from "../auth/accounts.js";
+import type { AccountOptions, SigningKey } from "../auth/accounts.js";
+import {
+  authenticateStoreRequest,
+  authenticationErrorResponse,
+  type StoreAuthentication,
+} from "../auth/authorizations.js";
 import type { StoreDatabase } from "../db/database.js";
 import {
   bundles,

@@ -1,11 +1,18 @@
 import argon2 from "argon2";
-import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { getCookie } from "hono/cookie";
-import { randomBytes, randomUUID, createHash } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { StoreDatabase } from "../db/database.js";
 import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "../db/schema.js";
+import {
+  authenticateStoreRequest,
+  authenticationErrorResponse,
+  cookieName,
+  sessionUser,
+  tokenHash,
+} from "./authorizations.js";
 import { isUniqueViolation } from "./username.js";
 
 export interface AccountMailer {
@@ -62,12 +69,7 @@ const profileSchema = z
 const tokenNameSchema = z.object({ name: z.string().trim().min(1).max(100) });
 const tokenLifetime = 24 * 60 * 60 * 1000;
 const sessionLifetime = 30 * 24 * 60 * 60 * 1000;
-const cookieName = "store_session";
 const dummyPasswordHash = argon2.hash(randomBytes(32).toString("hex"), { type: argon2.argon2id });
-
-export function tokenHash(token: string): string {
-  return createHash("sha256").update(token).digest("hex");
-}
 
 function failure(
   context: Context,
@@ -129,74 +131,6 @@ function clearSessionCookie(context: Context, secure: boolean) {
   ];
   if (secure) attributes.push("Secure");
   context.header("Set-Cookie", attributes.join("; "));
-}
-
-async function sessionUser(database: StoreDatabase, context: Context, timestamp: number) {
-  const token = getCookie(context, cookieName);
-  if (!token) return null;
-  const [session] = await database
-    .select()
-    .from(sessions)
-    .where(and(eq(sessions.tokenHash, tokenHash(token)), gt(sessions.expiresAt, timestamp)))
-    .limit(1);
-  if (!session) return null;
-  const [user] = await database.select().from(users).where(eq(users.id, session.userId)).limit(1);
-  return user ?? null;
-}
-
-export type StoreAuthentication =
-  | { user: typeof users.$inferSelect }
-  | { error: "unauthenticated" | "invalid_api_token" | "token_revoked" };
-
-const authenticationMessages = {
-  unauthenticated: "Sign in to continue.",
-  invalid_api_token: "The API token is invalid.",
-  token_revoked: "The API token has been revoked.",
-};
-
-// A Bearer header takes precedence over any cookie so API tokens never fall back to a session.
-async function authenticate(
-  database: StoreDatabase,
-  context: Context,
-  timestamp: number,
-): Promise<StoreAuthentication> {
-  const header = context.req.header("authorization");
-  if (header !== undefined) {
-    const match = /^Bearer\s+(\S+)$/i.exec(header.trim());
-    if (!match) return { error: "invalid_api_token" };
-    const [record] = await database
-      .select()
-      .from(apiTokens)
-      .where(eq(apiTokens.tokenHash, tokenHash(match[1]!)))
-      .limit(1);
-    if (!record) return { error: "invalid_api_token" };
-    if (record.revokedAt !== null) return { error: "token_revoked" };
-    const [user] = await database.select().from(users).where(eq(users.id, record.userId)).limit(1);
-    if (!user) return { error: "invalid_api_token" };
-    await database
-      .update(apiTokens)
-      .set({ lastUsedAt: timestamp })
-      .where(eq(apiTokens.id, record.id));
-    return { user };
-  }
-
-  const user = await sessionUser(database, context, timestamp);
-  return user ? { user } : { error: "unauthenticated" };
-}
-
-export async function authenticateStoreRequest(
-  database: StoreDatabase,
-  context: Context,
-  timestamp: number,
-): Promise<StoreAuthentication> {
-  return authenticate(database, context, timestamp);
-}
-
-export function authenticationErrorResponse(
-  context: Context,
-  error: keyof typeof authenticationMessages,
-) {
-  return failure(context, 401, error, authenticationMessages[error]);
 }
 
 function tokenView(record: typeof apiTokens.$inferSelect) {
@@ -283,7 +217,7 @@ export function registerAccountRoutes(
   const logger = options.logger ?? console;
 
   app.post("/ddf-uuids", async (context) => {
-    const authentication = await authenticate(database, context, now());
+    const authentication = await authenticateStoreRequest(database, context, now());
     if ("error" in authentication)
       return authenticationErrorResponse(context, authentication.error);
 
@@ -552,7 +486,7 @@ export function registerAccountRoutes(
   });
 
   app.get("/me", async (context) => {
-    const authentication = await authenticate(database, context, now());
+    const authentication = await authenticateStoreRequest(database, context, now());
     if ("error" in authentication)
       return authenticationErrorResponse(context, authentication.error);
     const { user } = authentication;
@@ -560,7 +494,7 @@ export function registerAccountRoutes(
   });
 
   app.patch("/me", async (context) => {
-    const authentication = await authenticate(database, context, now());
+    const authentication = await authenticateStoreRequest(database, context, now());
     if ("error" in authentication)
       return authenticationErrorResponse(context, authentication.error);
     const { user } = authentication;
