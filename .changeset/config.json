@@ -10,7 +10,6 @@
   "ignore": [
     "@deconz-community/toolbox",
     "@deconz-community/rest-client",
-    "@deconz-community/store",
     "@deconz-community/ddf-tools-vscode-extension"
   ]
 }
