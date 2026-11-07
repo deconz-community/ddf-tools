@@ -42,7 +42,8 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "vp build"
+    "build": "vp build",
+    "dev": "vp build --watch"
   },
   "main": "./dist/ddf-bundler.cjs",
   "module": "./dist/ddf-bundler.mjs",
@@ -59,6 +60,7 @@
     "@noble/hashes": "^2.4.0"
   },
   "devDependencies": {
+    "@types/node": "^24.1.0",
     "lint-staged": "^17.6.0",
     "stylelint": "^17.16.0",
     "stylelint-config-recommended": "^18.0.0",

@@ -28,3 +28,20 @@ export function isBinaryFileType(type: string): type is BinaryFile['type'] {
 export function isUint8ArrayEqual(first: Uint8Array, second: Uint8Array) {
   return first.length === second.length && first.every((value, index) => value === second[index]);
 }
+
+/**
+ * Set the `uuid` of a DDF JSON document by editing the source text, so the existing
+ * formatting is preserved. When missing, it is added on a new line after the `schema` line.
+ */
+export function setJSONUuid(source: string, uuid: string): string {
+  const existing = /("uuid"\s*:\s*)"[^"]*"/;
+  if (existing.test(source)) return source.replace(existing, (_, key) => `${key}"${uuid}"`);
+
+  const schemaLine = /^([ \t]*)"schema"([ \t]*:[ \t]*)"[^"\n]*",[ \t]*(?=\r?$)/m.exec(source);
+  if (!schemaLine) throw new Error('Unable to add the uuid, no "schema" line found');
+
+  const eol = source.includes("\r\n") ? "\r\n" : "\n";
+  const end = schemaLine.index + schemaLine[0].length;
+  const line = `${schemaLine[1]}"uuid"${schemaLine[2]}"${uuid}",`;
+  return source.slice(0, end) + eol + line + source.slice(end);
+}
