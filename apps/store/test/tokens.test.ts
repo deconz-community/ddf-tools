@@ -23,7 +23,7 @@ function setup() {
 }
 
 async function signIn(app: ReturnType<typeof createApp>, email: string) {
-  const credentials = JSON.stringify({ email, password: "a secure password", username: email });
+  const credentials = JSON.stringify({ email, password: "A secure password 1!", username: email });
   await app.request("/v1/auth/register", { method: "POST", headers, body: credentials });
   const login = await app.request("/v1/auth/login", {
     method: "POST",

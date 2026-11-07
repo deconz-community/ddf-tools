@@ -56,7 +56,9 @@ persistent `store-data` volume mounted at `/data`.
 The versioned API, including account routes, is rooted at `/v1`: registration and verification
 use `/auth/register` and `/auth/verify-email`; login/logout use `/auth/login`
 and `/auth/logout`; password recovery uses `/auth/password-reset/request` and
-`/auth/password-reset/confirm`. The authenticated profile is at `/me`, and
+`/auth/password-reset/confirm`. New passwords (registration and reset) must be 10 to 128
+characters with an uppercase letter, a lowercase letter, a digit and a special character;
+login accepts older, weaker passwords. The authenticated profile is at `/me`, and
 public user lookups are at `/users/:id` and `/users?public_key=<key>`. Public user
 responses are cacheable for one hour. Mutating requests
 require an allowed `Origin` and `X-Store-Request: 1`. Login sets an HttpOnly

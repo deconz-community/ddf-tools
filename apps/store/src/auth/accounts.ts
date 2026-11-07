@@ -25,11 +25,23 @@ export interface AccountOptions {
 
 export type SigningKey = { publicKey: string; privateKey: string };
 
+// At least 10 characters with an uppercase letter, a lowercase letter, a digit and a special character.
+const passwordSchema = z
+  .string()
+  .min(10)
+  .max(128)
+  .regex(/[A-Z]/)
+  .regex(/[a-z]/)
+  .regex(/[0-9]/)
+  .regex(/[^A-Za-z0-9]/);
+
+// Login stays lenient so accounts created before the password policy can still sign in.
 const loginSchema = z.object({
   email: z.email(),
   password: z.string().min(8).max(128),
 });
 const registrationSchema = loginSchema.extend({
+  password: passwordSchema,
   username: z.string().trim().min(1).max(100),
 });
 
@@ -37,7 +49,7 @@ const verificationSchema = z.object({ token: z.string().min(1).max(200) });
 const resetRequestSchema = z.object({ email: z.email() });
 const resetConfirmationSchema = z.object({
   token: z.string().min(1).max(200),
-  password: z.string().min(8).max(128),
+  password: passwordSchema,
 });
 const profileSchema = z
   .object({

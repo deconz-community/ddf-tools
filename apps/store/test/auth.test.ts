@@ -40,11 +40,26 @@ describe("account registration and verification", () => {
         headers,
         body: JSON.stringify({
           email: "nameless@example.com",
-          password: "a secure password",
+          password: "A secure password 1!",
           username,
         }),
       });
       expect(rejected.status).toBe(400);
+    }
+
+    for (const password of [
+      "Sh0rt!a",
+      "no uppercase 1!",
+      "NO LOWERCASE 1!",
+      "No digit here!",
+      "NoSpecial1234",
+    ]) {
+      const weak = await app.request("/v1/auth/register", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ email: "weak@example.com", password, username: "Weak" }),
+      });
+      expect(weak.status).toBe(400);
     }
 
     const registration = await app.request("/v1/auth/register", {
@@ -52,7 +67,7 @@ describe("account registration and verification", () => {
       headers,
       body: JSON.stringify({
         email: "Person@Example.com",
-        password: "a secure password",
+        password: "A secure password 1!",
         username: "Person",
       }),
     });
@@ -75,7 +90,7 @@ describe("account registration and verification", () => {
       headers,
       body: JSON.stringify({
         email: "other@example.com",
-        password: "a secure password",
+        password: "A secure password 1!",
         username: "Person",
       }),
     });
@@ -86,7 +101,7 @@ describe("account registration and verification", () => {
     const unverifiedLogin = await app.request("/v1/auth/login", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email: "person@example.com", password: "a secure password" }),
+      body: JSON.stringify({ email: "person@example.com", password: "A secure password 1!" }),
     });
     expect(unverifiedLogin.status).toBe(403);
 
@@ -108,7 +123,7 @@ describe("account registration and verification", () => {
     const login = await app.request("/v1/auth/login", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email: "person@example.com", password: "a secure password" }),
+      body: JSON.stringify({ email: "person@example.com", password: "A secure password 1!" }),
     });
     expect(login.status).toBe(200);
     const cookie = login.headers.get("set-cookie")?.split(";")[0];
@@ -131,7 +146,7 @@ describe("account registration and verification", () => {
     const secureLogin = await secureApp.request("/v1/auth/login", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email: "person@example.com", password: "a secure password" }),
+      body: JSON.stringify({ email: "person@example.com", password: "A secure password 1!" }),
     });
     expect(secureLogin.headers.get("set-cookie")).toContain("Secure");
     expect(secureLogin.headers.get("set-cookie")).toContain("SameSite=None");
@@ -189,13 +204,13 @@ describe("account registration and verification", () => {
     const resetConfirmation = await app.request("/v1/auth/password-reset/confirm", {
       method: "POST",
       headers,
-      body: JSON.stringify({ token: resetMessages[0]?.token, password: "a newer password" }),
+      body: JSON.stringify({ token: resetMessages[0]?.token, password: "A newer password 2!" }),
     });
     expect(resetConfirmation.status).toBe(200);
     const reusedReset = await app.request("/v1/auth/password-reset/confirm", {
       method: "POST",
       headers,
-      body: JSON.stringify({ token: resetMessages[0]?.token, password: "another password" }),
+      body: JSON.stringify({ token: resetMessages[0]?.token, password: "Another password 3!" }),
     });
     expect(reusedReset.status).toBe(400);
     const invalidatedSession = await app.request("/v1/me", {
@@ -205,13 +220,13 @@ describe("account registration and verification", () => {
     const oldPasswordLogin = await app.request("/v1/auth/login", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email: "person@example.com", password: "a secure password" }),
+      body: JSON.stringify({ email: "person@example.com", password: "A secure password 1!" }),
     });
     expect(oldPasswordLogin.status).toBe(401);
     const newPasswordLogin = await app.request("/v1/auth/login", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email: "person@example.com", password: "a newer password" }),
+      body: JSON.stringify({ email: "person@example.com", password: "A newer password 2!" }),
     });
     expect(newPasswordLogin.status).toBe(200);
 
@@ -241,7 +256,7 @@ describe("account registration and verification", () => {
     });
     const body = JSON.stringify({
       email: "person@example.com",
-      password: "a secure password",
+      password: "A secure password 1!",
       username: "Person",
     });
 
