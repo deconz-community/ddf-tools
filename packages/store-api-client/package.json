@@ -1,0 +1,32 @@
+{
+  "name": "@deconz-community/store-api-client",
+  "version": "0.0.0",
+  "private": false,
+  "description": "Typed client for the DDF store API",
+  "license": "MIT",
+  "files": [
+    "./dist/store-api-client.mjs",
+    "./dist/index.d.ts"
+  ],
+  "type": "module",
+  "main": "./dist/store-api-client.mjs",
+  "module": "./dist/store-api-client.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/store-api-client.mjs"
+    }
+  },
+  "scripts": {
+    "build": "vp build",
+    "pack": "vp pack",
+    "dev": "vp build --watch",
+    "test": "vp test run"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:"
+  }
+}

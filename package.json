@@ -29,7 +29,7 @@
   "type": "module",
   "scripts": {
     "change": "changeset",
-    "release": "vp test && vp run -r build && changeset publish",
+    "release": "vp test && vp run -r build && vp run -r pack&& changeset publish",
     "taze": "taze",
     "build:toolbox": "pnpm --dir packages/toolbox run build",
     "dev:store": "pnpm --dir apps/store run dev",
