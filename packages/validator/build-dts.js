@@ -1,6 +1,8 @@
 #!/usr/bin/env ts-node
 
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import fastGlob from "fast-glob";
 import { compile } from "json-schema-to-typescript";
 import { toJSONSchema } from "zod";
@@ -8,7 +10,12 @@ import { createValidator } from "./dist/ddf-validator.cjs";
 
 const { globSync } = fastGlob;
 
-const genericFiles = globSync("test-data/generic/**/*.json");
+// Generic files come from the deconz-rest-plugin git submodule at the repo root.
+const genericDirectory = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../lib/deconz-rest-plugin/devices/generic",
+);
+const genericFiles = globSync("**/*.json", { cwd: genericDirectory, absolute: true });
 
 const genericFilesData = genericFiles.map((filePath) => {
   const data = fs.readFileSync(filePath, { encoding: "utf-8" });

@@ -26,8 +26,8 @@ import { createValidator } from '@deconz-community/ddf-validator'
 (async () => {
   const validator = createValidator()
 
-  const genericFiles = await glob('test-data/generic/**/*.json')
-  const ddfFiles = await glob('test-data/**/*.json', {
+  const genericFiles = await glob('devices/generic/**/*.json')
+  const ddfFiles = await glob('devices/**/*.json', {
     ignore: '**/generic/**',
   })
 

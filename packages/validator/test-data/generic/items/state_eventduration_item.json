@@ -1,9 +1,0 @@
-{
-  "schema": "resourceitem1.schema.json",
-  "id": "state/eventduration",
-  "datatype": "UInt32",
-  "access": "R",
-  "public": true,
-  "default": 0,
-  "description": "Determines how long an event lasted."
-}

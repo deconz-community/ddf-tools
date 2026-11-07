@@ -6,12 +6,13 @@ import { fromZodError } from "zod-validation-error";
 
 import { createValidator } from "../index";
 
-const packageRoot = resolve(import.meta.dirname, "..");
+// DDF files come from the deconz-rest-plugin git submodule at the repo root.
+const devicesRoot = resolve(import.meta.dirname, "../../../lib/deconz-rest-plugin/devices");
 
 describe("parse", async () => {
-  const genericFiles = await glob("test-data/generic/**/*.json", { cwd: packageRoot, absolute: true });
-  const ddfFiles = await glob("test-data/**/*.json", {
-    cwd: packageRoot,
+  const genericFiles = await glob("generic/**/*.json", { cwd: devicesRoot, absolute: true });
+  const ddfFiles = await glob("**/*.json", {
+    cwd: devicesRoot,
     absolute: true,
     ignore: ["**/generic/**"],
   });
