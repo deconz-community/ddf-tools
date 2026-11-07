@@ -178,6 +178,17 @@ describe("GET /v1/bundles", () => {
     expect(response.status).toBe(422);
     expect((await response.json()).error.code).toBe("validation_error");
   });
+
+  it("rejects text filters longer than 200 characters", async () => {
+    const { app } = setup();
+
+    const accepted = await app.request(`/v1/bundles?vendor=${"a".repeat(200)}`);
+    const rejected = await app.request(`/v1/bundles?vendor=${"a".repeat(201)}`);
+
+    expect(accepted.status).toBe(200);
+    expect(rejected.status).toBe(422);
+    expect((await rejected.json()).error.code).toBe("validation_error");
+  });
 });
 
 describe("bundle detail routes", () => {

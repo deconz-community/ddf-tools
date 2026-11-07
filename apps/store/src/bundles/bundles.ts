@@ -9,6 +9,7 @@ export const SEARCH_PAGE_SIZE_LIMIT = 20;
 
 const optionalText = z
   .string()
+  .max(200)
   .optional()
   .transform((value) => (value === "" ? undefined : value));
 
