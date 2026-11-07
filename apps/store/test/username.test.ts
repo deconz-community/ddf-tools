@@ -19,4 +19,15 @@ describe("usernames", () => {
       /^User #[0-9A-F]{8}$/,
     );
   });
+
+  it("gives up instead of looping forever when every name is taken", () => {
+    let calls = 0;
+    expect(() =>
+      availableUsername(() => {
+        calls++;
+        return true;
+      }, "Ada"),
+    ).toThrow(/No available username/);
+    expect(calls).toBe(101);
+  });
 });

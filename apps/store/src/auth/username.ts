@@ -8,14 +8,20 @@ export function generateUsername(length = 4): string {
     .toUpperCase()}`;
 }
 
-/** Returns `preferred` when it is free, otherwise a generated username that is not taken. */
+const maxUsernameAttempts = 100;
+
+/**
+ * Returns `preferred` when it is free, otherwise a generated username that is not taken.
+ * Throws once `maxUsernameAttempts` generated candidates have all been taken.
+ */
 export function availableUsername(isTaken: (username: string) => boolean, preferred?: string) {
   if (preferred && !isTaken(preferred)) return preferred;
   // Four hex digits are enough in practice; lengthen the suffix if the short space is crowded.
-  for (let attempt = 0; ; attempt++) {
+  for (let attempt = 0; attempt < maxUsernameAttempts; attempt++) {
     const candidate = generateUsername(attempt < 20 ? 4 : 8);
     if (!isTaken(candidate)) return candidate;
   }
+  throw new Error(`No available username found after ${maxUsernameAttempts} attempts.`);
 }
 
 /** Whether a database error is a UNIQUE violation on the given column (e.g. "users.username"). */
