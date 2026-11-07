@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Launch Chrome for Toolbox",
       "url": "http://localhost:4000/",
-      "webRoot": "${workspaceFolder}/packages/toolbox/public"
+      "webRoot": "${workspaceFolder}/apps/toolbox/public"
     },
     {
       "name": "Run Web Extension",
