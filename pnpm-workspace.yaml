@@ -4,6 +4,7 @@ packages:
   - packages/store/packages/*
   - "!**/.vscode-text-web/**"
 allowBuilds:
+  '@anthropic-ai/claude-code': true
   '@playwright/browser-chromium': true
   argon2: true
   braintrust: true
