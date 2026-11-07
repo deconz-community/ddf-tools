@@ -5,13 +5,15 @@ import { getCookie } from "hono/cookie";
 import { randomBytes, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { StoreDatabase } from "../db/database.js";
-import { accountTokens, apiTokens, ddfUuids, rateLimits, sessions, users } from "../db/schema.js";
+import { accountTokens, apiTokens, ddfUuids, sessions, users } from "../db/schema.js";
 import {
   authenticateStoreRequest,
   authenticationErrorResponse,
   cookieName,
+  rateLimited,
   sessionUser,
   tokenHash,
+  tooManyRequests,
 } from "./authorizations.js";
 import { isUniqueViolation } from "./username.js";
 
@@ -155,57 +157,6 @@ async function accountEmailForToken(
     .where(eq(users.id, tokenRecord.userId))
     .limit(1);
   return user?.email;
-}
-
-async function rateLimited(
-  database: StoreDatabase,
-  context: Context,
-  endpoint: string,
-  email: string | undefined,
-  timestamp: number,
-): Promise<boolean> {
-  const ip =
-    context.req.header("cf-connecting-ip") ??
-    context.req.header("x-real-ip") ??
-    context.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown";
-  const identifiers = [{ scope: "ip", value: ip, limit: 20 }];
-  if (email) identifiers.push({ scope: "email", value: email, limit: 5 });
-
-  for (const { scope, value, limit } of identifiers) {
-    const key = tokenHash(`${endpoint}:${scope}:${value}`);
-    const [record] = await database
-      .select()
-      .from(rateLimits)
-      .where(eq(rateLimits.key, key))
-      .limit(1);
-    const windowStartedAt = record?.windowStartedAt ?? 0;
-    if (!record || timestamp - windowStartedAt >= 15 * 60 * 1000) {
-      await database
-        .insert(rateLimits)
-        .values({ key, count: 1, windowStartedAt: timestamp })
-        .onConflictDoUpdate({
-          target: rateLimits.key,
-          set: { count: 1, windowStartedAt: timestamp },
-        });
-    } else if (record.count >= limit) {
-      return true;
-    } else {
-      await database
-        .update(rateLimits)
-        .set({ count: record.count + 1 })
-        .where(eq(rateLimits.key, key));
-    }
-  }
-  return false;
-}
-
-function tooManyRequests(context: Context) {
-  context.header("Retry-After", "900");
-  return context.json(
-    { error: { code: "rate_limited", message: "Too many requests. Try again later." } },
-    429,
-  );
 }
 
 export function registerAccountRoutes(
