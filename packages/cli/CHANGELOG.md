@@ -1,5 +1,17 @@
 # @deconz-community/cli
 
+## 1.22.0
+
+### Minor Changes
+
+- 77b4179: Publish the typed store API client and route CLI uploads through the new store API.
+
+### Patch Changes
+
+- Updated dependencies [4b23ec5]
+- Updated dependencies [77b4179]
+  - @deconz-community/store-api-client@0.1.0
+
 ## 1.21.0
 
 ### Minor Changes
