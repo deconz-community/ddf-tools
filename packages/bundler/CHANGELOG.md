@@ -1,5 +1,11 @@
 # @deconz-community/ddf-bundler
 
+## 0.35.1
+
+### Patch Changes
+
+- fbd65b2: Fix missing `dist/index.d.ts` in the published package by adding the `pack` script used by the release.
+
 ## 0.35.0
 
 ### Minor Changes
