@@ -45,8 +45,8 @@
 
   "runArgs": ["--hostname=ddf-tools-dev"],
 
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "sudo tailscale set --ssh && vp install && vp install -g t3 @anthropic-ai/claude-code",
+  "postCreateCommand": "vp install && vp install -g @anthropic-ai/claude-code",
+  // "postStartCommand": "t3 up --lan --yes",
 
   // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
   "remoteUser": "vp",
