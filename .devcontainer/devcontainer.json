@@ -45,8 +45,7 @@
 
   "runArgs": ["--hostname=ddf-tools-dev"],
 
-  "postCreateCommand": "vp install && vp install -g @anthropic-ai/claude-code",
-  // "postStartCommand": "t3 up --lan --yes",
+  "postCreateCommand": "vp install",
 
   // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
   "remoteUser": "vp",

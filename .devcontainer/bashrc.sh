@@ -1,12 +1,10 @@
-alias ll='ls -al'
+WORKSPACE_HOME=/workspaces/ddf-tools
 
 __git_branch() {
   local branch
   branch=$(git branch --show-current 2>/dev/null) || return
   [[ -n "$branch" ]] && printf '\001\e[1;34m\002(\001\e[1;31m\002%s\001\e[1;34m\002) \001\e[0m\002' "$branch"
 }
-
-WORKSPACE_HOME=/workspaces/ddf-tools
 
 # Make `cd` without arguments go to the workspace
 cd() {
@@ -30,3 +28,6 @@ __prompt_path() {
 
 # user ➜ ~/path (branch) $
 PS1='\[\e[0;32m\]\u \[\e[0m\]➜  \[\e[1;34m\]$(__prompt_path) \[\e[0m\]$(__git_branch)\[\e[0m\]\$ '
+
+alias ll='ls -al'
+alias t3serve='t3 serve --no-browser --base-dir "$WORKSPACE_HOME/.t3/" --host "$(tailscale ip -4)" --port 3773'

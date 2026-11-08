@@ -34,6 +34,43 @@ docker compose up --build
 The container listens on port `3000` and stores its SQLite database in the
 persistent `store-data` volume mounted at `/data`.
 
+## Server deployment (`scripts/ddf-store.sh`)
+
+`scripts/ddf-store.sh` is a self-contained script that installs and operates the store on a
+Docker host. It embeds its own Dockerfile that `git clone`s this repository, so the server only
+needs the script (plus `bash` and `docker`):
+
+```sh
+curl -fsSLo ddf-store.sh https://raw.githubusercontent.com/deconz-community/ddf-tools/main/apps/store/scripts/ddf-store.sh
+chmod +x ddf-store.sh
+./ddf-store.sh install --toolbox-url https://toolbox.example.com
+```
+
+Everything lives next to the script (override with `DDF_STORE_HOME`): `ddf-store.conf` (port,
+bind address, repository/ref, backup retention), `store.env` (container environment: SMTP, signing
+keys), `data/` (database and avatars, mounted at `/data`) and `backups/`. By default the container
+only listens on `127.0.0.1:3000`, meant to sit behind a reverse proxy; pass `--bind 0.0.0.0` and
+`--port <n>` to change it.
+
+| Command                           | Description                                                                       |
+| --------------------------------- | --------------------------------------------------------------------------------- |
+| `install [options]`               | Builds the image from git, creates and starts the container                       |
+| `update [--force]`                | Rebuilds from the latest commit (backup first), recreates; no-op if up to date    |
+| `start`, `stop`, `restart`        | Controls the container                                                            |
+| `status`, `logs [-f]`             | State/health/version/update availability, container logs                          |
+| `recreate`, `config`              | Applies `store.env`/port changes (`config` opens `$EDITOR` first); data is kept   |
+| `backup`                          | Cold backup (`.tar.gz` of database and avatars); the service is down a few seconds |
+| `restore [file] [--yes]`          | Restores a backup after saving the current data as `pre_restore_*.tar.gz`         |
+| `cli <command>`                   | Runs the [operations CLI](#operations-cli) in the container                       |
+| `migrate <directus.db>`           | One-shot Directus import (see [below](#directus-data-migration))                  |
+| `uninstall [--purge]`             | Removes container and image; `--purge` also deletes data, backups and settings    |
+| `self-update`                     | Downloads the latest version of the script                                        |
+
+Schedule backups with cron, e.g. `0 4 * * * /srv/ddf-store/ddf-store.sh backup` (set
+`BACKUP_KEEP` in `ddf-store.conf` to rotate them). The embedded Dockerfile must be kept in sync
+with `Dockerfile`; the only difference is that sources come from `git clone` instead of the build
+context. `REPO_REF` (default `main`) selects the branch or tag that is built.
+
 ## Configuration
 
 | Variable                 | Required | Default                 | Description                                         |
