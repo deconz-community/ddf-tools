@@ -43,6 +43,7 @@
   "type": "module",
   "scripts": {
     "build": "vp build",
+    "pack": "vp pack",
     "dev": "vp build --watch"
   },
   "main": "./dist/ddf-bundler.cjs",
