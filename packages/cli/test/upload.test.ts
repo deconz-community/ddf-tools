@@ -30,6 +30,7 @@ function setup() {
       id: "cli-author",
       email: "cli@example.com",
       passwordHash: "unused",
+      username: "cli-author",
       publicKey,
       privateKey: privateKey.toString("hex"),
       createdAt: Date.now(),
