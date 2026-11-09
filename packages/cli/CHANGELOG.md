@@ -1,5 +1,11 @@
 # @deconz-community/cli
 
+## 1.22.1
+
+### Patch Changes
+
+- 7902986: Update dependencies to their latest versions
+
 ## 1.22.0
 
 ### Minor Changes
