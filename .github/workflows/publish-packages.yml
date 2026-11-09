@@ -24,7 +24,7 @@ jobs:
           # Validator tests read the DDF files from lib/deconz-rest-plugin
           submodules: true
 
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: false
 

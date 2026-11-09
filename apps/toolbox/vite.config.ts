@@ -60,7 +60,6 @@ export default defineConfig({
         "vue",
         "vue-router",
         "vue/macros",
-        "@vueuse/head",
         "@vueuse/core",
         {
           // https://github.com/sindresorhus/ts-extras
