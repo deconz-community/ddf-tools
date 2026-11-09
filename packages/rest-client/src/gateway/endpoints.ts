@@ -2,7 +2,13 @@ import { decode } from "@deconz-community/ddf-bundler";
 import { Err, Ok } from "ts-results-es";
 import { z } from "zod";
 import { clientError, customError } from "../core/errors";
-import { assertStatusCode, makeEndpoint, makeParameter } from "../core/helpers";
+import {
+  assertStatusCode,
+  generateAPIKey,
+  generatePinCode,
+  makeEndpoint,
+  makeParameter,
+} from "../core/helpers";
 import { deviceUUIDRegex, globalParameters } from "./parameters";
 import {
   alarmSystemArmmodesRead,
@@ -142,7 +148,7 @@ export const endpoints = {
           })
           .partial(),
         sample: () => ({
-          code0: Math.random().toString(10).slice(2, 10),
+          code0: generatePinCode(),
           disarmed_entry_delay: 0,
           disarmed_exit_delay: 0,
           armed_away_entry_delay: 0,
@@ -243,7 +249,7 @@ export const endpoints = {
           code0: z.string().min(4).max(16).optional(),
         }),
         sample: () => ({
-          code0: Math.random().toString(10).slice(2, 10),
+          code0: generatePinCode(),
         }),
       }),
     },
@@ -316,7 +322,7 @@ export const endpoints = {
         }),
         sample: () => ({
           devicetype: "REST Client",
-          username: Math.random().toString(36).slice(2).toUpperCase(),
+          username: generateAPIKey(),
           "hmac-sha256": "",
         }),
       }),

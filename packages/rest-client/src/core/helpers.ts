@@ -149,6 +149,27 @@ export function getStatusCode(data: unknown) {
   return "statusCode" in data ? data.statusCode : undefined;
 }
 
+/**
+ * Generate a random API key from a cryptographically secure source.
+ * The gateway accepts keys between 10 and 40 characters.
+ */
+export function generateAPIKey(byteLength = 16): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(byteLength)), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  )
+    .join("")
+    .toUpperCase();
+}
+
+/**
+ * Generate a random numeric PIN code from a cryptographically secure source.
+ */
+export function generatePinCode(length = 8): string {
+  return Array.from(crypto.getRandomValues(new Uint32Array(length)), (value) => value % 10).join(
+    "",
+  );
+}
+
 export function assertStatusCode(expectedCode: number | undefined) {
   return (data: unknown, ctx: z.RefinementCtx) => {
     if (expectedCode === undefined) return data;
