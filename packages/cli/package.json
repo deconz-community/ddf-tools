@@ -43,16 +43,16 @@
     "preview": "vite-node ./src/index.ts"
   },
   "dependencies": {
-    "@commander-js/extra-typings": "^15.0.0",
+    "@commander-js/extra-typings": "^15.1.0",
     "@deconz-community/ddf-bundler": "workspace:^",
     "@deconz-community/ddf-validator": "workspace:^",
     "@deconz-community/store-api-client": "workspace:^",
     "@noble/hashes": "^2.4.0",
     "base64-js": "^1.5.1",
     "chalk": "^6.0.1",
-    "commander": "^15.0.0",
+    "commander": "^15.1.0",
     "fast-glob": "^3.3.3",
-    "ora": "^9.4.1",
+    "ora": "^10.0.0",
     "simple-git": "^4.0.2",
     "uuid": "^14.0.3",
     "zod": "^4.6.7",
@@ -71,5 +71,5 @@
     "node": ">=16.0.0",
     "pnpm": ">=8.6.8"
   },
-  "packageManager": "pnpm@12.14.0"
+  "packageManager": "pnpm@12.18.0"
 }
